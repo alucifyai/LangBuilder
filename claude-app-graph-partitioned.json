@@ -1,0 +1,701 @@
+{
+  "subsystems": [
+    {
+      "subsystem_id": "ss001",
+      "subsystem_name": "User Management & Authentication",
+      "subsystem_description": "Handles user authentication, authorization, API key management, and user profile operations",
+      "subsystem_appgraph": {
+        "app_name": "LangBuilder User Management",
+        "version": 1.0,
+        "nodes": [
+          {
+            "id": "ns0001",
+            "type": "schema",
+            "name": "User",
+            "description": "Central user entity managing authentication and authorization",
+            "details": "type User {\n  id: ID!\n  username: String! @unique\n  password: String!\n  profileImage: String\n  isActive: Boolean!\n  isSuperuser: Boolean!\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  lastLoginAt: DateTime\n  storeApiKey: String\n  optins: JSON\n  apiKeys: [ApiKey!]!\n  variables: [Variable!]!\n  folders: [Folder!]!\n  flows: [Flow!]!\n}"
+          },
+          {
+            "id": "ns0002",
+            "type": "schema",
+            "name": "ApiKey",
+            "description": "API authentication tokens for programmatic access",
+            "details": "type ApiKey {\n  id: ID!\n  name: String\n  apiKey: String! @unique\n  createdAt: DateTime!\n  lastUsedAt: DateTime\n  totalUses: Int!\n  isActive: Boolean!\n  user: User!\n}"
+          },
+          {
+            "id": "ns0003",
+            "type": "schema",
+            "name": "Variable",
+            "description": "Secure storage for environment variables and secrets",
+            "details": "type Variable {\n  id: ID!\n  name: String!\n  value: String! @encrypted\n  type: String\n  defaultFields: [String!]\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  user: User!\n}"
+          },
+          {
+            "id": "ni0001",
+            "type": "interface",
+            "name": "LoginPage",
+            "description": "User authentication interface",
+            "details": "{\n  \"type\": \"page\",\n  \"route\": \"/login\",\n  \"components\": [\n    {\"type\": \"form\", \"fields\": [\"username\", \"password\"]},\n    {\"type\": \"button\", \"action\": \"submit\", \"label\": \"Sign In\"},\n    {\"type\": \"link\", \"target\": \"/signup\", \"label\": \"Create Account\"}\n  ]\n}"
+          },
+          {
+            "id": "ni0002",
+            "type": "interface",
+            "name": "UserSettingsPage",
+            "description": "User profile and configuration management",
+            "details": "{\n  \"type\": \"page\",\n  \"route\": \"/settings/general\",\n  \"components\": [\n    {\"type\": \"form\", \"sections\": [\"profile\", \"preferences\", \"security\"]},\n    {\"type\": \"avatar-upload\"},\n    {\"type\": \"theme-toggle\"}\n  ]\n}"
+          },
+          {
+            "id": "ni0003",
+            "type": "interface",
+            "name": "ApiKeysManagement",
+            "description": "API key creation and management interface",
+            "details": "{\n  \"type\": \"component\",\n  \"route\": \"/settings/api-keys\",\n  \"components\": [\n    {\"type\": \"table\", \"columns\": [\"name\", \"key\", \"lastUsed\", \"uses\", \"actions\"]},\n    {\"type\": \"button\", \"action\": \"createKey\", \"label\": \"New API Key\"},\n    {\"type\": \"modal\", \"id\": \"keyCreation\"}\n  ]\n}"
+          },
+          {
+            "id": "nl0001",
+            "type": "logic",
+            "name": "AuthenticationService",
+            "description": "Handles user login, logout, and session management",
+            "details": "statechart AuthenticationService {\n  initial state: unauthenticated\n  states: {\n    unauthenticated: {\n      on login: authenticate\n    }\n    authenticating: {\n      validate credentials -> success: authenticated\n      validate credentials -> failure: unauthenticated\n    }\n    authenticated: {\n      on logout: unauthenticated\n      on refresh: validateToken\n    }\n  }\n  actions: {\n    authenticate: verify username/password, generate JWT\n    validateToken: check JWT expiry, refresh if valid\n  }\n}"
+          },
+          {
+            "id": "nl0002",
+            "type": "logic",
+            "name": "ApiKeyManagement",
+            "description": "Creates, validates, and manages API keys",
+            "details": "functions {\n  createApiKey: generate unique key, encrypt, store with metadata\n  validateApiKey: check key exists, is active, increment usage\n  revokeApiKey: set inactive, maintain audit trail\n  maskApiKey: return first 8 chars + asterisks for display\n}"
+          },
+          {
+            "id": "nt0001",
+            "type": "test",
+            "name": "UserAuthentication",
+            "description": "User can successfully log in and access protected resources",
+            "details": "Given a registered user with valid credentials\nWhen the user submits the login form\nThen the user should receive a valid JWT token\nAnd the user should be redirected to the dashboard\nAnd protected API endpoints should be accessible"
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0001",
+            "type": "relationship",
+            "source": "ns0001",
+            "target": "ns0002",
+            "label": "owns",
+            "details": "one-to-many"
+          },
+          {
+            "id": "e0002",
+            "type": "relationship",
+            "source": "ns0001",
+            "target": "ns0003",
+            "label": "has",
+            "details": "one-to-many"
+          },
+          {
+            "id": "e0003",
+            "type": "event",
+            "source": "ni0001",
+            "target": "nl0001",
+            "label": "",
+            "details": "login form submission triggers authentication"
+          },
+          {
+            "id": "e0004",
+            "type": "manages",
+            "source": "ni0003",
+            "target": "ns0002",
+            "label": "",
+            "details": "CRUD operations on API keys"
+          },
+          {
+            "id": "e0005",
+            "type": "event",
+            "source": "ni0002",
+            "target": "nl0001",
+            "label": "",
+            "details": "profile updates trigger authentication refresh"
+          },
+          {
+            "id": "e0006",
+            "type": "event",
+            "source": "ni0003",
+            "target": "nl0002",
+            "label": "",
+            "details": "API key operations trigger key management logic"
+          },
+          {
+            "id": "e0007",
+            "type": "operates_on",
+            "source": "nl0001",
+            "target": "ns0001",
+            "label": "",
+            "details": "authentication service manages user entity"
+          },
+          {
+            "id": "e0008",
+            "type": "operates_on",
+            "source": "nl0002",
+            "target": "ns0002",
+            "label": "",
+            "details": "key management service operates on API keys"
+          },
+          {
+            "id": "e0009",
+            "type": "validates",
+            "source": "nt0001",
+            "target": "ni0001",
+            "label": "",
+            "details": "test validates login page functionality"
+          },
+          {
+            "id": "e0010",
+            "type": "validates",
+            "source": "nt0001",
+            "target": "nl0001",
+            "label": "",
+            "details": "test validates authentication service logic"
+          },
+          {
+            "id": "e0011",
+            "type": "validates",
+            "source": "nt0001",
+            "target": "ns0001",
+            "label": "",
+            "details": "test validates user schema operations"
+          }
+        ]
+      }
+    },
+    {
+      "subsystem_id": "ss002",
+      "subsystem_name": "Flow Management & Execution",
+      "subsystem_description": "Core workflow creation, editing, execution, and management functionality",
+      "subsystem_appgraph": {
+        "app_name": "LangBuilder Flow Engine",
+        "version": 1.0,
+        "nodes": [
+          {
+            "id": "ns0004",
+            "type": "schema",
+            "name": "Flow",
+            "description": "AI workflow configuration with visual node graph",
+            "details": "type Flow {\n  id: ID!\n  name: String! @indexed\n  description: String @indexed\n  data: JSON\n  icon: String\n  iconBgColor: String\n  gradient: String\n  isComponent: Boolean\n  updatedAt: DateTime!\n  webhook: Boolean\n  endpointName: String @indexed @unique\n  tags: [String!]\n  locked: Boolean\n  mcpEnabled: Boolean\n  actionName: String\n  actionDescription: String\n  accessType: AccessType!\n  user: User!\n  folder: Folder\n  fsPath: String\n  transactions: [Transaction!]!\n  builds: [VertexBuild!]!\n}"
+          },
+          {
+            "id": "ns0005",
+            "type": "schema",
+            "name": "Folder",
+            "description": "Hierarchical organization for flows",
+            "details": "type Folder {\n  id: ID!\n  name: String! @indexed\n  description: String\n  authSettings: JSON\n  parent: Folder\n  children: [Folder!]!\n  user: User!\n  flows: [Flow!]!\n}"
+          },
+          {
+            "id": "ns0006",
+            "type": "schema",
+            "name": "Transaction",
+            "description": "Execution audit trail for flow runs",
+            "details": "type Transaction {\n  id: ID!\n  timestamp: DateTime!\n  vertexId: String!\n  targetId: String\n  inputs: JSON\n  outputs: JSON\n  status: String!\n  error: String\n  flow: Flow!\n}"
+          },
+          {
+            "id": "ni0004",
+            "type": "interface",
+            "name": "FlowEditor",
+            "description": "Visual node-based flow builder interface",
+            "details": "{\n  \"type\": \"page\",\n  \"route\": \"/flow/:id\",\n  \"components\": [\n    {\"type\": \"react-flow-canvas\", \"features\": [\"zoom\", \"pan\", \"minimap\"]},\n    {\"type\": \"sidebar\", \"sections\": [\"components\", \"search\", \"filters\"]},\n    {\"type\": \"toolbar\", \"actions\": [\"save\", \"run\", \"share\", \"export\"]},\n    {\"type\": \"node-editor-modal\"}\n  ]\n}"
+          },
+          {
+            "id": "ni0005",
+            "type": "interface",
+            "name": "FlowDashboard",
+            "description": "Flow collection management interface",
+            "details": "{\n  \"type\": \"page\",\n  \"route\": \"/flows\",\n  \"components\": [\n    {\"type\": \"grid\", \"view\": \"cards\", \"sortable\": true},\n    {\"type\": \"sidebar\", \"sections\": [\"folders\", \"filters\"]},\n    {\"type\": \"search-bar\"},\n    {\"type\": \"bulk-actions\", \"actions\": [\"delete\", \"duplicate\", \"export\"]}\n  ]\n}"
+          },
+          {
+            "id": "nl0003",
+            "type": "logic",
+            "name": "FlowExecutionEngine",
+            "description": "Processes flow graphs and executes components",
+            "details": "statechart FlowExecutionEngine {\n  initial state: idle\n  states: {\n    idle: { on trigger: preparing }\n    preparing: {\n      actions: [topological_sort, validate_graph, detect_cycles]\n      on success: executing\n      on failure: error\n    }\n    executing: {\n      parallel states: {\n        processNodes: { execute components in dependency order }\n        streamResults: { send real-time updates via WebSocket }\n      }\n      on complete: completed\n      on error: error\n    }\n    completed: { store results, cleanup resources }\n    error: { log error, notify user, cleanup }\n  }\n}"
+          },
+          {
+            "id": "nl0004",
+            "type": "logic",
+            "name": "ComponentRegistry",
+            "description": "Manages component discovery, loading, and instantiation",
+            "details": "functions {\n  loadComponents: scan directories, validate schemas, register\n  instantiateComponent: create instance with parameters\n  validateInputs: check types and constraints\n  executeComponent: run component logic with timeout\n  cacheResults: store outputs for reuse\n}"
+          },
+          {
+            "id": "nt0002",
+            "type": "test",
+            "name": "FlowExecution",
+            "description": "Flow executes successfully with proper data flow",
+            "details": "Given a valid flow with connected components\nWhen the flow is triggered for execution\nThen components should execute in dependency order\nAnd data should flow correctly between components\nAnd the final output should be returned\nAnd execution history should be recorded"
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0012",
+            "type": "relationship",
+            "source": "ns0005",
+            "target": "ns0004",
+            "label": "contains",
+            "details": "one-to-many"
+          },
+          {
+            "id": "e0013",
+            "type": "relationship",
+            "source": "ns0004",
+            "target": "ns0006",
+            "label": "generates",
+            "details": "one-to-many"
+          },
+          {
+            "id": "e0014",
+            "type": "manages",
+            "source": "ni0004",
+            "target": "ns0004",
+            "label": "",
+            "details": "create, edit, save flow configurations"
+          },
+          {
+            "id": "e0015",
+            "type": "event",
+            "source": "ni0004",
+            "target": "nl0003",
+            "label": "",
+            "details": "run button triggers flow execution"
+          },
+          {
+            "id": "e0016",
+            "type": "manages",
+            "source": "ni0005",
+            "target": "ns0004",
+            "label": "",
+            "details": "flow dashboard manages flow collection"
+          },
+          {
+            "id": "e0017",
+            "type": "manages",
+            "source": "ni0005",
+            "target": "ns0005",
+            "label": "",
+            "details": "dashboard manages folder hierarchy"
+          },
+          {
+            "id": "e0018",
+            "type": "operates_on",
+            "source": "nl0003",
+            "target": "ns0004",
+            "label": "",
+            "details": "execution engine processes flow data"
+          },
+          {
+            "id": "e0019",
+            "type": "operates_on",
+            "source": "nl0003",
+            "target": "ns0006",
+            "label": "",
+            "details": "execution engine creates transaction records"
+          },
+          {
+            "id": "e0020",
+            "type": "uses",
+            "source": "nl0004",
+            "target": "ns0004",
+            "label": "",
+            "details": "component registry loads flow component data"
+          },
+          {
+            "id": "e0021",
+            "type": "validates",
+            "source": "nt0002",
+            "target": "ni0004",
+            "label": "",
+            "details": "test validates flow editor interface"
+          },
+          {
+            "id": "e0022",
+            "type": "validates",
+            "source": "nt0002",
+            "target": "nl0003",
+            "label": "",
+            "details": "test validates flow execution logic"
+          },
+          {
+            "id": "e0023",
+            "type": "validates",
+            "source": "nt0002",
+            "target": "ns0004",
+            "label": "",
+            "details": "test validates flow schema operations"
+          },
+          {
+            "id": "e0024",
+            "type": "validates",
+            "source": "nt0002",
+            "target": "ns0006",
+            "label": "",
+            "details": "test validates transaction recording"
+          }
+        ]
+      }
+    },
+    {
+      "subsystem_id": "ss003",
+      "subsystem_name": "Chat & Messaging Interface",
+      "subsystem_description": "Interactive chat interface for testing flows and managing conversations",
+      "subsystem_appgraph": {
+        "app_name": "LangBuilder Chat System",
+        "version": 1.0,
+        "nodes": [
+          {
+            "id": "ns0007",
+            "type": "schema",
+            "name": "Message",
+            "description": "Chat message with metadata and attachments",
+            "details": "type Message {\n  id: ID!\n  timestamp: DateTime!\n  sender: String!\n  senderName: String!\n  sessionId: String!\n  text: String!\n  files: [String!]\n  error: Boolean!\n  edit: Boolean!\n  flowId: ID\n  properties: JSON\n  category: String!\n  contentBlocks: [JSON!]\n}"
+          },
+          {
+            "id": "ns0008",
+            "type": "schema",
+            "name": "File",
+            "description": "Uploaded file metadata and storage",
+            "details": "type File {\n  id: ID!\n  name: String! @unique\n  path: String!\n  size: Int!\n  provider: String\n  createdAt: DateTime!\n  updatedAt: DateTime!\n  user: User!\n}"
+          },
+          {
+            "id": "ni0006",
+            "type": "interface",
+            "name": "PlaygroundInterface",
+            "description": "Interactive chat testing environment",
+            "details": "{\n  \"type\": \"modal\",\n  \"route\": \"/playground/:id\",\n  \"components\": [\n    {\"type\": \"chat-window\", \"features\": [\"scroll\", \"typing-indicator\"]},\n    {\"type\": \"message-input\", \"features\": [\"file-attach\", \"voice-input\"]},\n    {\"type\": \"session-manager\"},\n    {\"type\": \"file-preview\"}\n  ]\n}"
+          },
+          {
+            "id": "nl0005",
+            "type": "logic",
+            "name": "ChatService",
+            "description": "Manages chat sessions and message streaming",
+            "details": "statechart ChatService {\n  states: {\n    idle: { on message: processing }\n    processing: {\n      actions: [\n        validateMessage,\n        executeFlow,\n        streamResponse\n      ]\n      on complete: idle\n      on error: error\n    }\n    streaming: {\n      send chunks via WebSocket\n      on end: idle\n    }\n  }\n  functions: {\n    createSession: generate sessionId, initialize history\n    processMessage: parse input, attach files, execute\n    streamResponse: send real-time chunks to client\n  }\n}"
+          },
+          {
+            "id": "nt0003",
+            "type": "test",
+            "name": "ChatInteraction",
+            "description": "User can send messages and receive responses",
+            "details": "Given a flow with chat input and output components\nWhen a user sends a message in the playground\nThen the message should be processed by the flow\nAnd the response should stream back to the user\nAnd the conversation should be preserved in the session"
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0025",
+            "type": "manages",
+            "source": "ni0006",
+            "target": "ns0007",
+            "label": "",
+            "details": "create and display messages"
+          },
+          {
+            "id": "e0026",
+            "type": "event",
+            "source": "ni0006",
+            "target": "nl0005",
+            "label": "",
+            "details": "message submission triggers chat processing"
+          },
+          {
+            "id": "e0027",
+            "type": "manages",
+            "source": "ni0006",
+            "target": "ns0008",
+            "label": "",
+            "details": "playground handles file attachments"
+          },
+          {
+            "id": "e0028",
+            "type": "operates_on",
+            "source": "nl0005",
+            "target": "ns0007",
+            "label": "",
+            "details": "chat service creates and processes messages"
+          },
+          {
+            "id": "e0029",
+            "type": "operates_on",
+            "source": "nl0005",
+            "target": "ns0008",
+            "label": "",
+            "details": "chat service handles file processing"
+          },
+          {
+            "id": "e0030",
+            "type": "validates",
+            "source": "nt0003",
+            "target": "ni0006",
+            "label": "",
+            "details": "test validates playground interface functionality"
+          },
+          {
+            "id": "e0031",
+            "type": "validates",
+            "source": "nt0003",
+            "target": "nl0005",
+            "label": "",
+            "details": "test validates chat service logic"
+          },
+          {
+            "id": "e0032",
+            "type": "validates",
+            "source": "nt0003",
+            "target": "ns0007",
+            "label": "",
+            "details": "test validates message schema operations"
+          }
+        ]
+      }
+    },
+    {
+      "subsystem_id": "ss004",
+      "subsystem_name": "Component Library & Integrations",
+      "subsystem_description": "Pre-built components and external service integrations",
+      "subsystem_appgraph": {
+        "app_name": "LangBuilder Components",
+        "version": 1.0,
+        "nodes": [
+          {
+            "id": "ns0009",
+            "type": "schema",
+            "name": "Component",
+            "description": "Reusable workflow component definition",
+            "details": "type Component {\n  id: ID!\n  name: String!\n  category: String!\n  description: String!\n  icon: String\n  inputs: [ComponentInput!]!\n  outputs: [ComponentOutput!]!\n  parameters: JSON!\n  version: String!\n  isCustom: Boolean!\n}"
+          },
+          {
+            "id": "ns0010",
+            "type": "schema",
+            "name": "VertexBuild",
+            "description": "Component build and validation artifacts",
+            "details": "type VertexBuild {\n  buildId: ID!\n  id: String!\n  timestamp: DateTime!\n  data: JSON\n  artifacts: JSON\n  params: String\n  valid: Boolean!\n  flow: Flow!\n}"
+          },
+          {
+            "id": "ni0007",
+            "type": "interface",
+            "name": "ComponentLibrary",
+            "description": "Component browsing and management interface",
+            "details": "{\n  \"type\": \"page\",\n  \"route\": \"/components\",\n  \"components\": [\n    {\"type\": \"category-tabs\", \"categories\": [\"agents\", \"models\", \"tools\", \"data\"]},\n    {\"type\": \"component-grid\", \"features\": [\"search\", \"filter\", \"sort\"]},\n    {\"type\": \"component-detail-modal\"}\n  ]\n}"
+          },
+          {
+            "id": "nl0006",
+            "type": "logic",
+            "name": "ComponentExecutor",
+            "description": "Executes individual components with their logic",
+            "details": "functions {\n  executeAgent: run autonomous agent with LLM\n  executeModel: call language model API\n  executeTool: integrate with external service\n  executeData: process data transformation\n  executePrompt: render and format prompts\n  validateOutputs: ensure outputs match schema\n}"
+          },
+          {
+            "id": "nt0004",
+            "type": "test",
+            "name": "ComponentExecution",
+            "description": "Components execute correctly with valid inputs",
+            "details": "Given a component with defined inputs and outputs\nWhen the component receives valid input data\nThen it should process the data according to its logic\nAnd return outputs matching the expected schema\nAnd handle errors gracefully"
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0033",
+            "type": "relationship",
+            "source": "ns0009",
+            "target": "ns0010",
+            "label": "creates",
+            "details": "one-to-many"
+          },
+          {
+            "id": "e0034",
+            "type": "views",
+            "source": "ni0007",
+            "target": "ns0009",
+            "label": "",
+            "details": "browse and search components"
+          },
+          {
+            "id": "e0035",
+            "type": "manages",
+            "source": "ni0007",
+            "target": "ns0010",
+            "label": "",
+            "details": "component library displays build artifacts"
+          },
+          {
+            "id": "e0036",
+            "type": "operates_on",
+            "source": "nl0006",
+            "target": "ns0009",
+            "label": "",
+            "details": "executor processes component definitions"
+          },
+          {
+            "id": "e0037",
+            "type": "operates_on",
+            "source": "nl0006",
+            "target": "ns0010",
+            "label": "",
+            "details": "executor uses build artifacts for execution"
+          },
+          {
+            "id": "e0038",
+            "type": "validates",
+            "source": "nt0004",
+            "target": "ni0007",
+            "label": "",
+            "details": "test validates component library interface"
+          },
+          {
+            "id": "e0039",
+            "type": "validates",
+            "source": "nt0004",
+            "target": "nl0006",
+            "label": "",
+            "details": "test validates component execution logic"
+          },
+          {
+            "id": "e0040",
+            "type": "validates",
+            "source": "nt0004",
+            "target": "ns0009",
+            "label": "",
+            "details": "test validates component schema operations"
+          },
+          {
+            "id": "e0041",
+            "type": "validates",
+            "source": "nt0004",
+            "target": "ns0010",
+            "label": "",
+            "details": "test validates build artifact generation"
+          }
+        ]
+      }
+    }
+  ],
+  "interfaces": [
+    {
+      "interface_id": "if001",
+      "source_subsystem_id": "ss001",
+      "target_subsystem_id": "ss002",
+      "data_flow": "User authentication tokens (JWT) are passed from User Management to Flow Management for authorization. User ID is used to scope flows and folders to specific users."
+    },
+    {
+      "interface_id": "if002",
+      "source_subsystem_id": "ss002",
+      "target_subsystem_id": "ss003",
+      "data_flow": "Flow execution results are streamed to Chat Interface via WebSocket connections. Flow ID and session ID link conversations to specific flow configurations."
+    },
+    {
+      "interface_id": "if003",
+      "source_subsystem_id": "ss002",
+      "target_subsystem_id": "ss004",
+      "data_flow": "Flow Engine requests component instances from Component Library. Component Registry provides component metadata and execution logic to Flow Engine."
+    },
+    {
+      "interface_id": "if004",
+      "source_subsystem_id": "ss003",
+      "target_subsystem_id": "ss004",
+      "data_flow": "Chat Interface invokes specific chat input/output components from Component Library for message processing."
+    }
+  ],
+  "cross_subsystem_edges": [
+    {
+      "id": "xe001",
+      "type": "authorizes",
+      "source": "ns0001",
+      "target": "ns0004",
+      "source_subsystem": "ss001",
+      "target_subsystem": "ss002",
+      "label": "user owns flows",
+      "details": "User entity from User Management authorizes access to Flow entities"
+    },
+    {
+      "id": "xe002",
+      "type": "authorizes",
+      "source": "ns0001",
+      "target": "ns0005",
+      "source_subsystem": "ss001",
+      "target_subsystem": "ss002",
+      "label": "user owns folders",
+      "details": "User entity authorizes access to Folder entities"
+    },
+    {
+      "id": "xe003",
+      "type": "authorizes",
+      "source": "ns0002",
+      "target": "nl0003",
+      "source_subsystem": "ss001",
+      "target_subsystem": "ss002",
+      "label": "API key access",
+      "details": "API keys authenticate programmatic flow execution"
+    },
+    {
+      "id": "xe004",
+      "type": "triggers",
+      "source": "ni0006",
+      "target": "nl0003",
+      "source_subsystem": "ss003",
+      "target_subsystem": "ss002",
+      "label": "chat triggers flow",
+      "details": "Playground interface triggers flow execution engine"
+    },
+    {
+      "id": "xe005",
+      "type": "uses",
+      "source": "nl0003",
+      "target": "nl0006",
+      "source_subsystem": "ss002",
+      "target_subsystem": "ss004",
+      "label": "executes components",
+      "details": "Flow execution engine uses component executor"
+    },
+    {
+      "id": "xe006",
+      "type": "uses",
+      "source": "nl0004",
+      "target": "ns0009",
+      "source_subsystem": "ss002",
+      "target_subsystem": "ss004",
+      "label": "loads components",
+      "details": "Component registry loads component definitions"
+    },
+    {
+      "id": "xe007",
+      "type": "creates",
+      "source": "nl0003",
+      "target": "ns0007",
+      "source_subsystem": "ss002",
+      "target_subsystem": "ss003",
+      "label": "execution creates messages",
+      "details": "Flow execution results create chat messages"
+    },
+    {
+      "id": "xe008",
+      "type": "authorizes",
+      "source": "ns0001",
+      "target": "ns0008",
+      "source_subsystem": "ss001",
+      "target_subsystem": "ss003",
+      "label": "user owns files",
+      "details": "User entity authorizes file uploads and access"
+    },
+    {
+      "id": "xe009",
+      "type": "uses",
+      "source": "nl0005",
+      "target": "nl0003",
+      "source_subsystem": "ss003",
+      "target_subsystem": "ss002",
+      "label": "chat uses execution",
+      "details": "Chat service uses flow execution for message processing"
+    },
+    {
+      "id": "xe010",
+      "type": "references",
+      "source": "ns0007",
+      "target": "ns0004",
+      "source_subsystem": "ss003",
+      "target_subsystem": "ss002",
+      "label": "message references flow",
+      "details": "Messages can reference specific flow IDs"
+    }
+  ]
+}
