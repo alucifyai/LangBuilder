@@ -1,0 +1,259 @@
+﻿Prompt #0:
+
+
+<goal>
+Your goal is to analyze an existing code repository and reverse-engineer it into an App Graph that provides an abstracted, structured definition of the application's schema, interface, logic, and test scenarios. The App Graph is used as a tech design artifact suitable for engineering implementation. Your App Graph should accurately reflect the application as it is implemented in the code repository. 
+</goal>
+
+
+<guidelines>
+
+
+Please follow these guidelines when executing the task described below.
+- The App Graph is meant to be technology agnostic, so never include any actual code, although pseudo code is ok to describe complex algorithms.
+- Descriptions of the values in the structure output are described within {{}} brackets.
+- Focus on understanding the application's intent and functionality rather than implementation details.
+- Extract the conceptual model from the concrete implementation.
+
+
+</guidelines>
+
+
+<task>
+
+
+# Step 0 - Understand the App Graph definition
+
+
+## Overview
+The graph is a structured abstraction of an application. It is formatted as a graph with nodes and edges.
+
+
+## Nodes
+There are 4 different types of nodes:
+Schema Nodes - describe the entities, attributes, and relationships using the GraphQL schema format defined here: https://graphql.org/learn/.
+Interface Nodes - describe the layout and functionality of all of the screens and components within the app using the UIDL format defined here: https://docs.teleporthq.io/uidl/
+Logic Nodes - describe all of the front-end and back-end logic of the app using StateCharts and process flows.
+Test Nodes - describe all of the acceptance tests based on the application's acceptance criteria, defined as Gherkin statements.
+
+
+Every node needs to have a unique node ID, and detailed descriptions using its domain specific language mentioned above.
+
+
+## Edges
+All of the App Graph nodes are connected by edges to show how they relate to each other. Some example types of edges are:
+- Relationship between Schema Nodes, like one-to-many or many-to-many relationships
+- Transition between Logic Nodes, like pre and post events for a given step and state changes
+- Relationship between Logic Nodes and Interface Nodes to show triggers for a certain process flow or state transition
+- Relationship between Schema Nodes and Interface Nodes to show triggers for certain data access
+- Relationship between Logic Nodes and Schema Nodes to map the events with the entities and build the cross-links among them. For example, we want to know which entities are involved in certain events and flows, what states correspond to what entities, and how events change entities and states.
+
+
+Every edge needs to have a unique ID, and the source and target node IDs.
+
+
+</guidelines>
+
+
+
+
+Prompt #1:
+
+
+Analyze the codebase deeply and ensure you capture all the entities and attributes LangBuilder needs to work on.
+
+
+## Repository Analysis Strategy
+Conduct a comprehensive analysis of the codebase using the following systematic approach:
+
+
+### 1.1 - Repository Structure Analysis
+- Examine the overall project structure and architecture patterns
+- Identify the technology stack and frameworks used
+- Locate key directories: models, views, controllers, components, services, etc.
+- Understand the project's build system and configuration files
+- Identify testing frameworks and test locations
+
+
+### 1.2 - Data Layer Analysis
+**Goal**: Extract the application's data model and entity relationships
+
+
+**Analysis Targets**:
+- Database schema files (migrations, DDL scripts)
+- ORM/ODM models (Sequelize, Mongoose, Prisma, etc.)
+- Entity/model classes and their annotations
+- API schema definitions (GraphQL schemas, OpenAPI specs)
+- Type definitions (TypeScript interfaces, Flow types)
+- Database seed files and fixtures
+
+
+**Extraction Process**:
+- Map database tables/collections to conceptual entities
+- Identify primary keys, foreign keys, and indexes
+- Extract field types, constraints, and validations
+- Understand entity relationships through foreign keys and join tables
+- Analyze any business rules embedded in model validations Let us start from the schema node. 
+
+
+Generate complete-schema-entities.md for all the details at the finest granular level possible.
+
+
+
+
+Prompt #2:
+
+
+Next focus on interface nodes by diving deeply into all frontend component files, template files, style files, state management files, form definitions and validation schemas, and routing configuration. Identify page-level components and their routes and functionalities, understand navigation patterns and user flows, and identify reusable UI components and their props and interfaces. Analyze conditional rendering and dynamic content. Then generate complete-interface-nodes.md for all the frontend components and details.
+
+
+
+
+Prompt #3:
+
+
+Next focus on system logic, events, states, and transitions by deeply understanding the business logic and system behaviors. Identify workflows and state transitions, extract validation rules and business constraints, understand asynchronous operations and job queues, analyze error handling and edge cases, and map event-driven interactions. Then generate complete-logic-nodes.md for all the details of business logic and processes.
+
+
+
+
+Prompt #4:
+
+
+Finally you should deeply dive into test analysis in the code in order to extract acceptance criteria and behavioral specifications for all test scenarios. Identify edge cases and error conditions, and understand the test scenarios and the entities, interfaces, and logic they validate. Generate complete-test-nodes.md to capture all the possible test scenarios and acceptance criteria.
+
+
+
+
+Prompt #5:
+
+
+<goal>
+Your goal is to reverse-engineer the codebase into an App Graph that provides an abstracted, structured definition of the application's schema, interface, logic, and test scenarios. The App Graph is used as a tech design artifact suitable for engineering implementation. Your App Graph should accurately reflect the application as it is implemented in the code repository. 
+</goal>
+
+
+<guidelines>
+
+
+Please follow these guidelines when executing the task described below.
+- The App Graph is meant to be technology agnostic, so never include any actual code, although pseudo code is ok to describe complex algorithms.
+- Descriptions of the values in the structure output are described within {{}} brackets.
+- Focus on understanding the application's intent and functionality rather than implementation details.
+- Extract the conceptual model from the concrete implementation.
+
+
+</guidelines>
+
+
+<task>
+
+
+# Understand the App Graph definition
+
+
+## Overview
+The graph is a structured abstraction of an application. It is formatted as a graph with nodes and edges.
+
+
+## Nodes
+There are 4 different types of nodes:
+Schema Nodes - describe the entities, attributes, and relationships using the GraphQL schema format defined here: https://graphql.org/learn/.
+Interface Nodes - describe the layout and functionality of all of the screens and components within the app using the UIDL format defined here: https://docs.teleporthq.io/uidl/
+Logic Nodes - describe all of the front-end and back-end logic of the app using StateCharts and process flows.
+Test Nodes - describe all of the acceptance tests based on the application's acceptance criteria, defined as Gherkin statements.
+
+
+Every node has a unique id.
+
+
+## Edges
+All of the App Graph nodes are connected by edges to show how they relate to each other. Some example types of edges are:
+- Relationship between Schema Nodes, like one-to-many or many-to-many relationships
+- Transition between Logic Nodes, like pre and post events for a given step and state changes
+- Relationship between Logic Nodes and Interface Nodes to show triggers for a certain process flow or state transition
+- Relationship between Schema Nodes and Interface Nodes to show triggers for certain data access
+- Relationship between Logic Nodes and Schema Nodes to map the events with the entities and build the cross-links among them. For example, we want to know which entities are involved in certain events and flows, what states correspond to what entities, and how events change entities and states. 
+
+
+Every edge has a unique id. It is important to include all edges between nodes of the same type and all edges across all different node types to accurately reflect dependencies, logic, and flows.
+
+
+You have analyzed the Code Repository deeply and generated complete-interface-nodes.md, completed-schema-entities.md, complete-logic-nodes.md, and complete-test-nodes.md. Based on your deep understanding of the codebase, you will reverse-engineer and generate the App Graph for LangBuilder, as fine-grained as possible to accurately cover complete schema nodes, interface nodes, logic nodes, test nodes, and all relationship edges between the nodes, for example entity-to-entity relationships, composition and navigation relationships between interface nodes, interface to schema and entity edges such as API calls, form submission, data fetching, and state management, logic-to-logic dependencies, including function call chains, event emissions, async operation dependencies, and service-to-service communication, logic-to-interface trigger relationships such as API calls from UI components, and state updates that trigger UI changes, logic-to-schema data operation relationships like database queries and mutations in business logic, and entity lifecycle events, as well as all the validation relationship between tests and any other nodes.
+
+
+Aggregate all of the nodes and edges and generate a final JSON output for the entire App Graph 
+
+
+# Partition Final App Graph If Necessary
+Thoroughly understand the system's overall purpose and the specific functions it needs to perform. Pinpoint the major functional units, such as user authentication, data processing, or report generation, to form the basis of the subsystems that are easier to conceive, understand, program, maintain, and scale.
+
+
+## Apply a Decomposition Strategy
+1. **Functional Decomposition**: Divide the system into smaller sub-functions, where each sub-function performs a specific, well-defined task. 
+2. **Object-Oriented Decomposition**: Break down the system into classes or objects that encapsulate data and behavior related to specific problem domain aspects. 
+3. **Domain-Based Decomposition**: Group components based on their relevance to different areas of the business or problem domain. 
+## Define Module Boundaries
+1. **Create Well-Defined Interfaces**: Ensure each subsystem has a clear and stable interface, specifying how it interacts with other parts of the system.
+2. **Encapsulate State and Behavior**: A subsystem should contain its own classes and maintain control over its internal state and functions.
+
+
+If the Final App Graph is necessary to be partitioned into multiple subsystems, generate a final JSON output for the entire App Graph as follows:
+
+
+{
+    “subsystems”: [
+        {
+            “subsystem_id”: “{{a unique id}}”,
+            “subsystem_name”: ”{{a descriptive name of the subsystem}}”,
+            “subsystem_description”: “{{description of the subsystem’s functionalities}}”,
+        “subsystem_appgraph”: “{{the app graph output for the subsystem in Step 6}}”
+        }
+    ]
+    “interfaces”: [
+        {
+            “interface_id”: “{{a unique id}}”,
+            “source_subsystem_id”: ”{{source subsystem id}}”,
+            “target_subsystem_id”: “{{target subsystem id}}”,
+        “data_flow”: “{{details of the APIs and data interfaces between the two subsystems}}”
+        }
+    ]
+    “cross_subsystem_edges”: [
+        {
+        “id”: “{{a unique edge id}}”,
+        “type”: “{{relationship between two nodes}}”,
+        “source”: “{{source node id}}”,
+        “target”: “{{target node id}}”,
+        “source_subsystem”: “{{source subsystem id}}”,
+        “target_subsystem”: “{{target subsystem id}}”,
+        “label”: “{{label of the edge}}”,
+        “details” : “{{description of the relationship}}”
+        }
+    ]
+}        
+
+
+## Quality Assurance Checklist
+Before finalizing the App Graph, ensure:
+
+
+1. **Completeness**: All major entities, screens, and business logic are represented
+2. **Consistency**: Node and edge IDs are unique and properly formatted
+3. **Relationships**: All meaningful relationships between nodes are captured
+4. **Abstraction**: Focus on business concepts rather than technical implementation details
+5. **Accuracy**: Extracted information accurately represents the codebase's intent
+6. **Clarity**: Descriptions are clear and would be understandable to someone not familiar with the code
+
+
+Generate a full App Graph, as well as a partitioned App Graph, if necessary, which is self -contained with the complete App Graph of each subsystem fully embedded in the subsystems.
+
+
+</task>
+
+
+
+
+Prompt #6:
+
+
+Next we need to support new features for granular access control and role-based access control (brac). Analyze GRANULAR_ACCESS_CONTROL_RBAC.md and fully understand the requirements, functionalities, and constraints. Based on your understanding of the LangBuilder system, including the four markdown files you produced for schema, interface, logic, and test, as well as the complete app graph you just generated, including langbuilder_app_graph.json and langbuilder_app_graph_partitioned.json, provide an accurate design and implementation plan for supporting RBAC in LangBuilder. Generate a new langbuilder_app_graph_rbac.json and langbuilder_app_graph_partitioned_rbac.json on top of langbuilder_app_graph.json and langbuilder_app_graph_partitioned.json respectively that show the new features of rbac. Tag new nodes and edges as well as modified nodes and edges in the new app graphs because of rbac. In the app graph json, also provide implementation details for rbac. For better visualization, tag the new and modified nodes and edges with different colors. Make sure the new json files are complete, self-contained versions that include ALL existing nodes and edges from their original app graphs PLUS the nodes and edges that will be introduced by the new RBAC features, and color code them appropriately for visualization.
