@@ -1,0 +1,2360 @@
+{
+  "metadata": {
+    "application": "LangBuilder",
+    "description": "A visual flow-based development platform for building and deploying language model applications - COMPLETE with all edges",
+    "version": "1.1.0",
+    "generated_at": "2025-01-29",
+    "node_count": {
+      "schema": 15,
+      "interface": 25,
+      "logic": 20,
+      "test": 15
+    },
+    "edge_count": 75
+  },
+  "nodes": {
+    "schema": [
+      {
+        "id": "schema_user",
+        "type": "entity",
+        "name": "User",
+        "graphql_schema": "type User {\n  id: ID!\n  username: String! @unique\n  password: String!\n  profile_image: String\n  is_active: Boolean!\n  is_superuser: Boolean!\n  is_verified: Boolean\n  created_at: DateTime!\n  updated_at: DateTime!\n  last_login_at: DateTime\n  flows: [Flow!]! @relation(name: \"UserFlows\")\n  folders: [Folder!]! @relation(name: \"UserFolders\")\n  apiKeys: [ApiKey!]! @relation(name: \"UserApiKeys\")\n  variables: [Variable!]! @relation(name: \"UserVariables\")\n  flowRuns: [FlowRun!]! @relation(name: \"UserFlowRuns\")\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["username"],
+          "constraints": ["username_unique", "password_required"]
+        }
+      },
+      {
+        "id": "schema_flow",
+        "type": "entity",
+        "name": "Flow",
+        "graphql_schema": "type Flow {\n  id: ID!\n  name: String!\n  description: String\n  data: JSON!\n  is_component: Boolean!\n  icon: String\n  icon_bg_color: String\n  gradient: String\n  updated_at: DateTime!\n  webhook: Boolean\n  endpoint_name: String @unique\n  is_public: Boolean!\n  user: User! @relation(name: \"UserFlows\")\n  folder: Folder @relation(name: \"FolderFlows\")\n  flowRuns: [FlowRun!]! @relation(name: \"FlowRuns\")\n  messages: [Message!]! @relation(name: \"FlowMessages\")\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["name", "user_id", "endpoint_name"],
+          "constraints": ["name_unique_per_user", "endpoint_name_unique"]
+        }
+      },
+      {
+        "id": "schema_folder",
+        "type": "entity",
+        "name": "Folder",
+        "graphql_schema": "type Folder {\n  id: ID!\n  name: String!\n  description: String\n  parent_folder_id: ID\n  user: User! @relation(name: \"UserFolders\")\n  flows: [Flow!]! @relation(name: \"FolderFlows\")\n  parent: Folder @relation(name: \"FolderHierarchy\")\n  children: [Folder!]! @relation(name: \"FolderHierarchy\")\n  created_at: DateTime!\n  updated_at: DateTime!\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["name", "user_id", "parent_folder_id"],
+          "constraints": ["name_unique_per_user_folder", "no_circular_hierarchy"]
+        }
+      },
+      {
+        "id": "schema_apikey",
+        "type": "entity",
+        "name": "ApiKey",
+        "graphql_schema": "type ApiKey {\n  id: ID!\n  name: String!\n  api_key: String! @unique\n  created_at: DateTime!\n  last_used_at: DateTime\n  total_uses: Int!\n  is_active: Boolean!\n  user: User! @relation(name: \"UserApiKeys\")\n  flows: [Flow!]!\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["api_key", "user_id"],
+          "constraints": ["api_key_unique", "name_unique_per_user"]
+        }
+      },
+      {
+        "id": "schema_flowrun",
+        "type": "entity",
+        "name": "FlowRun",
+        "graphql_schema": "type FlowRun {\n  id: ID!\n  name: String!\n  flow: Flow! @relation(name: \"FlowRuns\")\n  user: User! @relation(name: \"UserFlowRuns\")\n  status: FlowRunStatus!\n  inputs: JSON\n  outputs: JSON\n  logs: JSON\n  artifacts: JSON\n  created_at: DateTime!\n  updated_at: DateTime!\n}\n\nenum FlowRunStatus {\n  PENDING\n  RUNNING\n  SUCCESS\n  FAILED\n  CANCELLED\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["flow_id", "user_id", "status"],
+          "constraints": ["status_enum"]
+        }
+      },
+      {
+        "id": "schema_variable",
+        "type": "entity",
+        "name": "Variable",
+        "graphql_schema": "type Variable {\n  id: ID!\n  name: String!\n  value: String\n  default_value: String\n  type: VariableType!\n  user: User! @relation(name: \"UserVariables\")\n  created_at: DateTime!\n  updated_at: DateTime!\n}\n\nenum VariableType {\n  STRING\n  NUMBER\n  BOOLEAN\n  JSON\n  SECRET\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["name", "user_id"],
+          "constraints": ["name_unique_per_user", "type_validation"]
+        }
+      },
+      {
+        "id": "schema_message",
+        "type": "entity",
+        "name": "Message",
+        "graphql_schema": "type Message {\n  id: ID!\n  text: String!\n  sender: MessageSender!\n  sender_name: String!\n  session_id: String!\n  timestamp: DateTime!\n  flow: Flow @relation(name: \"FlowMessages\")\n  files: [String!]\n}\n\nenum MessageSender {\n  USER\n  MACHINE\n  AI\n  SYSTEM\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["session_id", "flow_id"],
+          "constraints": ["sender_enum"]
+        }
+      },
+      {
+        "id": "schema_vertex",
+        "type": "entity",
+        "name": "Vertex",
+        "graphql_schema": "type Vertex {\n  id: ID!\n  display_name: String!\n  description: String\n  base_type: ComponentType!\n  inputs: [VertexInput!]!\n  outputs: [VertexOutput!]!\n  params: JSON\n  frozen: Boolean!\n  is_input: Boolean!\n  is_output: Boolean!\n  is_state: Boolean!\n  edges: [Edge!]! @relation(name: \"VertexEdges\")\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["base_type"],
+          "constraints": ["id_unique"]
+        }
+      },
+      {
+        "id": "schema_edge",
+        "type": "entity",
+        "name": "Edge",
+        "graphql_schema": "type Edge {\n  id: ID!\n  source: Vertex! @relation(name: \"EdgeSource\")\n  target: Vertex! @relation(name: \"EdgeTarget\")\n  source_handle: String!\n  target_handle: String!\n  data: JSON\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["source_id", "target_id"],
+          "constraints": ["no_self_loop", "valid_handles"]
+        }
+      },
+      {
+        "id": "schema_component",
+        "type": "entity",
+        "name": "Component",
+        "graphql_schema": "type Component {\n  id: ID!\n  display_name: String!\n  description: String!\n  icon: String\n  category: ComponentCategory!\n  inputs: [ComponentInput!]!\n  outputs: [ComponentOutput!]!\n  code: String!\n  template: JSON\n  documentation: String\n  beta: Boolean!\n  experimental: Boolean!\n}\n\nenum ComponentCategory {\n  INPUT_OUTPUT\n  TEXT_PROCESSING\n  AGENTS\n  CHAINS\n  DATA\n  EMBEDDINGS\n  LLMS\n  MEMORIES\n  TOOLS\n  RETRIEVERS\n  LOGIC\n  HELPERS\n  CUSTOM\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["category", "display_name"],
+          "constraints": ["display_name_unique"]
+        }
+      },
+      {
+        "id": "schema_template",
+        "type": "entity",
+        "name": "Template",
+        "graphql_schema": "type Template {\n  id: ID!\n  name: String!\n  description: String!\n  data: JSON!\n  category: String!\n  icon: String\n  gradient: String\n  is_public: Boolean!\n  created_at: DateTime!\n  updated_at: DateTime!\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["name", "category"],
+          "constraints": ["name_unique"]
+        }
+      },
+      {
+        "id": "schema_credential",
+        "type": "entity",
+        "name": "Credential",
+        "graphql_schema": "type Credential {\n  id: ID!\n  name: String!\n  provider: String!\n  encrypted_data: String!\n  user: User!\n  created_at: DateTime!\n  updated_at: DateTime!\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["user_id", "provider"],
+          "constraints": ["name_unique_per_user", "encryption_required"]
+        }
+      },
+      {
+        "id": "schema_transaction",
+        "type": "entity",
+        "name": "Transaction",
+        "graphql_schema": "type Transaction {\n  id: ID!\n  flow_run: FlowRun!\n  transaction_id: String! @unique\n  status: TransactionStatus!\n  error: String\n  params: JSON\n  created_at: DateTime!\n  updated_at: DateTime!\n}\n\nenum TransactionStatus {\n  PENDING\n  IN_PROGRESS\n  COMPLETED\n  FAILED\n  ROLLED_BACK\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["transaction_id", "flow_run_id"],
+          "constraints": ["transaction_id_unique", "status_enum"]
+        }
+      },
+      {
+        "id": "schema_store",
+        "type": "entity",
+        "name": "Store",
+        "graphql_schema": "type Store {\n  id: ID!\n  name: String!\n  description: String\n  data: JSON!\n  is_public: Boolean!\n  user: User!\n  created_at: DateTime!\n  updated_at: DateTime!\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["name", "user_id"],
+          "constraints": ["name_unique_per_user"]
+        }
+      },
+      {
+        "id": "schema_global_variable",
+        "type": "entity",
+        "name": "GlobalVariable",
+        "graphql_schema": "type GlobalVariable {\n  id: ID!\n  name: String! @unique\n  value: String!\n  type: VariableType!\n  created_at: DateTime!\n  updated_at: DateTime!\n}",
+        "attributes": {
+          "primary_key": "id",
+          "indexes": ["name"],
+          "constraints": ["name_unique_global"]
+        }
+      }
+    ],
+    "interface": [
+      {
+        "id": "ui_login_page",
+        "type": "page",
+        "name": "LoginPage",
+        "uidl": {
+          "name": "LoginPage",
+          "type": "page",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "form",
+                "name": "LoginForm",
+                "attrs": {
+                  "onSubmit": "handleLogin"
+                },
+                "children": [
+                  {
+                    "elementType": "input",
+                    "name": "UsernameInput",
+                    "attrs": {
+                      "type": "text",
+                      "placeholder": "Username",
+                      "required": true
+                    }
+                  },
+                  {
+                    "elementType": "input",
+                    "name": "PasswordInput",
+                    "attrs": {
+                      "type": "password",
+                      "placeholder": "Password",
+                      "required": true
+                    }
+                  },
+                  {
+                    "elementType": "checkbox",
+                    "name": "AutoLoginCheckbox",
+                    "attrs": {
+                      "label": "Keep me logged in"
+                    }
+                  },
+                  {
+                    "elementType": "button",
+                    "name": "SubmitButton",
+                    "attrs": {
+                      "type": "submit",
+                      "text": "Sign In"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "stateDefinitions": {
+            "username": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "password": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "autoLogin": {
+              "type": "boolean",
+              "defaultValue": false
+            },
+            "isLoading": {
+              "type": "boolean",
+              "defaultValue": false
+            }
+          }
+        }
+      },
+      {
+        "id": "ui_flow_page",
+        "type": "page",
+        "name": "FlowPage",
+        "uidl": {
+          "name": "FlowPage",
+          "type": "page",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "component",
+                "name": "Header",
+                "dependency": "ui_header_component"
+              },
+              {
+                "elementType": "container",
+                "name": "FlowCanvas",
+                "attrs": {
+                  "className": "flow-canvas"
+                },
+                "children": [
+                  {
+                    "elementType": "component",
+                    "name": "ReactFlow",
+                    "dependency": "ui_reactflow_wrapper"
+                  },
+                  {
+                    "elementType": "component",
+                    "name": "NodeToolbar",
+                    "dependency": "ui_node_toolbar"
+                  }
+                ]
+              },
+              {
+                "elementType": "component",
+                "name": "Sidebar",
+                "dependency": "ui_sidebar_component"
+              }
+            ]
+          },
+          "stateDefinitions": {
+            "flowId": {
+              "type": "string",
+              "defaultValue": null
+            },
+            "nodes": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "edges": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "isExecuting": {
+              "type": "boolean",
+              "defaultValue": false
+            }
+          }
+        }
+      },
+      {
+        "id": "ui_home_page",
+        "type": "page",
+        "name": "HomePage",
+        "uidl": {
+          "name": "HomePage",
+          "type": "page",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "component",
+                "name": "Header",
+                "dependency": "ui_header_component"
+              },
+              {
+                "elementType": "container",
+                "name": "MainContent",
+                "children": [
+                  {
+                    "elementType": "component",
+                    "name": "FlowGrid",
+                    "dependency": "ui_flow_grid"
+                  },
+                  {
+                    "elementType": "component",
+                    "name": "TemplateGallery",
+                    "dependency": "ui_template_gallery"
+                  }
+                ]
+              }
+            ]
+          },
+          "stateDefinitions": {
+            "flows": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "templates": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "selectedFolder": {
+              "type": "string",
+              "defaultValue": null
+            }
+          }
+        }
+      },
+      {
+        "id": "ui_settings_page",
+        "type": "page",
+        "name": "SettingsPage",
+        "uidl": {
+          "name": "SettingsPage",
+          "type": "page",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "tabs",
+                "name": "SettingsTabs",
+                "children": [
+                  {
+                    "elementType": "tab",
+                    "name": "GeneralSettings",
+                    "attrs": {
+                      "label": "General"
+                    }
+                  },
+                  {
+                    "elementType": "tab",
+                    "name": "ApiKeysSettings",
+                    "attrs": {
+                      "label": "API Keys"
+                    }
+                  },
+                  {
+                    "elementType": "tab",
+                    "name": "GlobalVariables",
+                    "attrs": {
+                      "label": "Variables"
+                    }
+                  },
+                  {
+                    "elementType": "tab",
+                    "name": "ShortcutsSettings",
+                    "attrs": {
+                      "label": "Shortcuts"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_playground_page",
+        "type": "page",
+        "name": "PlaygroundPage",
+        "uidl": {
+          "name": "PlaygroundPage",
+          "type": "page",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "component",
+                "name": "ChatInterface",
+                "dependency": "ui_chat_interface"
+              },
+              {
+                "elementType": "component",
+                "name": "InputPanel",
+                "dependency": "ui_input_panel"
+              },
+              {
+                "elementType": "component",
+                "name": "OutputPanel",
+                "dependency": "ui_output_panel"
+              }
+            ]
+          },
+          "stateDefinitions": {
+            "messages": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "sessionId": {
+              "type": "string",
+              "defaultValue": null
+            }
+          }
+        }
+      },
+      {
+        "id": "ui_store_page",
+        "type": "page",
+        "name": "StorePage",
+        "uidl": {
+          "name": "StorePage",
+          "type": "page",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "component",
+                "name": "StoreHeader",
+                "dependency": "ui_store_header"
+              },
+              {
+                "elementType": "component",
+                "name": "ComponentGrid",
+                "dependency": "ui_component_grid"
+              },
+              {
+                "elementType": "component",
+                "name": "SearchBar",
+                "dependency": "ui_search_bar"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_header_component",
+        "type": "component",
+        "name": "HeaderComponent",
+        "uidl": {
+          "name": "HeaderComponent",
+          "type": "component",
+          "content": {
+            "elementType": "header",
+            "children": [
+              {
+                "elementType": "component",
+                "name": "Logo"
+              },
+              {
+                "elementType": "nav",
+                "name": "Navigation",
+                "children": [
+                  {
+                    "elementType": "link",
+                    "attrs": {
+                      "href": "/",
+                      "text": "My Collection"
+                    }
+                  },
+                  {
+                    "elementType": "link",
+                    "attrs": {
+                      "href": "/store",
+                      "text": "Store"
+                    }
+                  },
+                  {
+                    "elementType": "link",
+                    "attrs": {
+                      "href": "/settings",
+                      "text": "Settings"
+                    }
+                  }
+                ]
+              },
+              {
+                "elementType": "component",
+                "name": "UserMenu",
+                "dependency": "ui_user_menu"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_sidebar_component",
+        "type": "component",
+        "name": "SidebarComponent",
+        "uidl": {
+          "name": "SidebarComponent",
+          "type": "component",
+          "content": {
+            "elementType": "aside",
+            "children": [
+              {
+                "elementType": "component",
+                "name": "ComponentList",
+                "dependency": "ui_component_list"
+              },
+              {
+                "elementType": "input",
+                "name": "SearchInput",
+                "attrs": {
+                  "type": "search",
+                  "placeholder": "Search components..."
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_chat_interface",
+        "type": "component",
+        "name": "ChatInterface",
+        "uidl": {
+          "name": "ChatInterface",
+          "type": "component",
+          "content": {
+            "elementType": "container",
+            "children": [
+              {
+                "elementType": "list",
+                "name": "MessageList",
+                "children": {
+                  "repeat": {
+                    "dataSource": "messages",
+                    "element": {
+                      "elementType": "component",
+                      "name": "MessageBubble",
+                      "dependency": "ui_message_bubble"
+                    }
+                  }
+                }
+              },
+              {
+                "elementType": "form",
+                "name": "MessageInput",
+                "children": [
+                  {
+                    "elementType": "textarea",
+                    "name": "MessageTextarea",
+                    "attrs": {
+                      "placeholder": "Type your message..."
+                    }
+                  },
+                  {
+                    "elementType": "button",
+                    "name": "SendButton",
+                    "attrs": {
+                      "type": "submit",
+                      "text": "Send"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_flow_grid",
+        "type": "component",
+        "name": "FlowGrid",
+        "uidl": {
+          "name": "FlowGrid",
+          "type": "component",
+          "content": {
+            "elementType": "grid",
+            "children": {
+              "repeat": {
+                "dataSource": "flows",
+                "element": {
+                  "elementType": "component",
+                  "name": "FlowCard",
+                  "dependency": "ui_flow_card"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "ui_flow_card",
+        "type": "component",
+        "name": "FlowCard",
+        "uidl": {
+          "name": "FlowCard",
+          "type": "component",
+          "content": {
+            "elementType": "card",
+            "children": [
+              {
+                "elementType": "container",
+                "name": "CardHeader",
+                "children": [
+                  {
+                    "elementType": "text",
+                    "name": "FlowName",
+                    "attrs": {
+                      "bindingPath": "flow.name"
+                    }
+                  },
+                  {
+                    "elementType": "component",
+                    "name": "FlowActions",
+                    "dependency": "ui_flow_actions"
+                  }
+                ]
+              },
+              {
+                "elementType": "text",
+                "name": "FlowDescription",
+                "attrs": {
+                  "bindingPath": "flow.description"
+                }
+              },
+              {
+                "elementType": "container",
+                "name": "CardFooter",
+                "children": [
+                  {
+                    "elementType": "text",
+                    "name": "UpdatedAt",
+                    "attrs": {
+                      "bindingPath": "flow.updated_at"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_node_toolbar",
+        "type": "component",
+        "name": "NodeToolbar",
+        "uidl": {
+          "name": "NodeToolbar",
+          "type": "component",
+          "content": {
+            "elementType": "toolbar",
+            "children": [
+              {
+                "elementType": "button",
+                "name": "PlayButton",
+                "attrs": {
+                  "icon": "play",
+                  "onClick": "handleExecute"
+                }
+              },
+              {
+                "elementType": "button",
+                "name": "SaveButton",
+                "attrs": {
+                  "icon": "save",
+                  "onClick": "handleSave"
+                }
+              },
+              {
+                "elementType": "button",
+                "name": "ShareButton",
+                "attrs": {
+                  "icon": "share",
+                  "onClick": "handleShare"
+                }
+              },
+              {
+                "elementType": "button",
+                "name": "UndoButton",
+                "attrs": {
+                  "icon": "undo",
+                  "onClick": "handleUndo"
+                }
+              },
+              {
+                "elementType": "button",
+                "name": "RedoButton",
+                "attrs": {
+                  "icon": "redo",
+                  "onClick": "handleRedo"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_api_modal",
+        "type": "modal",
+        "name": "ApiModal",
+        "uidl": {
+          "name": "ApiModal",
+          "type": "modal",
+          "content": {
+            "elementType": "modal",
+            "children": [
+              {
+                "elementType": "tabs",
+                "name": "ApiTabs",
+                "children": [
+                  {
+                    "elementType": "tab",
+                    "name": "CurlTab",
+                    "attrs": {
+                      "label": "cURL"
+                    },
+                    "children": [
+                      {
+                        "elementType": "codeblock",
+                        "name": "CurlCode",
+                        "attrs": {
+                          "language": "bash"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "elementType": "tab",
+                    "name": "PythonTab",
+                    "attrs": {
+                      "label": "Python"
+                    },
+                    "children": [
+                      {
+                        "elementType": "codeblock",
+                        "name": "PythonCode",
+                        "attrs": {
+                          "language": "python"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "elementType": "tab",
+                    "name": "JavascriptTab",
+                    "attrs": {
+                      "label": "JavaScript"
+                    },
+                    "children": [
+                      {
+                        "elementType": "codeblock",
+                        "name": "JavascriptCode",
+                        "attrs": {
+                          "language": "javascript"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "elementType": "tab",
+                    "name": "TweaksTab",
+                    "attrs": {
+                      "label": "Tweaks"
+                    },
+                    "children": [
+                      {
+                        "elementType": "component",
+                        "name": "TweaksEditor",
+                        "dependency": "ui_tweaks_editor"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_share_modal",
+        "type": "modal",
+        "name": "ShareModal",
+        "uidl": {
+          "name": "ShareModal",
+          "type": "modal",
+          "content": {
+            "elementType": "modal",
+            "children": [
+              {
+                "elementType": "form",
+                "name": "ShareForm",
+                "children": [
+                  {
+                    "elementType": "input",
+                    "name": "ShareLink",
+                    "attrs": {
+                      "type": "text",
+                      "readOnly": true
+                    }
+                  },
+                  {
+                    "elementType": "button",
+                    "name": "CopyButton",
+                    "attrs": {
+                      "text": "Copy Link"
+                    }
+                  },
+                  {
+                    "elementType": "select",
+                    "name": "AccessLevel",
+                    "children": [
+                      {
+                        "elementType": "option",
+                        "attrs": {
+                          "value": "view",
+                          "text": "View Only"
+                        }
+                      },
+                      {
+                        "elementType": "option",
+                        "attrs": {
+                          "value": "edit",
+                          "text": "Can Edit"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_edit_node_modal",
+        "type": "modal",
+        "name": "EditNodeModal",
+        "uidl": {
+          "name": "EditNodeModal",
+          "type": "modal",
+          "content": {
+            "elementType": "modal",
+            "children": [
+              {
+                "elementType": "form",
+                "name": "NodeEditForm",
+                "children": [
+                  {
+                    "elementType": "tabs",
+                    "name": "NodeTabs",
+                    "children": [
+                      {
+                        "elementType": "tab",
+                        "name": "ParametersTab",
+                        "attrs": {
+                          "label": "Parameters"
+                        }
+                      },
+                      {
+                        "elementType": "tab",
+                        "name": "AdvancedTab",
+                        "attrs": {
+                          "label": "Advanced"
+                        }
+                      },
+                      {
+                        "elementType": "tab",
+                        "name": "CodeTab",
+                        "attrs": {
+                          "label": "Code"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ui_auth_store",
+        "type": "store",
+        "name": "AuthStore",
+        "uidl": {
+          "name": "AuthStore",
+          "type": "store",
+          "state": {
+            "user": null,
+            "isAuthenticated": false,
+            "accessToken": null,
+            "refreshToken": null,
+            "autoLogin": false
+          },
+          "actions": [
+            "login",
+            "logout",
+            "refreshToken",
+            "setUser",
+            "checkAutoLogin"
+          ]
+        }
+      },
+      {
+        "id": "ui_flow_store",
+        "type": "store",
+        "name": "FlowStore",
+        "uidl": {
+          "name": "FlowStore",
+          "type": "store",
+          "state": {
+            "currentFlow": null,
+            "nodes": [],
+            "edges": [],
+            "isDirty": false,
+            "executionState": "idle",
+            "history": [],
+            "historyIndex": -1
+          },
+          "actions": [
+            "loadFlow",
+            "saveFlow",
+            "addNode",
+            "removeNode",
+            "updateNode",
+            "addEdge",
+            "removeEdge",
+            "executeFlow",
+            "undo",
+            "redo"
+          ]
+        }
+      },
+      {
+        "id": "ui_types_store",
+        "type": "store",
+        "name": "TypesStore",
+        "uidl": {
+          "name": "TypesStore",
+          "type": "store",
+          "state": {
+            "components": {},
+            "templates": {},
+            "categories": []
+          },
+          "actions": [
+            "loadComponents",
+            "loadTemplates",
+            "getComponentByType",
+            "filterByCategory"
+          ]
+        }
+      },
+      {
+        "id": "ui_global_store",
+        "type": "store",
+        "name": "GlobalStore",
+        "uidl": {
+          "name": "GlobalStore",
+          "type": "store",
+          "state": {
+            "notifications": [],
+            "theme": "light",
+            "shortcuts": {},
+            "isLoading": false
+          },
+          "actions": [
+            "addNotification",
+            "removeNotification",
+            "setTheme",
+            "setLoading"
+          ]
+        }
+      },
+      {
+        "id": "ui_folder_store",
+        "type": "store",
+        "name": "FolderStore",
+        "uidl": {
+          "name": "FolderStore",
+          "type": "store",
+          "state": {
+            "folders": [],
+            "selectedFolder": null,
+            "expandedFolders": []
+          },
+          "actions": [
+            "loadFolders",
+            "createFolder",
+            "deleteFolder",
+            "selectFolder",
+            "toggleFolder"
+          ]
+        }
+      },
+      {
+        "id": "ui_message_store",
+        "type": "store",
+        "name": "MessageStore",
+        "uidl": {
+          "name": "MessageStore",
+          "type": "store",
+          "state": {
+            "messages": [],
+            "sessions": {},
+            "currentSession": null
+          },
+          "actions": [
+            "addMessage",
+            "loadMessages",
+            "createSession",
+            "switchSession"
+          ]
+        }
+      },
+      {
+        "id": "ui_api_keys_store",
+        "type": "store",
+        "name": "ApiKeysStore",
+        "uidl": {
+          "name": "ApiKeysStore",
+          "type": "store",
+          "state": {
+            "apiKeys": [],
+            "selectedKey": null
+          },
+          "actions": [
+            "loadApiKeys",
+            "createApiKey",
+            "deleteApiKey",
+            "toggleApiKey"
+          ]
+        }
+      },
+      {
+        "id": "ui_shortcut_store",
+        "type": "store",
+        "name": "ShortcutStore",
+        "uidl": {
+          "name": "ShortcutStore",
+          "type": "store",
+          "state": {
+            "shortcuts": {},
+            "customShortcuts": {}
+          },
+          "actions": [
+            "registerShortcut",
+            "unregisterShortcut",
+            "updateShortcut",
+            "resetToDefaults"
+          ]
+        }
+      },
+      {
+        "id": "ui_dark_mode_store",
+        "type": "store",
+        "name": "DarkModeStore",
+        "uidl": {
+          "name": "DarkModeStore",
+          "type": "store",
+          "state": {
+            "isDarkMode": false
+          },
+          "actions": [
+            "toggleDarkMode",
+            "setDarkMode"
+          ]
+        }
+      },
+      {
+        "id": "ui_location_store",
+        "type": "store",
+        "name": "LocationStore",
+        "uidl": {
+          "name": "LocationStore",
+          "type": "store",
+          "state": {
+            "currentPath": "/",
+            "previousPath": null,
+            "queryParams": {}
+          },
+          "actions": [
+            "navigate",
+            "goBack",
+            "updateQueryParams"
+          ]
+        }
+      }
+    ],
+    "logic": [
+      {
+        "id": "logic_auth_flow",
+        "type": "statechart",
+        "name": "AuthenticationFlow",
+        "statechart": {
+          "initial": "unauthenticated",
+          "states": {
+            "unauthenticated": {
+              "on": {
+                "LOGIN": {
+                  "target": "authenticating",
+                  "actions": ["validateCredentials"]
+                }
+              }
+            },
+            "authenticating": {
+              "invoke": {
+                "src": "authenticateUser",
+                "onDone": {
+                  "target": "authenticated",
+                  "actions": ["storeTokens", "loadUserData"]
+                },
+                "onError": {
+                  "target": "unauthenticated",
+                  "actions": ["showError"]
+                }
+              }
+            },
+            "authenticated": {
+              "on": {
+                "LOGOUT": {
+                  "target": "unauthenticated",
+                  "actions": ["clearTokens", "clearUserData"]
+                },
+                "TOKEN_EXPIRED": {
+                  "target": "refreshing"
+                }
+              }
+            },
+            "refreshing": {
+              "invoke": {
+                "src": "refreshAccessToken",
+                "onDone": {
+                  "target": "authenticated",
+                  "actions": ["updateTokens"]
+                },
+                "onError": {
+                  "target": "unauthenticated",
+                  "actions": ["clearTokens"]
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "logic_flow_execution",
+        "type": "statechart",
+        "name": "FlowExecutionEngine",
+        "statechart": {
+          "initial": "idle",
+          "states": {
+            "idle": {
+              "on": {
+                "START_EXECUTION": {
+                  "target": "preparing",
+                  "actions": ["initializeExecution"]
+                }
+              }
+            },
+            "preparing": {
+              "invoke": {
+                "src": "prepareGraph",
+                "onDone": {
+                  "target": "executing",
+                  "actions": ["setExecutionQueue"]
+                },
+                "onError": {
+                  "target": "error",
+                  "actions": ["handlePreparationError"]
+                }
+              }
+            },
+            "executing": {
+              "initial": "processingVertex",
+              "states": {
+                "processingVertex": {
+                  "invoke": {
+                    "src": "executeVertex",
+                    "onDone": [
+                      {
+                        "target": "checkingQueue",
+                        "actions": ["updateResults"]
+                      }
+                    ],
+                    "onError": {
+                      "target": "#error",
+                      "actions": ["handleExecutionError"]
+                    }
+                  }
+                },
+                "checkingQueue": {
+                  "always": [
+                    {
+                      "target": "processingVertex",
+                      "cond": "hasMoreVertices",
+                      "actions": ["dequeueVertex"]
+                    },
+                    {
+                      "target": "#completed"
+                    }
+                  ]
+                }
+              }
+            },
+            "completed": {
+              "type": "final",
+              "entry": ["saveResults", "notifyCompletion"]
+            },
+            "error": {
+              "type": "final",
+              "entry": ["logError", "notifyError"]
+            }
+          }
+        }
+      },
+      {
+        "id": "logic_websocket_handler",
+        "type": "statechart",
+        "name": "WebSocketHandler",
+        "statechart": {
+          "initial": "disconnected",
+          "states": {
+            "disconnected": {
+              "on": {
+                "CONNECT": {
+                  "target": "connecting"
+                }
+              }
+            },
+            "connecting": {
+              "invoke": {
+                "src": "establishWebSocketConnection",
+                "onDone": {
+                  "target": "connected",
+                  "actions": ["onConnectionEstablished"]
+                },
+                "onError": {
+                  "target": "disconnected",
+                  "actions": ["scheduleReconnect"]
+                }
+              }
+            },
+            "connected": {
+              "on": {
+                "MESSAGE_RECEIVED": {
+                  "actions": ["processMessage"]
+                },
+                "SEND_MESSAGE": {
+                  "actions": ["sendWebSocketMessage"]
+                },
+                "DISCONNECT": {
+                  "target": "disconnecting"
+                },
+                "CONNECTION_LOST": {
+                  "target": "reconnecting"
+                }
+              }
+            },
+            "reconnecting": {
+              "after": {
+                "RECONNECT_DELAY": {
+                  "target": "connecting"
+                }
+              },
+              "on": {
+                "CANCEL_RECONNECT": {
+                  "target": "disconnected"
+                }
+              }
+            },
+            "disconnecting": {
+              "invoke": {
+                "src": "closeWebSocketConnection",
+                "onDone": {
+                  "target": "disconnected"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "logic_file_upload",
+        "type": "process",
+        "name": "FileUploadProcess",
+        "process": {
+          "steps": [
+            {
+              "id": "validate_file",
+              "name": "ValidateFile",
+              "actions": ["checkFileSize", "checkFileType", "scanForVirus"]
+            },
+            {
+              "id": "upload_to_storage",
+              "name": "UploadToStorage",
+              "actions": ["generateUniqueKey", "uploadToS3", "updateProgress"]
+            },
+            {
+              "id": "process_file",
+              "name": "ProcessFile",
+              "actions": ["extractMetadata", "generateThumbnail", "indexContent"]
+            },
+            {
+              "id": "update_database",
+              "name": "UpdateDatabase",
+              "actions": ["saveFileRecord", "updateUserQuota", "notifyUser"]
+            }
+          ],
+          "transitions": [
+            {
+              "from": "validate_file",
+              "to": "upload_to_storage",
+              "condition": "isValid"
+            },
+            {
+              "from": "upload_to_storage",
+              "to": "process_file",
+              "condition": "uploadSuccessful"
+            },
+            {
+              "from": "process_file",
+              "to": "update_database"
+            }
+          ]
+        }
+      },
+      {
+        "id": "logic_api_handler",
+        "type": "process",
+        "name": "ApiRequestHandler",
+        "process": {
+          "steps": [
+            {
+              "id": "receive_request",
+              "name": "ReceiveRequest",
+              "actions": ["parseRequest", "extractHeaders"]
+            },
+            {
+              "id": "authenticate",
+              "name": "Authenticate",
+              "actions": ["validateApiKey", "checkPermissions"]
+            },
+            {
+              "id": "validate_input",
+              "name": "ValidateInput",
+              "actions": ["validateSchema", "sanitizeInput"]
+            },
+            {
+              "id": "process_request",
+              "name": "ProcessRequest",
+              "actions": ["routeToHandler", "executeBusinessLogic"]
+            },
+            {
+              "id": "send_response",
+              "name": "SendResponse",
+              "actions": ["formatResponse", "setHeaders", "sendData"]
+            }
+          ]
+        }
+      },
+      {
+        "id": "logic_flow_service",
+        "type": "service",
+        "name": "FlowService",
+        "operations": [
+          {
+            "name": "createFlow",
+            "input": ["userId", "flowData"],
+            "output": "flowId",
+            "actions": ["validateFlowData", "generateFlowId", "saveToDatabase", "indexFlow"]
+          },
+          {
+            "name": "readFlows",
+            "input": ["userId", "filters"],
+            "output": "flowList",
+            "actions": ["queryDatabase", "applyFilters", "sortResults", "paginate"]
+          },
+          {
+            "name": "updateFlow",
+            "input": ["flowId", "updates"],
+            "output": "success",
+            "actions": ["validateOwnership", "applyUpdates", "saveChanges", "updateIndex"]
+          },
+          {
+            "name": "deleteFlow",
+            "input": ["flowId"],
+            "output": "success",
+            "actions": ["validateOwnership", "softDelete", "cleanupResources"]
+          }
+        ]
+      },
+      {
+        "id": "logic_user_service",
+        "type": "service",
+        "name": "UserService",
+        "operations": [
+          {
+            "name": "createUser",
+            "input": ["userData"],
+            "output": "userId",
+            "actions": ["validateUserData", "hashPassword", "createUserRecord", "sendWelcomeEmail"]
+          },
+          {
+            "name": "authenticateUser",
+            "input": ["credentials"],
+            "output": "authTokens",
+            "actions": ["verifyCredentials", "generateTokens", "updateLastLogin"]
+          },
+          {
+            "name": "updateUserProfile",
+            "input": ["userId", "profileData"],
+            "output": "success",
+            "actions": ["validateProfileData", "updateUserRecord", "invalidateCache"]
+          }
+        ]
+      },
+      {
+        "id": "logic_graph_engine",
+        "type": "engine",
+        "name": "GraphExecutionEngine",
+        "operations": [
+          {
+            "name": "prepareGraph",
+            "actions": ["validateGraph", "detectCycles", "buildExecutionQueue", "initializeState"]
+          },
+          {
+            "name": "executeVertex",
+            "actions": ["loadVertexData", "executeComponent", "cacheResults", "updateState"]
+          },
+          {
+            "name": "handleCycles",
+            "actions": ["detectCycleVertices", "setMaxIterations", "trackIterations"]
+          }
+        ]
+      },
+      {
+        "id": "logic_cache_manager",
+        "type": "service",
+        "name": "CacheManager",
+        "operations": [
+          {
+            "name": "get",
+            "input": ["key"],
+            "output": "value",
+            "actions": ["checkCache", "deserialize"]
+          },
+          {
+            "name": "set",
+            "input": ["key", "value", "ttl"],
+            "output": "success",
+            "actions": ["serialize", "storeInCache", "setExpiration"]
+          },
+          {
+            "name": "invalidate",
+            "input": ["pattern"],
+            "output": "success",
+            "actions": ["findMatchingKeys", "deleteFromCache"]
+          }
+        ]
+      },
+      {
+        "id": "logic_event_manager",
+        "type": "service",
+        "name": "EventManager",
+        "operations": [
+          {
+            "name": "emit",
+            "input": ["eventName", "data"],
+            "actions": ["validateEvent", "notifyListeners", "logEvent"]
+          },
+          {
+            "name": "subscribe",
+            "input": ["eventName", "handler"],
+            "output": "subscriptionId",
+            "actions": ["registerHandler", "returnUnsubscribe"]
+          }
+        ]
+      },
+      {
+        "id": "logic_session_manager",
+        "type": "service",
+        "name": "SessionManager",
+        "operations": [
+          {
+            "name": "createSession",
+            "input": ["userId"],
+            "output": "sessionId",
+            "actions": ["generateSessionId", "initializeSessionData", "storeSession"]
+          },
+          {
+            "name": "getSession",
+            "input": ["sessionId"],
+            "output": "sessionData",
+            "actions": ["retrieveSession", "validateExpiry", "extendExpiry"]
+          },
+          {
+            "name": "destroySession",
+            "input": ["sessionId"],
+            "actions": ["deleteSession", "cleanupResources"]
+          }
+        ]
+      },
+      {
+        "id": "logic_validation_engine",
+        "type": "engine",
+        "name": "ValidationEngine",
+        "operations": [
+          {
+            "name": "validateFlowData",
+            "input": ["flowData"],
+            "output": "validationResult",
+            "actions": ["checkSchema", "validateNodes", "validateEdges", "checkCycles"]
+          },
+          {
+            "name": "validateUserInput",
+            "input": ["input", "schema"],
+            "output": "validationResult",
+            "actions": ["checkTypes", "validateConstraints", "sanitize"]
+          }
+        ]
+      },
+      {
+        "id": "logic_notification_service",
+        "type": "service",
+        "name": "NotificationService",
+        "operations": [
+          {
+            "name": "sendNotification",
+            "input": ["userId", "notification"],
+            "actions": ["formatNotification", "queueForDelivery", "trackDelivery"]
+          },
+          {
+            "name": "markAsRead",
+            "input": ["notificationId"],
+            "actions": ["updateStatus", "updateReadCount"]
+          }
+        ]
+      },
+      {
+        "id": "logic_component_loader",
+        "type": "service",
+        "name": "ComponentLoader",
+        "operations": [
+          {
+            "name": "loadComponent",
+            "input": ["componentType"],
+            "output": "componentInstance",
+            "actions": ["checkCache", "dynamicImport", "instantiate", "cacheInstance"]
+          },
+          {
+            "name": "registerComponent",
+            "input": ["componentDefinition"],
+            "actions": ["validateDefinition", "registerInRegistry", "updateTypeMap"]
+          }
+        ]
+      },
+      {
+        "id": "logic_sse_handler",
+        "type": "statechart",
+        "name": "ServerSentEventsHandler",
+        "statechart": {
+          "initial": "closed",
+          "states": {
+            "closed": {
+              "on": {
+                "OPEN": {
+                  "target": "opening"
+                }
+              }
+            },
+            "opening": {
+              "invoke": {
+                "src": "establishSSEConnection",
+                "onDone": {
+                  "target": "open"
+                },
+                "onError": {
+                  "target": "closed"
+                }
+              }
+            },
+            "open": {
+              "on": {
+                "SEND_EVENT": {
+                  "actions": ["writeEvent"]
+                },
+                "CLOSE": {
+                  "target": "closing"
+                },
+                "CLIENT_DISCONNECT": {
+                  "target": "closed"
+                }
+              }
+            },
+            "closing": {
+              "invoke": {
+                "src": "closeSSEConnection",
+                "onDone": {
+                  "target": "closed"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "logic_template_service",
+        "type": "service",
+        "name": "TemplateService",
+        "operations": [
+          {
+            "name": "loadTemplates",
+            "output": "templateList",
+            "actions": ["queryTemplates", "filterByCategory", "sortByPopularity"]
+          },
+          {
+            "name": "instantiateTemplate",
+            "input": ["templateId", "userId"],
+            "output": "flowId",
+            "actions": ["loadTemplate", "cloneFlow", "assignToUser", "customizeDefaults"]
+          }
+        ]
+      },
+      {
+        "id": "logic_export_service",
+        "type": "service",
+        "name": "ExportService",
+        "operations": [
+          {
+            "name": "exportFlow",
+            "input": ["flowId", "format"],
+            "output": "exportData",
+            "actions": ["loadFlow", "convertFormat", "sanitizeSecrets", "compress"]
+          },
+          {
+            "name": "importFlow",
+            "input": ["importData", "userId"],
+            "output": "flowId",
+            "actions": ["validateFormat", "parseData", "createFlow", "mapReferences"]
+          }
+        ]
+      },
+      {
+        "id": "logic_rate_limiter",
+        "type": "service",
+        "name": "RateLimiter",
+        "operations": [
+          {
+            "name": "checkLimit",
+            "input": ["userId", "resource"],
+            "output": "allowed",
+            "actions": ["getCounter", "incrementCounter", "checkThreshold", "resetIfExpired"]
+          },
+          {
+            "name": "getRemainingQuota",
+            "input": ["userId", "resource"],
+            "output": "quota",
+            "actions": ["calculateRemaining", "getResetTime"]
+          }
+        ]
+      },
+      {
+        "id": "logic_telemetry_service",
+        "type": "service",
+        "name": "TelemetryService",
+        "operations": [
+          {
+            "name": "trackEvent",
+            "input": ["eventName", "properties"],
+            "actions": ["enrichData", "queueEvent", "batchSend"]
+          },
+          {
+            "name": "trackError",
+            "input": ["error", "context"],
+            "actions": ["captureStackTrace", "enrichContext", "sendToMonitoring"]
+          }
+        ]
+      },
+      {
+        "id": "logic_cleanup_service",
+        "type": "service",
+        "name": "CleanupService",
+        "operations": [
+          {
+            "name": "cleanupExpiredSessions",
+            "actions": ["queryExpiredSessions", "deleteRecords", "freeResources"]
+          },
+          {
+            "name": "cleanupOrphanedFiles",
+            "actions": ["findOrphanedFiles", "deleteFromStorage", "updateDatabase"]
+          }
+        ]
+      }
+    ],
+    "test": [
+      {
+        "id": "test_flow_creation",
+        "type": "acceptance",
+        "name": "FlowCreationTest",
+        "gherkin": "Feature: Flow Creation\n  As a user\n  I want to create new flows\n  So that I can build language model applications\n\n  Scenario: Create a new flow successfully\n    Given I am authenticated as a user\n    And I am on the home page\n    When I click on \"New Flow\" button\n    And I enter \"My Test Flow\" as the flow name\n    And I add a ChatInput component\n    And I add an OpenAI component\n    And I connect the components\n    And I click \"Save\"\n    Then the flow should be saved successfully\n    And I should see \"Flow saved\" notification\n    And the flow should appear in my flow list\n\n  Scenario: Handle duplicate flow names\n    Given I have an existing flow named \"MyFlow\"\n    When I create a new flow with the same name\n    Then the system should auto-increment the name to \"MyFlow (1)\"\n    And save the flow with the new name"
+      },
+      {
+        "id": "test_user_authentication",
+        "type": "acceptance",
+        "name": "UserAuthenticationTest",
+        "gherkin": "Feature: User Authentication\n  As a user\n  I want to log in securely\n  So that I can access my flows\n\n  Scenario: Successful login\n    Given I am on the login page\n    When I enter valid credentials\n    And I click \"Sign In\"\n    Then I should be redirected to the home page\n    And I should see my user profile\n\n  Scenario: Failed login with invalid credentials\n    Given I am on the login page\n    When I enter invalid credentials\n    And I click \"Sign In\"\n    Then I should see an error message\n    And I should remain on the login page\n\n  Scenario: Auto-login functionality\n    Given I previously logged in with \"Keep me logged in\" checked\n    When I visit the application\n    Then I should be automatically authenticated\n    And redirected to the home page"
+      },
+      {
+        "id": "test_flow_execution",
+        "type": "acceptance",
+        "name": "FlowExecutionTest",
+        "gherkin": "Feature: Flow Execution\n  As a user\n  I want to execute my flows\n  So that I can test my language model applications\n\n  Scenario: Execute a simple flow\n    Given I have a flow with ChatInput and ChatOutput\n    And the flow is properly connected\n    When I click the \"Run\" button\n    And I enter \"Hello\" in the chat input\n    Then the flow should execute successfully\n    And I should see the response in the output\n\n  Scenario: Handle execution errors\n    Given I have a flow with missing API keys\n    When I try to execute the flow\n    Then I should see an error message about missing credentials\n    And the execution should stop gracefully"
+      },
+      {
+        "id": "test_api_integration",
+        "type": "integration",
+        "name": "ApiIntegrationTest",
+        "gherkin": "Feature: API Integration\n  As a developer\n  I want to access flows via API\n  So that I can integrate with external systems\n\n  Scenario: Execute flow via API\n    Given I have a valid API key\n    And I have a published flow with endpoint \"my-flow\"\n    When I send a POST request to \"/api/v1/run/my-flow\"\n    With valid input data\n    Then I should receive a 200 response\n    And the response should contain the flow output\n\n  Scenario: API authentication failure\n    Given I have an invalid API key\n    When I send a request to any API endpoint\n    Then I should receive a 401 Unauthorized response"
+      },
+      {
+        "id": "test_component_loading",
+        "type": "unit",
+        "name": "ComponentLoadingTest",
+        "gherkin": "Feature: Dynamic Component Loading\n  As the system\n  I want to load components dynamically\n  So that I can optimize performance\n\n  Scenario: Load component on first access\n    Given a component has not been loaded\n    When the component is accessed\n    Then it should be dynamically imported\n    And cached for future use\n\n  Scenario: Use cached component\n    Given a component has been previously loaded\n    When the component is accessed again\n    Then it should be retrieved from cache\n    And not re-imported"
+      },
+      {
+        "id": "test_graph_cycles",
+        "type": "unit",
+        "name": "GraphCycleTest",
+        "gherkin": "Feature: Graph Cycle Detection\n  As the graph engine\n  I want to detect and handle cycles\n  So that flows don't run infinitely\n\n  Scenario: Detect simple cycle\n    Given a graph with vertices A -> B -> C -> A\n    When the graph is prepared\n    Then is_cyclic should be true\n    And cycle vertices should be identified\n\n  Scenario: Execute cyclic graph with max iterations\n    Given a cyclic graph\n    And max_iterations is set to 5\n    When the graph is executed\n    Then it should stop after 5 iterations\n    And raise a \"Max iterations reached\" error"
+      },
+      {
+        "id": "test_user_isolation",
+        "type": "security",
+        "name": "UserIsolationTest",
+        "gherkin": "Feature: User Data Isolation\n  As the system\n  I want to isolate user data\n  So that users cannot access each other's resources\n\n  Scenario: Prevent cross-user flow access\n    Given User A has created a flow\n    When User B tries to access User A's flow\n    Then access should be denied\n    And a 403 Forbidden response should be returned\n\n  Scenario: Filter flows by user\n    Given multiple users have flows in the system\n    When a user requests their flow list\n    Then only their own flows should be returned\n    And no other user's flows should be visible"
+      },
+      {
+        "id": "test_websocket_connection",
+        "type": "integration",
+        "name": "WebSocketConnectionTest",
+        "gherkin": "Feature: WebSocket Communication\n  As the system\n  I want to maintain WebSocket connections\n  So that I can provide real-time updates\n\n  Scenario: Establish WebSocket connection\n    Given a client wants real-time updates\n    When the client connects to the WebSocket endpoint\n    Then a connection should be established\n    And the client should receive a connection confirmation\n\n  Scenario: Handle connection loss\n    Given an active WebSocket connection\n    When the connection is lost\n    Then the client should attempt to reconnect\n    And restore the session state upon reconnection"
+      },
+      {
+        "id": "test_file_upload",
+        "type": "integration",
+        "name": "FileUploadTest",
+        "gherkin": "Feature: File Upload\n  As a user\n  I want to upload files\n  So that I can use them in my flows\n\n  Scenario: Upload valid file\n    Given I have a PDF file under 10MB\n    When I upload the file\n    Then the file should be accepted\n    And stored in the system\n    And associated with my account\n\n  Scenario: Reject oversized file\n    Given I have a file larger than 10MB\n    When I try to upload the file\n    Then the upload should be rejected\n    And I should see an error message about file size"
+      },
+      {
+        "id": "test_template_instantiation",
+        "type": "acceptance",
+        "name": "TemplateInstantiationTest",
+        "gherkin": "Feature: Template Usage\n  As a user\n  I want to use templates\n  So that I can quickly create flows\n\n  Scenario: Create flow from template\n    Given I am on the templates page\n    When I select the \"Basic Prompting\" template\n    And click \"Use Template\"\n    Then a new flow should be created\n    And it should contain the template components\n    And be ready for customization"
+      },
+      {
+        "id": "test_api_key_management",
+        "type": "acceptance",
+        "name": "ApiKeyManagementTest",
+        "gherkin": "Feature: API Key Management\n  As a user\n  I want to manage my API keys\n  So that I can control API access\n\n  Scenario: Create new API key\n    Given I am on the API keys settings page\n    When I click \"Create New Key\"\n    And enter a key name\n    Then a new API key should be generated\n    And displayed once for copying\n    And added to my key list\n\n  Scenario: Revoke API key\n    Given I have an active API key\n    When I click \"Revoke\" on the key\n    Then the key should be deactivated\n    And API calls with that key should fail"
+      },
+      {
+        "id": "test_flow_sharing",
+        "type": "acceptance",
+        "name": "FlowSharingTest",
+        "gherkin": "Feature: Flow Sharing\n  As a user\n  I want to share my flows\n  So that others can use them\n\n  Scenario: Generate share link\n    Given I have a flow\n    When I click the \"Share\" button\n    And select \"View Only\" access\n    Then a unique share link should be generated\n    And the link should provide read-only access\n\n  Scenario: Access shared flow\n    Given I have a share link for a flow\n    When I access the link\n    Then I should see the flow in read-only mode\n    And not be able to make changes"
+      },
+      {
+        "id": "test_error_handling",
+        "type": "unit",
+        "name": "ErrorHandlingTest",
+        "gherkin": "Feature: Error Handling\n  As the system\n  I want to handle errors gracefully\n  So that users have a good experience\n\n  Scenario: Handle component execution error\n    Given a component that throws an error\n    When the component is executed\n    Then the error should be caught\n    And logged with context\n    And a user-friendly message should be shown\n\n  Scenario: Handle network timeout\n    Given a slow network request\n    When the request times out\n    Then a timeout error should be raised\n    And the user should be notified\n    And given option to retry"
+      },
+      {
+        "id": "test_data_persistence",
+        "type": "integration",
+        "name": "DataPersistenceTest",
+        "gherkin": "Feature: Data Persistence\n  As the system\n  I want to persist data reliably\n  So that user work is not lost\n\n  Scenario: Auto-save flow changes\n    Given I am editing a flow\n    When I make changes to the flow\n    Then the changes should be auto-saved\n    And persisted to the database\n    And recoverable after refresh\n\n  Scenario: Handle save conflicts\n    Given two users editing the same flow\n    When both try to save simultaneously\n    Then conflict should be detected\n    And users should be notified\n    And given options to resolve"
+      },
+      {
+        "id": "test_performance",
+        "type": "performance",
+        "name": "PerformanceTest",
+        "gherkin": "Feature: System Performance\n  As the system\n  I want to maintain good performance\n  So that users have a responsive experience\n\n  Scenario: Load large flow quickly\n    Given a flow with 100+ components\n    When the flow is loaded\n    Then it should load within 3 seconds\n    And be interactive within 5 seconds\n\n  Scenario: Handle concurrent executions\n    Given 10 flows running simultaneously\n    When all flows are executing\n    Then system should remain responsive\n    And complete all executions successfully"
+      }
+    ]
+  },
+  "edges": [
+    {
+      "id": "edge_user_flows",
+      "type": "one_to_many",
+      "source": "schema_user",
+      "target": "schema_flow",
+      "label": "owns",
+      "details": "User owns multiple flows"
+    },
+    {
+      "id": "edge_user_folders",
+      "type": "one_to_many",
+      "source": "schema_user",
+      "target": "schema_folder",
+      "label": "owns",
+      "details": "User owns multiple folders"
+    },
+    {
+      "id": "edge_folder_flows",
+      "type": "one_to_many",
+      "source": "schema_folder",
+      "target": "schema_flow",
+      "label": "contains",
+      "details": "Folder contains multiple flows"
+    },
+    {
+      "id": "edge_flow_runs",
+      "type": "one_to_many",
+      "source": "schema_flow",
+      "target": "schema_flowrun",
+      "label": "has",
+      "details": "Flow has multiple execution runs"
+    },
+    {
+      "id": "edge_user_apikeys",
+      "type": "one_to_many",
+      "source": "schema_user",
+      "target": "schema_apikey",
+      "label": "owns",
+      "details": "User owns multiple API keys"
+    },
+    {
+      "id": "edge_flow_messages",
+      "type": "one_to_many",
+      "source": "schema_flow",
+      "target": "schema_message",
+      "label": "generates",
+      "details": "Flow generates messages during execution"
+    },
+    {
+      "id": "edge_vertex_edges",
+      "type": "one_to_many",
+      "source": "schema_vertex",
+      "target": "schema_edge",
+      "label": "connects",
+      "details": "Vertices connected by edges"
+    },
+    {
+      "id": "edge_login_auth",
+      "type": "triggers",
+      "source": "ui_login_page",
+      "target": "logic_auth_flow",
+      "label": "initiates",
+      "details": "Login page initiates authentication flow"
+    },
+    {
+      "id": "edge_auth_store_service",
+      "type": "uses",
+      "source": "ui_auth_store",
+      "target": "logic_user_service",
+      "label": "calls",
+      "details": "Auth store calls user service for authentication"
+    },
+    {
+      "id": "edge_flow_page_execution",
+      "type": "triggers",
+      "source": "ui_flow_page",
+      "target": "logic_flow_execution",
+      "label": "starts",
+      "details": "Flow page triggers flow execution engine"
+    },
+    {
+      "id": "edge_flow_store_service",
+      "type": "uses",
+      "source": "ui_flow_store",
+      "target": "logic_flow_service",
+      "label": "calls",
+      "details": "Flow store calls flow service for CRUD operations"
+    },
+    {
+      "id": "edge_websocket_messages",
+      "type": "handles",
+      "source": "logic_websocket_handler",
+      "target": "ui_message_store",
+      "label": "updates",
+      "details": "WebSocket handler updates message store"
+    },
+    {
+      "id": "edge_flow_service_db",
+      "type": "accesses",
+      "source": "logic_flow_service",
+      "target": "schema_flow",
+      "label": "persists",
+      "details": "Flow service persists flow data to database"
+    },
+    {
+      "id": "edge_user_service_db",
+      "type": "accesses",
+      "source": "logic_user_service",
+      "target": "schema_user",
+      "label": "manages",
+      "details": "User service manages user records"
+    },
+    {
+      "id": "edge_graph_engine_vertex",
+      "type": "processes",
+      "source": "logic_graph_engine",
+      "target": "schema_vertex",
+      "label": "executes",
+      "details": "Graph engine executes vertices"
+    },
+    {
+      "id": "edge_test_flow_creation",
+      "type": "validates",
+      "source": "test_flow_creation",
+      "target": "logic_flow_service",
+      "label": "tests",
+      "details": "Tests flow creation functionality"
+    },
+    {
+      "id": "edge_test_auth",
+      "type": "validates",
+      "source": "test_user_authentication",
+      "target": "logic_auth_flow",
+      "label": "tests",
+      "details": "Tests authentication flow"
+    },
+    {
+      "id": "edge_test_execution",
+      "type": "validates",
+      "source": "test_flow_execution",
+      "target": "logic_flow_execution",
+      "label": "tests",
+      "details": "Tests flow execution engine"
+    },
+    {
+      "id": "edge_home_flows",
+      "type": "displays",
+      "source": "ui_home_page",
+      "target": "schema_flow",
+      "label": "shows",
+      "details": "Home page displays user flows"
+    },
+    {
+      "id": "edge_settings_apikeys",
+      "type": "manages",
+      "source": "ui_settings_page",
+      "target": "schema_apikey",
+      "label": "configures",
+      "details": "Settings page manages API keys"
+    },
+    {
+      "id": "edge_playground_messages",
+      "type": "displays",
+      "source": "ui_playground_page",
+      "target": "schema_message",
+      "label": "shows",
+      "details": "Playground displays chat messages"
+    },
+    {
+      "id": "edge_api_handler_validation",
+      "type": "uses",
+      "source": "logic_api_handler",
+      "target": "logic_validation_engine",
+      "label": "validates",
+      "details": "API handler uses validation engine"
+    },
+    {
+      "id": "edge_flow_execution_cache",
+      "type": "uses",
+      "source": "logic_flow_execution",
+      "target": "logic_cache_manager",
+      "label": "caches",
+      "details": "Flow execution uses cache manager"
+    },
+    {
+      "id": "edge_component_loader_registry",
+      "type": "manages",
+      "source": "logic_component_loader",
+      "target": "schema_component",
+      "label": "loads",
+      "details": "Component loader manages component registry"
+    },
+    {
+      "id": "edge_template_service_templates",
+      "type": "manages",
+      "source": "logic_template_service",
+      "target": "schema_template",
+      "label": "provides",
+      "details": "Template service provides templates"
+    },
+    {
+      "id": "edge_sse_handler_notifications",
+      "type": "sends",
+      "source": "logic_sse_handler",
+      "target": "logic_notification_service",
+      "label": "delivers",
+      "details": "SSE handler delivers notifications"
+    },
+    {
+      "id": "edge_test_isolation",
+      "type": "validates",
+      "source": "test_user_isolation",
+      "target": "logic_user_service",
+      "label": "verifies",
+      "details": "Tests verify user data isolation"
+    },
+    {
+      "id": "edge_test_websocket",
+      "type": "validates",
+      "source": "test_websocket_connection",
+      "target": "logic_websocket_handler",
+      "label": "tests",
+      "details": "Tests WebSocket functionality"
+    },
+    {
+      "id": "edge_flow_page_sidebar",
+      "type": "contains",
+      "source": "ui_flow_page",
+      "target": "ui_sidebar_component",
+      "label": "includes",
+      "details": "Flow page includes sidebar component"
+    },
+    {
+      "id": "edge_home_header",
+      "type": "contains",
+      "source": "ui_home_page",
+      "target": "ui_header_component",
+      "label": "includes",
+      "details": "Home page includes header component"
+    },
+    {
+      "id": "edge_flow_store_types",
+      "type": "uses",
+      "source": "ui_flow_store",
+      "target": "ui_types_store",
+      "label": "references",
+      "details": "Flow store references component types"
+    },
+    {
+      "id": "edge_auth_location",
+      "type": "redirects",
+      "source": "logic_auth_flow",
+      "target": "ui_location_store",
+      "label": "navigates",
+      "details": "Auth flow triggers navigation"
+    },
+    {
+      "id": "edge_export_service_flows",
+      "type": "exports",
+      "source": "logic_export_service",
+      "target": "schema_flow",
+      "label": "serializes",
+      "details": "Export service serializes flows"
+    },
+    {
+      "id": "edge_rate_limiter_api",
+      "type": "protects",
+      "source": "logic_rate_limiter",
+      "target": "logic_api_handler",
+      "label": "limits",
+      "details": "Rate limiter protects API endpoints"
+    },
+    {
+      "id": "edge_telemetry_events",
+      "type": "tracks",
+      "source": "logic_telemetry_service",
+      "target": "logic_event_manager",
+      "label": "monitors",
+      "details": "Telemetry tracks system events"
+    },
+    {
+      "id": "edge_cleanup_sessions",
+      "type": "maintains",
+      "source": "logic_cleanup_service",
+      "target": "logic_session_manager",
+      "label": "cleans",
+      "details": "Cleanup service maintains sessions"
+    },
+    {
+      "id": "edge_test_templates",
+      "type": "validates",
+      "source": "test_template_instantiation",
+      "target": "logic_template_service",
+      "label": "verifies",
+      "details": "Tests template functionality"
+    },
+    {
+      "id": "edge_test_sharing",
+      "type": "validates",
+      "source": "test_flow_sharing",
+      "target": "ui_share_modal",
+      "label": "tests",
+      "details": "Tests flow sharing feature"
+    },
+    {
+      "id": "edge_folder_hierarchy",
+      "type": "self_reference",
+      "source": "schema_folder",
+      "target": "schema_folder",
+      "label": "parent_child",
+      "details": "Folders form hierarchical structure"
+    },
+    {
+      "id": "edge_global_store_notifications",
+      "type": "manages",
+      "source": "ui_global_store",
+      "target": "logic_notification_service",
+      "label": "displays",
+      "details": "Global store displays notifications"
+    },
+    {
+      "id": "edge_api_modal_flow",
+      "type": "generates_code",
+      "source": "ui_api_modal",
+      "target": "schema_flow",
+      "label": "exports",
+      "details": "API modal generates code for flow"
+    },
+    {
+      "id": "edge_edit_modal_vertex",
+      "type": "edits",
+      "source": "ui_edit_node_modal",
+      "target": "schema_vertex",
+      "label": "configures",
+      "details": "Edit modal configures vertex properties"
+    },
+    {
+      "id": "edge_test_performance",
+      "type": "benchmarks",
+      "source": "test_performance",
+      "target": "logic_graph_engine",
+      "label": "measures",
+      "details": "Performance tests measure execution speed"
+    },
+    {
+      "id": "edge_user_variables",
+      "type": "one_to_many",
+      "source": "schema_user",
+      "target": "schema_variable",
+      "label": "owns",
+      "details": "User owns multiple variables"
+    },
+    {
+      "id": "edge_user_credentials",
+      "type": "one_to_many",
+      "source": "schema_user",
+      "target": "schema_credential",
+      "label": "owns",
+      "details": "User owns multiple credentials"
+    },
+    {
+      "id": "edge_user_stores",
+      "type": "one_to_many",
+      "source": "schema_user",
+      "target": "schema_store",
+      "label": "owns",
+      "details": "User owns multiple stores"
+    },
+    {
+      "id": "edge_transaction_flowrun",
+      "type": "belongs_to",
+      "source": "schema_transaction",
+      "target": "schema_flowrun",
+      "label": "tracks",
+      "details": "Transaction tracks flow run execution"
+    },
+    {
+      "id": "edge_settings_global_vars",
+      "type": "manages",
+      "source": "ui_settings_page",
+      "target": "schema_global_variable",
+      "label": "configures",
+      "details": "Settings page manages global variables"
+    },
+    {
+      "id": "edge_home_flow_grid",
+      "type": "contains",
+      "source": "ui_home_page",
+      "target": "ui_flow_grid",
+      "label": "includes",
+      "details": "Home page contains flow grid"
+    },
+    {
+      "id": "edge_flow_grid_cards",
+      "type": "displays",
+      "source": "ui_flow_grid",
+      "target": "ui_flow_card",
+      "label": "renders",
+      "details": "Flow grid displays individual flow cards"
+    },
+    {
+      "id": "edge_flow_page_toolbar",
+      "type": "contains",
+      "source": "ui_flow_page",
+      "target": "ui_node_toolbar",
+      "label": "includes",
+      "details": "Flow page contains node toolbar"
+    },
+    {
+      "id": "edge_playground_chat",
+      "type": "contains",
+      "source": "ui_playground_page",
+      "target": "ui_chat_interface",
+      "label": "includes",
+      "details": "Playground page contains chat interface"
+    },
+    {
+      "id": "edge_api_keys_store_schema",
+      "type": "manages",
+      "source": "ui_api_keys_store",
+      "target": "schema_apikey",
+      "label": "stores",
+      "details": "API keys store manages API key data"
+    },
+    {
+      "id": "edge_folder_store_schema",
+      "type": "manages",
+      "source": "ui_folder_store",
+      "target": "schema_folder",
+      "label": "stores",
+      "details": "Folder store manages folder data"
+    },
+    {
+      "id": "edge_settings_api_keys_store",
+      "type": "uses",
+      "source": "ui_settings_page",
+      "target": "ui_api_keys_store",
+      "label": "utilizes",
+      "details": "Settings page uses API keys store"
+    },
+    {
+      "id": "edge_settings_shortcut_store",
+      "type": "uses",
+      "source": "ui_settings_page",
+      "target": "ui_shortcut_store",
+      "label": "utilizes",
+      "details": "Settings page uses shortcut store"
+    },
+    {
+      "id": "edge_settings_dark_mode_store",
+      "type": "uses",
+      "source": "ui_settings_page",
+      "target": "ui_dark_mode_store",
+      "label": "utilizes",
+      "details": "Settings page uses dark mode store"
+    },
+    {
+      "id": "edge_store_page_templates",
+      "type": "displays",
+      "source": "ui_store_page",
+      "target": "schema_template",
+      "label": "shows",
+      "details": "Store page displays templates"
+    },
+    {
+      "id": "edge_test_api_integration",
+      "type": "validates",
+      "source": "test_api_integration",
+      "target": "logic_api_handler",
+      "label": "tests",
+      "details": "Tests API integration functionality"
+    },
+    {
+      "id": "edge_test_api_key_management",
+      "type": "validates",
+      "source": "test_api_key_management",
+      "target": "ui_api_keys_store",
+      "label": "tests",
+      "details": "Tests API key management functionality"
+    },
+    {
+      "id": "edge_test_component_loading",
+      "type": "validates",
+      "source": "test_component_loading",
+      "target": "logic_component_loader",
+      "label": "tests",
+      "details": "Tests component loading functionality"
+    },
+    {
+      "id": "edge_test_data_persistence",
+      "type": "validates",
+      "source": "test_data_persistence",
+      "target": "logic_cleanup_service",
+      "label": "tests",
+      "details": "Tests data persistence functionality"
+    },
+    {
+      "id": "edge_test_error_handling",
+      "type": "validates",
+      "source": "test_error_handling",
+      "target": "logic_event_manager",
+      "label": "tests",
+      "details": "Tests error handling functionality"
+    },
+    {
+      "id": "edge_test_file_upload",
+      "type": "validates",
+      "source": "test_file_upload",
+      "target": "logic_file_upload",
+      "label": "tests",
+      "details": "Tests file upload functionality"
+    },
+    {
+      "id": "edge_test_graph_cycles",
+      "type": "validates",
+      "source": "test_graph_cycles",
+      "target": "logic_graph_engine",
+      "label": "tests",
+      "details": "Tests graph cycle detection"
+    },
+    {
+      "id": "edge_file_upload_store",
+      "type": "uploads_to",
+      "source": "logic_file_upload",
+      "target": "schema_store",
+      "label": "stores",
+      "details": "File upload process stores files in user store"
+    }
+  ]
+}
