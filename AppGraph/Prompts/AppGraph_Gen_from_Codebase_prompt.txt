@@ -257,3 +257,11 @@ Prompt #6:
 
 
 Next we need to support new features for granular access control and role-based access control (brac). Analyze GRANULAR_ACCESS_CONTROL_RBAC.md and fully understand the requirements, functionalities, and constraints. Based on your understanding of the LangBuilder system, including the four markdown files you produced for schema, interface, logic, and test, as well as the complete app graph you just generated, including langbuilder_app_graph.json and langbuilder_app_graph_partitioned.json, provide an accurate design and implementation plan for supporting RBAC in LangBuilder. Generate a new langbuilder_app_graph_rbac.json and langbuilder_app_graph_partitioned_rbac.json on top of langbuilder_app_graph.json and langbuilder_app_graph_partitioned.json respectively that show the new features of rbac. Tag new nodes and edges as well as modified nodes and edges in the new app graphs because of rbac. In the app graph json, also provide implementation details for rbac. For better visualization, tag the new and modified nodes and edges with different colors. Make sure the new json files are complete, self-contained versions that include ALL existing nodes and edges from their original app graphs PLUS the nodes and edges that will be introduced by the new RBAC features, and color code them appropriately for visualization.
+
+
+
+Prompt #7:
+
+
+for the interface nodes, generate a detailed UIDL representation of every page which includes all elements, components, and layouts in a UIDL JSON format.  To better understand the UIDL standard, please read the documentation here (https://docs.teleporthq.io/uidl/). refer to the frontend codebase and 
+complete-interface-nodes.md. Update langbuilder_app_graph.json, langbuilder_app_graph_partitioned.json, langbuilder_app_graph_rbac.json, and langbuilder_app_graph_partitioned_rbac.json.

@@ -1,0 +1,453 @@
+{
+  "additional_uidl_definitions": {
+    "pages": {
+      "file_management_page": {
+        "name": "FileManagementPage",
+        "type": "page",
+        "content": {
+          "elementType": "container",
+          "name": "FileManagementLayout",
+          "attrs": { "className": "min-h-screen bg-background" },
+          "children": [
+            {
+              "elementType": "component",
+              "name": "Header",
+              "dependency": "ui_file_header",
+              "attrs": { "className": "border-b border-border bg-card/50 px-6 py-4" }
+            },
+            {
+              "elementType": "container",
+              "name": "FileContent",
+              "attrs": { "className": "max-w-7xl mx-auto p-6" },
+              "children": [
+                {
+                  "elementType": "div",
+                  "name": "FileActions",
+                  "attrs": { "className": "flex items-center justify-between mb-6" },
+                  "children": [
+                    {
+                      "elementType": "h1",
+                      "attrs": { "className": "text-2xl font-bold text-foreground" },
+                      "children": [{ "elementType": "text", "content": "File Management" }]
+                    },
+                    {
+                      "elementType": "component",
+                      "name": "FileUploader",
+                      "dependency": "ui_file_uploader",
+                      "attrs": { "onUpload": "uploadFiles", "multiple": true }
+                    }
+                  ]
+                },
+                {
+                  "elementType": "component",
+                  "name": "FileGrid",
+                  "dependency": "ui_file_grid",
+                  "attrs": {
+                    "files": { "bindingPath": "files" },
+                    "viewMode": { "bindingPath": "viewMode" },
+                    "onFileSelect": "selectFile",
+                    "onFileDelete": "deleteFile"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "files": { "type": "array", "defaultValue": [] },
+          "selectedFiles": { "type": "array", "defaultValue": [] },
+          "viewMode": { "type": "string", "defaultValue": "grid" },
+          "uploadProgress": { "type": "object", "defaultValue": {} }
+        }
+      },
+      "admin_page": {
+        "name": "AdminPage", 
+        "type": "page",
+        "content": {
+          "elementType": "container",
+          "name": "AdminLayout",
+          "attrs": { "className": "min-h-screen bg-background" },
+          "children": [
+            {
+              "elementType": "component",
+              "name": "AdminHeader",
+              "dependency": "ui_admin_header",
+              "attrs": { "className": "border-b border-border bg-card/50 px-6 py-4" }
+            },
+            {
+              "elementType": "container",
+              "name": "AdminContent",
+              "attrs": { "className": "max-w-7xl mx-auto p-6" },
+              "children": [
+                {
+                  "elementType": "tabs",
+                  "name": "AdminTabs",
+                  "attrs": { "value": { "bindingPath": "activeTab" }, "onValueChange": "setActiveTab" },
+                  "children": [
+                    {
+                      "elementType": "tabContent",
+                      "name": "UserManagement",
+                      "attrs": { "value": "users" },
+                      "children": [
+                        {
+                          "elementType": "component",
+                          "name": "UserTable",
+                          "dependency": "ui_user_table",
+                          "attrs": { "users": { "bindingPath": "users" } }
+                        }
+                      ]
+                    },
+                    {
+                      "elementType": "tabContent", 
+                      "name": "SystemMetrics",
+                      "attrs": { "value": "metrics" },
+                      "children": [
+                        {
+                          "elementType": "component",
+                          "name": "MetricsDashboard",
+                          "dependency": "ui_metrics_dashboard",
+                          "attrs": { "metrics": { "bindingPath": "systemMetrics" } }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "activeTab": { "type": "string", "defaultValue": "users" },
+          "users": { "type": "array", "defaultValue": [] },
+          "systemMetrics": { "type": "object", "defaultValue": {} }
+        }
+      },
+      "store_page": {
+        "name": "StorePage",
+        "type": "page", 
+        "content": {
+          "elementType": "container",
+          "name": "StoreLayout",
+          "attrs": { "className": "min-h-screen bg-background" },
+          "children": [
+            {
+              "elementType": "component",
+              "name": "StoreHeader",
+              "dependency": "ui_store_header",
+              "attrs": { "className": "border-b border-border bg-card/50 px-6 py-4" }
+            },
+            {
+              "elementType": "container",
+              "name": "StoreContent",
+              "attrs": { "className": "max-w-7xl mx-auto p-6" },
+              "children": [
+                {
+                  "elementType": "component",
+                  "name": "ComponentMarketplace",
+                  "dependency": "ui_component_marketplace",
+                  "attrs": {
+                    "components": { "bindingPath": "storeComponents" },
+                    "onInstall": "installComponent"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "storeComponents": { "type": "array", "defaultValue": [] },
+          "categories": { "type": "array", "defaultValue": [] },
+          "searchQuery": { "type": "string", "defaultValue": "" }
+        }
+      }
+    },
+    "components": {
+      "component_sidebar": {
+        "name": "ComponentSidebar",
+        "type": "component",
+        "content": {
+          "elementType": "aside",
+          "name": "ComponentSidebarContainer",
+          "attrs": {
+            "className": "w-80 h-full bg-card/50 border-r border-border flex flex-col",
+            "style": { "display": { "bindingPath": "isOpen ? 'flex' : 'none'" } }
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "SidebarHeader",
+              "attrs": { "className": "p-4 border-b border-border" },
+              "children": [
+                {
+                  "elementType": "h3",
+                  "attrs": { "className": "font-semibold text-foreground" },
+                  "children": [{ "elementType": "text", "content": "Components" }]
+                },
+                {
+                  "elementType": "input",
+                  "name": "ComponentSearch",
+                  "attrs": {
+                    "type": "text",
+                    "placeholder": "Search components...",
+                    "bindingPath": "searchQuery",
+                    "className": "mt-2 w-full px-3 py-2 text-sm border border-input rounded-md"
+                  }
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ComponentList",
+              "attrs": { "className": "flex-1 overflow-y-auto p-2" },
+              "children": [
+                {
+                  "elementType": "component",
+                  "name": "ComponentTree",
+                  "dependency": "ui_component_tree",
+                  "attrs": {
+                    "components": { "bindingPath": "filteredComponents" },
+                    "onComponentDrag": "handleComponentDrag"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isOpen": { "type": "boolean", "defaultValue": true },
+          "searchQuery": { "type": "string", "defaultValue": "" },
+          "filteredComponents": { "type": "array", "defaultValue": [] },
+          "selectedCategory": { "type": "string", "defaultValue": null }
+        }
+      },
+      "flow_toolbar": {
+        "name": "FlowToolbar",
+        "type": "component",
+        "content": {
+          "elementType": "div",
+          "name": "ToolbarContainer",
+          "attrs": { "className": "flex items-center justify-between px-4 py-2 border-b border-border bg-muted/30" },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "LeftActions",
+              "attrs": { "className": "flex items-center gap-2" },
+              "children": [
+                {
+                  "elementType": "h2",
+                  "attrs": { "className": "font-semibold text-foreground" },
+                  "children": [{ "elementType": "text", "bindingPath": "flowName" }]
+                },
+                {
+                  "elementType": "div",
+                  "name": "StatusIndicator",
+                  "conditional": { "condition": "isDirty", "ifFalse": null },
+                  "attrs": { "className": "w-2 h-2 bg-orange-500 rounded-full" }
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "Actions",
+              "attrs": { "className": "flex items-center gap-2" },
+              "children": [
+                {
+                  "elementType": "button",
+                  "name": "UndoButton",
+                  "attrs": {
+                    "onClick": "undo",
+                    "disabled": { "bindingPath": "!canUndo" },
+                    "className": "p-2 hover:bg-muted rounded-md"
+                  },
+                  "children": [{ "elementType": "icon", "name": "undo", "className": "w-4 h-4" }]
+                },
+                {
+                  "elementType": "button",
+                  "name": "RedoButton", 
+                  "attrs": {
+                    "onClick": "redo",
+                    "disabled": { "bindingPath": "!canRedo" },
+                    "className": "p-2 hover:bg-muted rounded-md"
+                  },
+                  "children": [{ "elementType": "icon", "name": "redo", "className": "w-4 h-4" }]
+                },
+                {
+                  "elementType": "button",
+                  "name": "SaveButton",
+                  "attrs": {
+                    "onClick": "save",
+                    "className": "px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                  },
+                  "children": [{ "elementType": "text", "content": "Save" }]
+                },
+                {
+                  "elementType": "button",
+                  "name": "BuildButton",
+                  "attrs": {
+                    "onClick": "build", 
+                    "className": "px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  },
+                  "children": [{ "elementType": "text", "content": "Build" }]
+                },
+                {
+                  "elementType": "button",
+                  "name": "RunButton",
+                  "attrs": {
+                    "onClick": "run",
+                    "className": "px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  },
+                  "children": [{ "elementType": "text", "content": "Run" }]
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "flowName": { "type": "string", "defaultValue": "Untitled Flow" },
+          "isDirty": { "type": "boolean", "defaultValue": false },
+          "canUndo": { "type": "boolean", "defaultValue": false },
+          "canRedo": { "type": "boolean", "defaultValue": false },
+          "executionState": { "type": "string", "defaultValue": "idle" }
+        }
+      },
+      "reactflow_canvas": {
+        "name": "ReactFlowCanvas",
+        "type": "component", 
+        "content": {
+          "elementType": "div",
+          "name": "ReactFlowWrapper",
+          "attrs": { "className": "w-full h-full relative bg-background" },
+          "children": [
+            {
+              "elementType": "component",
+              "name": "ReactFlow",
+              "dependency": "ui_react_flow",
+              "attrs": {
+                "nodes": { "bindingPath": "nodes" },
+                "edges": { "bindingPath": "edges" },
+                "onNodesChange": "handleNodesChange",
+                "onEdgesChange": "handleEdgesChange",
+                "onConnect": "handleConnect",
+                "nodeTypes": { "bindingPath": "nodeTypes" },
+                "edgeTypes": { "bindingPath": "edgeTypes" }
+              }
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "nodes": { "type": "array", "defaultValue": [] },
+          "edges": { "type": "array", "defaultValue": [] },
+          "selectedElements": { "type": "array", "defaultValue": [] },
+          "nodeTypes": { "type": "object", "defaultValue": {} },
+          "edgeTypes": { "type": "object", "defaultValue": {} }
+        }
+      },
+      "flow_grid": {
+        "name": "FlowGrid",
+        "type": "component",
+        "content": {
+          "elementType": "div",
+          "name": "FlowGridContainer",
+          "attrs": { "className": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FlowCards",
+              "children": {
+                "repeat": {
+                  "dataSource": "flows",
+                  "element": {
+                    "elementType": "component",
+                    "name": "FlowCard",
+                    "dependency": "ui_flow_card",
+                    "attrs": {
+                      "flow": { "bindingPath": "item" },
+                      "onSelect": "selectFlow",
+                      "onOpen": "openFlow"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "flows": { "type": "array", "defaultValue": [] },
+          "selectedFlows": { "type": "array", "defaultValue": [] },
+          "viewMode": { "type": "string", "defaultValue": "grid" }
+        }
+      },
+      "header_component": {
+        "name": "HeaderComponent",
+        "type": "component",
+        "content": {
+          "elementType": "header",
+          "name": "AppHeader",
+          "attrs": { "className": "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur" },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "HeaderContent",
+              "attrs": { "className": "container mx-auto flex h-14 items-center justify-between px-4" },
+              "children": [
+                {
+                  "elementType": "div",
+                  "name": "LeftSection",
+                  "attrs": { "className": "flex items-center gap-4" },
+                  "children": [
+                    {
+                      "elementType": "component",
+                      "name": "Logo",
+                      "dependency": "ui_logo",
+                      "attrs": { "size": "small" }
+                    },
+                    {
+                      "elementType": "nav",
+                      "name": "Navigation",
+                      "attrs": { "className": "hidden md:flex items-center gap-6" },
+                      "children": [
+                        {
+                          "elementType": "link",
+                          "attrs": { "href": "/flows", "className": "text-sm font-medium hover:text-primary" },
+                          "children": [{ "elementType": "text", "content": "Flows" }]
+                        },
+                        {
+                          "elementType": "link", 
+                          "attrs": { "href": "/store", "className": "text-sm font-medium hover:text-primary" },
+                          "children": [{ "elementType": "text", "content": "Store" }]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "elementType": "div",
+                  "name": "RightSection",
+                  "attrs": { "className": "flex items-center gap-4" },
+                  "children": [
+                    {
+                      "elementType": "component",
+                      "name": "ThemeToggle",
+                      "dependency": "ui_theme_toggle"
+                    },
+                    {
+                      "elementType": "component",
+                      "name": "UserProfile",
+                      "dependency": "ui_user_profile",
+                      "attrs": { "user": { "bindingPath": "user" } }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "user": { "type": "object", "defaultValue": null },
+          "notifications": { "type": "array", "defaultValue": [] },
+          "theme": { "type": "string", "defaultValue": "system" }
+        }
+      }
+    }
+  }
+}

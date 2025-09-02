@@ -1,0 +1,4351 @@
+{
+  "uidl_definitions": {
+    "metadata": {
+      "name": "LangBuilder Complete UIDL Definitions - All Interface Nodes",
+      "version": "2.0.0",
+      "description": "Comprehensive UIDL definitions for all interface nodes in LangBuilder",
+      "last_updated": "2025-09-02",
+      "total_definitions": 44,
+      "categories": {
+        "pages": 12,
+        "modals": 8,
+        "components": 24
+      }
+    },
+    "pages": {
+      "login_page": {
+        "name": "LoginPage",
+        "type": "page",
+        "description": "User login with authentication form",
+        "content": {
+          "elementType": "container",
+          "name": "LoginPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "form",
+              "name": "LoginForm",
+              "attrs": {
+                "onSubmit": "handleLogin",
+                "className": "w-full max-w-md mx-auto space-y-6 bg-card p-8 rounded-xl shadow-lg"
+              },
+              "children": [
+                {
+                  "elementType": "component",
+                  "name": "Logo",
+                  "dependency": "ui_logo",
+                  "attrs": {
+                    "className": "mx-auto mb-8"
+                  }
+                },
+                {
+                  "elementType": "input",
+                  "name": "UsernameInput",
+                  "attrs": {
+                    "type": "text",
+                    "placeholder": "Username",
+                    "required": true,
+                    "bindingPath": "credentials.username",
+                    "className": "w-full px-3 py-2 border rounded-md"
+                  }
+                },
+                {
+                  "elementType": "input",
+                  "name": "PasswordInput",
+                  "attrs": {
+                    "type": "password",
+                    "placeholder": "Password",
+                    "required": true,
+                    "bindingPath": "credentials.password",
+                    "className": "w-full px-3 py-2 border rounded-md"
+                  }
+                },
+                {
+                  "elementType": "button",
+                  "name": "SubmitButton",
+                  "attrs": {
+                    "type": "submit",
+                    "className": "w-full py-2 bg-primary text-primary-foreground rounded-md"
+                  },
+                  "children": [
+                    {
+                      "elementType": "text",
+                      "content": "Sign In"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "credentials": {
+            "type": "object",
+            "defaultValue": {
+              "username": "",
+              "password": ""
+            }
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleLogin": {
+            "type": "async",
+            "handler": "authService.login"
+          }
+        }
+      },
+      "flow_dashboard": {
+        "name": "FlowDashboard",
+        "type": "page",
+        "description": "Main dashboard with flow/component tabs",
+        "content": {
+          "elementType": "container",
+          "name": "FlowDashboardContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "component",
+              "name": "Header",
+              "dependency": "ui_header",
+              "attrs": {
+                "title": "Flows"
+              }
+            },
+            {
+              "elementType": "container",
+              "name": "MainContent",
+              "attrs": {
+                "className": "flex-1 flex"
+              },
+              "children": [
+                {
+                  "elementType": "component",
+                  "name": "FolderSidebar",
+                  "dependency": "ui_folder_sidebar"
+                },
+                {
+                  "elementType": "container",
+                  "name": "ContentArea",
+                  "attrs": {
+                    "className": "flex-1 p-4"
+                  },
+                  "children": [
+                    {
+                      "elementType": "tabs",
+                      "children": [
+                        {
+                          "elementType": "tab",
+                          "attrs": {
+                            "value": "flows",
+                            "label": "Flows"
+                          },
+                          "children": [
+                            {
+                              "elementType": "component",
+                              "name": "FlowGrid",
+                              "dependency": "ui_flow_grid"
+                            }
+                          ]
+                        },
+                        {
+                          "elementType": "tab",
+                          "attrs": {
+                            "value": "components",
+                            "label": "Components"
+                          },
+                          "children": [
+                            {
+                              "elementType": "component",
+                              "name": "ComponentGrid",
+                              "dependency": "ui_component_grid"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "activeTab": {
+            "type": "string",
+            "defaultValue": "flows"
+          },
+          "flows": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedFolder": {
+            "type": "string",
+            "defaultValue": null
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "flow_editor": {
+        "name": "FlowEditor",
+        "type": "page",
+        "description": "Flow editor with canvas and toolbar",
+        "content": {
+          "elementType": "container",
+          "name": "FlowEditorContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FlowEditorHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "FlowEditor"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "FlowEditorContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow editor with canvas and toolbar - Content area for FlowEditor"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "playground_interface": {
+        "name": "PlaygroundInterface",
+        "type": "page",
+        "description": "Chat playground with messaging",
+        "content": {
+          "elementType": "container",
+          "name": "PlaygroundInterfaceContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "PlaygroundInterfaceHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "PlaygroundInterface"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "PlaygroundInterfaceContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Chat playground with messaging - Content area for PlaygroundInterface"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "settings_page": {
+        "name": "SettingsPage",
+        "type": "page",
+        "description": "Settings with nested tabs",
+        "content": {
+          "elementType": "container",
+          "name": "SettingsPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "SettingsPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Settings"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "SettingsPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Settings with nested tabs - Content area for SettingsPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "file_management_page": {
+        "name": "FileManagementPage",
+        "type": "page",
+        "description": "File upload and management",
+        "content": {
+          "elementType": "container",
+          "name": "FileManagementPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FileManagementPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "FileManagement"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "FileManagementPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "File upload and management - Content area for FileManagementPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "admin_page": {
+        "name": "AdminPage",
+        "type": "page",
+        "description": "Admin dashboard and controls",
+        "content": {
+          "elementType": "container",
+          "name": "AdminPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "AdminPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Admin"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "AdminPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Admin dashboard and controls - Content area for AdminPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "store_page": {
+        "name": "StorePage",
+        "type": "page",
+        "description": "Component store and marketplace",
+        "content": {
+          "elementType": "container",
+          "name": "StorePageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "StorePageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Store"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "StorePageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Component store and marketplace - Content area for StorePage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "signup_page": {
+        "name": "SignUpPage",
+        "type": "page",
+        "description": "User registration form",
+        "content": {
+          "elementType": "container",
+          "name": "SignUpPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "SignUpPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "SignUp"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "SignUpPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "User registration form - Content area for SignUpPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "profile_management": {
+        "name": "ProfilePage",
+        "type": "page",
+        "description": "User profile settings",
+        "content": {
+          "elementType": "container",
+          "name": "ProfilePageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ProfilePageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Profile"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ProfilePageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "User profile settings - Content area for ProfilePage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "delete_account_page": {
+        "name": "DeleteAccountPage",
+        "type": "page",
+        "description": "Account deletion confirmation",
+        "content": {
+          "elementType": "container",
+          "name": "DeleteAccountPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "DeleteAccountPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "DeleteAccount"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "DeleteAccountPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Account deletion confirmation - Content area for DeleteAccountPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "view_page": {
+        "name": "ViewPage",
+        "type": "page",
+        "description": "Flow view and sharing",
+        "content": {
+          "elementType": "container",
+          "name": "ViewPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ViewPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "View"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ViewPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow view and sharing - Content area for ViewPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "role_management_page": {
+        "name": "RoleManagementPage",
+        "type": "page",
+        "description": "RBAC role management",
+        "content": {
+          "elementType": "container",
+          "name": "RoleManagementPageContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "RoleManagementPageHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "RoleManagement"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "RoleManagementPageContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "RBAC role management - Content area for RoleManagementPage"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      }
+    },
+    "modals": {
+      "io_modal": {
+        "name": "IOModal",
+        "type": "modal",
+        "description": "Input/Output playground modal",
+        "content": {
+          "elementType": "modal",
+          "name": "IOModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "IOModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "IO"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "IOModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Input/Output playground modal - Content area for IOModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "add_mcp_server_modal": {
+        "name": "AddMCPServerModal",
+        "type": "modal",
+        "description": "MCP server configuration",
+        "content": {
+          "elementType": "modal",
+          "name": "AddMCPServerModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "AddMCPServerModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "AddMCPServer"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "AddMCPServerModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "MCP server configuration - Content area for AddMCPServerModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "create_flow_modal": {
+        "name": "CreateFlowModal",
+        "type": "modal",
+        "description": "Flow creation wizard",
+        "content": {
+          "elementType": "modal",
+          "name": "CreateFlowModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "CreateFlowModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "CreateFlow"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "CreateFlowModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow creation wizard - Content area for CreateFlowModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "share_modal": {
+        "name": "ShareModal",
+        "type": "modal",
+        "description": "Flow sharing options",
+        "content": {
+          "elementType": "modal",
+          "name": "ShareModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ShareModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Share"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ShareModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow sharing options - Content area for ShareModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "import_flow_modal": {
+        "name": "ImportFlowModal",
+        "type": "modal",
+        "description": "Flow import interface",
+        "content": {
+          "elementType": "modal",
+          "name": "ImportFlowModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ImportFlowModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "ImportFlow"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ImportFlowModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow import interface - Content area for ImportFlowModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "export_modal": {
+        "name": "ExportModal",
+        "type": "modal",
+        "description": "Flow export options",
+        "content": {
+          "elementType": "modal",
+          "name": "ExportModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ExportModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Export"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ExportModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow export options - Content area for ExportModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "delete_confirmation_modal": {
+        "name": "DeleteConfirmationModal",
+        "type": "modal",
+        "description": "Deletion confirmation",
+        "content": {
+          "elementType": "modal",
+          "name": "DeleteConfirmationModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "DeleteConfirmationModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "DeleteConfirmation"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "DeleteConfirmationModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Deletion confirmation - Content area for DeleteConfirmationModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "version_control_modal": {
+        "name": "VersionControlModal",
+        "type": "modal",
+        "description": "Flow version management",
+        "content": {
+          "elementType": "modal",
+          "name": "VersionControlModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "VersionControlModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "VersionControl"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "VersionControlModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow version management - Content area for VersionControlModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      },
+      "role_assignment_modal": {
+        "name": "RoleAssignmentModal",
+        "type": "modal",
+        "description": "Role assignment interface",
+        "content": {
+          "elementType": "modal",
+          "name": "RoleAssignmentModalContainer",
+          "attrs": {
+            "className": "max-w-4xl max-h-screen flex flex-col",
+            "isOpen": {
+              "bindingPath": "isOpen"
+            },
+            "onClose": "handleClose"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "RoleAssignmentModalHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "RoleAssignment"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleClose",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "close"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "RoleAssignmentModalContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Role assignment interface - Content area for RoleAssignmentModal"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          },
+          "handleClose": {
+            "type": "sync",
+            "handler": "closeModal"
+          }
+        }
+      }
+    },
+    "components": {
+      "component_sidebar": {
+        "name": "ComponentSidebar",
+        "type": "component",
+        "description": "Draggable component library",
+        "content": {
+          "elementType": "container",
+          "name": "ComponentSidebarContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ComponentSidebarHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Sidebar"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ComponentSidebarContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Draggable component library - Content area for ComponentSidebar"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "flow_toolbar": {
+        "name": "FlowToolbar",
+        "type": "component",
+        "description": "Flow editor toolbar",
+        "content": {
+          "elementType": "container",
+          "name": "FlowToolbarContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FlowToolbarHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "FlowToolbar"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "FlowToolbarContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow editor toolbar - Content area for FlowToolbar"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "reactflow_canvas": {
+        "name": "ReactFlowCanvas",
+        "type": "component",
+        "description": "Flow graph canvas",
+        "content": {
+          "elementType": "container",
+          "name": "ReactFlowCanvasContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ReactFlowCanvasHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "ReactFlowCanvas"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ReactFlowCanvasContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Flow graph canvas - Content area for ReactFlowCanvas"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "flow_grid": {
+        "name": "FlowGrid",
+        "type": "component",
+        "description": "Grid of flow cards",
+        "content": {
+          "elementType": "container",
+          "name": "FlowGridContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FlowGridHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "FlowGrid"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "FlowGridContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Grid of flow cards - Content area for FlowGrid"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "component_grid": {
+        "name": "ComponentGrid",
+        "type": "component",
+        "description": "Grid of component cards",
+        "content": {
+          "elementType": "container",
+          "name": "ComponentGridContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ComponentGridHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Grid"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ComponentGridContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Grid of component cards - Content area for ComponentGrid"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "message_list": {
+        "name": "MessageList",
+        "type": "component",
+        "description": "Chat message display",
+        "content": {
+          "elementType": "container",
+          "name": "MessageListContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "MessageListHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "MessageList"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "MessageListContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Chat message display - Content area for MessageList"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "chat_input": {
+        "name": "ChatInput",
+        "type": "component",
+        "description": "Multi-modal chat input",
+        "content": {
+          "elementType": "container",
+          "name": "ChatInputContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ChatInputHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "ChatInput"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ChatInputContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Multi-modal chat input - Content area for ChatInput"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "header_component": {
+        "name": "HeaderComponent",
+        "type": "component",
+        "description": "Application header",
+        "content": {
+          "elementType": "container",
+          "name": "HeaderComponentContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "HeaderComponentHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Header"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "HeaderComponentContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Application header - Content area for HeaderComponent"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "folder_sidebar": {
+        "name": "FolderSidebar",
+        "type": "component",
+        "description": "Folder navigation",
+        "content": {
+          "elementType": "container",
+          "name": "FolderSidebarContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FolderSidebarHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "FolderSidebar"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "FolderSidebarContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Folder navigation - Content area for FolderSidebar"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "voice_assistant": {
+        "name": "VoiceAssistant",
+        "type": "component",
+        "description": "Voice interaction controls",
+        "content": {
+          "elementType": "container",
+          "name": "VoiceAssistantContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "VoiceAssistantHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "VoiceAssistant"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "VoiceAssistantContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Voice interaction controls - Content area for VoiceAssistant"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "api_keys_settings": {
+        "name": "ApiKeysSettings",
+        "type": "component",
+        "description": "API key management",
+        "content": {
+          "elementType": "container",
+          "name": "ApiKeysSettingsContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ApiKeysSettingsHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "ApiKeysSettings"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ApiKeysSettingsContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "API key management - Content area for ApiKeysSettings"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "global_variables_settings": {
+        "name": "GlobalVariablesSettings",
+        "type": "component",
+        "description": "Variable management",
+        "content": {
+          "elementType": "container",
+          "name": "GlobalVariablesSettingsContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "GlobalVariablesSettingsHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "GlobalVariablesSettings"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "GlobalVariablesSettingsContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Variable management - Content area for GlobalVariablesSettings"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "mcp_server_tab": {
+        "name": "MCPServerTab",
+        "type": "component",
+        "description": "MCP server interface",
+        "content": {
+          "elementType": "container",
+          "name": "MCPServerTabContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "MCPServerTabHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "MCPServerTab"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "MCPServerTabContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "MCP server interface - Content area for MCPServerTab"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "notification_system": {
+        "name": "NotificationSystem",
+        "type": "component",
+        "description": "Toast notifications",
+        "content": {
+          "elementType": "container",
+          "name": "NotificationSystemContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "NotificationSystemHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "NotificationSystem"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "NotificationSystemContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Toast notifications - Content area for NotificationSystem"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "error_boundary": {
+        "name": "ErrorBoundary",
+        "type": "component",
+        "description": "Error handling wrapper",
+        "content": {
+          "elementType": "container",
+          "name": "ErrorBoundaryContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ErrorBoundaryHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "ErrorBoundary"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ErrorBoundaryContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Error handling wrapper - Content area for ErrorBoundary"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "loading_states": {
+        "name": "LoadingStates",
+        "type": "component",
+        "description": "Loading indicators",
+        "content": {
+          "elementType": "container",
+          "name": "LoadingStatesContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "LoadingStatesHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "LoadingStates"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "LoadingStatesContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Loading indicators - Content area for LoadingStates"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "theme_provider": {
+        "name": "ThemeProvider",
+        "type": "component",
+        "description": "Theme management",
+        "content": {
+          "elementType": "container",
+          "name": "ThemeProviderContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "ThemeProviderHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "ThemeProvider"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "ThemeProviderContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Theme management - Content area for ThemeProvider"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "auth_guard": {
+        "name": "AuthGuard",
+        "type": "component",
+        "description": "Authentication wrapper",
+        "content": {
+          "elementType": "container",
+          "name": "AuthGuardContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "AuthGuardHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "AuthGuard"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "AuthGuardContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Authentication wrapper - Content area for AuthGuard"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "websocket_manager": {
+        "name": "WebSocketManager",
+        "type": "component",
+        "description": "Real-time communication",
+        "content": {
+          "elementType": "container",
+          "name": "WebSocketManagerContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "WebSocketManagerHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "WebSocketManager"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "WebSocketManagerContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Real-time communication - Content area for WebSocketManager"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "data_table": {
+        "name": "DataTable",
+        "type": "component",
+        "description": "Sortable data table",
+        "content": {
+          "elementType": "container",
+          "name": "DataTableContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "DataTableHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "DataTable"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "DataTableContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Sortable data table - Content area for DataTable"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "form_builder": {
+        "name": "FormBuilder",
+        "type": "component",
+        "description": "Dynamic form generator",
+        "content": {
+          "elementType": "container",
+          "name": "FormBuilderContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "FormBuilderHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "FormBuilder"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "FormBuilderContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Dynamic form generator - Content area for FormBuilder"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "code_editor": {
+        "name": "CodeEditor",
+        "type": "component",
+        "description": "Code editing interface",
+        "content": {
+          "elementType": "container",
+          "name": "CodeEditorContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "CodeEditorHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "CodeEditor"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "CodeEditorContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Code editing interface - Content area for CodeEditor"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "search_interface": {
+        "name": "SearchInterface",
+        "type": "component",
+        "description": "Search and filtering",
+        "content": {
+          "elementType": "container",
+          "name": "SearchInterfaceContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "SearchInterfaceHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "SearchInterface"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "SearchInterfaceContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Search and filtering - Content area for SearchInterface"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "paginator_component": {
+        "name": "PaginatorComponent",
+        "type": "component",
+        "description": "Pagination controls",
+        "content": {
+          "elementType": "container",
+          "name": "PaginatorComponentContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "PaginatorComponentHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Paginator"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "PaginatorComponentContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Pagination controls - Content area for PaginatorComponent"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "template_gallery": {
+        "name": "TemplateGallery",
+        "type": "component",
+        "description": "Template browser",
+        "content": {
+          "elementType": "container",
+          "name": "TemplateGalleryContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "TemplateGalleryHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "TemplateGallery"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "TemplateGalleryContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Template browser - Content area for TemplateGallery"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "workspace_switcher": {
+        "name": "WorkspaceSwitcher",
+        "type": "component",
+        "description": "Workspace selection",
+        "content": {
+          "elementType": "container",
+          "name": "WorkspaceSwitcherContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "WorkspaceSwitcherHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "WorkspaceSwitcher"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "WorkspaceSwitcherContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Workspace selection - Content area for WorkspaceSwitcher"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "permission_editor": {
+        "name": "PermissionEditor",
+        "type": "component",
+        "description": "Permission editing interface",
+        "content": {
+          "elementType": "container",
+          "name": "PermissionEditorContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "PermissionEditorHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "PermissionEditor"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "PermissionEditorContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Permission editing interface - Content area for PermissionEditor"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "user_group_manager": {
+        "name": "UserGroupManager",
+        "type": "component",
+        "description": "Group management",
+        "content": {
+          "elementType": "container",
+          "name": "UserGroupManagerContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "UserGroupManagerHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "UserGroupManager"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "UserGroupManagerContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Group management - Content area for UserGroupManager"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "access_control_panel": {
+        "name": "AccessControlPanel",
+        "type": "component",
+        "description": "Access control dashboard",
+        "content": {
+          "elementType": "container",
+          "name": "AccessControlPanelContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "AccessControlPanelHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "AccessControlPanel"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "AccessControlPanelContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Access control dashboard - Content area for AccessControlPanel"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "permission_scope_selector": {
+        "name": "PermissionScopeSelector",
+        "type": "component",
+        "description": "Permission scope picker",
+        "content": {
+          "elementType": "container",
+          "name": "PermissionScopeSelectorContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "PermissionScopeSelectorHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "PermissionScopeSelector"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "PermissionScopeSelectorContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Permission scope picker - Content area for PermissionScopeSelector"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "audit_log_viewer": {
+        "name": "AuditLogViewer",
+        "type": "component",
+        "description": "Audit log display",
+        "content": {
+          "elementType": "container",
+          "name": "AuditLogViewerContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "AuditLogViewerHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "AuditLogViewer"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "AuditLogViewerContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "Audit log display - Content area for AuditLogViewer"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      },
+      "sso_integration_settings": {
+        "name": "SSOIntegrationSettings",
+        "type": "component",
+        "description": "SSO configuration",
+        "content": {
+          "elementType": "container",
+          "name": "SSOIntegrationSettingsContainer",
+          "attrs": {
+            "className": "h-full w-full flex flex-col"
+          },
+          "children": [
+            {
+              "elementType": "div",
+              "name": "SSOIntegrationSettingsHeader",
+              "attrs": {
+                "className": "flex items-center justify-between p-4 border-b"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "SSOIntegrationSettings"
+                },
+                {
+                  "elementType": "button",
+                  "attrs": {
+                    "onClick": "handleRefresh",
+                    "className": "p-2 hover:bg-muted rounded"
+                  },
+                  "children": [
+                    {
+                      "elementType": "icon",
+                      "name": "refresh"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "elementType": "div",
+              "name": "SSOIntegrationSettingsContent",
+              "attrs": {
+                "className": "flex-1 p-4 overflow-auto"
+              },
+              "children": [
+                {
+                  "elementType": "text",
+                  "content": "SSO configuration - Content area for SSOIntegrationSettings"
+                }
+              ]
+            }
+          ]
+        },
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "data": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "selectedItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "actions": {
+          "handleRefresh": {
+            "type": "async",
+            "handler": "refreshData"
+          },
+          "handleSubmit": {
+            "type": "async",
+            "handler": "submitForm"
+          }
+        }
+      }
+    }
+  }
+}
