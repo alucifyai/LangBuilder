@@ -1,519 +1,1186 @@
 # Complete LangBuilder Interface Nodes
 
-Based on deep analysis of the frontend codebase, here are all the interface components with their complete details:
+Based on deep analysis of the frontend codebase, here are all the interface components with their complete details, including UIDL definitions, state management, and layout elements.
 
-## Main Application Pages
+**Last Updated:** Including Voice Mode, MCP support, and complete UI component library
+
+## UIDL Structure Definitions
+
+### Base UIDL Types
+```typescript
+interface UIDL {
+  name: string
+  type: 'page' | 'component' | 'store' | 'modal' | 'layout'
+  content?: UIElement
+  stateDefinitions?: StateDefinitions
+  actions?: Actions
+  props?: PropDefinitions
+  events?: EventHandlers
+}
+
+interface UIElement {
+  elementType: string  // 'container' | 'form' | 'button' | 'input' | etc.
+  name?: string
+  attrs?: Record<string, any>
+  children?: UIElement[] | RepeatElement
+  dependency?: string  // Reference to another component
+  bindingPath?: string  // Data binding path
+  conditional?: ConditionalRender
+}
+
+interface RepeatElement {
+  repeat: {
+    dataSource: string
+    element: UIElement
+    key?: string
+  }
+}
+
+interface ConditionalRender {
+  condition: string  // Expression to evaluate
+  ifTrue?: UIElement
+  ifFalse?: UIElement
+}
+```
+
+## Main Application Pages with UIDL
 
 ### 1. LoginPage
 **Route:** `/login`
-**Components:**
-- Form with username/password fields
-- Sign In button with validation
-- Link to Sign Up page
-- Langflow logo display
-- Error alert handling for authentication failures
-**Features:**
-- JWT token authentication
-- Remember me functionality
-- Redirect to dashboard after successful login
+**UIDL Definition:**
+```typescript
+{
+  name: "LoginPage",
+  type: "page",
+  content: {
+    elementType: "container",
+    attrs: { className: "login-page" },
+    children: [
+      {
+        elementType: "component",
+        name: "Logo",
+        dependency: "ui_logo_component"
+      },
+      {
+        elementType: "form",
+        name: "LoginForm",
+        attrs: { onSubmit: "handleLogin" },
+        children: [
+          {
+            elementType: "input",
+            name: "UsernameInput",
+            attrs: {
+              type: "text",
+              placeholder: "Username",
+              required: true,
+              bindingPath: "credentials.username"
+            }
+          },
+          {
+            elementType: "input",
+            name: "PasswordInput",
+            attrs: {
+              type: "password",
+              placeholder: "Password",
+              required: true,
+              bindingPath: "credentials.password"
+            }
+          },
+          {
+            elementType: "checkbox",
+            name: "AutoLoginCheckbox",
+            attrs: {
+              label: "Keep me logged in",
+              bindingPath: "autoLogin"
+            }
+          },
+          {
+            elementType: "button",
+            name: "SubmitButton",
+            attrs: {
+              type: "submit",
+              variant: "primary",
+              loading: { bindingPath: "isLoading" }
+            },
+            children: [{ elementType: "text", content: "Sign In" }]
+          }
+        ]
+      },
+      {
+        elementType: "link",
+        attrs: { href: "/signup" },
+        children: [{ elementType: "text", content: "Create Account" }]
+      }
+    ]
+  },
+  stateDefinitions: {
+    credentials: {
+      type: "object",
+      defaultValue: { username: "", password: "" }
+    },
+    autoLogin: {
+      type: "boolean",
+      defaultValue: false
+    },
+    isLoading: {
+      type: "boolean",
+      defaultValue: false
+    },
+    error: {
+      type: "string",
+      defaultValue: null
+    }
+  },
+  actions: {
+    handleLogin: {
+      type: "async",
+      handler: "authService.login"
+    }
+  }
+}
+```
 
-### 2. SignUpPage  
-**Route:** `/signup`
-**Components:**
-- Registration form with username/password/confirm password
-- Create Account button
-- Link back to Login page
-- Username availability checking
-- Password strength requirements
-**Features:**
-- Real-time validation
-- Auto-login after registration
-
-### 3. FlowDashboard (HomePage)
+### 2. FlowDashboard (HomePage)
 **Route:** `/flows`, `/components`, `/all`, `/mcp`
-**Components:**
-- Header with search bar and view toggle (grid/list)
-- Folder sidebar navigation
-- Flow/Component cards with actions
-- Pagination controls
-- Empty state components
-- Batch selection with Shift/Ctrl support
-- Dropdown actions (duplicate, export, delete)
-**Features:**
-- Three tabs: Flows, Components, MCP Tools
-- Folder-based organization
-- Search and filter capabilities
-- Drag-and-drop file upload
-- Bulk operations on selected items
+**UIDL Definition:**
+```typescript
+{
+  name: "FlowDashboard",
+  type: "page",
+  content: {
+    elementType: "container",
+    attrs: { className: "dashboard-layout" },
+    children: [
+      {
+        elementType: "component",
+        name: "Header",
+        dependency: "ui_dashboard_header"
+      },
+      {
+        elementType: "container",
+        name: "MainContent",
+        attrs: { className: "dashboard-content" },
+        children: [
+          {
+            elementType: "component",
+            name: "FolderSidebar",
+            dependency: "ui_folder_sidebar",
+            conditional: {
+              condition: "!isSmallScreen",
+              ifFalse: null
+            }
+          },
+          {
+            elementType: "container",
+            name: "ContentArea",
+            children: [
+              {
+                elementType: "tabs",
+                name: "DashboardTabs",
+                attrs: {
+                  activeTab: { bindingPath: "activeTab" }
+                },
+                children: [
+                  {
+                    elementType: "tab",
+                    name: "FlowsTab",
+                    attrs: { value: "flows", label: "Flows" },
+                    children: [{
+                      elementType: "component",
+                      name: "FlowGrid",
+                      dependency: "ui_flow_grid"
+                    }]
+                  },
+                  {
+                    elementType: "tab",
+                    name: "ComponentsTab",
+                    attrs: { value: "components", label: "Components" },
+                    children: [{
+                      elementType: "component",
+                      name: "ComponentGrid",
+                      dependency: "ui_component_grid"
+                    }]
+                  },
+                  {
+                    elementType: "tab",
+                    name: "MCPTab",
+                    attrs: { value: "mcp", label: "MCP Tools" },
+                    children: [{
+                      elementType: "component",
+                      name: "MCPServerTab",
+                      dependency: "ui_mcp_server_tab"
+                    }]
+                  }
+                ]
+              },
+              {
+                elementType: "component",
+                name: "Paginator",
+                dependency: "ui_paginator",
+                conditional: {
+                  condition: "totalItems > pageSize",
+                  ifFalse: null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  stateDefinitions: {
+    activeTab: {
+      type: "string",
+      defaultValue: "flows"
+    },
+    flows: {
+      type: "array",
+      defaultValue: []
+    },
+    components: {
+      type: "array",
+      defaultValue: []
+    },
+    selectedFolder: {
+      type: "string",
+      defaultValue: null
+    },
+    searchQuery: {
+      type: "string",
+      defaultValue: ""
+    },
+    viewMode: {
+      type: "string",
+      defaultValue: "grid"  // 'grid' | 'list'
+    },
+    selectedItems: {
+      type: "array",
+      defaultValue: []
+    },
+    totalItems: {
+      type: "number",
+      defaultValue: 0
+    },
+    pageSize: {
+      type: "number",
+      defaultValue: 12
+    },
+    currentPage: {
+      type: "number",
+      defaultValue: 1
+    }
+  }
+}
+```
 
-### 4. FlowEditor
+### 3. FlowEditor
 **Route:** `/flow/:id`
-**Components:**
-- React Flow canvas with zoom/pan controls
-- Sidebar with component library
-- Toolbar with save/run/share/export actions
-- Node editor modal for configuration
-- Minimap for navigation
-- Connection lines with validation
-- Context menu for node operations
-**Features:**
-- Visual flow building with drag-and-drop
-- Real-time validation
-- Auto-save functionality
-- Component search and filtering
-- Undo/redo support
-- Keyboard shortcuts
+**UIDL Definition:**
+```typescript
+{
+  name: "FlowEditor",
+  type: "page",
+  content: {
+    elementType: "container",
+    attrs: { className: "flow-editor-layout" },
+    children: [
+      {
+        elementType: "component",
+        name: "FlowToolbar",
+        dependency: "ui_flow_toolbar"
+      },
+      {
+        elementType: "container",
+        name: "EditorArea",
+        attrs: { className: "editor-workspace" },
+        children: [
+          {
+            elementType: "component",
+            name: "ComponentSidebar",
+            dependency: "ui_component_sidebar",
+            attrs: {
+              isOpen: { bindingPath: "sidebarOpen" }
+            }
+          },
+          {
+            elementType: "component",
+            name: "ReactFlowCanvas",
+            dependency: "ui_reactflow_wrapper",
+            attrs: {
+              nodes: { bindingPath: "nodes" },
+              edges: { bindingPath: "edges" },
+              onNodesChange: "handleNodesChange",
+              onEdgesChange: "handleEdgesChange",
+              onConnect: "handleConnect"
+            }
+          },
+          {
+            elementType: "component",
+            name: "Minimap",
+            dependency: "ui_minimap",
+            conditional: {
+              condition: "showMinimap",
+              ifFalse: null
+            }
+          },
+          {
+            elementType: "component",
+            name: "CanvasControls",
+            dependency: "ui_canvas_controls"
+          }
+        ]
+      }
+    ]
+  },
+  stateDefinitions: {
+    flowId: {
+      type: "string",
+      defaultValue: null
+    },
+    nodes: {
+      type: "array",
+      defaultValue: []
+    },
+    edges: {
+      type: "array",
+      defaultValue: []
+    },
+    selectedNode: {
+      type: "object",
+      defaultValue: null
+    },
+    sidebarOpen: {
+      type: "boolean",
+      defaultValue: true
+    },
+    showMinimap: {
+      type: "boolean",
+      defaultValue: false
+    },
+    executionState: {
+      type: "string",
+      defaultValue: "idle"  // 'idle' | 'building' | 'running' | 'success' | 'error'
+    },
+    buildStatus: {
+      type: "object",
+      defaultValue: {}
+    },
+    isDirty: {
+      type: "boolean",
+      defaultValue: false
+    }
+  }
+}
+```
 
-### 5. PlaygroundInterface (Chat)
+### 4. PlaygroundInterface (Chat)
 **Route:** `/playground/:id`
-**Components:**
-- Chat window with message history
-- Message input with file attachments
-- Voice input button
-- Session manager sidebar
-- File preview components
-- Typing indicators
-- Message actions (copy, edit, delete)
-**Features:**
-- WebSocket-based real-time messaging
-- Multi-session support
-- File upload and preview
-- Voice mode with transcription
-- Message streaming
-- Session persistence
+**UIDL Definition:**
+```typescript
+{
+  name: "PlaygroundInterface",
+  type: "page",
+  content: {
+    elementType: "container",
+    attrs: { className: "playground-layout" },
+    children: [
+      {
+        elementType: "component",
+        name: "PlaygroundHeader",
+        dependency: "ui_playground_header"
+      },
+      {
+        elementType: "container",
+        name: "PlaygroundContent",
+        attrs: { className: "playground-content" },
+        children: [
+          {
+            elementType: "component",
+            name: "SessionSidebar",
+            dependency: "ui_session_sidebar",
+            conditional: {
+              condition: "showSessions",
+              ifFalse: null
+            }
+          },
+          {
+            elementType: "container",
+            name: "ChatArea",
+            children: [
+              {
+                elementType: "component",
+                name: "MessageList",
+                dependency: "ui_message_list",
+                attrs: {
+                  messages: { bindingPath: "messages" },
+                  isStreaming: { bindingPath: "isStreaming" }
+                }
+              },
+              {
+                elementType: "component",
+                name: "ChatInput",
+                dependency: "ui_chat_input",
+                attrs: {
+                  onSend: "handleSendMessage",
+                  voiceEnabled: { bindingPath: "voiceMode.enabled" }
+                }
+              },
+              {
+                elementType: "component",
+                name: "VoiceAssistant",
+                dependency: "ui_voice_assistant",
+                conditional: {
+                  condition: "voiceMode.enabled",
+                  ifFalse: null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  stateDefinitions: {
+    sessionId: {
+      type: "string",
+      defaultValue: null
+    },
+    messages: {
+      type: "array",
+      defaultValue: []
+    },
+    sessions: {
+      type: "array",
+      defaultValue: []
+    },
+    showSessions: {
+      type: "boolean",
+      defaultValue: true
+    },
+    isStreaming: {
+      type: "boolean",
+      defaultValue: false
+    },
+    voiceMode: {
+      type: "object",
+      defaultValue: {
+        enabled: false,
+        isListening: false,
+        selectedMicrophone: null,
+        selectedVoice: null
+      }
+    },
+    attachedFiles: {
+      type: "array",
+      defaultValue: []
+    }
+  }
+}
+```
 
-### 6. SettingsPage
-**Route:** `/settings/*`
-**Subpages:**
-- **GeneralPage** (`/settings/general`)
-  - Profile picture upload
-  - Password change form
-  - Theme toggle (light/dark/system)
-  - Account deletion option
-- **GlobalVariablesPage** (`/settings/global-variables`)
-  - Variable creation form
-  - Environment variable management
-  - Encrypted credential storage
-- **ApiKeysPage** (`/settings/api-keys`)
-  - API key generation
-  - Key management table
-  - Usage statistics
-  - Key revocation
-- **MCPServersPage** (`/settings/mcp-servers`)
-  - MCP server configuration
-  - Tool registration
-  - Server status monitoring
-- **ShortcutsPage** (`/settings/shortcuts`)
-  - Keyboard shortcut customization
-  - Command palette configuration
-- **MessagesPage** (`/settings/messages`)
-  - Message history viewer
-  - Export functionality
-
-### 7. AdminPage
-**Route:** `/admin`
-**Components:**
-- User management table
-- Role assignment interface
-- System configuration panels
-- Audit log viewer
-**Features:**
-- Protected route (requires superuser)
-- User CRUD operations
-- System-wide settings
-
-### 8. ViewPage
-**Route:** `/flow/:id/view`
-**Components:**
-- Read-only flow visualization
-- Component details panel
-- Export options
-**Features:**
-- Public/private flow viewing
-- Share functionality
-
-## Modal Components
+## Modal Components with UIDL
 
 ### 1. IOModal (Playground Modal)
-- Chat interface for flow testing
-- Input/output field configuration
-- Session management
-- Real-time execution feedback
+```typescript
+{
+  name: "IOModal",
+  type: "modal",
+  content: {
+    elementType: "modal",
+    attrs: {
+      isOpen: { bindingPath: "isOpen" },
+      onClose: "handleClose",
+      size: "large"
+    },
+    children: [
+      {
+        elementType: "modalHeader",
+        children: [
+          { elementType: "text", content: "Playground" },
+          {
+            elementType: "button",
+            attrs: { onClick: "toggleFullscreen" },
+            children: [{ elementType: "icon", name: "maximize" }]
+          }
+        ]
+      },
+      {
+        elementType: "modalBody",
+        children: [
+          {
+            elementType: "tabs",
+            children: [
+              {
+                elementType: "tab",
+                attrs: { value: "chat", label: "Chat" },
+                children: [{ elementType: "component", dependency: "ui_chat_view" }]
+              },
+              {
+                elementType: "tab",
+                attrs: { value: "inputs", label: "Inputs" },
+                children: [{ elementType: "component", dependency: "ui_input_fields" }]
+              },
+              {
+                elementType: "tab",
+                attrs: { value: "outputs", label: "Outputs" },
+                children: [{ elementType: "component", dependency: "ui_output_display" }]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### 2. APIModal
-- Code snippet generation (Python, JavaScript, cURL)
-- Widget embedding code
-- API endpoint documentation
-- Authentication token display
+### 2. AddMCPServerModal
+```typescript
+{
+  name: "AddMCPServerModal",
+  type: "modal",
+  content: {
+    elementType: "modal",
+    attrs: {
+      isOpen: { bindingPath: "isOpen" },
+      onClose: "handleClose"
+    },
+    children: [
+      {
+        elementType: "modalHeader",
+        children: [{ elementType: "text", content: "Add MCP Server" }]
+      },
+      {
+        elementType: "modalBody",
+        children: [
+          {
+            elementType: "form",
+            attrs: { onSubmit: "handleAddServer" },
+            children: [
+              {
+                elementType: "input",
+                attrs: {
+                  label: "Server Name",
+                  bindingPath: "serverName",
+                  required: true
+                }
+              },
+              {
+                elementType: "select",
+                attrs: {
+                  label: "Server Type",
+                  bindingPath: "serverType",
+                  options: ["npx", "node", "python", "docker"]
+                }
+              },
+              {
+                elementType: "textarea",
+                attrs: {
+                  label: "Command",
+                  bindingPath: "command",
+                  placeholder: "npx @modelcontextprotocol/server-name"
+                }
+              },
+              {
+                elementType: "input",
+                attrs: {
+                  label: "Environment Variables",
+                  bindingPath: "envVars",
+                  type: "json"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        elementType: "modalFooter",
+        children: [
+          {
+            elementType: "button",
+            attrs: { variant: "secondary", onClick: "handleClose" },
+            children: [{ elementType: "text", content: "Cancel" }]
+          },
+          {
+            elementType: "button",
+            attrs: { variant: "primary", onClick: "handleAddServer" },
+            children: [{ elementType: "text", content: "Add Server" }]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### 3. ShareModal
-- Public/private toggle
-- Share link generation
-- Access control settings
-- Embed code generation
+## Reusable UI Components Library
 
-### 4. TemplatesModal
-- Template gallery with categories
-- Template preview
-- One-click import
-- Getting started guides
+### Core UI Components (src/components/ui/)
+```typescript
+// Base components following shadcn/ui patterns
+- Accordion (accordion.tsx)
+- Alert (alert.tsx)
+- Badge (badge.tsx)
+- Button (button.tsx)
+- Card (card.tsx)
+- Checkbox (checkbox.tsx)
+- Command (command.tsx)
+- Dialog (dialog.tsx)
+- DropdownMenu (dropdown-menu.tsx)
+- Input (input.tsx)
+- Label (label.tsx)
+- Popover (popover.tsx)
+- Progress (progress.tsx)
+- RadioGroup (radio-group.tsx)
+- ScrollArea (scroll-area.tsx)
+- Select (select.tsx)
+- Separator (separator.tsx)
+- Sheet (sheet.tsx)
+- Skeleton (skeleton.tsx)
+- Slider (slider.tsx)
+- Switch (switch.tsx)
+- Table (table.tsx)
+- Tabs (tabs.tsx)
+- Textarea (textarea.tsx)
+- Toast (toast.tsx)
+- Toggle (toggle.tsx)
+- Tooltip (tooltip.tsx)
+```
 
-### 5. EditNodeModal
-- Component parameter configuration
-- Advanced settings toggle
-- Input/output mapping
-- Validation feedback
+### Advanced Components
+```typescript
+// Background and Visual Effects
+- BackgroundGradient (background-gradient.tsx)
+- DotBackground (dot-background.tsx)
+- BorderTrail (border-trail.tsx)
 
-### 6. FileManagerModal
-- File browser interface
-- Drag-and-drop upload
-- Recent files section
-- File type filtering
+// Data Display
+- DataTable (data-table.tsx)
+- JsonViewer (json-viewer.tsx)
+- CodeBlock (code-block.tsx)
+- MarkdownRenderer (markdown-renderer.tsx)
 
-### 7. FlowSettingsModal
-- Flow metadata editing
-- Icon and color selection
-- Endpoint configuration
-- Access type settings
+// Form Components
+- FormField (form-field.tsx)
+- FormGroup (form-group.tsx)
+- MultiSelect (multi-select.tsx)
+- DatePicker (date-picker.tsx)
+- TimePicker (time-picker.tsx)
+- ColorPicker (color-picker.tsx)
 
-### 8. GlobalVariableModal
-- Variable creation/editing
-- Type selection
-- Default value configuration
-- Scope settings
+// Loading States
+- Loading (loading.tsx)
+- LoadingText (loading-text.tsx)
+- SkeletonCard (skeleton-card.tsx)
+- Spinner (spinner.tsx)
+```
 
-## Reusable UI Components
-
-### Reusable Component Library
-
-#### Core Navigation Components
-- **CardComponent** (`src/components/common/cardComponent`): Flow/component display cards with metadata, actions, drag-and-drop
-- **SidebarComponent** (`src/components/core/sidebarComponent`): Collapsible navigation with folder hierarchy
-- **HeaderComponent** (`src/components/core/appHeaderComponent`): App header with user menu, theme toggle, navigation
-- **PaginatorComponent** (`src/components/common/paginatorComponent`): Pagination with page size controls
-- **SearchInput**: Debounced search with autocomplete suggestions
-- **DropdownComponent** (`src/components/core/dropdownComponent`): Custom dropdown with keyboard navigation
-
-#### Advanced Input Components
-- **InputComponent** (`src/components/core/parameterRenderComponent/components/inputComponent`): 
-  - Multi-mode support (text, password, dropdown, object selection)
-  - Global variable integration
-  - Validation feedback
-  - Icon and button support
-  - Custom popover for options
-- **FloatComponent** / **IntComponent**: Numeric inputs with range validation
-- **SliderComponent**: Range input with custom labels and preset buttons
-- **TextAreaComponent**: Code editor integration, syntax highlighting
-- **DropdownComponent**: Searchable, multi-select, with metadata display
-- **FileInputComponent**: Drag-and-drop with preview, multiple file support
-
-#### Data Display Components
-- **JsonEditor** (`src/components/core/jsonEditor`): Monaco editor integration
-- **CodeEditor**: Syntax highlighting, multiple language support
-- **TableComponent**: Virtual scrolling, sorting, filtering, selection
-- **ImageViewer** (`src/components/common/ImageViewer`): Zoom, pan, format support
-- **DataOutputComponent**: Structured data rendering with type awareness
-- **CsvOutputComponent**: Tabular data display with export
-
-#### Specialized Components
-- **ReactFlow Integration**: Custom nodes, edges, connection validation
-- **ChatComponents**: Message display, file attachments, streaming support
-- **NodeToolbar**: Context actions, parameter editing, status indicators
-- **ParameterRender**: Dynamic form generation based on node schemas
+### Voice Mode Components
+```typescript
+{
+  name: "VoiceAssistant",
+  type: "component",
+  content: {
+    elementType: "container",
+    attrs: { className: "voice-assistant" },
+    children: [
+      {
+        elementType: "component",
+        name: "VoiceButton",
+        dependency: "ui_voice_button",
+        attrs: {
+          isListening: { bindingPath: "isListening" },
+          onClick: "toggleListening"
+        }
+      },
+      {
+        elementType: "component",
+        name: "AudioWaveform",
+        dependency: "ui_audio_waveform",
+        conditional: {
+          condition: "isListening",
+          ifFalse: null
+        }
+      },
+      {
+        elementType: "component",
+        name: "AudioSettings",
+        dependency: "ui_audio_settings_dialog"
+      }
+    ]
+  },
+  stateDefinitions: {
+    isListening: { type: "boolean", defaultValue: false },
+    audioLevel: { type: "number", defaultValue: 0 },
+    selectedMicrophone: { type: "string", defaultValue: null },
+    selectedVoice: { type: "string", defaultValue: null },
+    voiceProviders: {
+      type: "array",
+      defaultValue: ["OpenAI", "ElevenLabs"]
+    }
+  }
+}
+```
 
 ## State Management Architecture
 
-### Zustand Store System
-**Global State Stores:**
-1. **authStore** (`src/stores/authStore.ts`): 
-   - User authentication state (login, logout, token refresh)
-   - User profile data and permissions
-   - Auto-login configuration
+### Zustand Store System with Types
+```typescript
+// authStore.ts
+interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  accessToken: string | null
+  refreshToken: string | null
+  autoLogin: boolean
+  login: (credentials: LoginCredentials) => Promise<void>
+  logout: () => void
+  refreshTokens: () => Promise<void>
+  setUser: (user: User) => void
+  checkAutoLogin: () => boolean
+}
 
-2. **flowStore** (`src/stores/flowStore.ts`):
-   - Current flow data (nodes, edges, metadata)
-   - Flow execution state and build status
-   - Input/output field management
-   - Real-time collaboration state
+// flowStore.ts
+interface FlowState {
+  currentFlow: Flow | null
+  nodes: Node[]
+  edges: Edge[]
+  isDirty: boolean
+  executionState: 'idle' | 'building' | 'running' | 'success' | 'error'
+  buildStatus: Record<string, BuildStatus>
+  history: HistoryItem[]
+  historyIndex: number
+  loadFlow: (id: string) => Promise<void>
+  saveFlow: () => Promise<void>
+  addNode: (node: Node) => void
+  removeNode: (nodeId: string) => void
+  updateNode: (nodeId: string, data: Partial<NodeData>) => void
+  addEdge: (edge: Edge) => void
+  removeEdge: (edgeId: string) => void
+  executeFlow: (inputs?: Record<string, any>) => Promise<void>
+  undo: () => void
+  redo: () => void
+}
 
-3. **flowsManagerStore** (`src/stores/flowsManagerStore.ts`):
-   - Flow collection management (CRUD operations)
-   - Flow templates and examples
-   - Import/export functionality
-   - Folder-based organization
+// messagesStore.ts
+interface MessagesState {
+  messages: Message[]
+  sessions: Session[]
+  currentSession: string | null
+  isStreaming: boolean
+  streamingMessage: Message | null
+  addMessage: (message: Message) => void
+  updateMessage: (id: string, update: Partial<Message>) => void
+  deleteMessage: (id: string) => void
+  loadMessages: (sessionId: string) => Promise<void>
+  createSession: () => string
+  switchSession: (sessionId: string) => void
+  clearSession: (sessionId: string) => void
+}
 
-4. **messagesStore** (`src/stores/messagesStore.ts`):
-   - Chat message history and sessions
-   - Message streaming state
-   - File attachment management
-   - Session persistence
+// voiceStore.ts
+interface VoiceState {
+  isEnabled: boolean
+  isListening: boolean
+  isSpeaking: boolean
+  selectedMicrophone: string | null
+  selectedVoice: string | null
+  voiceProvider: 'openai' | 'elevenlabs'
+  audioLevel: number
+  transcript: string
+  setListening: (listening: boolean) => void
+  setSpeaking: (speaking: boolean) => void
+  setMicrophone: (deviceId: string) => void
+  setVoice: (voiceId: string) => void
+  setProvider: (provider: string) => void
+  updateAudioLevel: (level: number) => void
+  appendTranscript: (text: string) => void
+  clearTranscript: () => void
+}
 
-5. **utilityStore** (`src/stores/utilityStore.ts`):
-   - UI state (sidebar open/closed, view preferences)
-   - Chat value store for real-time input
-   - Playground scroll behavior
-   - Client ID management
-   - Current session tracking
+// mcpStore.ts (New)
+interface MCPState {
+  servers: MCPServer[]
+  tools: MCPTool[]
+  activeServer: string | null
+  loadServers: () => Promise<void>
+  addServer: (server: MCPServer) => Promise<void>
+  removeServer: (serverId: string) => Promise<void>
+  activateServer: (serverId: string) => void
+  loadTools: (serverId: string) => Promise<void>
+  executeTool: (toolId: string, params: any) => Promise<any>
+}
+```
 
-6. **alertStore** (`src/stores/alertStore.ts`):
-   - Toast notification queue
-   - Error and success message display
-   - Alert persistence and auto-dismiss
+## Layout Elements and Patterns
 
-7. **foldersStore** (`src/stores/foldersStore.ts`):
-   - Folder hierarchy and navigation
-   - Folder CRUD operations
-   - My Collection management
+### Grid System
+```typescript
+{
+  elementType: "grid",
+  attrs: {
+    columns: { sm: 1, md: 2, lg: 3, xl: 4 },
+    gap: "medium",
+    responsive: true
+  },
+  children: {
+    repeat: {
+      dataSource: "items",
+      element: {
+        elementType: "component",
+        dependency: "ui_grid_item"
+      }
+    }
+  }
+}
+```
 
-8. **typesStore** (`src/stores/typesStore.ts`):
-   - Component type definitions
-   - Category mappings and icons
-   - Dynamic component loading
+### Flex Layout
+```typescript
+{
+  elementType: "flex",
+  attrs: {
+    direction: "row", // 'row' | 'column'
+    justify: "space-between", // 'start' | 'end' | 'center' | 'space-between' | 'space-around'
+    align: "center", // 'start' | 'end' | 'center' | 'stretch'
+    wrap: true,
+    gap: "small"
+  }
+}
+```
 
-9. **globalVariablesStore**: Environment variable management
-10. **darkStore** (`src/stores/darkStore.ts`): Theme preference persistence
-11. **voiceStore** (`src/stores/voiceStore.ts`): Voice input settings and state
-12. **storeStore** (`src/stores/storeStore.ts`): Component store integration
-13. **tweaksStore** (`src/stores/tweaksStore.ts`): Flow parameter tweaking
+### Split Pane
+```typescript
+{
+  elementType: "splitPane",
+  attrs: {
+    orientation: "horizontal", // 'horizontal' | 'vertical'
+    defaultSize: 300,
+    minSize: 200,
+    maxSize: 500,
+    resizable: true
+  },
+  children: [
+    { elementType: "component", dependency: "ui_left_pane" },
+    { elementType: "component", dependency: "ui_right_pane" }
+  ]
+}
+```
+
+## Screen State Transitions
+
+### Flow Editor States
+```typescript
+stateMachine: {
+  initial: "loading",
+  states: {
+    loading: {
+      on: {
+        LOAD_SUCCESS: "idle",
+        LOAD_ERROR: "error"
+      }
+    },
+    idle: {
+      on: {
+        START_BUILD: "building",
+        START_RUN: "validating",
+        EDIT_NODE: "editing"
+      }
+    },
+    editing: {
+      on: {
+        SAVE: "saving",
+        CANCEL: "idle"
+      }
+    },
+    saving: {
+      on: {
+        SAVE_SUCCESS: "idle",
+        SAVE_ERROR: "error"
+      }
+    },
+    building: {
+      on: {
+        BUILD_SUCCESS: "ready",
+        BUILD_ERROR: "error"
+      }
+    },
+    validating: {
+      on: {
+        VALIDATION_SUCCESS: "running",
+        VALIDATION_ERROR: "error"
+      }
+    },
+    running: {
+      on: {
+        RUN_SUCCESS: "completed",
+        RUN_ERROR: "error",
+        CANCEL: "idle"
+      }
+    },
+    completed: {
+      on: {
+        RESET: "idle",
+        RUN_AGAIN: "running"
+      }
+    },
+    error: {
+      on: {
+        RETRY: "idle",
+        DISMISS: "idle"
+      }
+    }
+  }
+}
+```
+
+### Authentication Flow States
+```typescript
+stateMachine: {
+  initial: "checking",
+  states: {
+    checking: {
+      on: {
+        HAS_TOKEN: "validating",
+        NO_TOKEN: "unauthenticated"
+      }
+    },
+    validating: {
+      on: {
+        VALID_TOKEN: "authenticated",
+        INVALID_TOKEN: "unauthenticated"
+      }
+    },
+    unauthenticated: {
+      on: {
+        LOGIN: "authenticating",
+        SIGNUP: "registering"
+      }
+    },
+    authenticating: {
+      on: {
+        SUCCESS: "authenticated",
+        ERROR: "unauthenticated",
+        MFA_REQUIRED: "mfa_challenge"
+      }
+    },
+    mfa_challenge: {
+      on: {
+        MFA_SUCCESS: "authenticated",
+        MFA_ERROR: "unauthenticated"
+      }
+    },
+    authenticated: {
+      on: {
+        LOGOUT: "unauthenticated",
+        TOKEN_EXPIRED: "refreshing"
+      }
+    },
+    refreshing: {
+      on: {
+        REFRESH_SUCCESS: "authenticated",
+        REFRESH_ERROR: "unauthenticated"
+      }
+    }
+  }
+}
+```
 
 ## Navigation Patterns
 
-### Protected Routes
-- **ProtectedRoute**: Requires authentication
-- **ProtectedAdminRoute**: Requires superuser role
-- **ProtectedLoginRoute**: Redirects if already logged in
-- **AuthSettingsGuard**: Checks auth provider settings
-
-### User Flows
-1. **Onboarding Flow**: Login → Dashboard → Create First Flow
-2. **Flow Creation**: Dashboard → New Flow → Editor → Save
-3. **Flow Testing**: Editor → Playground → Chat → Results
-4. **Settings Flow**: Dashboard → Settings → Configure → Save
-5. **Sharing Flow**: Flow → Share → Configure Access → Get Link
-
-## Dynamic Content & Conditional Rendering
-
-### Feature Flags
-- `ENABLE_CUSTOM_PARAM`: Custom URL parameters
-- `ENABLE_FILE_MANAGEMENT`: File management features
-- `ENABLE_MCP`: MCP server integration
-- `ENABLE_DATASTAX_LANGFLOW`: DataStax features
-- `ENABLE_PROFILE_ICONS`: Profile customization
-
-### Conditional UI Elements
-- Admin menu items (based on user role)
-- MCP tab (based on feature flag)
-- File management (based on feature flag)
-- Store integration (based on configuration)
-- Voice mode (based on browser capabilities)
-
-## Component Library Architecture
-
-### UI Component System
-**Base Components (Radix UI + Custom):**
-- **Button**: Extensive variant system with 12 variants (default, destructive, outline, primary, etc.), 9 size options, loading states, title case conversion
-- **Input**: Icon support, placeholder animation, password visibility toggle, form integration
-- **Modal System**: BaseModal with trigger/content pattern, size variants (x-small to x-large), animation states
-- **Form Components**: Radix UI Form integration with validation, custom styling
-
-### Component Props & Interfaces
-
-#### Page Component Patterns
+### Protected Routes with Guards
 ```typescript
-interface PageProps {
-  type?: "flows" | "components" | "mcp"
-  view?: "grid" | "list"
-  folderId?: string
-  isLoading?: boolean
-}
-
-interface IOModalPropsType {
-  children: JSX.Element
-  open: boolean
-  setOpen: (open: boolean) => void
-  disable?: boolean
-  isPlayground?: boolean
-  canvasOpen?: boolean
-  playgroundPage?: boolean
-}
+// Route definitions with guards
+const routes = [
+  {
+    path: "/",
+    element: <AppWrapper />,
+    children: [
+      {
+        path: "login",
+        element: <ProtectedLoginRoute><LoginPage /></ProtectedLoginRoute>
+      },
+      {
+        path: "flows",
+        element: <ProtectedRoute><FlowDashboard /></ProtectedRoute>
+      },
+      {
+        path: "flow/:id",
+        element: <ProtectedRoute><FlowEditor /></ProtectedRoute>
+      },
+      {
+        path: "admin",
+        element: <ProtectedAdminRoute><AdminPage /></ProtectedAdminRoute>
+      },
+      {
+        path: "settings",
+        element: <AuthSettingsGuard><SettingsPage /></AuthSettingsGuard>,
+        children: [
+          { path: "general", element: <GeneralSettings /> },
+          { path: "api-keys", element: <ApiKeysSettings /> },
+          { path: "global-variables", element: <GlobalVariablesSettings /> },
+          { path: "mcp-servers", element: <MCPServersSettings /> }
+        ]
+      }
+    ]
+  }
+]
 ```
 
-#### Form Component Interfaces
+## Feature Flags and Conditional Features
 ```typescript
-interface InputComponentType {
-  name?: string
-  autoFocus?: boolean
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
-  value?: string
-  disabled?: boolean
-  onChange?: (value: string, snapshot?: boolean) => void
-  password: boolean
-  required?: boolean
-  isForm?: boolean
-  editNode?: boolean
-  placeholder?: string
-  className?: string
-  id?: string
-  blurOnEnter?: boolean
-  optionsIcon?: string
-  optionsPlaceholder?: string
-  options?: string[]
-  selectedOption?: string
-  setSelectedOption?: (value: string) => void
-  selectedOptions?: string[]
-  setSelectedOptions?: (value: string[]) => void
-  objectOptions?: Array<{ name: string; id: string }>
-  isObjectOption?: boolean
-  nodeStyle?: boolean
-  isToolMode?: boolean
-  popoverWidth?: string
-  commandWidth?: string
-  blockAddNewGlobalVariable?: boolean
-  hasRefreshButton?: boolean
+const FEATURE_FLAGS = {
+  ENABLE_CUSTOM_PARAM: process.env.REACT_APP_ENABLE_CUSTOM_PARAM === 'true',
+  ENABLE_FILE_MANAGEMENT: process.env.REACT_APP_ENABLE_FILE_MANAGEMENT === 'true',
+  ENABLE_MCP: process.env.REACT_APP_ENABLE_MCP === 'true',
+  ENABLE_VOICE_MODE: process.env.REACT_APP_ENABLE_VOICE_MODE === 'true',
+  ENABLE_DATASTAX_LANGFLOW: process.env.REACT_APP_ENABLE_DATASTAX_LANGFLOW === 'true',
+  ENABLE_WORKSPACE: process.env.REACT_APP_ENABLE_WORKSPACE === 'true'
 }
 
-interface DropDownComponent {
-  disabled?: boolean
-  isLoading?: boolean
-  value: string
-  combobox?: boolean
-  nodeId: string
-  nodeClass: APIClassType
-  handleNodeClass: (value: any, code?: string, type?: string) => void
-  options: string[]
-  optionsMetaData?: any[]
-  onSelect: (value: string, dbValue?: boolean, snapshot?: boolean) => void
-  editNode?: boolean
-  id?: string
-  children?: ReactNode
-  name: string
-  dialogInputs?: any
-  toggle?: boolean
+// Conditional rendering based on feature flags
+{
+  conditional: {
+    condition: "FEATURE_FLAGS.ENABLE_MCP",
+    ifTrue: {
+      elementType: "component",
+      dependency: "ui_mcp_features"
+    },
+    ifFalse: null
+  }
 }
 ```
 
-#### Modal Component Interfaces
+## Error Boundaries and Loading States
 ```typescript
-interface ConfirmationModalType {
-  onCancel?: () => void
-  title: string
-  titleHeader?: string
-  destructive?: boolean
-  destructiveCancel?: boolean
-  modalContentTitle?: string
-  loading?: boolean
-  cancelText?: string
-  confirmationText?: string
-  children: [React.ReactElement<ContentProps>, React.ReactElement<TriggerProps>] | React.ReactElement<ContentProps>
-  icon?: string
-  data?: any
-  index?: number
-  onConfirm?: (index, data) => void
-  open?: boolean
-  onClose?: () => void
-  size?: "x-small" | "smaller" | "small" | "medium" | "large" | "large-h-full" | "small-h-full" | "medium-h-full"
-  onEscapeKeyDown?: (e: KeyboardEvent) => void
+{
+  name: "ErrorBoundary",
+  type: "component",
+  content: {
+    elementType: "errorBoundary",
+    attrs: {
+      fallback: {
+        elementType: "component",
+        dependency: "ui_error_fallback"
+      }
+    },
+    children: [
+      {
+        elementType: "suspense",
+        attrs: {
+          fallback: {
+            elementType: "component",
+            dependency: "ui_loading_spinner"
+          }
+        },
+        children: [
+          {
+            elementType: "component",
+            dependency: "ui_main_content"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
-#### Chat Component Interfaces
+## Accessibility Features
 ```typescript
-interface ChatInputType {
-  isDragging: boolean
-  files: FilePreviewType[]
-  setFiles: (files: FilePreviewType[] | ((prev: FilePreviewType[]) => FilePreviewType[])) => void
-  inputRef: { current: any }
-  noInput: boolean
-  sendMessage: ({ repeat, files }: { repeat: number; files?: string[] }) => Promise<void>
-  playgroundPage: boolean
-}
-
-interface chatMessagePropsType {
-  chat: ChatMessageType
-  lastMessage: boolean
-  updateChat: (chat: ChatMessageType, message: string, stream_url?: string) => void
-  closeChat?: () => void
-  playgroundPage?: boolean
+{
+  elementType: "button",
+  attrs: {
+    "aria-label": "Save flow",
+    "aria-pressed": { bindingPath: "isSaving" },
+    "aria-disabled": { bindingPath: "isDisabled" },
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: "handleKeyPress"
+  }
 }
 ```
 
-#### Parameter Render Component Interfaces
+## Responsive Design Breakpoints
 ```typescript
-interface ParameterComponentType {
-  selected?: boolean
-  data: NodeDataType
-  title: string
-  conditionPath?: string | null
-  key: string
-  id: sourceHandleType | targetHandleType
-  colors: string[]
-  left: boolean
-  type: string | undefined
-  required?: boolean
-  name?: string
-  tooltipTitle: string | undefined
-  optionalHandle?: Array<string> | null
-  info?: string
-  proxy?: { field: string; id: string }
-  showNode?: boolean
-  index: number
-  onCloseModal?: (close: boolean) => void
-  outputName?: string
-  outputProxy?: OutputFieldProxyType
+const breakpoints = {
+  xs: '0px',
+  sm: '640px',
+  md: '768px',
+  lg: '1024px',
+  xl: '1280px',
+  '2xl': '1536px'
+}
+
+// Responsive attributes in UIDL
+{
+  attrs: {
+    className: {
+      xs: "col-span-12",
+      md: "col-span-6",
+      lg: "col-span-4"
+    },
+    display: {
+      xs: "block",
+      lg: "flex"
+    }
+  }
 }
 ```
 
-## Styling System & Theme Architecture
-
-### Tailwind CSS Configuration
-**Custom Design System:**
-- **Color Palette**: 100+ custom CSS variables with HSL values for consistent theming
-- **Gradient System**: 46 predefined gradients, 9 flow-specific gradients, theme-aware swatches
-- **Animations**: Custom keyframes (overlayShow, contentShow, border-beam, pulse-pink)
-- **Typography**: Custom font families (Chivo, Inter), extended font sizes
-- **Spacing**: Custom border widths, extended z-index scale, backdrop blur utilities
-
-### Color System Architecture
-```css
-:root {
-  /* Primary Colors */
-  --primary: 220 14% 96%;
-  --primary-foreground: 220.9 39.3% 11%;
-  --primary-hover: 210 40% 92%;
-  
-  /* Accent Colors */
-  --accent-emerald: 142.1 76.2% 36.3%;
-  --accent-pink: 330 81% 60%;
-  --accent-purple: 262.1 83.3% 57.8%;
-  
-  /* Data Type Colors */
-  --datatype-yellow: 47.9 95.8% 53.1%;
-  --datatype-blue: 200 98% 39%;
-  --datatype-red: 0 72.2% 50.6%;
-  --datatype-violet: 262.1 83.3% 57.8%;
+## Theme System
+```typescript
+interface ThemeDefinition {
+  colors: {
+    primary: string
+    secondary: string
+    background: string
+    foreground: string
+    muted: string
+    accent: string
+    destructive: string
+    border: string
+    input: string
+    ring: string
+  }
+  spacing: {
+    xs: string
+    sm: string
+    md: string
+    lg: string
+    xl: string
+  }
+  borderRadius: {
+    sm: string
+    md: string
+    lg: string
+    full: string
+  }
+  fontFamily: {
+    sans: string
+    mono: string
+  }
 }
 ```
 
-### Node Color Mapping System
-**Category-based Node Colors:**
-- **Input/Output**: Emerald (#10B981) / Red (#AA2411)
-- **Models**: Fuchsia (#ab11ab)
-- **Agents**: Purple (#903BBE)
-- **Tools**: Cyan (#00fbfc)
-- **Data**: Sky Blue (#198BF6)
-- **Memory**: Amber (#F5B85A)
+## Summary
 
-### Icon System Architecture
-**Multi-source Icon Management:**
-- **Lucide React**: Primary icon library with dynamic imports
-- **FontAwesome**: Integration for brand icons
-- **Custom Icons**: SVG components (GradientSave, BotMessageSquare)
-- **Icon Caching**: Map-based caching system for performance
-- **Lazy Loading**: Async icon loading with fallbacks
+This complete interface documentation covers:
+1. **UIDL Definitions**: Structured representation of all UI components
+2. **Pages**: All main application screens with complete state management
+3. **Modals**: Including new MCP and Voice Mode modals
+4. **Components**: Full UI component library based on shadcn/ui
+5. **State Management**: Complete Zustand store definitions with types
+6. **Layout Systems**: Grid, Flex, and Split Pane patterns
+7. **State Machines**: Flow editor and authentication state transitions
+8. **Navigation**: Protected routes and guards
+9. **Feature Flags**: Conditional feature enabling
+10. **Accessibility**: ARIA attributes and keyboard navigation
+11. **Responsive Design**: Breakpoint system
+12. **Theme System**: Complete theming architecture
 
-### Responsive Design Patterns
-- **Mobile-first**: Tailwind breakpoints (sm: 640px, md: 768px, lg: 1024px, xl: 1200px)
-- **Adaptive Layouts**: Grid/list view switching, collapsible sidebars
-- **Touch Interactions**: Mobile-optimized button sizes and touch targets
-- **Viewport Adaptation**: Responsive modal sizes, dynamic sidebar behavior
-- **Progressive Disclosure**: Context-aware UI element visibility
+The UIDL approach provides a declarative, type-safe way to define UI components that can be:
+- Validated at build time
+- Transformed into different frameworks
+- Used for code generation
+- Analyzed for dependencies
+- Optimized for performance

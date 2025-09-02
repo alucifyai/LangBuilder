@@ -2,6 +2,197 @@
 
 Based on comprehensive analysis of the backend and frontend codebases, here are all the system logic components with their complete workflow details:
 
+## StateChart System Logic Diagrams
+
+### 1. Application Lifecycle StateChart
+
+```mermaid
+stateDiagram-v2
+    [*] --> Initializing
+    
+    state Initializing {
+        [*] --> InitializingServices
+        InitializingServices --> SetupLLMCaching
+        SetupLLMCaching --> InitializingSuperUser
+        InitializingSuperUser --> LoadingBundles
+        LoadingBundles --> CachingTypes
+        CachingTypes --> CreatingStarterProjects
+        CreatingStarterProjects --> StartingTelemetry
+        StartingTelemetry --> LoadingFlows
+        LoadingFlows --> LoadingMCPServers
+        LoadingMCPServers --> [*]
+    }
+    
+    Initializing --> Ready
+    Ready --> Processing: user_request
+    Processing --> Ready: request_completed
+    Ready --> Shutting_Down: shutdown_signal
+    
+    state Shutting_Down {
+        [*] --> StoppingServices
+        StoppingServices --> CleaningUpTasks
+        CleaningUpTasks --> TeardownServices
+        TeardownServices --> CleaningTempFiles
+        CleaningTempFiles --> [*]
+    }
+    
+    Shutting_Down --> [*]
+```
+
+### 2. Flow Execution StateChart
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT
+    
+    DRAFT --> VALIDATING: create_flow
+    VALIDATING --> DRAFT: validation_failed
+    VALIDATING --> PERSISTING: validation_passed
+    
+    PERSISTING --> READY: persistence_complete
+    PERSISTING --> ERROR: persistence_failed
+    
+    READY --> BUILDING: start_build
+    BUILDING --> RUNNING: build_complete
+    BUILDING --> ERROR: build_failed
+    
+    RUNNING --> SUCCESS: execution_complete
+    RUNNING --> ERROR: execution_failed
+    RUNNING --> CANCELLED: cancel_request
+    
+    ERROR --> READY: retry_request
+    SUCCESS --> READY: new_request
+    CANCELLED --> READY: new_request
+    
+    state BUILDING {
+        [*] --> PreparingGraph
+        PreparingGraph --> SortingVertices
+        SortingVertices --> DetectingCycles
+        DetectingCycles --> ExecutingVertices
+        ExecutingVertices --> CollectingResults
+        CollectingResults --> [*]
+    }
+    
+    state RUNNING {
+        [*] --> ProcessingInputs
+        ProcessingInputs --> ExecutingComponents
+        ExecutingComponents --> GeneratingOutputs
+        GeneratingOutputs --> StreamingResults
+        StreamingResults --> [*]
+    }
+```
+
+### 3. Job Queue StateChart
+
+```mermaid
+stateDiagram-v2
+    [*] --> Creating
+    Creating --> Queued: job_created
+    
+    Queued --> Running: start_job
+    Queued --> Cancelled: cancel_before_start
+    
+    Running --> Completed: success
+    Running --> Failed: error_occurred
+    Running --> Cancelled: cancel_during_execution
+    
+    state Running {
+        [*] --> TaskSpawning
+        TaskSpawning --> EventStreaming
+        EventStreaming --> ProgressMonitoring
+        ProgressMonitoring --> [*]
+    }
+    
+    Completed --> MarkedForCleanup: grace_period_start
+    Failed --> MarkedForCleanup: grace_period_start
+    Cancelled --> MarkedForCleanup: grace_period_start
+    
+    MarkedForCleanup --> CleanedUp: grace_period_expired
+    
+    CleanedUp --> [*]
+```
+
+### 4. Authentication StateChart
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unauthenticated
+    
+    Unauthenticated --> Authenticating: login_request
+    Authenticating --> Authenticated: valid_credentials
+    Authenticating --> Unauthenticated: invalid_credentials
+    
+    state Authenticated {
+        [*] --> TokenValid
+        TokenValid --> TokenExpiring: token_near_expiry
+        TokenExpiring --> RefreshingToken: auto_refresh
+        RefreshingToken --> TokenValid: refresh_success
+        RefreshingToken --> Unauthenticated: refresh_failed
+        TokenValid --> Unauthenticated: logout_request
+    }
+    
+    Authenticated --> Processing_API_Requests: api_request
+    Processing_API_Requests --> Authenticated: request_complete
+    Processing_API_Requests --> Unauthenticated: auth_error
+```
+
+### 5. Real-time Event System StateChart
+
+```mermaid
+stateDiagram-v2
+    [*] --> EventManager_Ready
+    
+    EventManager_Ready --> Event_Received: component_emits_event
+    Event_Received --> Event_Validated: validate_event
+    Event_Validated --> Event_Queued: validation_passed
+    Event_Validated --> Event_Dropped: validation_failed
+    
+    Event_Queued --> Event_Processing: queue_consumer_ready
+    Event_Processing --> Event_Delivery: process_complete
+    
+    state Event_Delivery {
+        [*] --> Streaming_Delivery
+        Streaming_Delivery --> SSE_Sent: streaming_mode
+        Streaming_Delivery --> Polling_Response: polling_mode
+        Streaming_Delivery --> Direct_Response: direct_mode
+        SSE_Sent --> [*]
+        Polling_Response --> [*]
+        Direct_Response --> [*]
+    }
+    
+    Event_Delivery --> EventManager_Ready: delivery_complete
+    Event_Dropped --> EventManager_Ready: cleanup_complete
+```
+
+### 6. Frontend State Management StateChart
+
+```mermaid
+stateDiagram-v2
+    [*] --> Store_Initializing
+    
+    Store_Initializing --> Store_Ready: stores_loaded
+    Store_Ready --> Action_Dispatched: user_action
+    
+    state Action_Dispatched {
+        [*] --> Validating_Action
+        Validating_Action --> Updating_State: validation_passed
+        Validating_Action --> Action_Rejected: validation_failed
+        
+        Updating_State --> Triggering_Side_Effects: state_updated
+        Triggering_Side_Effects --> Persisting_State: persistence_required
+        Triggering_Side_Effects --> Notifying_Components: no_persistence
+        
+        Persisting_State --> Notifying_Components: persistence_complete
+        Notifying_Components --> [*]
+        Action_Rejected --> [*]
+    }
+    
+    Action_Dispatched --> Store_Ready: action_complete
+    
+    Store_Ready --> Syncing_Server_State: server_event_received
+    Syncing_Server_State --> Store_Ready: sync_complete
+```
+
 ## Core Business Logic Architecture
 
 ### 1. Flow Management System
@@ -341,4 +532,152 @@ interface AccessRules {
 - **Error tracking** with stack traces
 - **User activity** logging for analytics
 
-This logic system provides a robust, scalable, and maintainable architecture for the LangBuilder platform, handling complex workflows with proper error handling, real-time updates, and performance optimization.
+## Comprehensive Backend Service Architecture Analysis
+
+### Service Management Layer
+- **ServiceManager**: Central registry managing 16+ core services with dependency injection
+- **Service Factory Pattern**: Lifecycle management with ordered initialization
+- **Key Services**: Database, Auth, Chat, Session, Task, JobQueue, Cache, Settings, etc.
+
+### Core Service Details
+
+#### 1. Database Service
+- **Location**: `src/backend/base/langflow/services/database/service.py`
+- **Capabilities**: Async operations, migrations, health checks, connection pooling
+- **Features**: Multi-database support (SQLite, PostgreSQL), orphaned flow reassignment
+
+#### 2. Task Service (AnyIO Backend)
+- **Location**: `src/backend/base/langflow/services/task/backends/anyio.py`
+- **Architecture**: AnyIO-based async task execution with cancellation support
+- **Task States**: PENDING → DONE (SUCCESS/FAILURE)
+- **Features**: Resource cleanup, exception tracking, graceful cancellation
+
+#### 3. Job Queue Service
+- **Location**: `src/backend/base/langflow/services/job_queue/service.py`
+- **Architecture**: Job-specific asyncio queues with EventManager integration
+- **Lifecycle**: Create → Start → Monitor → Cleanup (300s grace period)
+- **Features**: Periodic cleanup, resource isolation, background task management
+
+#### 4. Event Management System
+- **Location**: `src/backend/base/langflow/events/event_manager.py`
+- **Pattern**: Publisher-subscriber with typed event callbacks
+- **Events**: build_start, build_end, vertices_sorted, end_vertex, token, error, etc.
+- **Integration**: Queue-based delivery with multiple consumption modes
+
+### Advanced API Architecture Analysis
+
+#### 1. Authentication & Security
+- **JWT + Cookie-based authentication** with automatic refresh
+- **API Key management** with encryption for store integration
+- **RBAC implementation** with user/superuser privilege levels
+- **Cross-user data isolation** with ownership validation
+
+#### 2. Flow Management APIs
+- **Complex CRUD operations** with name collision resolution
+- **Automatic numbering** for duplicate names (`MyFlow` → `MyFlow (1)`)
+- **Endpoint uniqueness** validation with dash-separated increments
+- **File system synchronization** with API key sanitization on export
+
+#### 3. Real-time Execution System
+- **Multi-modal event delivery**: Streaming (SSE), Polling (NDJSON), Direct
+- **Background job queue** with Redis/memory backend support  
+- **Progress tracking** with telemetry integration
+- **Graceful cancellation** with client disconnection detection
+
+#### 4. Store Integration
+- **Component marketplace** with sharing, browsing, and downloading
+- **Like/unlike system** with user preference tracking
+- **Tag-based filtering** and search capabilities
+- **API key validation** for authenticated operations
+
+### Frontend State Management Deep Dive
+
+#### Zustand Store Architecture (16+ Stores)
+1. **FlowStore** (1,082 lines): Primary application state
+2. **FlowsManagerStore**: Undo/redo with auto-saving
+3. **AuthStore**: Authentication state with error counting
+4. **AlertStore**: Centralized notification system
+5. **MessagesStore**: Chat/messaging state management
+
+#### State Patterns
+- **Cross-store communication** via direct imports
+- **Optimistic updates** with server validation rollback
+- **Real-time synchronization** through WebSocket integration
+- **Multi-layered persistence**: localStorage, cookies, sessionStorage
+
+#### TanStack Query Integration
+- **Server state caching** with background refetching
+- **Direct store updates** from query responses
+- **Pagination support** with `keepPreviousData`
+- **Modular query organization** by feature domain
+
+### Middleware & Interceptor Analysis
+
+#### Backend Middleware Stack
+1. **ContentSizeLimitMiddleware**: File size validation (configurable MB limits)
+2. **RequestCancelledMiddleware**: Client disconnection handling (499 status)
+3. **JavaScriptMIMETypeMiddleware**: Content-type correction + error serialization
+4. **CORSMiddleware**: Cross-origin request handling
+5. **SentryAsgiMiddleware**: Error tracking and monitoring (optional)
+
+#### Frontend API Interceptors
+- **Request interceptor**: Automatic Bearer token injection + custom headers
+- **Response interceptor**: Authentication error handling with retry logic
+- **Token refresh logic**: Automatic token renewal on 401/403 errors
+- **Error counting**: Progressive backoff with max retry limits
+
+### Background Jobs & Async Operations
+
+#### Job Queue Architecture
+- **JobQueueService**: Manages job-specific asyncio queues
+- **EventManager integration**: Real-time progress updates
+- **Graceful cleanup**: 300-second grace period for resource cleanup
+- **Periodic maintenance**: 60-second cleanup cycles for completed jobs
+
+#### Task Execution Patterns
+- **AnyIO backend**: Modern async task execution with cancellation
+- **Exception tracking**: Comprehensive error capture and logging
+- **Resource management**: Automatic cleanup of tasks and queues
+
+### Workflow & Pipeline Configurations
+
+#### CI/CD Orchestration
+- **Path-based filtering**: Component-specific test execution
+- **Dependency chains**: Sequential job execution with conditions
+- **Multi-platform builds**: Docker images for AMD64/ARM64
+- **Health checks**: Nightly build status validation
+
+#### Application Processing Pipelines
+- **Graph execution engine**: Vertex-based processing with dependency resolution
+- **Build system**: Event-driven with real-time status updates
+- **Error recovery**: Comprehensive failure handling with retry mechanisms
+
+## Advanced System Patterns
+
+### 1. Event-Driven Architecture
+- **EventManager**: Central event coordination with typed callbacks
+- **Real-time streaming**: Server-Sent Events for live updates
+- **Multi-modal delivery**: Streaming, Polling, Direct response modes
+
+### 2. Resource Management
+- **Connection pooling**: Database and external service connections
+- **Memory management**: Graph and component caching with TTL
+- **File handling**: Size limits, validation, and automatic cleanup
+
+### 3. Error Handling & Recovery
+- **Graceful degradation**: Fallback mechanisms throughout the stack
+- **Circuit breaker patterns**: External service failure protection
+- **Exponential backoff**: Retry mechanisms with increasing delays
+
+### 4. Security & Access Control
+- **Multi-layer authentication**: JWT + API keys + session management
+- **Cross-user isolation**: Strict data ownership validation
+- **Input sanitization**: Comprehensive validation at all entry points
+
+### 5. Performance Optimization
+- **Multi-level caching**: Component, graph, API response caching
+- **Lazy loading**: On-demand resource loading
+- **Background processing**: Non-blocking execution for heavy operations
+- **Compression**: Response compression for large payloads
+
+This comprehensive logic system provides an enterprise-grade, scalable, and maintainable architecture for the LangBuilder platform, handling complex workflows with sophisticated error handling, real-time updates, comprehensive security, and extensive performance optimization.

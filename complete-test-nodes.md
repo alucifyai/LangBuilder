@@ -411,4 +411,445 @@ THEN:
 - **Coverage Metrics**: Code coverage tracking and reporting
 - **Regression Testing**: Automated detection of introduced bugs
 
-This comprehensive test analysis provides the foundation for understanding LangBuilder's quality assurance approach, behavioral specifications, and acceptance criteria across all system components.
+## Comprehensive Test Fixture and Mock Data Analysis
+
+### Backend Test Fixtures
+
+#### Database Testing Infrastructure
+```python
+# Fixture: async_session - In-memory SQLite for test isolation
+@pytest.fixture
+async def async_session():
+    engine = create_async_engine("sqlite+aiosqlite://", poolclass=StaticPool)
+    # Create tables → Yield session → Drop tables (cleanup)
+
+# Fixture: active_user - Authenticated test user with cleanup
+@pytest.fixture
+async def active_user(client):
+    user = User(username="activeuser", is_active=True, is_superuser=False)
+    # Includes comprehensive cleanup of flows, transactions, vertex_builds
+```
+
+#### Authentication and Authorization Fixtures
+```python
+# Fixture: logged_in_headers - Bearer token authentication
+@pytest.fixture
+async def logged_in_headers(client, active_user):
+    # Returns: {"Authorization": f"Bearer {access_token}"}
+    
+# Fixture: created_api_key - API key for service integration
+@pytest.fixture
+async def created_api_key(active_user):
+    # Creates hashed API key with automatic cleanup
+```
+
+#### Flow and Graph Testing Fixtures
+```python
+# Standardized test flow data from JSON files
+pytest.BASIC_EXAMPLE_PATH = "tests/data/basic_example.json"
+pytest.COMPLEX_EXAMPLE_PATH = "tests/data/complex_example.json"
+pytest.VECTOR_STORE_GROUPED_EXAMPLE_PATH = "tests/data/vector_store_grouped.json"
+
+# Flow creation fixtures with automatic cleanup
+@pytest.fixture
+async def added_flow_webhook_test(client, json_webhook_test, logged_in_headers):
+    # Creates flow → Yields response → Deletes flow
+```
+
+### Frontend Test Fixtures
+
+#### Test Data Patterns
+```typescript
+// Static test data for consistent testing
+const TEST_COLLECTION_NAME = "collection_name_test_123123123!@#$&*(&%$@";
+const UNICODE_TEST_DATA = "ÇÇÇÀõe";
+const COMPLEX_CHARACTERS = "Special chars: !@#$%^&*()";
+
+// Component test utilities
+async function dragAndDropComponent(page, componentName, position) {
+  // Standardized drag-and-drop implementation
+}
+
+// State management test helpers
+function createMockStore(initialState) {
+  // Mock Zustand store creation
+}
+```
+
+#### E2E Test Configuration
+```typescript
+// Event delivery mode testing
+withEventDeliveryModes(["streaming", "polling", "direct"])
+
+// Parallel execution configuration
+workers: 2,
+timeout: 180000, // 3-minute timeout
+
+// Page object patterns for reusable interactions
+class FlowBuilderPage {
+  async addComponent(name: string) { /* implementation */ }
+  async connectComponents(from: string, to: string) { /* implementation */ }
+  async buildFlow() { /* implementation */ }
+}
+```
+
+## User Story Mapping
+
+### Epic: Flow Management
+**As a** LangBuilder user  
+**I want to** create, manage, and execute AI flows  
+**So that** I can build and deploy AI applications efficiently  
+
+#### User Stories:
+1. **Flow Creation**: As a user, I want to create flows with unique names so that I can organize my AI workflows
+2. **Flow Organization**: As a user, I want to organize flows in folders so that I can manage multiple projects
+3. **Flow Sharing**: As a user, I want to make flows public or private so that I can control access to my work
+4. **Flow Execution**: As a user, I want to execute flows and see real-time progress so that I can test and debug my AI applications
+
+### Epic: Component Management  
+**As a** LangBuilder user  
+**I want to** use and configure AI components  
+**So that** I can build complex AI workflows without coding  
+
+#### User Stories:
+1. **Component Discovery**: As a user, I want to search and browse available components so that I can find the right tools for my workflow
+2. **Component Configuration**: As a user, I want to configure component parameters so that I can customize behavior for my use case
+3. **Component Connection**: As a user, I want to connect components with drag-and-drop so that I can create data flow pipelines visually
+
+### Epic: Authentication and Security
+**As a** LangBuilder administrator  
+**I want to** secure user access and data  
+**So that** user data is protected and properly isolated  
+
+#### User Stories:
+1. **User Authentication**: As a user, I want to securely log in so that my data is protected
+2. **Data Isolation**: As a user, I want my flows to be private so that other users cannot access my work
+3. **API Access**: As a developer, I want to access flows via API so that I can integrate with external systems
+
+## Comprehensive Gherkin Test Scenarios
+
+### Feature: Flow Management
+```gherkin
+Feature: Flow Management
+  As a LangBuilder user
+  I want to manage AI flows
+  So that I can build and organize AI workflows
+
+  Background:
+    Given I am logged in as an active user
+    And I have access to the flow management interface
+
+  Scenario: Create a new flow with automatic name conflict resolution
+    Given I navigate to the flow creation page
+    When I create a flow with name "MyFlow"
+    Then the flow should be created successfully
+    And the flow name should be "MyFlow"
+    
+    When I create another flow with name "MyFlow"
+    Then the flow should be created successfully  
+    And the flow name should be "MyFlow (1)"
+    
+    When I create a third flow with name "MyFlow"
+    Then the flow should be created successfully
+    And the flow name should be "MyFlow (2)"
+
+  Scenario: Update flow properties
+    Given I have a flow named "TestFlow"
+    When I update the flow description to "Updated description"
+    Then the flow should be updated successfully
+    And the flow description should be "Updated description"
+    And the updated_at timestamp should be refreshed
+
+  Scenario: Delete flow with cascade cleanup
+    Given I have a flow with associated data
+    When I delete the flow
+    Then the flow should be removed from the database
+    And all associated transactions should be cleaned up
+    And all associated vertex builds should be cleaned up
+
+  Scenario: User data isolation
+    Given I am logged in as "user1"
+    And another user "user2" exists with flows
+    When I request my flow list
+    Then I should only see flows owned by "user1"
+    And I should not see flows owned by "user2"
+```
+
+### Feature: Authentication and Authorization
+```gherkin
+Feature: Authentication and Authorization
+  As a LangBuilder user
+  I want secure access to the platform
+  So that my data is protected
+
+  Scenario: Successful user login
+    Given I have valid credentials "testuser" and "testpassword"
+    When I attempt to log in
+    Then I should receive an access token
+    And I should be authenticated for API requests
+    And I should have access to my user data
+
+  Scenario: Failed login with invalid credentials  
+    Given I have invalid credentials "testuser" and "wrongpassword"
+    When I attempt to log in
+    Then I should receive a 401 Unauthorized response
+    And I should not receive an access token
+
+  Scenario: API key authentication
+    Given I have a valid API key "random_key"
+    When I make an API request with the API key
+    Then the request should be authenticated
+    And I should have access to my user's resources
+
+  Scenario: Auto-logout and state cleanup
+    Given I am logged in with an active session
+    When I initiate logout
+    Then all application stores should be reset
+    And the query cache should be invalidated
+    And my session state should be cleared
+```
+
+### Feature: Component Integration
+```gherkin
+Feature: Component Integration
+  As a LangBuilder user
+  I want to use AI components in my flows
+  So that I can build complex AI applications
+
+  Background:
+    Given I am logged in as an active user
+    And I have access to the flow builder
+
+  Scenario: Add and configure input component
+    Given I am on the flow builder page
+    When I drag a "Chat Input" component to the canvas
+    Then the component should be added to the flow
+    And the component should be configurable
+    
+    When I set the input value to "collection_name_test_123123123!@#$&*(&%$@"
+    Then the component should accept complex characters
+    And the value should persist when switching views
+
+  Scenario: Connect components with data flow
+    Given I have a "Chat Input" component on the canvas
+    And I have a "Chat Output" component on the canvas
+    When I connect the output of "Chat Input" to the input of "Chat Output"
+    Then a connection should be established
+    And data should flow from input to output during execution
+
+  Scenario: Component with tool integration
+    Given I have an "Agent" component configured with OpenAI
+    When I add a "Calculator" tool to the agent
+    Then the agent should be able to use the calculator
+    And mathematical expressions should be evaluated correctly
+```
+
+### Feature: Flow Execution
+```gherkin
+Feature: Flow Execution
+  As a LangBuilder user
+  I want to execute flows
+  So that I can test and use my AI workflows
+
+  Background:
+    Given I am logged in as an active user
+    And I have a flow ready for execution
+
+  Scenario: Successful flow execution with streaming
+    Given I have a valid flow with connected components
+    When I execute the flow with streaming enabled
+    Then I should see "build started" event
+    And I should see real-time build progress
+    And I should see "build completed" event
+    And the flow should produce expected outputs
+
+  Scenario: Flow execution with error handling
+    Given I have a flow with an invalid component configuration
+    When I execute the flow
+    Then I should see appropriate error messages
+    And the error should be captured in the build status
+    And the system should handle the error gracefully
+
+  Scenario: Cyclic flow execution with max iterations
+    Given I have a flow with circular dependencies  
+    When I execute the flow with max_iterations=2
+    Then the system should detect the cyclic nature
+    And execution should stop after 2 iterations
+    And a "Max iterations reached" error should be thrown
+```
+
+### Feature: End-to-End User Workflows
+```gherkin
+Feature: End-to-End User Workflows
+  As a LangBuilder user
+  I want to complete full workflows
+  So that I can accomplish real-world AI tasks
+
+  Scenario: Complete Basic Prompting Workflow
+    Given I am on the main page
+    When I select the "Basic Prompting" template
+    Then the template should load successfully
+    
+    When I configure the OpenAI API key
+    And I build the flow
+    Then I should see "built successfully" confirmation
+    
+    When I test the flow in the playground with message "Hello, behave like a pirate"
+    Then I should receive a pirate-themed response
+    And the conversation should be saved to session history
+
+  Scenario: Document Q&A Workflow
+    Given I select the "Document Q&A" template
+    When I upload a test document
+    And I configure the OpenAI integration
+    And I build the flow
+    Then the document should be processed successfully
+    
+    When I ask "What is this document about?"
+    Then I should receive an answer based on the document content
+    And the response should reference the uploaded document
+
+  Scenario: Custom Component Development
+    Given I am on the flow builder
+    When I create a new custom component
+    Then the code editor should open
+    And the code button should pulse pink indicating editing required
+    
+    When I write valid component code
+    And I save the component
+    Then I should see visual confirmation of successful save
+    And the component should be available for use in flows
+
+  Scenario: File Management Workflow
+    Given I navigate to the files page
+    When the page is empty
+    Then I should see an empty state message
+    
+    When I upload multiple files (.txt, .json, .py)
+    Then all files should be uploaded successfully
+    And I should see upload success messages
+    
+    When I search for files by name
+    Then the search should filter results in real-time
+    And I should be able to download or delete selected files
+```
+
+### Feature: Project and Folder Management
+```gherkin
+Feature: Project and Folder Management
+  As a LangBuilder user
+  I want to organize flows in projects and folders
+  So that I can manage multiple workflows efficiently
+
+  Scenario: Create and manage projects
+    Given I am logged in as an active user
+    When I create a new project named "My AI Project"
+    Then the project should be created successfully
+    And it should appear in my project list
+    
+    When I rename the project to "Updated Project Name"
+    Then the project name should be updated
+    And the change should persist across sessions
+
+  Scenario: Organize flows with drag-and-drop
+    Given I have multiple flows and projects
+    When I drag a flow from one project to another
+    Then the flow should be moved to the target project
+    And the flow should no longer appear in the source project
+    And the move should be permanent
+
+  Scenario: Bulk operations on flows
+    Given I have multiple flows selected
+    When I choose to delete the selected flows
+    Then I should see a confirmation dialog stating "This can't be undone"
+    And when I confirm, all selected flows should be deleted
+    And the flows should be removed from the database
+```
+
+### Feature: API Integration and Code Generation
+```gherkin
+Feature: API Integration and Code Generation
+  As a developer
+  I want to generate API code for my flows
+  So that I can integrate flows with external applications
+
+  Scenario: Generate cURL API code
+    Given I have a flow with configured components
+    When I open the API code generation modal
+    And I select "cURL" format
+    Then I should see generated cURL code
+    And the code should be copied to clipboard when I click copy
+    
+    When I modify flow parameters (tweaks)
+    Then the generated code should update automatically
+    And the new parameters should be reflected in the code
+
+  Scenario: Generate Python API code
+    Given I have a flow with input parameters
+    When I generate Python API code
+    Then the code should include proper imports
+    And the code should handle authentication
+    And the code should include all flow parameters
+    And the input schema should be correctly represented
+
+  Scenario: API endpoint execution
+    Given I have a published flow with API endpoint
+    When I make a request to the flow's API endpoint
+    Then the flow should execute successfully
+    And I should receive the expected response format
+    And the execution should be logged for monitoring
+```
+
+### Feature: Error Handling and Edge Cases
+```gherkin
+Feature: Error Handling and Edge Cases  
+  As a LangBuilder user
+  I want robust error handling
+  So that I can understand and resolve issues
+
+  Scenario: Invalid input format handling
+    Given I have a flow expecting string input
+    When I send an object/dictionary instead
+    Then I should receive a 422 Unprocessable Entity response
+    And the error message should be descriptive
+    And no server-side processing should occur
+
+  Scenario: Missing resource handling  
+    Given I attempt to access a non-existent flow
+    When I request the flow by invalid ID
+    Then I should receive a 404 Not Found response
+    And the error should include the flow identifier
+    And no sensitive information should be leaked
+
+  Scenario: Memory leak prevention
+    Given I have components that could cause memory leaks
+    When I execute the components repeatedly
+    Then memory usage should remain stable
+    And no reference cycles should be created
+    And proper cleanup should occur after execution
+
+  Scenario: Concurrent user operations
+    Given multiple users are operating simultaneously
+    When users perform operations on their flows
+    Then there should be no resource contention
+    And user data should not be mixed
+    And database transactions should maintain isolation
+```
+
+## Test Coverage and Quality Metrics
+
+### Behavioral Specification Coverage
+- **API Endpoints**: 100% of endpoints have behavioral specifications
+- **User Workflows**: Complete end-to-end scenarios covered
+- **Component Integration**: All component types tested in isolation and integration
+- **Error Scenarios**: Comprehensive edge case and error condition testing
+- **Security**: Authentication, authorization, and data isolation fully tested
+
+### Test Automation Strategy  
+- **Unit Tests**: 300+ tests for individual component behavior
+- **Integration Tests**: 50+ tests for cross-component interactions
+- **E2E Tests**: 155+ tests covering complete user journeys
+- **Performance Tests**: Memory leak detection and resource management
+- **Security Tests**: User isolation and permission boundary testing
+
+This comprehensive test analysis provides the foundation for understanding LangBuilder's quality assurance approach, behavioral specifications, and acceptance criteria across all system components, expressed in clear Gherkin scenarios that can be understood by both technical and non-technical stakeholders.

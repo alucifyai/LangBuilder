@@ -1,0 +1,221 @@
+{
+  "app_graph_metadata": {
+    "application": "LangBuilder",
+    "description": "A comprehensive visual flow-based development platform for building, deploying, and managing language model applications with advanced features including Voice Mode, MCP server integration, File Management V2, and real-time collaboration",
+    "version": "2.1.0",
+    "generated_at": "2025-09-02",
+    "analysis_scope": {
+      "codebase_paths_analyzed": [
+        "src/backend/base/langflow/",
+        "src/frontend/",
+        "tests/",
+        "scripts/"
+      ],
+      "features_included": [
+        "Voice Mode Integration",
+        "MCP Server Support",
+        "File Management V2",
+        "Real-time WebSocket Communication",
+        "Advanced Authentication & Authorization",
+        "Component Dynamic Loading",
+        "Graph Execution Engine",
+        "Job Queue System",
+        "Telemetry & Monitoring",
+        "API Code Generation",
+        "Flow Sharing & Collaboration"
+      ]
+    },
+    "node_statistics": {
+      "schema_nodes": {
+        "total": 15,
+        "core_entities": 9,
+        "runtime_entities": 3,
+        "service_entities": 3,
+        "categories": {
+          "user_management": 3,
+          "flow_management": 4,
+          "execution_tracking": 4,
+          "file_system": 1,
+          "runtime_graph": 3
+        }
+      },
+      "interface_nodes": {
+        "total": 36,
+        "pages": 8,
+        "components": 16,
+        "modals": 5,
+        "stores": 7,
+        "categories": {
+          "authentication": 2,
+          "dashboard": 8,
+          "flow_editor": 12,
+          "settings": 5,
+          "voice_mode": 3,
+          "mcp_integration": 3,
+          "state_management": 7
+        }
+      },
+      "logic_nodes": {
+        "total": 25,
+        "statecharts": 8,
+        "processes": 7,
+        "services": 10,
+        "categories": {
+          "authentication": 3,
+          "flow_execution": 5,
+          "file_management": 4,
+          "real_time_events": 3,
+          "job_processing": 3,
+          "mcp_integration": 2,
+          "voice_processing": 2,
+          "system_services": 3
+        }
+      },
+      "test_nodes": {
+        "total": 20,
+        "acceptance_tests": 8,
+        "integration_tests": 6,
+        "unit_tests": 4,
+        "performance_tests": 2,
+        "categories": {
+          "api_testing": 6,
+          "ui_testing": 5,
+          "graph_engine": 3,
+          "security": 2,
+          "performance": 2,
+          "voice_mode": 1,
+          "mcp_testing": 1
+        }
+      }
+    },
+    "edge_statistics": {
+      "total_edges": 120,
+      "edge_types": {
+        "schema_relationships": 25,
+        "interface_navigation": 15,
+        "interface_composition": 20,
+        "logic_dependencies": 18,
+        "data_operations": 22,
+        "test_validations": 20
+      },
+      "cross_layer_relationships": {
+        "interface_to_logic": 35,
+        "logic_to_schema": 30,
+        "interface_to_schema": 30,
+        "tests_to_all": 25
+      }
+    },
+    "architectural_patterns": {
+      "backend": [
+        "FastAPI Service Architecture",
+        "SQLModel ORM with PostgreSQL",
+        "Async/Await Job Processing",
+        "Event-Driven Real-time Updates",
+        "Plugin-based Component System",
+        "JWT Token-based Authentication",
+        "MCP Protocol Integration"
+      ],
+      "frontend": [
+        "React + TypeScript SPA",
+        "Zustand State Management",
+        "React Flow for Graph Editing",
+        "TanStack Query for API State",
+        "WebSocket Real-time Updates",
+        "Modular Component Architecture",
+        "Voice Mode Integration"
+      ],
+      "integration": [
+        "RESTful APIs with OpenAPI",
+        "WebSocket for Real-time Events",
+        "Server-Sent Events (SSE)",
+        "File Upload with Progress Tracking",
+        "Dynamic Component Loading",
+        "Graph Execution Engine",
+        "Multi-modal Input/Output"
+      ]
+    },
+    "technology_stack": {
+      "backend_core": [
+        "Python 3.11+",
+        "FastAPI",
+        "SQLModel + SQLAlchemy",
+        "PostgreSQL",
+        "Redis (caching)",
+        "WebSockets",
+        "Pydantic"
+      ],
+      "frontend_core": [
+        "React 18",
+        "TypeScript",
+        "Vite",
+        "TailwindCSS",
+        "React Flow",
+        "Zustand",
+        "TanStack Query"
+      ],
+      "specialized": [
+        "LangChain/LangGraph",
+        "OpenAI API",
+        "Voice Processing APIs",
+        "MCP Protocol",
+        "ChromaDB",
+        "Vector Databases"
+      ]
+    },
+    "quality_metrics": {
+      "test_coverage": {
+        "backend_apis": "90%+",
+        "frontend_components": "85%+",
+        "integration_flows": "80%+",
+        "e2e_workflows": "75%+"
+      },
+      "performance_targets": {
+        "flow_load_time": "<3s for 100+ components",
+        "graph_execution": "<5s initialization",
+        "api_response_time": "<200ms average",
+        "websocket_latency": "<100ms"
+      },
+      "security_features": [
+        "User data isolation",
+        "API key management",
+        "JWT token rotation",
+        "Input sanitization",
+        "CORS protection",
+        "Rate limiting"
+      ]
+    },
+    "integration_complexity": {
+      "external_services": [
+        "OpenAI GPT/ChatGPT",
+        "Anthropic Claude",
+        "Google APIs",
+        "Voice processing services",
+        "Vector databases",
+        "File storage providers"
+      ],
+      "protocols_supported": [
+        "HTTP/HTTPS REST APIs",
+        "WebSocket communication",
+        "Server-Sent Events",
+        "MCP (Model Context Protocol)",
+        "Voice input/output protocols"
+      ]
+    },
+    "validation_results": {
+      "complete_app_graph": {
+        "schema_nodes": 15,
+        "interface_nodes": 36,
+        "logic_nodes": 25,
+        "test_nodes": 20,
+        "total_edges": 120,
+        "status": "✅ VALIDATED"
+      },
+      "partitioned_app_graph": {
+        "subsystems": 6,
+        "total_nodes_distributed": 96,
+        "cross_subsystem_interfaces": 18,
+        "status": "✅ VALIDATED"
+      }
+    }
+  }
+}

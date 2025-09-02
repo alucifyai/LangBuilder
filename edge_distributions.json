@@ -1,0 +1,1333 @@
+{
+  "user_management_auth": {
+    "nodes": [
+      "security_access_control_tests",
+      "global_variable_entity",
+      "credential_entity",
+      "auth_guard",
+      "database_integration_tests",
+      "authentication_system",
+      "security_access_control",
+      "api_key_entity",
+      "login_page",
+      "flow_entity",
+      "user_entity",
+      "authentication_authorization_tests"
+    ],
+    "edges": [
+      {
+        "id": "edge_1",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "api_key_entity",
+        "relationship": "one_to_many",
+        "description": "User owns multiple API keys",
+        "label": "owns",
+        "details": "A user can have multiple API keys for different integrations and purposes"
+      },
+      {
+        "id": "edge_2",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "flow_entity",
+        "relationship": "one_to_many",
+        "description": "User creates and owns flows",
+        "label": "creates",
+        "details": "Users create and manage their own AI workflow flows"
+      },
+      {
+        "id": "edge_3",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "folder_entity",
+        "relationship": "one_to_many",
+        "description": "User organizes content in folders",
+        "label": "organizes",
+        "details": "Users organize their flows and content in hierarchical folder structures"
+      },
+      {
+        "id": "edge_4",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "variable_entity",
+        "relationship": "one_to_many",
+        "description": "User manages encrypted variables",
+        "label": "manages",
+        "details": "Users store sensitive configuration data in encrypted variables"
+      },
+      {
+        "id": "edge_5",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "file_entity",
+        "relationship": "one_to_many",
+        "description": "User uploads and manages files",
+        "label": "uploads",
+        "details": "Users upload and manage files through the File Management V2 system"
+      },
+      {
+        "id": "edge_7",
+        "type": "schema_relationship",
+        "source": "flow_entity",
+        "target": "transaction_entity",
+        "relationship": "one_to_many",
+        "description": "Flow generates execution transactions",
+        "label": "generates",
+        "details": "Each flow execution creates transaction records for monitoring and debugging"
+      },
+      {
+        "id": "edge_8",
+        "type": "schema_relationship",
+        "source": "flow_entity",
+        "target": "vertex_build_entity",
+        "relationship": "one_to_many",
+        "description": "Flow has vertex build artifacts",
+        "label": "builds",
+        "details": "Flows contain vertex components that get built into execution artifacts"
+      },
+      {
+        "id": "edge_9",
+        "type": "schema_relationship",
+        "source": "flow_entity",
+        "target": "message_entity",
+        "relationship": "one_to_many",
+        "description": "Flow processes chat messages",
+        "label": "processes",
+        "details": "Flows can process and respond to chat messages in playground mode"
+      },
+      {
+        "id": "edge_11",
+        "type": "interface_navigation",
+        "source": "login_page",
+        "target": "flow_dashboard",
+        "relationship": "navigates_to",
+        "description": "Login success navigates to dashboard",
+        "label": "redirects",
+        "details": "Successful authentication redirects users to the main dashboard"
+      },
+      {
+        "id": "edge_29",
+        "type": "logic_dependency",
+        "source": "authentication_system",
+        "target": "security_access_control",
+        "relationship": "depends_on",
+        "description": "Auth system depends on access control",
+        "label": "enforces",
+        "details": "Authentication system depends on access control for permission enforcement"
+      },
+      {
+        "id": "edge_30",
+        "type": "data_operation",
+        "source": "authentication_system",
+        "target": "user_entity",
+        "relationship": "reads",
+        "description": "Auth system reads user data",
+        "label": "validates",
+        "details": "Authentication system reads user data for credential validation"
+      },
+      {
+        "id": "edge_37",
+        "type": "data_operation",
+        "source": "security_access_control",
+        "target": "user_entity",
+        "relationship": "reads",
+        "description": "Security reads user permissions",
+        "label": "authorizes",
+        "details": "Security system reads user data to determine access permissions"
+      },
+      {
+        "id": "edge_46",
+        "type": "test_validation",
+        "source": "authentication_authorization_tests",
+        "target": "user_entity",
+        "relationship": "validates",
+        "description": "Tests validate user authentication",
+        "label": "tests",
+        "details": "Authentication tests validate user login and authorization workflows"
+      },
+      {
+        "id": "edge_54",
+        "type": "test_validation",
+        "source": "security_access_control_tests",
+        "target": "user_entity",
+        "relationship": "validates",
+        "description": "Tests validate security controls",
+        "label": "tests",
+        "details": "Security tests validate access control and permission enforcement"
+      },
+      {
+        "id": "edge_62",
+        "type": "test_validation",
+        "source": "database_integration_tests",
+        "target": "user_entity",
+        "relationship": "validates",
+        "description": "Tests validate database operations",
+        "label": "tests",
+        "details": "Database tests validate data persistence and CRUD operations"
+      },
+      {
+        "id": "edge_66",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "credential_entity",
+        "relationship": "one_to_many",
+        "description": "User manages credentials",
+        "label": "credentials",
+        "details": "Users store and manage authentication credentials for external services"
+      },
+      {
+        "id": "edge_67",
+        "type": "schema_relationship",
+        "source": "user_entity",
+        "target": "store_entity",
+        "relationship": "one_to_many",
+        "description": "User contributes to store",
+        "label": "contributes",
+        "details": "Users can contribute components and flows to the marketplace store"
+      },
+      {
+        "id": "edge_68",
+        "type": "schema_relationship",
+        "source": "credential_entity",
+        "target": "variable_entity",
+        "relationship": "related_to",
+        "description": "Credentials relate to variables",
+        "label": "relates",
+        "details": "Credentials can be stored as encrypted variables for security"
+      },
+      {
+        "id": "edge_70",
+        "type": "schema_relationship",
+        "source": "global_variable_entity",
+        "target": "user_entity",
+        "relationship": "many_to_one",
+        "description": "Global variables can be user-scoped",
+        "label": "scoped_to",
+        "details": "Global variables can be scoped to specific users for personalization"
+      },
+      {
+        "id": "edge_81",
+        "type": "interface_navigation",
+        "source": "auth_guard",
+        "target": "login_page",
+        "relationship": "redirects_to",
+        "description": "Auth guard redirects to login",
+        "label": "protects",
+        "details": "Authentication guard redirects unauthorized users to login"
+      },
+      {
+        "id": "edge_91",
+        "type": "schema_relationship",
+        "source": "api_key_entity",
+        "target": "transaction_entity",
+        "relationship": "one_to_many",
+        "description": "API key authorizes transactions",
+        "label": "authorizes",
+        "details": "API keys are used to authorize and track external API transactions"
+      },
+      {
+        "id": "edge_93",
+        "type": "schema_relationship",
+        "source": "credential_entity",
+        "target": "api_key_entity",
+        "relationship": "one_to_many",
+        "description": "Credential manages API keys",
+        "label": "manages",
+        "details": "Credentials can contain multiple API keys for different services"
+      },
+      {
+        "id": "edge_115",
+        "type": "data_operation",
+        "source": "login_page",
+        "target": "user_entity",
+        "relationship": "reads",
+        "description": "Login validates user credentials",
+        "label": "authenticates",
+        "details": "Login page reads user data for authentication validation"
+      }
+    ]
+  },
+  "flow_development": {
+    "nodes": [
+      "component_grid",
+      "flow_management_tests",
+      "search_interface",
+      "flow_toolbar",
+      "flow_editor",
+      "workspace_switcher",
+      "component_entity",
+      "frontend_ui_tests",
+      "folder_entity",
+      "folder_sidebar",
+      "flow_grid",
+      "reactflow_canvas",
+      "template_gallery",
+      "component_integration_tests",
+      "component_sidebar",
+      "flow_entity",
+      "flow_dashboard"
+    ],
+    "edges": [
+      {
+        "id": "edge_6",
+        "type": "schema_relationship",
+        "source": "folder_entity",
+        "target": "flow_entity",
+        "relationship": "one_to_many",
+        "description": "Folder contains multiple flows",
+        "label": "contains",
+        "details": "Folders can contain multiple flows for organizational purposes"
+      },
+      {
+        "id": "edge_12",
+        "type": "interface_navigation",
+        "source": "flow_dashboard",
+        "target": "flow_editor",
+        "relationship": "navigates_to",
+        "description": "Dashboard opens flow editor",
+        "label": "opens",
+        "details": "Users can navigate from dashboard to edit specific flows"
+      },
+      {
+        "id": "edge_13",
+        "type": "interface_navigation",
+        "source": "flow_dashboard",
+        "target": "playground_interface",
+        "relationship": "navigates_to",
+        "description": "Dashboard opens playground",
+        "label": "launches",
+        "details": "Users can launch playground mode from the dashboard"
+      },
+      {
+        "id": "edge_14",
+        "type": "interface_navigation",
+        "source": "flow_dashboard",
+        "target": "settings_page",
+        "relationship": "navigates_to",
+        "description": "Dashboard navigates to settings",
+        "label": "settings",
+        "details": "Users can access settings from the main dashboard"
+      },
+      {
+        "id": "edge_15",
+        "type": "interface_navigation",
+        "source": "flow_editor",
+        "target": "playground_interface",
+        "relationship": "navigates_to",
+        "description": "Editor launches playground",
+        "label": "tests",
+        "details": "Users can test flows directly from the editor in playground mode"
+      },
+      {
+        "id": "edge_17",
+        "type": "interface_navigation",
+        "source": "flow_dashboard",
+        "target": "store_page",
+        "relationship": "navigates_to",
+        "description": "Dashboard navigates to store",
+        "label": "browses",
+        "details": "Users can browse the component store from the dashboard"
+      },
+      {
+        "id": "edge_18",
+        "type": "interface_navigation",
+        "source": "flow_editor",
+        "target": "store_page",
+        "relationship": "navigates_to",
+        "description": "Editor navigates to store",
+        "label": "imports",
+        "details": "Users can import components from store while editing flows"
+      },
+      {
+        "id": "edge_19",
+        "type": "data_operation",
+        "source": "flow_dashboard",
+        "target": "flow_entity",
+        "relationship": "reads",
+        "description": "Dashboard reads flow data",
+        "label": "displays",
+        "details": "Flow dashboard performs read operations on flow entities to display user flows"
+      },
+      {
+        "id": "edge_20",
+        "type": "data_operation",
+        "source": "flow_editor",
+        "target": "flow_entity",
+        "relationship": "writes",
+        "description": "Editor writes flow data",
+        "label": "saves",
+        "details": "Flow editor performs write operations to save flow modifications to database"
+      },
+      {
+        "id": "edge_21",
+        "type": "data_operation",
+        "source": "flow_editor",
+        "target": "component_entity",
+        "relationship": "reads",
+        "description": "Editor reads component data",
+        "label": "loads",
+        "details": "Flow editor reads component definitions to populate component library"
+      },
+      {
+        "id": "edge_23",
+        "type": "data_operation",
+        "source": "component_sidebar",
+        "target": "component_entity",
+        "relationship": "reads",
+        "description": "Sidebar reads component data",
+        "label": "lists",
+        "details": "Component sidebar reads component data to display available components"
+      },
+      {
+        "id": "edge_24",
+        "type": "data_operation",
+        "source": "reactflow_canvas",
+        "target": "vertex_entity",
+        "relationship": "reads",
+        "description": "Canvas reads vertex data",
+        "label": "renders",
+        "details": "React Flow canvas reads vertex data to render flow nodes visually"
+      },
+      {
+        "id": "edge_45",
+        "type": "test_validation",
+        "source": "flow_management_tests",
+        "target": "flow_entity",
+        "relationship": "validates",
+        "description": "Tests validate flow management",
+        "label": "tests",
+        "details": "Flow management tests validate CRUD operations on flow entities"
+      },
+      {
+        "id": "edge_48",
+        "type": "test_validation",
+        "source": "component_integration_tests",
+        "target": "component_entity",
+        "relationship": "validates",
+        "description": "Tests validate component integration",
+        "label": "tests",
+        "details": "Component integration tests validate component loading and execution"
+      },
+      {
+        "id": "edge_58",
+        "type": "test_validation",
+        "source": "frontend_ui_tests",
+        "target": "login_page",
+        "relationship": "validates",
+        "description": "Tests validate UI components",
+        "label": "tests",
+        "details": "UI tests validate frontend component behavior and rendering"
+      },
+      {
+        "id": "edge_65",
+        "type": "schema_relationship",
+        "source": "folder_entity",
+        "target": "folder_entity",
+        "relationship": "self_reference",
+        "description": "Folder has parent-child hierarchy",
+        "label": "parent_of",
+        "details": "Folders can contain other folders creating hierarchical organization"
+      },
+      {
+        "id": "edge_73",
+        "type": "interface_composition",
+        "source": "folder_sidebar",
+        "target": "flow_grid",
+        "relationship": "controls",
+        "description": "Folder sidebar controls flow grid",
+        "label": "filters",
+        "details": "Folder sidebar filters and controls the display of flows in the grid"
+      },
+      {
+        "id": "edge_74",
+        "type": "interface_composition",
+        "source": "component_sidebar",
+        "target": "component_grid",
+        "relationship": "populates",
+        "description": "Component sidebar populated by grid",
+        "label": "displays",
+        "details": "Component grid data populates the sidebar component browser"
+      },
+      {
+        "id": "edge_85",
+        "type": "interface_composition",
+        "source": "flow_dashboard",
+        "target": "search_interface",
+        "relationship": "contains",
+        "description": "Dashboard contains search interface",
+        "label": "includes",
+        "details": "Flow dashboard includes integrated search interface for finding flows"
+      },
+      {
+        "id": "edge_86",
+        "type": "schema_relationship",
+        "source": "flow_entity",
+        "target": "component_entity",
+        "relationship": "contains",
+        "description": "Flow contains component instances",
+        "label": "contains",
+        "details": "Flows are composed of multiple interconnected component instances"
+      },
+      {
+        "id": "edge_99",
+        "type": "interface_navigation",
+        "source": "flow_dashboard",
+        "target": "template_gallery",
+        "relationship": "navigates_to",
+        "description": "Dashboard to template gallery",
+        "label": "templates",
+        "details": "Users can browse flow templates from the dashboard"
+      },
+      {
+        "id": "edge_100",
+        "type": "interface_navigation",
+        "source": "template_gallery",
+        "target": "flow_editor",
+        "relationship": "navigates_to",
+        "description": "Template opens in editor",
+        "label": "creates",
+        "details": "Selected templates create new flows in the editor"
+      },
+      {
+        "id": "edge_101",
+        "type": "interface_composition",
+        "source": "flow_editor",
+        "target": "reactflow_canvas",
+        "relationship": "contains",
+        "description": "Editor contains React Flow canvas",
+        "label": "displays",
+        "details": "Flow editor contains the main React Flow canvas for visual editing"
+      },
+      {
+        "id": "edge_102",
+        "type": "interface_composition",
+        "source": "flow_editor",
+        "target": "component_sidebar",
+        "relationship": "contains",
+        "description": "Editor contains component sidebar",
+        "label": "includes",
+        "details": "Flow editor includes component sidebar for drag-and-drop functionality"
+      },
+      {
+        "id": "edge_103",
+        "type": "interface_composition",
+        "source": "flow_editor",
+        "target": "flow_toolbar",
+        "relationship": "contains",
+        "description": "Editor contains toolbar",
+        "label": "includes",
+        "details": "Flow editor includes toolbar with editing controls and actions"
+      },
+      {
+        "id": "edge_105",
+        "type": "interface_composition",
+        "source": "flow_dashboard",
+        "target": "workspace_switcher",
+        "relationship": "contains",
+        "description": "Dashboard contains workspace switcher",
+        "label": "includes",
+        "details": "Dashboard includes workspace switcher for multi-workspace support"
+      }
+    ]
+  },
+  "execution_runtime": {
+    "nodes": [
+      "flow_execution_engine",
+      "vertex_entity",
+      "edge_entity",
+      "job_queue_tests",
+      "validation_engine_tests",
+      "performance_benchmark_tests",
+      "job_queue_system",
+      "transaction_entity",
+      "graph_execution_tests",
+      "vertex_build_entity",
+      "validation_engine",
+      "graph_state_management"
+    ],
+    "edges": [
+      {
+        "id": "edge_10",
+        "type": "schema_relationship",
+        "source": "vertex_entity",
+        "target": "edge_entity",
+        "relationship": "many_to_many",
+        "description": "Vertices connected by edges",
+        "label": "connects",
+        "details": "Graph vertices are connected through directional edges defining data flow"
+      },
+      {
+        "id": "edge_26",
+        "type": "logic_dependency",
+        "source": "flow_execution_engine",
+        "target": "component_management",
+        "relationship": "depends_on",
+        "description": "Execution engine depends on component management",
+        "label": "loads",
+        "details": "Flow execution engine depends on component management for loading and instantiating components"
+      },
+      {
+        "id": "edge_27",
+        "type": "logic_dependency",
+        "source": "flow_execution_engine",
+        "target": "graph_state_management",
+        "relationship": "depends_on",
+        "description": "Execution engine depends on state management",
+        "label": "tracks",
+        "details": "Flow execution engine depends on state management for tracking execution progress"
+      },
+      {
+        "id": "edge_28",
+        "type": "logic_dependency",
+        "source": "job_queue_system",
+        "target": "flow_execution_engine",
+        "relationship": "depends_on",
+        "description": "Job queue depends on execution engine",
+        "label": "executes",
+        "details": "Job queue system depends on execution engine for processing queued flow executions"
+      },
+      {
+        "id": "edge_33",
+        "type": "data_operation",
+        "source": "graph_state_management",
+        "target": "vertex_build_entity",
+        "relationship": "writes",
+        "description": "State management writes build data",
+        "label": "tracks",
+        "details": "Graph state management writes vertex build data for execution tracking"
+      },
+      {
+        "id": "edge_34",
+        "type": "logic_dependency",
+        "source": "validation_engine",
+        "target": "error_handling_system",
+        "relationship": "depends_on",
+        "description": "Validation depends on error handling",
+        "label": "reports",
+        "details": "Validation engine depends on error handling system for reporting validation failures"
+      },
+      {
+        "id": "edge_47",
+        "type": "test_validation",
+        "source": "graph_execution_tests",
+        "target": "vertex_entity",
+        "relationship": "validates",
+        "description": "Tests validate graph execution",
+        "label": "tests",
+        "details": "Graph execution tests validate vertex processing and execution logic"
+      },
+      {
+        "id": "edge_50",
+        "type": "test_validation",
+        "source": "job_queue_tests",
+        "target": "transaction_entity",
+        "relationship": "validates",
+        "description": "Tests validate job processing",
+        "label": "tests",
+        "details": "Job queue tests validate transaction processing and queue management"
+      },
+      {
+        "id": "edge_51",
+        "type": "test_validation",
+        "source": "validation_engine_tests",
+        "target": "flow_entity",
+        "relationship": "validates",
+        "description": "Tests validate input validation",
+        "label": "tests",
+        "details": "Validation engine tests validate flow data integrity and validation rules"
+      },
+      {
+        "id": "edge_60",
+        "type": "test_validation",
+        "source": "performance_benchmark_tests",
+        "target": "flow_execution_engine",
+        "relationship": "validates",
+        "description": "Tests validate system performance",
+        "label": "tests",
+        "details": "Performance tests validate system scalability and response times"
+      },
+      {
+        "id": "edge_87",
+        "type": "schema_relationship",
+        "source": "transaction_entity",
+        "target": "vertex_entity",
+        "relationship": "many_to_one",
+        "description": "Transaction tracks vertex execution",
+        "label": "tracks",
+        "details": "Each transaction record tracks the execution of specific vertices"
+      },
+      {
+        "id": "edge_89",
+        "type": "schema_relationship",
+        "source": "vertex_build_entity",
+        "target": "component_entity",
+        "relationship": "many_to_one",
+        "description": "Vertex build references component",
+        "label": "references",
+        "details": "Each vertex build references a specific component definition"
+      },
+      {
+        "id": "edge_116",
+        "type": "data_operation",
+        "source": "flow_execution_engine",
+        "target": "transaction_entity",
+        "relationship": "writes",
+        "description": "Execution engine logs transactions",
+        "label": "records",
+        "details": "Flow execution engine writes transaction records for monitoring"
+      },
+      {
+        "id": "edge_117",
+        "type": "data_operation",
+        "source": "job_queue_system",
+        "target": "vertex_build_entity",
+        "relationship": "reads",
+        "description": "Job queue reads build artifacts",
+        "label": "executes",
+        "details": "Job queue system reads vertex build artifacts for execution"
+      }
+    ]
+  },
+  "file_asset_management": {
+    "nodes": [
+      "file_management_system",
+      "file_management_tests",
+      "voice_mode_system",
+      "message_list",
+      "voice_mode_tests",
+      "io_modal",
+      "voice_assistant",
+      "data_table",
+      "playground_interface",
+      "real_time_communication_tests",
+      "message_entity",
+      "file_entity",
+      "file_management_page",
+      "chat_input"
+    ],
+    "edges": [
+      {
+        "id": "edge_22",
+        "type": "data_operation",
+        "source": "playground_interface",
+        "target": "message_entity",
+        "relationship": "writes",
+        "description": "Playground writes message data",
+        "label": "creates",
+        "details": "Playground interface creates and stores chat messages during interactions"
+      },
+      {
+        "id": "edge_41",
+        "type": "logic_dependency",
+        "source": "voice_mode_system",
+        "target": "real_time_event_system",
+        "relationship": "depends_on",
+        "description": "Voice mode depends on real-time events",
+        "label": "streams",
+        "details": "Voice mode system depends on real-time events for audio streaming"
+      },
+      {
+        "id": "edge_42",
+        "type": "logic_dependency",
+        "source": "file_management_system",
+        "target": "security_access_control",
+        "relationship": "depends_on",
+        "description": "File management depends on access control",
+        "label": "secures",
+        "details": "File management system depends on access control for secure file operations"
+      },
+      {
+        "id": "edge_49",
+        "type": "test_validation",
+        "source": "real_time_communication_tests",
+        "target": "message_entity",
+        "relationship": "validates",
+        "description": "Tests validate message communication",
+        "label": "tests",
+        "details": "Real-time communication tests validate message transmission and delivery"
+      },
+      {
+        "id": "edge_56",
+        "type": "test_validation",
+        "source": "voice_mode_tests",
+        "target": "message_entity",
+        "relationship": "validates",
+        "description": "Tests validate voice processing",
+        "label": "tests",
+        "details": "Voice mode tests validate audio processing and transcription"
+      },
+      {
+        "id": "edge_57",
+        "type": "test_validation",
+        "source": "file_management_tests",
+        "target": "file_entity",
+        "relationship": "validates",
+        "description": "Tests validate file management",
+        "label": "tests",
+        "details": "File management tests validate file upload and storage operations"
+      },
+      {
+        "id": "edge_71",
+        "type": "interface_composition",
+        "source": "playground_interface",
+        "target": "io_modal",
+        "relationship": "contains",
+        "description": "Playground contains IO modal",
+        "label": "embeds",
+        "details": "IO modal is embedded within the playground interface for input/output display"
+      },
+      {
+        "id": "edge_72",
+        "type": "interface_composition",
+        "source": "voice_assistant",
+        "target": "chat_input",
+        "relationship": "integrates_with",
+        "description": "Voice assistant integrates with chat input",
+        "label": "enhances",
+        "details": "Voice assistant enhances chat input with speech recognition capabilities"
+      },
+      {
+        "id": "edge_83",
+        "type": "interface_composition",
+        "source": "file_management_page",
+        "target": "data_table",
+        "relationship": "contains",
+        "description": "File page contains data table",
+        "label": "displays",
+        "details": "File management page uses data table component to display file listings"
+      },
+      {
+        "id": "edge_88",
+        "type": "schema_relationship",
+        "source": "message_entity",
+        "target": "user_entity",
+        "relationship": "many_to_one",
+        "description": "Message belongs to user session",
+        "label": "belongs_to",
+        "details": "Chat messages are associated with user sessions for context"
+      },
+      {
+        "id": "edge_90",
+        "type": "schema_relationship",
+        "source": "file_entity",
+        "target": "flow_entity",
+        "relationship": "many_to_many",
+        "description": "Files can be used by multiple flows",
+        "label": "used_by",
+        "details": "Uploaded files can be referenced and used by multiple flows"
+      },
+      {
+        "id": "edge_96",
+        "type": "interface_navigation",
+        "source": "playground_interface",
+        "target": "flow_editor",
+        "relationship": "navigates_to",
+        "description": "Playground returns to editor",
+        "label": "edits",
+        "details": "Users can return to flow editor from playground for modifications"
+      },
+      {
+        "id": "edge_97",
+        "type": "interface_navigation",
+        "source": "file_management_page",
+        "target": "flow_editor",
+        "relationship": "navigates_to",
+        "description": "File management to editor",
+        "label": "uses",
+        "details": "Users can use managed files directly in flow editor"
+      },
+      {
+        "id": "edge_104",
+        "type": "interface_composition",
+        "source": "playground_interface",
+        "target": "message_list",
+        "relationship": "contains",
+        "description": "Playground contains message list",
+        "label": "displays",
+        "details": "Playground interface contains message list for chat interactions"
+      },
+      {
+        "id": "edge_113",
+        "type": "data_operation",
+        "source": "file_management_page",
+        "target": "file_entity",
+        "relationship": "writes",
+        "description": "File page manages files",
+        "label": "uploads",
+        "details": "File management page performs file upload and management operations"
+      },
+      {
+        "id": "edge_118",
+        "type": "data_operation",
+        "source": "voice_assistant",
+        "target": "message_entity",
+        "relationship": "writes",
+        "description": "Voice assistant creates messages",
+        "label": "transcribes",
+        "details": "Voice assistant writes transcribed voice input as messages"
+      }
+    ]
+  },
+  "integration_services": {
+    "nodes": [
+      "mcp_integration_system",
+      "store_page",
+      "store_entity",
+      "mcp_integration_tests",
+      "add_mcp_server_modal",
+      "store_integration_system",
+      "api_integration_tests",
+      "paginator_component",
+      "mcp_server_tab",
+      "form_builder"
+    ],
+    "edges": [
+      {
+        "id": "edge_40",
+        "type": "logic_dependency",
+        "source": "mcp_integration_system",
+        "target": "component_management",
+        "relationship": "depends_on",
+        "description": "MCP integration depends on components",
+        "label": "extends",
+        "details": "MCP integration system depends on component management to extend component capabilities"
+      },
+      {
+        "id": "edge_43",
+        "type": "logic_dependency",
+        "source": "store_integration_system",
+        "target": "authentication_system",
+        "relationship": "depends_on",
+        "description": "Store integration depends on authentication",
+        "label": "authenticates",
+        "details": "Store integration system depends on authentication for user verification"
+      },
+      {
+        "id": "edge_55",
+        "type": "test_validation",
+        "source": "mcp_integration_tests",
+        "target": "flow_entity",
+        "relationship": "validates",
+        "description": "Tests validate MCP integration",
+        "label": "tests",
+        "details": "MCP integration tests validate server protocol integration"
+      },
+      {
+        "id": "edge_61",
+        "type": "test_validation",
+        "source": "api_integration_tests",
+        "target": "flow_entity",
+        "relationship": "validates",
+        "description": "Tests validate API functionality",
+        "label": "tests",
+        "details": "API integration tests validate REST API endpoints and responses"
+      },
+      {
+        "id": "edge_69",
+        "type": "schema_relationship",
+        "source": "store_entity",
+        "target": "component_entity",
+        "relationship": "contains",
+        "description": "Store contains components",
+        "label": "contains",
+        "details": "The marketplace store contains community-contributed components"
+      },
+      {
+        "id": "edge_75",
+        "type": "interface_composition",
+        "source": "mcp_server_tab",
+        "target": "add_mcp_server_modal",
+        "relationship": "triggers",
+        "description": "MCP tab triggers add modal",
+        "label": "opens",
+        "details": "MCP server tab contains functionality to open the add server modal"
+      },
+      {
+        "id": "edge_84",
+        "type": "interface_composition",
+        "source": "add_mcp_server_modal",
+        "target": "form_builder",
+        "relationship": "contains",
+        "description": "MCP modal contains form builder",
+        "label": "uses",
+        "details": "Add MCP server modal uses form builder for server configuration"
+      },
+      {
+        "id": "edge_94",
+        "type": "schema_relationship",
+        "source": "store_entity",
+        "target": "flow_entity",
+        "relationship": "one_to_many",
+        "description": "Store contains shared flows",
+        "label": "shares",
+        "details": "The store can contain publicly shared flow templates"
+      },
+      {
+        "id": "edge_95",
+        "type": "interface_navigation",
+        "source": "store_page",
+        "target": "flow_editor",
+        "relationship": "navigates_to",
+        "description": "Store imports to editor",
+        "label": "imports",
+        "details": "Users can import store components directly into the flow editor"
+      },
+      {
+        "id": "edge_107",
+        "type": "interface_composition",
+        "source": "store_page",
+        "target": "paginator_component",
+        "relationship": "contains",
+        "description": "Store page contains pagination",
+        "label": "includes",
+        "details": "Store page includes pagination component for browsing components"
+      },
+      {
+        "id": "edge_114",
+        "type": "data_operation",
+        "source": "store_page",
+        "target": "store_entity",
+        "relationship": "reads",
+        "description": "Store page reads marketplace data",
+        "label": "browses",
+        "details": "Store page reads marketplace data to display available components"
+      },
+      {
+        "id": "edge_119",
+        "type": "data_operation",
+        "source": "mcp_integration_system",
+        "target": "flow_entity",
+        "relationship": "reads",
+        "description": "MCP system reads flow configurations",
+        "label": "exposes",
+        "details": "MCP integration system reads flow data to expose as MCP services"
+      }
+    ]
+  },
+  "system_infrastructure": {
+    "nodes": [
+      "configuration_management",
+      "logging_monitoring_system",
+      "application_lifecycle",
+      "frontend_state_management",
+      "settings_page",
+      "telemetry_analytics_system",
+      "deployment_orchestration",
+      "header_component",
+      "caching_system",
+      "dependency_injection_system",
+      "error_boundary",
+      "e2e_workflow_tests",
+      "notification_system",
+      "deployment_validation_tests",
+      "loading_states",
+      "real_time_event_system",
+      "websocket_sse_communication",
+      "variable_entity",
+      "session_management_system",
+      "admin_page",
+      "global_variables_settings",
+      "error_handling_system",
+      "component_management",
+      "error_handling_tests",
+      "api_keys_settings",
+      "websocket_manager",
+      "testing_quality_assurance",
+      "regression_test_suite",
+      "caching_system_tests",
+      "theme_provider"
+    ],
+    "edges": [
+      {
+        "id": "edge_16",
+        "type": "interface_navigation",
+        "source": "settings_page",
+        "target": "file_management_page",
+        "relationship": "navigates_to",
+        "description": "Settings navigates to file management",
+        "label": "manages",
+        "details": "Users can navigate to file management from settings"
+      },
+      {
+        "id": "edge_25",
+        "type": "logic_dependency",
+        "source": "application_lifecycle",
+        "target": "authentication_system",
+        "relationship": "depends_on",
+        "description": "App lifecycle depends on auth system",
+        "label": "requires",
+        "details": "Application lifecycle management requires authentication system for user session management"
+      },
+      {
+        "id": "edge_31",
+        "type": "logic_dependency",
+        "source": "real_time_event_system",
+        "target": "websocket_sse_communication",
+        "relationship": "depends_on",
+        "description": "Event system depends on communication",
+        "label": "transmits",
+        "details": "Real-time event system depends on WebSocket/SSE for message transmission"
+      },
+      {
+        "id": "edge_32",
+        "type": "logic_dependency",
+        "source": "component_management",
+        "target": "caching_system",
+        "relationship": "depends_on",
+        "description": "Component management depends on caching",
+        "label": "caches",
+        "details": "Component management depends on caching system for performance optimization"
+      },
+      {
+        "id": "edge_35",
+        "type": "logic_dependency",
+        "source": "caching_system",
+        "target": "configuration_management",
+        "relationship": "depends_on",
+        "description": "Caching depends on configuration",
+        "label": "configures",
+        "details": "Caching system depends on configuration management for cache settings"
+      },
+      {
+        "id": "edge_36",
+        "type": "data_operation",
+        "source": "error_handling_system",
+        "target": "transaction_entity",
+        "relationship": "writes",
+        "description": "Error system writes error logs",
+        "label": "logs",
+        "details": "Error handling system writes error information to transaction logs"
+      },
+      {
+        "id": "edge_38",
+        "type": "data_operation",
+        "source": "websocket_sse_communication",
+        "target": "message_entity",
+        "relationship": "reads",
+        "description": "Communication reads message data",
+        "label": "transmits",
+        "details": "WebSocket communication reads message data for real-time transmission"
+      },
+      {
+        "id": "edge_39",
+        "type": "data_operation",
+        "source": "frontend_state_management",
+        "target": "flow_entity",
+        "relationship": "reads",
+        "description": "Frontend reads flow state",
+        "label": "syncs",
+        "details": "Frontend state management reads flow data to maintain synchronized state"
+      },
+      {
+        "id": "edge_44",
+        "type": "logic_dependency",
+        "source": "session_management_system",
+        "target": "caching_system",
+        "relationship": "depends_on",
+        "description": "Session management depends on caching",
+        "label": "stores",
+        "details": "Session management system depends on caching for session storage and retrieval"
+      },
+      {
+        "id": "edge_52",
+        "type": "test_validation",
+        "source": "caching_system_tests",
+        "target": "component_entity",
+        "relationship": "validates",
+        "description": "Tests validate caching behavior",
+        "label": "tests",
+        "details": "Caching system tests validate component caching and performance optimization"
+      },
+      {
+        "id": "edge_53",
+        "type": "test_validation",
+        "source": "error_handling_tests",
+        "target": "transaction_entity",
+        "relationship": "validates",
+        "description": "Tests validate error handling",
+        "label": "tests",
+        "details": "Error handling tests validate error processing and recovery mechanisms"
+      },
+      {
+        "id": "edge_59",
+        "type": "test_validation",
+        "source": "e2e_workflow_tests",
+        "target": "flow_dashboard",
+        "relationship": "validates",
+        "description": "Tests validate complete workflows",
+        "label": "tests",
+        "details": "End-to-end tests validate complete user workflows"
+      },
+      {
+        "id": "edge_63",
+        "type": "test_validation",
+        "source": "deployment_validation_tests",
+        "target": "application_lifecycle",
+        "relationship": "validates",
+        "description": "Tests validate deployment process",
+        "label": "tests",
+        "details": "Deployment tests validate application startup and configuration"
+      },
+      {
+        "id": "edge_64",
+        "type": "test_validation",
+        "source": "regression_test_suite",
+        "target": "flow_entity",
+        "relationship": "validates",
+        "description": "Tests prevent feature regression",
+        "label": "tests",
+        "details": "Regression tests ensure existing functionality remains intact"
+      },
+      {
+        "id": "edge_76",
+        "type": "interface_composition",
+        "source": "settings_page",
+        "target": "api_keys_settings",
+        "relationship": "contains",
+        "description": "Settings page contains API keys tab",
+        "label": "includes",
+        "details": "API keys settings is a tab within the main settings page"
+      },
+      {
+        "id": "edge_77",
+        "type": "interface_composition",
+        "source": "settings_page",
+        "target": "global_variables_settings",
+        "relationship": "contains",
+        "description": "Settings page contains variables tab",
+        "label": "includes",
+        "details": "Global variables settings is a tab within the main settings page"
+      },
+      {
+        "id": "edge_78",
+        "type": "interface_composition",
+        "source": "header_component",
+        "target": "notification_system",
+        "relationship": "contains",
+        "description": "Header contains notification system",
+        "label": "displays",
+        "details": "Header component contains and displays the notification system"
+      },
+      {
+        "id": "edge_79",
+        "type": "interface_composition",
+        "source": "error_boundary",
+        "target": "loading_states",
+        "relationship": "manages",
+        "description": "Error boundary manages loading states",
+        "label": "controls",
+        "details": "Error boundary component manages and controls loading state displays"
+      },
+      {
+        "id": "edge_80",
+        "type": "interface_composition",
+        "source": "theme_provider",
+        "target": "header_component",
+        "relationship": "provides_theme",
+        "description": "Theme provider styles header",
+        "label": "themes",
+        "details": "Theme provider supplies styling context to header component"
+      },
+      {
+        "id": "edge_82",
+        "type": "logic_dependency",
+        "source": "websocket_manager",
+        "target": "real_time_event_system",
+        "relationship": "implements",
+        "description": "WebSocket manager implements event system",
+        "label": "provides",
+        "details": "WebSocket manager provides the underlying implementation for real-time event system"
+      },
+      {
+        "id": "edge_92",
+        "type": "schema_relationship",
+        "source": "variable_entity",
+        "target": "flow_entity",
+        "relationship": "many_to_many",
+        "description": "Variables used in flows",
+        "label": "used_in",
+        "details": "Encrypted variables are referenced and used within flow configurations"
+      },
+      {
+        "id": "edge_98",
+        "type": "interface_navigation",
+        "source": "settings_page",
+        "target": "admin_page",
+        "relationship": "navigates_to",
+        "description": "Settings to admin panel",
+        "label": "admin",
+        "details": "Admin users can access admin panel from settings"
+      },
+      {
+        "id": "edge_106",
+        "type": "interface_composition",
+        "source": "settings_page",
+        "target": "mcp_server_tab",
+        "relationship": "contains",
+        "description": "Settings contains MCP server tab",
+        "label": "includes",
+        "details": "Settings page includes MCP server configuration tab"
+      },
+      {
+        "id": "edge_108",
+        "type": "logic_dependency",
+        "source": "telemetry_analytics_system",
+        "target": "logging_monitoring_system",
+        "relationship": "depends_on",
+        "description": "Telemetry depends on logging",
+        "label": "aggregates",
+        "details": "Telemetry system depends on logging system for data aggregation"
+      },
+      {
+        "id": "edge_109",
+        "type": "logic_dependency",
+        "source": "dependency_injection_system",
+        "target": "configuration_management",
+        "relationship": "depends_on",
+        "description": "DI depends on configuration",
+        "label": "configures",
+        "details": "Dependency injection system depends on configuration management for service setup"
+      },
+      {
+        "id": "edge_110",
+        "type": "logic_dependency",
+        "source": "deployment_orchestration",
+        "target": "validation_engine",
+        "relationship": "depends_on",
+        "description": "Deployment depends on validation",
+        "label": "validates",
+        "details": "Deployment orchestration depends on validation engine for pre-deployment checks"
+      },
+      {
+        "id": "edge_111",
+        "type": "data_operation",
+        "source": "settings_page",
+        "target": "api_key_entity",
+        "relationship": "writes",
+        "description": "Settings manages API keys",
+        "label": "configures",
+        "details": "Settings page performs CRUD operations on user API keys"
+      },
+      {
+        "id": "edge_112",
+        "type": "data_operation",
+        "source": "settings_page",
+        "target": "variable_entity",
+        "relationship": "writes",
+        "description": "Settings manages variables",
+        "label": "configures",
+        "details": "Settings page performs CRUD operations on user variables"
+      },
+      {
+        "id": "edge_120",
+        "type": "data_operation",
+        "source": "admin_page",
+        "target": "user_entity",
+        "relationship": "writes",
+        "description": "Admin manages user accounts",
+        "label": "administers",
+        "details": "Admin page performs user management operations including creation and updates"
+      }
+    ]
+  }
+}

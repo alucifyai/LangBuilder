@@ -1,6 +1,8 @@
 # Complete LangBuilder Schema Entities
 
-Based on deep code analysis of the LangBuilder database models, here are all the schema entities with their complete attributes:
+Based on deep code analysis of the LangBuilder database models, here are all the schema entities with their complete attributes.
+
+**Last Updated:** Based on codebase analysis including MCP support, Voice Mode, and File V2 features.
 
 ## Core Entities
 
@@ -184,15 +186,16 @@ type VertexBuild {
 }
 ```
 
-### 9. File (MISSING FROM CURRENT APP GRAPH)
+### 9. File
 **Path:** `src/backend/base/langflow/services/database/models/file/model.py`
+**Note:** Part of File Management V2 system
 ```graphql
 type File {
   id: UUID! @primary
   name: String! @unique
   path: String!
   size: Int!
-  provider: String
+  provider: String  # Storage provider (e.g., 'local', 's3')
   created_at: DateTime! @default(now)
   updated_at: DateTime! @default(now)
   
@@ -202,16 +205,82 @@ type File {
 }
 ```
 
-## Schema Corrections Needed
+## Additional Entities Not in Original App Graph
 
-1. **Add File Entity**: This entity is missing from our App Graphs but exists in the codebase
-2. **User.optins**: Should be JSON with specific structure for feature opt-ins
-3. **Flow.access_type**: Is an enum (PRIVATE/PUBLIC), not just a string
-4. **Flow unique constraints**: Has composite unique constraints on (user_id, name) and (user_id, endpoint_name)
-5. **Message.content_blocks**: Array of JSON objects representing rich content
-6. **Transaction**: Links to Flow, not directly to User
-7. **VertexBuild**: Links to Flow, not Component
-8. **File vs Files in Message**: Message has `files` as string array (paths), while File entity stores actual file metadata
+### 10. Component (Runtime Entity)
+**Note:** Not a database entity but a core runtime concept
+```graphql
+type Component {
+  display_name: String!
+  description: String!
+  icon: String
+  category: ComponentCategory!
+  inputs: [ComponentInput!]!
+  outputs: [ComponentOutput!]!
+  code: String!
+  template: JSON
+  documentation: String
+  beta: Boolean!
+  experimental: Boolean!
+}
+
+enum ComponentCategory {
+  INPUT_OUTPUT
+  TEXT_PROCESSING
+  AGENTS
+  CHAINS
+  DATA
+  EMBEDDINGS
+  LLMS
+  MEMORIES
+  TOOLS
+  RETRIEVERS
+  LOGIC
+  HELPERS
+  CUSTOM
+}
+```
+
+### 11. Vertex (Graph Runtime Entity)
+**Note:** Runtime representation of a node in the flow graph
+```graphql
+type Vertex {
+  id: String!
+  display_name: String!
+  description: String
+  base_type: ComponentType!
+  inputs: [VertexInput!]!
+  outputs: [VertexOutput!]!
+  params: JSON
+  frozen: Boolean!
+  is_input: Boolean!
+  is_output: Boolean!
+  is_state: Boolean!
+  edges: [Edge!]!
+}
+```
+
+### 12. Edge (Graph Runtime Entity)
+**Note:** Runtime representation of connections between vertices
+```graphql
+type Edge {
+  id: String!
+  source: Vertex!
+  target: Vertex!
+  source_handle: String!
+  target_handle: String!
+  data: JSON
+}
+```
+
+## Key Updates from Analysis
+
+1. **File Entity Added**: Now includes the File Management V2 entity
+2. **MCP Support Fields**: Flow entity includes `mcp_enabled`, `action_name`, `action_description`
+3. **Access Control**: Flow has `access_type` enum (PRIVATE/PUBLIC)
+4. **Project Settings**: Folder entity has `auth_settings` for project-level configuration
+5. **Voice Mode Support**: Message entity supports rich content via `content_blocks`
+6. **Runtime Entities**: Added Component, Vertex, and Edge as important runtime concepts
 
 ## Relationships Summary
 
@@ -226,7 +295,32 @@ type File {
 - Flow → VertexBuild (1:many)
 - Flow → Message (1:many)
 
-## Notes on RBAC Schema (from PRD)
+## Service Layer Entities (Not in Database)
+
+These services manage the runtime behavior and are implemented using the Service Factory pattern:
+
+### Core Services
+- **SessionService**: Manages user sessions and WebSocket connections
+- **StateService**: Manages flow execution state (in-memory or persistent)
+- **StorageService**: Handles file storage (local filesystem or S3)
+- **TaskService**: Background task management and execution
+- **SocketIOService**: WebSocket/SSE real-time communication
+- **TelemetryService**: Usage tracking and analytics
+- **VariableService**: Manages encrypted variables and secrets
+- **CacheService**: Caching layer for performance optimization
+
+### MCP-Specific Services
+- **MCPServer**: Model Context Protocol server implementation
+- **MCPProjectServer**: Per-project MCP server instances
+- **MCPTransport**: SSE/WebSocket transport for MCP communication
+
+### Voice Mode Services
+- **VoiceHandler**: WebSocket handler for voice streaming
+- **AudioProcessor**: VAD and audio resampling (24kHz to 16kHz)
+- **RealtimeAPIClient**: OpenAI Realtime API integration
+- **ElevenLabsClient**: Voice synthesis integration
+
+## Notes on RBAC Schema (Future Implementation)
 
 When RBAC is implemented, these additional entities would be needed:
 - Role (with permissions array)
