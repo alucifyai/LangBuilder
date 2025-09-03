@@ -1,0 +1,642 @@
+{
+  "name": "McpServerConfigurationModal",
+  "propDefinitions": {
+    "isUpdate": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "onComplete": {
+      "type": "func",
+      "isRequired": false
+    }
+  },
+  "stateDefinitions": {
+    "isVisible": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "serverConfig": {
+      "type": "object",
+      "defaultValue": {
+        "type": "JSON",
+        "stdio": {
+          "name": "",
+          "command": "",
+          "args": [],
+          "env": []
+        },
+        "sse": {
+          "name": "",
+          "url": "",
+          "headers": [],
+          "env": []
+        },
+        "json": {
+          "value": ""
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "defaultValue": {
+        "errors": {},
+        "isValid": true
+      }
+    },
+    "isProcessing": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "Modal",
+      "name": "McpServerModal",
+      "attrs": [
+        {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "state",
+            "id": "isVisible"
+          },
+          "name": "open"
+        }
+      ],
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "ModalHeader",
+            "name": "ConfigurationHeader",
+            "attrs": [
+              {
+                "type": "static",
+                "content": "Mcp"
+              },
+              "name": "icon"
+            ],
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "isUpdate"
+                    }
+                  },
+                  "value": true,
+                  "node": {
+                    "type": "static",
+                    "content": "Update MCP Server"
+                  },
+                  "fallback": {
+                    "type": "static",
+                    "content": "Add MCP Server"
+                  }
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "text",
+                  "name": "HeaderDescription",
+                  "children": [
+                    {
+                      "type": "static",
+                      "content": "Save MCP Servers. Manage added servers in settings."
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "ValidatedForm",
+            "name": "ServerConfigurationForm",
+            "attrs": [
+              {
+                "type": "static",
+                "content": {
+                  "validationRules": {
+                    "stdio": {
+                      "name": ["required"],
+                      "command": ["required"]
+                    },
+                    "sse": {
+                      "name": ["required"],
+                      "url": ["required", "url"]
+                    },
+                    "json": {
+                      "value": ["required", "json"]
+                    }
+                  }
+                },
+                "name": "validationRules"
+              },
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "validation.errors"
+                },
+                "name": "errors"
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "FormTabs",
+                  "name": "ServerTypeSelector",
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": ["JSON", "STDIO", "SSE"],
+                      "name": "tabs"
+                    },
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "serverConfig.type"
+                      },
+                      "name": "selectedTab"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "TabPanel",
+                        "name": "JSONConfiguration",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": "JSON",
+                            "name": "tabId"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "FormField",
+                              "name": "JsonConfigField",
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": "textarea",
+                                  "name": "fieldType"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "Paste in JSON config",
+                                  "name": "label"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": true,
+                                  "name": "required"
+                                },
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "serverConfig.json.value"
+                                  },
+                                  "name": "value"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "TabPanel",
+                        "name": "STDIOConfiguration",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": "STDIO",
+                            "name": "tabId"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "FormFieldGroup",
+                              "name": "STDIOFields",
+                              "attrs": [
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "serverConfig.stdio"
+                                  },
+                                  "name": "values"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "StdioNameField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "text",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Name",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": true,
+                                        "name": "required"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "name",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "StdioCommandField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "text",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Command",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": true,
+                                        "name": "required"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "command",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "StdioArgsField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "list",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Arguments",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "args",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "StdioEnvField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "keyvalue",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Environment Variables",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "env",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "TabPanel",
+                        "name": "SSEConfiguration",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": "SSE",
+                            "name": "tabId"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "FormFieldGroup",
+                              "name": "SSEFields",
+                              "attrs": [
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "serverConfig.sse"
+                                  },
+                                  "name": "values"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "SseNameField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "text",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Name",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": true,
+                                        "name": "required"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "name",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "SseUrlField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "url",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "SSE URL",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": true,
+                                        "name": "required"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "url",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "SseHeadersField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "keyvalue",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Headers",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "headers",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "FormField",
+                                    "name": "SseEnvField",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "keyvalue",
+                                        "name": "fieldType"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Environment Variables",
+                                        "name": "label"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "env",
+                                        "name": "field"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "FormActions",
+            "name": "ConfigurationActions",
+            "attrs": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "isProcessing"
+                },
+                "name": "loading"
+              },
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "isUpdate"
+                },
+                "name": "isUpdate"
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "ActionButton",
+                  "name": "CancelAction",
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": "secondary",
+                      "name": "variant"
+                    },
+                    {
+                      "type": "static",
+                      "content": "cancel",
+                      "name": "intent"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "static",
+                      "content": "Cancel"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "ActionButton",
+                  "name": "SaveAction",
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": "primary",
+                      "name": "variant"
+                    },
+                    {
+                      "type": "static",
+                      "content": "saveServerConfiguration",
+                      "name": "intent"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "isUpdate"
+                          }
+                        },
+                        "value": true,
+                        "node": {
+                          "type": "static",
+                          "content": "Update Server"
+                        },
+                        "fallback": {
+                          "type": "static",
+                          "content": "Add Server"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "meta": {
+    "businessLogic": {
+      "purpose": "Configure MCP server connections",
+      "supportedTypes": ["JSON", "STDIO", "SSE"],
+      "workflow": [
+        "Select server configuration type",
+        "Enter required configuration details",
+        "Validate configuration against rules",
+        "Save server configuration"
+      ]
+    },
+    "validationRules": {
+      "stdio": {
+        "name": ["required"],
+        "command": ["required"]
+      },
+      "sse": {
+        "name": ["required"],
+        "url": ["required", "url"]
+      },
+      "json": {
+        "value": ["required", "json"]
+      }
+    },
+    "actions": {
+      "saveServerConfiguration": {
+        "type": "async",
+        "validation": true,
+        "onSuccess": "closeModal"
+      },
+      "cancel": {
+        "type": "sync",
+        "action": "closeModal"
+      }
+    }
+  }
+}
