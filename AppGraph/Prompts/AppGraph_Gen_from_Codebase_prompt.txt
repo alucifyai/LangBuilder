@@ -265,3 +265,39 @@ Prompt #7:
 
 for the interface nodes, generate a detailed UIDL representation of every page which includes all elements, components, and layouts in a UIDL JSON format.  To better understand the UIDL standard, please read the documentation here (https://docs.teleporthq.io/uidl/). refer to the frontend codebase and 
 complete-interface-nodes.md. Update langbuilder_app_graph.json, langbuilder_app_graph_partitioned.json, langbuilder_app_graph_rbac.json, and langbuilder_app_graph_partitioned_rbac.json.
+
+
+Prompt #8:
+
+
+I want you to deep dive into the frontend code. For every frontend file and      │
+│   component, generate a detailed UIDL including all elements, components, states   │
+│   for the screen or component. To understand the format for UIDL, please refer to  │
+│   this github repo,    https://github.com/teleporthq/teleport-code-generators,     │
+│   and this documentation site,                                                     │
+│   https://docs.teleporthq.io/uidl/structure.html#static-value. Try to include a    │
+│   label in the "name" field for elements that is descriptive of the element. For   │
+│   example, include the default label for a button in the name attribute or the     │
+│   label attached to a form field for an input element. Once you generate a UIDL    │
+│   for every frontend file, update the interface nodes accordingly in               │
+│   langbuilder_app_graph.json, and langbuilder_app_graph_partitioned.json.          │
+│   Remember, once you update the interface nodes in the langbuilder_app_graph json  │
+│   files, you need to update the relationship between interface nodes, and          │
+│   between interface node and other schema, logic, and test nodes properly to make  │
+│   the app graph consistent and accurate. 
+
+
+Prompt #9: 
+
+
+I am not sure the comprehensive-frontend-uidl.json is comprehensive at all. For  │
+│   example, I asked you to generate addMcpServerModal_UIDL.json for                 │
+│   src/frontend/src/modals/addMcpServerModal/index.tsx. When I said for every       │
+│   frontend file and component, generate a detailed UIDL including all elements,    │
+│   components, states for the screen or componen, I meant to generate details of    │
+│   every frontend component like that in addMcpServerModal_UIDL.json. You need to   │
+│   redo everything in comprehensive-frontend-uidl.json because they are not         │
+│   detailed at all. Once you are done, update the langbuilder_app_graph json files  │
+│   accordingly to make the app graphs consistent and accurate with interface        │
+│   nodes.
+
