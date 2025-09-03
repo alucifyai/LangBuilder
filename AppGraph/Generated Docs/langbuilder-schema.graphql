@@ -1,5 +1,5 @@
 # LangBuilder GraphQL Schema
-# Generated from application graph schema nodes
+# Standard GraphQL schema without database-specific directives
 
 # Scalar types
 scalar UUID
@@ -8,146 +8,137 @@ scalar JSON
 
 # User Management
 type User {
-  id: UUID! @primary
-  username: String! @unique @indexed
+  id: UUID!
+  username: String!
   password: String!
   email: String
-  is_active: Boolean! @default(false)
-  is_superuser: Boolean! @default(false)
+  is_active: Boolean!
+  is_superuser: Boolean!
   profile_image: String
-  created_at: DateTime! @default(now)
-  updated_at: DateTime! @default(now)
+  created_at: DateTime!
+  updated_at: DateTime!
   last_login_at: DateTime
   store_api_key: String
-  optins: JSON @default({github_starred: false, dialog_dismissed: false, discord_clicked: false})
+  optins: JSON
   
   # Relationships
-  api_keys: [ApiKey!]! @cascade(delete)
+  api_keys: [ApiKey!]!
   flows: [Flow!]!
-  variables: [Variable!]! @cascade(delete)
-  folders: [Folder!]! @cascade(delete)
+  variables: [Variable!]!
+  folders: [Folder!]!
   files: [File!]!
 }
 
 type ApiKey {
-  id: UUID! @primary
-  name: String @indexed
-  api_key: String! @unique @indexed
-  created_at: DateTime! @default(now)
+  id: UUID!
+  name: String
+  api_key: String!
+  created_at: DateTime!
   last_used_at: DateTime
-  total_uses: Int! @default(0)
-  is_active: Boolean! @default(true)
+  total_uses: Int!
+  is_active: Boolean!
   
-  # Foreign Keys
-  user_id: UUID! @indexed @foreign(user.id)
+  # Relationships
+  user_id: UUID!
   user: User!
 }
 
 # Flow Management
 type Flow {
-  id: UUID! @primary
-  name: String! @indexed
-  description: String @indexed
+  id: UUID!
+  name: String!
+  description: String
   data: JSON  # Contains nodes and edges structure
   icon: String  # Emoji or lucide icon
   icon_bg_color: String  # Hex color starting with #
   gradient: String
-  is_component: Boolean @default(false)
-  updated_at: DateTime @default(now)
-  webhook: Boolean @default(false)
-  endpoint_name: String @unique @indexed  # Alphanumeric with hyphens/underscores
-  tags: [String!] @default([])
-  locked: Boolean @default(false)
-  mcp_enabled: Boolean @default(false)  # MCP server exposure
+  is_component: Boolean
+  updated_at: DateTime
+  webhook: Boolean
+  endpoint_name: String  # Alphanumeric with hyphens/underscores
+  tags: [String!]
+  locked: Boolean
+  mcp_enabled: Boolean  # MCP server exposure
   action_name: String
   action_description: String
-  access_type: AccessTypeEnum! @default(PRIVATE)  # PRIVATE or PUBLIC
+  access_type: AccessTypeEnum!  # PRIVATE or PUBLIC
   fs_path: String  # File system path
   
-  # Foreign Keys
-  user_id: UUID @indexed @foreign(user.id)
+  # Relationships
+  user_id: UUID
   user: User!
-  folder_id: UUID @indexed @foreign(folder.id)
+  folder_id: UUID
   folder: Folder
-  
-  # Unique Constraints
-  @@unique([user_id, name])
-  @@unique([user_id, endpoint_name])
 }
 
 type Folder {
-  id: UUID! @primary
-  name: String! @indexed
+  id: UUID!
+  name: String!
   description: String
   auth_settings: JSON  # Authentication settings for the folder/project
   
-  # Foreign Keys
-  parent_id: UUID @foreign(folder.id)
-  parent: Folder
-  user_id: UUID @foreign(user.id)
-  user: User!
-  
   # Relationships
+  parent_id: UUID
+  parent: Folder
+  user_id: UUID
+  user: User!
   children: [Folder!]!
-  flows: [Flow!]! @cascade(delete)
-  
-  # Unique Constraints
-  @@unique([user_id, name])
+  flows: [Flow!]!
 }
 
 # Variables and Configuration
 type Variable {
-  id: UUID! @primary
+  id: UUID!
   name: String!
-  value: String! @encrypted  # Encrypted value
+  value: String!  # Encrypted value
   type: String  # e.g., "CREDENTIAL"
   default_fields: [String!]
-  created_at: DateTime @default(now)
+  created_at: DateTime
   updated_at: DateTime
   
-  # Foreign Keys
-  user_id: UUID! @foreign(user.id)
+  # Relationships
+  user_id: UUID!
   user: User!
 }
 
 type GlobalVariable {
-  id: UUID! @primary
-  name: String! @unique
+  id: UUID!
+  name: String!
   value: String!
   type: GlobalVariableType!
   description: String
-  is_secret: Boolean! @default(false)
-  created_at: DateTime! @default(now)
-  updated_at: DateTime! @default(now)
+  is_secret: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
   
-  # Access Control
-  user_id: UUID @foreign(user.id)  # null for system-wide variables
+  # Relationships
+  user_id: UUID  # null for system-wide variables
   user: User
 }
 
 # Messaging and Communication
 type Message {
-  id: UUID! @primary
-  timestamp: DateTime! @default(now)
+  id: UUID!
+  timestamp: DateTime!
   sender: String!
   sender_name: String!
   session_id: String!
   text: String!
-  files: [String!] @default([])
-  error: Boolean! @default(false)
-  edit: Boolean! @default(false)
+  files: [String!]
+  error: Boolean!
+  edit: Boolean!
   properties: JSON  # Properties object
-  category: String! @default("message")
-  content_blocks: [JSON!] @default([])  # Voice Mode support
+  category: String!
+  content_blocks: [JSON!]  # Voice Mode support
   
-  # Foreign Keys
-  flow_id: UUID @foreign(flow.id)
+  # Relationships
+  flow_id: UUID
 }
 
 # Execution and Monitoring
 type Transaction {
-  id: UUID! @primary
-  timestamp: DateTime! @default(now)
+  id: UUID!
+  timestamp: DateTime!
   vertex_id: String!  # ID of the vertex/node in the flow
   target_id: String
   inputs: JSON  # Serialized with length limits
@@ -155,35 +146,35 @@ type Transaction {
   status: String!
   error: String
   
-  # Foreign Keys
-  flow_id: UUID! @foreign(flow.id)
+  # Relationships
+  flow_id: UUID!
 }
 
 type VertexBuild {
-  build_id: UUID! @primary
+  build_id: UUID!
   id: String!  # Vertex/component ID
-  timestamp: DateTime! @default(now)
+  timestamp: DateTime!
   data: JSON  # Serialized with limits
   artifacts: JSON  # Serialized with limits
   params: String  # Serialized parameters
   valid: Boolean!
   
-  # Foreign Keys
-  flow_id: UUID! @foreign(flow.id)
+  # Relationships
+  flow_id: UUID!
 }
 
 # File Management
 type File {
-  id: UUID! @primary
-  name: String! @unique
+  id: UUID!
+  name: String!
   path: String!
   size: Int!
   provider: String  # Storage provider (e.g., 'local', 's3')
-  created_at: DateTime! @default(now)
-  updated_at: DateTime! @default(now)
+  created_at: DateTime!
+  updated_at: DateTime!
   
-  # Foreign Keys
-  user_id: UUID! @foreign(user.id)
+  # Relationships
+  user_id: UUID!
   user: User!
 }
 
@@ -256,50 +247,50 @@ type Edge {
 
 # Security and Credentials
 type Credential {
-  id: UUID! @primary
-  name: String! @unique
+  id: UUID!
+  name: String!
   credential_type: CredentialType!
-  encrypted_value: String! @encrypted
+  encrypted_value: String!
   metadata: JSON
-  created_at: DateTime! @default(now)
-  updated_at: DateTime! @default(now)
+  created_at: DateTime!
+  updated_at: DateTime!
   expires_at: DateTime
-  is_active: Boolean! @default(true)
+  is_active: Boolean!
   
-  # Foreign Keys
-  user_id: UUID! @foreign(user.id)
+  # Relationships
+  user_id: UUID!
   user: User!
 }
 
 # Store and Marketplace
 type Store {
-  id: UUID! @primary
+  id: UUID!
   name: String!
   description: String!
   flow_data: JSON!
   tags: [String!]!
-  is_public: Boolean! @default(false)
-  downloads: Int! @default(0)
-  likes: Int! @default(0)
+  is_public: Boolean!
+  downloads: Int!
+  likes: Int!
   version: String!
   author: String!
-  created_at: DateTime! @default(now)
-  updated_at: DateTime! @default(now)
+  created_at: DateTime!
+  updated_at: DateTime!
   
-  # Foreign Keys
-  user_id: UUID! @foreign(user.id)
+  # Relationships
+  user_id: UUID!
   user: User!
 }
 
 type StoreRating {
-  id: UUID! @primary
+  id: UUID!
   rating: Int!
   review: String
-  created_at: DateTime! @default(now)
+  created_at: DateTime!
   
-  # Foreign Keys
-  store_id: UUID! @foreign(store.id)
-  user_id: UUID! @foreign(user.id)
+  # Relationships
+  store_id: UUID!
+  user_id: UUID!
   store: Store!
   user: User!
 }
