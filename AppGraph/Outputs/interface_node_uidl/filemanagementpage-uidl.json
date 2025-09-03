@@ -1,0 +1,1260 @@
+{
+  "name": "FileManagementPage",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "FileManagementPageRoot",
+      "key": "file-management-page-root",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "PageLayout",
+            "name": "FileManagementPageLayout",
+            "key": "file-management-page-layout",
+            "dependency": {
+              "type": "local",
+              "path": "@/components/common/pageLayout"
+            },
+            "attrs": [
+              {
+                "type": "static",
+                "content": "/settings"
+              },
+              {
+                "type": "static",
+                "content": "File Management"
+              },
+              {
+                "type": "static",
+                "content": "Upload, organize, and manage your files for use across your flows."
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "FileManagementContent",
+                  "key": "file-management-content",
+                  "style": {
+                    "display": "flex",
+                    "height": "100vh",
+                    "width": "100vw",
+                    "flexDirection": "column",
+                    "gap": "24px"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "FileManagementHeader",
+                        "key": "file-management-header",
+                        "style": {
+                          "display": "flex",
+                          "justifyContent": "space-between",
+                          "alignItems": "flex-start",
+                          "gap": "16px",
+                          "paddingBottom": "16px",
+                          "borderBottom": "1px solid #e5e7eb"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "FileManagementHeaderInfo",
+                              "key": "file-management-header-info",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "gap": "4px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "FileCountInfo",
+                                    "key": "file-count-info",
+                                    "style": {
+                                      "display": "flex",
+                                      "alignItems": "center",
+                                      "gap": "8px"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "ForwardedIconComponent",
+                                          "name": "FilesIcon",
+                                          "key": "files-icon",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/common/genericIconComponent"
+                                          },
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": "Files"
+                                            }
+                                          ],
+                                          "style": {
+                                            "height": "20px",
+                                            "width": "20px",
+                                            "color": "#3b82f6"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "FileCountText",
+                                          "key": "file-count-text",
+                                          "style": {
+                                            "fontSize": "14px",
+                                            "color": "#6b7280"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "state",
+                                                "id": "fileCountMessage"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "FileManagementActions",
+                              "key": "file-management-actions",
+                              "style": {
+                                "display": "flex",
+                                "alignItems": "center",
+                                "gap": "12px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "ViewToggle",
+                                    "key": "view-toggle",
+                                    "style": {
+                                      "display": "flex",
+                                      "backgroundColor": "#f3f4f6",
+                                      "borderRadius": "8px",
+                                      "padding": "2px"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "Button",
+                                          "name": "GridViewButton",
+                                          "key": "grid-view-button",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/ui/button"
+                                          },
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": true
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": "icon"
+                                            }
+                                          ],
+                                          "style": {
+                                            "margin": "2px",
+                                            "borderRadius": "6px"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "ForwardedIconComponent",
+                                                "name": "GridIcon",
+                                                "key": "grid-icon",
+                                                "dependency": {
+                                                  "type": "local",
+                                                  "path": "@/components/common/genericIconComponent"
+                                                },
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "LayoutGrid"
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "height": "16px",
+                                                  "width": "16px"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "Button",
+                                          "name": "ListViewButton",
+                                          "key": "list-view-button",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/ui/button"
+                                          },
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": true
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": "icon"
+                                            }
+                                          ],
+                                          "style": {
+                                            "margin": "2px",
+                                            "borderRadius": "6px"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "ForwardedIconComponent",
+                                                "name": "ListIcon",
+                                                "key": "list-icon",
+                                                "dependency": {
+                                                  "type": "local",
+                                                  "path": "@/components/common/genericIconComponent"
+                                                },
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "List"
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "height": "16px",
+                                                  "width": "16px"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "FileUploadContainer",
+                                    "key": "file-upload-container",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "input",
+                                          "name": "FileUploadInput",
+                                          "key": "file-upload-input",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": "file"
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": true
+                                            }
+                                          ],
+                                          "style": {
+                                            "display": "none"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "Button",
+                                          "name": "UploadFilesButton",
+                                          "key": "upload-files-button",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/ui/button"
+                                          },
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": "primary"
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "ForwardedIconComponent",
+                                                "name": "UploadIcon",
+                                                "key": "upload-icon",
+                                                "dependency": {
+                                                  "type": "local",
+                                                  "path": "@/components/common/genericIconComponent"
+                                                },
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Upload"
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "height": "16px",
+                                                  "width": "16px",
+                                                  "marginRight": "8px"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "text",
+                                                "name": "UploadButtonText",
+                                                "key": "upload-button-text",
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Upload Files"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "FileSearchAndFilter",
+                        "key": "file-search-and-filter",
+                        "style": {
+                          "display": "flex",
+                          "alignItems": "center",
+                          "gap": "16px",
+                          "marginBottom": "16px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "SearchContainer",
+                              "key": "search-container",
+                              "style": {
+                                "position": "relative",
+                                "flex": "1",
+                                "maxWidth": "400px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Input",
+                                    "name": "FileSearchInput",
+                                    "key": "file-search-input",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/input"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "search"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Search files..."
+                                      },
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "searchQuery"
+                                        }
+                                      }
+                                    ],
+                                    "style": {
+                                      "paddingLeft": "40px"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "ForwardedIconComponent",
+                                    "name": "SearchIcon",
+                                    "key": "search-icon",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/common/genericIconComponent"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": "Search"
+                                      }
+                                    ],
+                                    "style": {
+                                      "position": "absolute",
+                                      "left": "12px",
+                                      "top": "50%",
+                                      "transform": "translateY(-50%)",
+                                      "height": "16px",
+                                      "width": "16px",
+                                      "color": "#6b7280"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "BulkActionsContainer",
+                                  "key": "bulk-actions-container",
+                                  "style": {
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                    "gap": "8px",
+                                    "padding": "8px 12px",
+                                    "backgroundColor": "#f3f4f6",
+                                    "borderRadius": "8px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "SelectedFilesCount",
+                                        "key": "selected-files-count",
+                                        "style": {
+                                          "fontSize": "14px",
+                                          "fontWeight": "500"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "selectedFilesCountText"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "Button",
+                                        "name": "BulkDownloadButton",
+                                        "key": "bulk-download-button",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/ui/button"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "outline"
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "sm"
+                                          }
+                                        ],
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "ForwardedIconComponent",
+                                              "name": "DownloadIcon",
+                                              "key": "download-icon",
+                                              "dependency": {
+                                                "type": "local",
+                                                "path": "@/components/common/genericIconComponent"
+                                              },
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "content": "Download"
+                                                }
+                                              ],
+                                              "style": {
+                                                "height": "14px",
+                                                "width": "14px"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "Button",
+                                        "name": "BulkDeleteButton",
+                                        "key": "bulk-delete-button",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/ui/button"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "destructive"
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "sm"
+                                          }
+                                        ],
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "ForwardedIconComponent",
+                                              "name": "DeleteIcon",
+                                              "key": "delete-icon",
+                                              "dependency": {
+                                                "type": "local",
+                                                "path": "@/components/common/genericIconComponent"
+                                              },
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "content": "Trash2"
+                                                }
+                                              ],
+                                              "style": {
+                                                "height": "14px",
+                                                "width": "14px"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "hasSelectedFiles"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "FilesDisplayArea",
+                        "key": "files-display-area",
+                        "style": {
+                          "flex": "1",
+                          "overflow": "auto"
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "EmptyFilesState",
+                                  "key": "empty-files-state",
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "height": "400px",
+                                    "textAlign": "center",
+                                    "gap": "16px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "ForwardedIconComponent",
+                                        "name": "EmptyFilesIcon",
+                                        "key": "empty-files-icon",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/common/genericIconComponent"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "FileX"
+                                          }
+                                        ],
+                                        "style": {
+                                          "height": "64px",
+                                          "width": "64px",
+                                          "color": "#d1d5db"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "EmptyFilesMessage",
+                                        "key": "empty-files-message",
+                                        "style": {
+                                          "fontSize": "18px",
+                                          "fontWeight": "500",
+                                          "color": "#6b7280"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "No files uploaded yet"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "EmptyFilesSubtext",
+                                        "key": "empty-files-subtext",
+                                        "style": {
+                                          "fontSize": "14px",
+                                          "color": "#9ca3af"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Upload your first file to get started"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isEmpty"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "FilesGridView",
+                                  "key": "files-grid-view",
+                                  "style": {
+                                    "display": "grid",
+                                    "gridTemplateColumns": "repeat(auto-fill, minmax(240px, 1fr))",
+                                    "gap": "16px",
+                                    "padding": "16px 0"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "repeat",
+                                      "content": {
+                                        "node": {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "CustomFileCard",
+                                            "name": "FileGridCard",
+                                            "key": "file-grid-card",
+                                            "dependency": {
+                                              "type": "local",
+                                              "path": "@/customization/components/custom-file-card"
+                                            },
+                                            "attrs": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "local",
+                                                  "id": "file.name"
+                                                }
+                                              },
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "local",
+                                                  "id": "file.path"
+                                                }
+                                              },
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "local",
+                                                  "id": "file.type"
+                                                }
+                                              },
+                                              {
+                                                "type": "static",
+                                                "content": true
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "dataSource": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "filteredFiles"
+                                          }
+                                        },
+                                        "meta": {
+                                          "useIndex": true,
+                                          "iteratorName": "file",
+                                          "indexName": "index"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isGridView"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "FilesListView",
+                                  "key": "files-list-view",
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "gap": "8px",
+                                    "padding": "16px 0"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "repeat",
+                                      "content": {
+                                        "node": {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "FileListItem",
+                                            "key": "file-list-item",
+                                            "style": {
+                                              "display": "flex",
+                                              "alignItems": "center",
+                                              "padding": "12px 16px",
+                                              "backgroundColor": "#ffffff",
+                                              "border": "1px solid #e5e7eb",
+                                              "borderRadius": "8px",
+                                              "gap": "12px"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "input",
+                                                  "name": "FileSelectCheckbox",
+                                                  "key": "file-select-checkbox",
+                                                  "attrs": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "checkbox"
+                                                    },
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "file.selected"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "ForwardedIconComponent",
+                                                  "name": "FileTypeIcon",
+                                                  "key": "file-type-icon",
+                                                  "dependency": {
+                                                    "type": "local",
+                                                    "path": "@/components/common/genericIconComponent"
+                                                  },
+                                                  "attrs": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "fileTypeIcon"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "style": {
+                                                    "height": "24px",
+                                                    "width": "24px",
+                                                    "color": "#6b7280"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "FileInfo",
+                                                  "key": "file-info",
+                                                  "style": {
+                                                    "flex": "1",
+                                                    "display": "flex",
+                                                    "flexDirection": "column",
+                                                    "gap": "2px"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "text",
+                                                        "name": "FileName",
+                                                        "key": "file-name",
+                                                        "style": {
+                                                          "fontWeight": "500",
+                                                          "fontSize": "14px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "local",
+                                                              "id": "file.name"
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "text",
+                                                        "name": "FileMetadata",
+                                                        "key": "file-metadata",
+                                                        "style": {
+                                                          "fontSize": "12px",
+                                                          "color": "#6b7280"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "local",
+                                                              "id": "file.metadata"
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "FileActions",
+                                                  "key": "file-actions",
+                                                  "style": {
+                                                    "display": "flex",
+                                                    "alignItems": "center",
+                                                    "gap": "8px"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "Button",
+                                                        "name": "DownloadFileButton",
+                                                        "key": "download-file-button",
+                                                        "dependency": {
+                                                          "type": "local",
+                                                          "path": "@/components/ui/button"
+                                                        },
+                                                        "attrs": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "ghost"
+                                                          },
+                                                          {
+                                                            "type": "static",
+                                                            "content": "icon"
+                                                          }
+                                                        ],
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "ForwardedIconComponent",
+                                                              "name": "DownloadFileIcon",
+                                                              "key": "download-file-icon",
+                                                              "dependency": {
+                                                                "type": "local",
+                                                                "path": "@/components/common/genericIconComponent"
+                                                              },
+                                                              "attrs": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "Download"
+                                                                }
+                                                              ],
+                                                              "style": {
+                                                                "height": "16px",
+                                                                "width": "16px"
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "Button",
+                                                        "name": "RenameFileButton",
+                                                        "key": "rename-file-button",
+                                                        "dependency": {
+                                                          "type": "local",
+                                                          "path": "@/components/ui/button"
+                                                        },
+                                                        "attrs": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "ghost"
+                                                          },
+                                                          {
+                                                            "type": "static",
+                                                            "content": "icon"
+                                                          }
+                                                        ],
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "ForwardedIconComponent",
+                                                              "name": "RenameFileIcon",
+                                                              "key": "rename-file-icon",
+                                                              "dependency": {
+                                                                "type": "local",
+                                                                "path": "@/components/common/genericIconComponent"
+                                                              },
+                                                              "attrs": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "Edit"
+                                                                }
+                                                              ],
+                                                              "style": {
+                                                                "height": "16px",
+                                                                "width": "16px"
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "Button",
+                                                        "name": "DeleteFileButton",
+                                                        "key": "delete-file-button",
+                                                        "dependency": {
+                                                          "type": "local",
+                                                          "path": "@/components/ui/button"
+                                                        },
+                                                        "attrs": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "ghost"
+                                                          },
+                                                          {
+                                                            "type": "static",
+                                                            "content": "icon"
+                                                          }
+                                                        ],
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "ForwardedIconComponent",
+                                                              "name": "DeleteFileIcon",
+                                                              "key": "delete-file-icon",
+                                                              "dependency": {
+                                                                "type": "local",
+                                                                "path": "@/components/common/genericIconComponent"
+                                                              },
+                                                              "attrs": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "Trash2"
+                                                                }
+                                                              ],
+                                                              "style": {
+                                                                "height": "16px",
+                                                                "width": "16px"
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "dataSource": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "filteredFiles"
+                                          }
+                                        },
+                                        "meta": {
+                                          "useIndex": true,
+                                          "iteratorName": "file",
+                                          "indexName": "index"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isListView"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "files": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "filteredFiles": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "selectedFiles": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "searchQuery": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "viewMode": {
+      "type": "string",
+      "defaultValue": "grid"
+    },
+    "isGridView": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "isListView": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isEmpty": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "hasSelectedFiles": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isUploading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "uploadProgress": {
+      "type": "number",
+      "defaultValue": 0
+    },
+    "fileCountMessage": {
+      "type": "string",
+      "defaultValue": "0 files"
+    },
+    "selectedFilesCountText": {
+      "type": "string",
+      "defaultValue": "0 selected"
+    },
+    "fileTypeIcon": {
+      "type": "string",
+      "defaultValue": "File"
+    }
+  },
+  "propDefinitions": {},
+  "styleSetDefinitions": {
+    "pageContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "height": "100vh",
+        "width": "100vw",
+        "flexDirection": "column",
+        "gap": "24px"
+      }
+    },
+    "headerSection": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "justifyContent": "space-between",
+        "alignItems": "flex-start",
+        "gap": "16px",
+        "paddingBottom": "16px",
+        "borderBottom": "1px solid #e5e7eb"
+      }
+    },
+    "gridLayout": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "grid",
+        "gridTemplateColumns": "repeat(auto-fill, minmax(240px, 1fr))",
+        "gap": "16px",
+        "padding": "16px 0"
+      }
+    },
+    "listLayout": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "8px",
+        "padding": "16px 0"
+      }
+    },
+    "emptyState": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "height": "400px",
+        "textAlign": "center",
+        "gap": "16px"
+      }
+    },
+    "fileListItem": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "alignItems": "center",
+        "padding": "12px 16px",
+        "backgroundColor": "#ffffff",
+        "border": "1px solid #e5e7eb",
+        "borderRadius": "8px",
+        "gap": "12px"
+      }
+    },
+    "actionButtons": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "alignItems": "center",
+        "gap": "8px"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280",
+      "destructiveColor": "#ef4444",
+      "successColor": "#10b981",
+      "gridBackgroundColor": "#f9fafb",
+      "cardBackgroundColor": "#ffffff",
+      "selectedBackgroundColor": "#f3f4f6"
+    }
+  }
+}

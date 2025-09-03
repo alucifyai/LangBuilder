@@ -1,0 +1,929 @@
+{
+  "name": "LoadingStates",
+  "globals": {
+    "settings": {
+      "title": "Loading States System",
+      "language": "en"
+    },
+    "customCode": {
+      "head": "",
+      "body": ""
+    },
+    "meta": [],
+    "assets": [],
+    "manifest": {},
+    "variables": {}
+  },
+  "root": {
+    "name": "LoadingStates",
+    "node": {
+      "type": "element",
+      "content": {
+        "elementType": "container",
+        "name": "loading-states-wrapper",
+        "children": [
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "animated-spinner-loading",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "svg",
+                        "name": "circular-loading-spinner",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "name": "xmlns",
+                            "content": "http://www.w3.org/2000/svg"
+                          },
+                          {
+                            "type": "dynamic",
+                            "name": "width",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "size",
+                              "fallback": 24
+                            }
+                          },
+                          {
+                            "type": "dynamic",
+                            "name": "height",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "size",
+                              "fallback": 24
+                            }
+                          },
+                          {
+                            "type": "static",
+                            "name": "viewBox",
+                            "content": "0 0 24 24"
+                          },
+                          {
+                            "type": "static",
+                            "name": "fill",
+                            "content": "none"
+                          },
+                          {
+                            "type": "static",
+                            "name": "stroke",
+                            "content": "currentColor"
+                          },
+                          {
+                            "type": "static",
+                            "name": "stroke-width",
+                            "content": "2"
+                          },
+                          {
+                            "type": "static",
+                            "name": "stroke-linecap",
+                            "content": "round"
+                          },
+                          {
+                            "type": "static",
+                            "name": "stroke-linejoin",
+                            "content": "round"
+                          },
+                          {
+                            "type": "static",
+                            "name": "data-testid",
+                            "content": "loading-icon"
+                          }
+                        ],
+                        "style": {
+                          "color": "currentColor"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "circle",
+                            "name": "animated-loading-circle",
+                            "attrs": [
+                              {
+                                "type": "static",
+                                "name": "cx",
+                                "content": "12"
+                              },
+                              {
+                                "type": "static",
+                                "name": "cy",
+                                "content": "12"
+                              },
+                              {
+                                "type": "static",
+                                "name": "r",
+                                "content": "10"
+                              },
+                              {
+                                "type": "static",
+                                "name": "stroke-dasharray",
+                                "content": "63"
+                              },
+                              {
+                                "type": "static",
+                                "name": "stroke-dashoffset",
+                                "content": "21"
+                              }
+                            ]
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "animateTransform",
+                                "name": "rotate-animation",
+                                "attrs": [
+                                  {
+                                    "type": "static",
+                                    "name": "attributeName",
+                                    "content": "transform"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "type",
+                                    "content": "rotate"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "from",
+                                    "content": "0 12 12"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "to",
+                                    "content": "360 12 12"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "dur",
+                                    "content": "2s"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "repeatCount",
+                                    "content": "indefinite"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "animate",
+                                "name": "dashoffset-animation",
+                                "attrs": [
+                                  {
+                                    "type": "static",
+                                    "name": "attributeName",
+                                    "content": "stroke-dashoffset"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "dur",
+                                    "content": "8s"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "repeatCount",
+                                    "content": "indefinite"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "keyTimes",
+                                    "content": "0; 0.5; 1"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "values",
+                                    "content": "-16; -47; -16"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "calcMode",
+                                    "content": "spline"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "name": "keySplines",
+                                    "content": "0.4 0 0.2 1; 0.4 0 0.2 1"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "spinner",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "full-loading-component",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "svg",
+                        "name": "full-loading-spinner",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "name": "aria-hidden",
+                            "content": "true"
+                          },
+                          {
+                            "type": "static",
+                            "name": "viewBox",
+                            "content": "0 0 100 101"
+                          },
+                          {
+                            "type": "static",
+                            "name": "fill",
+                            "content": "none"
+                          },
+                          {
+                            "type": "static",
+                            "name": "xmlns",
+                            "content": "http://www.w3.org/2000/svg"
+                          }
+                        ],
+                        "style": {
+                          "width": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "remSize",
+                              "fallback": "64px"
+                            }
+                          },
+                          "height": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "remSize",
+                              "fallback": "64px"
+                            }
+                          },
+                          "animation": "spin 1s linear infinite",
+                          "fill": "$token-color-primary",
+                          "color": "$token-color-muted"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "path",
+                            "name": "loading-spinner-background",
+                            "attrs": [
+                              {
+                                "type": "static",
+                                "name": "d",
+                                "content": "M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                              },
+                              {
+                                "type": "static",
+                                "name": "fill",
+                                "content": "currentColor"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "path",
+                            "name": "loading-spinner-foreground",
+                            "attrs": [
+                              {
+                                "type": "static",
+                                "name": "d",
+                                "content": "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                              },
+                              {
+                                "type": "static",
+                                "name": "fill",
+                                "content": "currentFill"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "line-break",
+                        "name": "loading-line-break"
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "loading-status-text",
+                        "style": {
+                          "animation": "pulse 2s infinite",
+                          "fontSize": "$token-font-size-lg",
+                          "color": "$token-color-primary"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Loading..."
+                        }
+                      ]
+                    }
+                  ],
+                  "style": {
+                    "role": "status",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "alignItems": "center",
+                    "justifyContent": "center"
+                  }
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "full",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "loading-text-component",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "animated-loading-text",
+                        "style": {
+                          "color": "$token-color-text-primary",
+                          "fontSize": "$token-font-size-md"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "loadingTextWithDots"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "text",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "skeleton-loading-component",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "basic-skeleton-container",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "basic-skeleton-element",
+                              "style": {
+                                "animation": "pulse 2s infinite",
+                                "borderRadius": "$token-border-radius-md",
+                                "backgroundColor": "$token-color-border",
+                                "height": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "prop",
+                                    "id": "skeletonHeight",
+                                    "fallback": "20px"
+                                  }
+                                },
+                                "width": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "prop",
+                                    "id": "skeletonWidth",
+                                    "fallback": "100%"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "skeleton",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "skeleton-card-loading",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "skeleton-card-wrapper",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "skeleton-card-header",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-avatar",
+                                    "style": {
+                                      "height": "32px",
+                                      "width": "32px",
+                                      "borderRadius": "50%",
+                                      "animation": "pulse 2s infinite",
+                                      "backgroundColor": "$token-color-border"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-title",
+                                    "style": {
+                                      "height": "16px",
+                                      "width": "40%",
+                                      "borderRadius": "$token-border-radius-sm",
+                                      "animation": "pulse 2s infinite",
+                                      "backgroundColor": "$token-color-border"
+                                    }
+                                  }
+                                }
+                              ],
+                              "style": {
+                                "display": "flex",
+                                "alignItems": "center",
+                                "gap": "12px",
+                                "marginBottom": "12px"
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "skeleton-card-content",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-text-line-1",
+                                    "style": {
+                                      "height": "12px",
+                                      "width": "90%",
+                                      "borderRadius": "$token-border-radius-sm",
+                                      "animation": "pulse 2s infinite",
+                                      "backgroundColor": "$token-color-border",
+                                      "marginBottom": "8px"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-text-line-2",
+                                    "style": {
+                                      "height": "12px",
+                                      "width": "80%",
+                                      "borderRadius": "$token-border-radius-sm",
+                                      "animation": "pulse 2s infinite",
+                                      "backgroundColor": "$token-color-border"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "style": {
+                          "padding": "16px",
+                          "backgroundColor": "$token-color-surface",
+                          "borderRadius": "$token-border-radius-lg",
+                          "border": "1px solid $token-color-border"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "card",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "sidebar-skeleton-loading",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "sidebar-skeleton-item",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "sidebar-skeleton-content",
+                              "style": {
+                                "height": "12px",
+                                "width": "40%",
+                                "borderRadius": "$token-border-radius-sm",
+                                "animation": "pulse 2s infinite",
+                                "backgroundColor": "$token-color-border"
+                              }
+                            }
+                          }
+                        ],
+                        "style": {
+                          "display": "flex",
+                          "height": "36px",
+                          "width": "100%",
+                          "flexShrink": "0",
+                          "cursor": "pointer",
+                          "alignItems": "center",
+                          "gap": "16px",
+                          "borderRadius": "$token-border-radius-md",
+                          "border": "1px solid $token-color-border",
+                          "backgroundColor": "$token-color-background",
+                          "padding": "0 8px",
+                          "opacity": "1"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "sidebar",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "multiple-skeletons-display",
+                  "children": [
+                    {
+                      "type": "repeat",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "skeleton-item",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "skeleton-placeholder",
+                                  "style": {
+                                    "animation": "pulse 2s infinite",
+                                    "borderRadius": "$token-border-radius-md",
+                                    "backgroundColor": "$token-color-border",
+                                    "height": "20px",
+                                    "width": "100%",
+                                    "marginBottom": "8px"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "dataSource": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "skeletonCount"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "loadingType",
+                  "conditions": [
+                    {
+                      "operand": "multiple",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "stateDefinitions": {
+      "loadingType": {
+        "type": "string",
+        "defaultValue": "spinner"
+      },
+      "isLoading": {
+        "type": "boolean",
+        "defaultValue": true
+      },
+      "loadingText": {
+        "type": "string",
+        "defaultValue": "Loading"
+      },
+      "dots": {
+        "type": "string",
+        "defaultValue": "."
+      },
+      "skeletonCount": {
+        "type": "array",
+        "defaultValue": [1, 2, 3]
+      },
+      "animationState": {
+        "type": "string",
+        "defaultValue": "running"
+      }
+    },
+    "propDefinitions": {
+      "size": {
+        "type": "number",
+        "defaultValue": 24
+      },
+      "remSize": {
+        "type": "string",
+        "defaultValue": "64px"
+      },
+      "text": {
+        "type": "string",
+        "defaultValue": "Loading"
+      },
+      "skeletonHeight": {
+        "type": "string",
+        "defaultValue": "20px"
+      },
+      "skeletonWidth": {
+        "type": "string",
+        "defaultValue": "100%"
+      },
+      "variant": {
+        "type": "string",
+        "defaultValue": "spinner"
+      },
+      "showText": {
+        "type": "boolean",
+        "defaultValue": true
+      }
+    },
+    "compDefinitions": {
+      "loadingTextWithDots": {
+        "type": "string",
+        "content": "$state.loadingText + $state.dots"
+      }
+    }
+  },
+  "styleSetDefinitions": {
+    "spinnerAnimation": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "animation": "spin 1s linear infinite"
+      }
+    },
+    "pulseAnimation": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "animation": "pulse 2s infinite"
+      }
+    },
+    "loadingSpinner": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "color": "currentColor",
+        "animation": "spin 1s linear infinite"
+      }
+    },
+    "loadingText": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "animation": "pulse 2s infinite",
+        "fontSize": "$token-font-size-lg",
+        "color": "$token-color-primary",
+        "textAlign": "center"
+      }
+    },
+    "skeletonElement": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "animation": "pulse 2s infinite",
+        "borderRadius": "$token-border-radius-md",
+        "backgroundColor": "$token-color-border"
+      }
+    },
+    "loadingContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "padding": "$token-spacing-md"
+      }
+    },
+    "skeletonCard": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "padding": "16px",
+        "backgroundColor": "$token-color-surface",
+        "borderRadius": "$token-border-radius-lg",
+        "border": "1px solid $token-color-border",
+        "animation": "pulse 2s infinite"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "token-color-primary": "#0066FF",
+        "token-color-secondary": "#6B7280",
+        "token-color-background": "#FFFFFF",
+        "token-color-surface": "#F9FAFB",
+        "token-color-muted": "#F3F4F6",
+        "token-color-border": "#E5E7EB",
+        "token-color-text-primary": "#111827",
+        "token-color-text-secondary": "#6B7280",
+        "token-color-text-disabled": "#9CA3AF"
+      },
+      "spacing": {
+        "token-spacing-xs": "4px",
+        "token-spacing-sm": "8px",
+        "token-spacing-md": "16px",
+        "token-spacing-lg": "24px",
+        "token-spacing-xl": "32px"
+      },
+      "borderRadius": {
+        "token-border-radius-sm": "4px",
+        "token-border-radius-md": "6px",
+        "token-border-radius-lg": "8px"
+      },
+      "typography": {
+        "token-font-size-sm": "12px",
+        "token-font-size-md": "14px",
+        "token-font-size-lg": "16px",
+        "token-font-size-xl": "20px"
+      },
+      "animations": {
+        "token-animation-spin": "spin 1s linear infinite",
+        "token-animation-pulse": "pulse 2s infinite",
+        "token-animation-bounce": "bounce 1s infinite"
+      }
+    }
+  }
+}

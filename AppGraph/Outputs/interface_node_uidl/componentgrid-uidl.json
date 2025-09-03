@@ -1,0 +1,773 @@
+{
+  "name": "ComponentGrid",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "ComponentGrid",
+      "key": "componentgrid-root",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "CardsWrapContainer",
+            "key": "cards-wrap",
+            "attrs": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "onFileDrop"
+                }
+              },
+              {
+                "type": "static",
+                "content": "Drop your components here"
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "MainContentContainer",
+                  "key": "main-content",
+                  "style": {
+                    "display": "flex",
+                    "height": "100vh",
+                    "width": "100vw",
+                    "flexDirection": "column",
+                    "overflowY": "auto"
+                  },
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": "cards-wrapper"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "InnerContainer",
+                        "key": "inner-container",
+                        "style": {
+                          "display": "flex",
+                          "height": "100vh",
+                          "width": "100vw",
+                          "flexDirection": "column"
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "CustomBanner",
+                                  "key": "custom-banner"
+                                }
+                              },
+                              "reference": {
+                                "type": "static",
+                                "content": true
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "ContentArea",
+                              "key": "content-area",
+                              "style": {
+                                "display": "flex",
+                                "flex": "1",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                                "padding": "16px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "ContentWrapper",
+                                    "key": "content-wrapper",
+                                    "style": {
+                                      "display": "flex",
+                                      "height": "100vh",
+                                      "flexDirection": "column",
+                                      "justifyContent": "flex-start"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "HeaderComponent",
+                                          "name": "HeaderComponent",
+                                          "key": "header-component",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "../../components/header"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "EmptyFolder",
+                                              "name": "EmptyFolderComponent",
+                                              "key": "empty-folder",
+                                              "dependency": {
+                                                "type": "local",
+                                                "path": "../emptyFolder"
+                                              }
+                                            }
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "isEmptyFolder"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "ComponentContentArea",
+                                              "key": "component-content-area",
+                                              "style": {
+                                                "display": "flex",
+                                                "height": "100vh",
+                                                "flexDirection": "column"
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "LoadingSkeletons",
+                                                        "key": "loading-skeletons",
+                                                        "children": [
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "GridLoadingSkeleton",
+                                                                  "key": "grid-loading",
+                                                                  "style": {
+                                                                    "marginTop": "16px",
+                                                                    "display": "grid",
+                                                                    "gridTemplateColumns": "1fr",
+                                                                    "gap": "4px",
+                                                                    "gridTemplateColumns": "repeat(1, 1fr)"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ListSkeleton",
+                                                                        "name": "ListSkeletonOne",
+                                                                        "key": "skeleton-1"
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ListSkeleton",
+                                                                        "name": "ListSkeletonTwo",
+                                                                        "key": "skeleton-2"
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "viewIsGrid"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "ListLoadingSkeleton",
+                                                                  "key": "list-loading",
+                                                                  "style": {
+                                                                    "marginTop": "16px",
+                                                                    "display": "flex",
+                                                                    "flexDirection": "column",
+                                                                    "gap": "4px"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ListSkeleton",
+                                                                        "name": "ListSkeletonThree",
+                                                                        "key": "skeleton-3"
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ListSkeleton",
+                                                                        "name": "ListSkeletonFour",
+                                                                        "key": "skeleton-4"
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "viewIsList"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "isLoading"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "ComponentsDisplay",
+                                                        "key": "components-display",
+                                                        "children": [
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "ComponentGrid",
+                                                                  "key": "component-grid",
+                                                                  "style": {
+                                                                    "marginTop": "16px",
+                                                                    "display": "grid",
+                                                                    "gridTemplateColumns": "1fr",
+                                                                    "gap": "4px"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "repeat",
+                                                                      "content": {
+                                                                        "node": {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "ListComponent",
+                                                                            "name": "ComponentCard",
+                                                                            "key": "component-card",
+                                                                            "dependency": {
+                                                                              "type": "local",
+                                                                              "path": "../../components/list"
+                                                                            },
+                                                                            "attrs": [
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "component.id"
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "component"
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "state",
+                                                                                  "id": "selectedFlows"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        },
+                                                                        "dataSource": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "state",
+                                                                            "id": "data.flows"
+                                                                          }
+                                                                        },
+                                                                        "meta": {
+                                                                          "useIndex": true,
+                                                                          "iteratorName": "component",
+                                                                          "indexName": "index"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "viewIsGrid"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "ComponentList",
+                                                                  "key": "component-list",
+                                                                  "style": {
+                                                                    "marginTop": "16px",
+                                                                    "display": "flex",
+                                                                    "flexDirection": "column",
+                                                                    "gap": "4px"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "repeat",
+                                                                      "content": {
+                                                                        "node": {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "ListComponent",
+                                                                            "name": "ComponentListItem",
+                                                                            "key": "component-list-item",
+                                                                            "dependency": {
+                                                                              "type": "local",
+                                                                              "path": "../../components/list"
+                                                                            },
+                                                                            "attrs": [
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "component.id"
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "component"
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "state",
+                                                                                  "id": "selectedFlows"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        },
+                                                                        "dataSource": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "state",
+                                                                            "id": "data.flows"
+                                                                          }
+                                                                        },
+                                                                        "meta": {
+                                                                          "useIndex": true,
+                                                                          "iteratorName": "component",
+                                                                          "indexName": "index"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "viewIsList"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "hasComponents"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "EmptyComponentsMessage",
+                                                        "key": "empty-components-message",
+                                                        "style": {
+                                                          "paddingTop": "96px",
+                                                          "textAlign": "center",
+                                                          "fontSize": "14px",
+                                                          "color": "#6b7280"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "text",
+                                                              "name": "NoComponentsText",
+                                                              "key": "no-components-text",
+                                                              "children": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "No saved or custom components. Learn more about "
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "link",
+                                                              "name": "CreateComponentsLink",
+                                                              "key": "create-components-link",
+                                                              "attrs": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "https://docs.langflow.org/components-custom-components"
+                                                                },
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "_blank"
+                                                                },
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "noreferrer"
+                                                                }
+                                                              ],
+                                                              "style": {
+                                                                "textDecoration": "underline"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "creating custom components"
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "text",
+                                                              "name": "BrowseStoreText",
+                                                              "key": "browse-store-text",
+                                                              "children": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": ", or browse the store."
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "hasNoComponents"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "isNotEmptyFolder"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "PaginationSection",
+                            "key": "pagination-section",
+                            "style": {
+                              "display": "flex",
+                              "justifyContent": "flex-end",
+                              "paddingLeft": "12px",
+                              "paddingRight": "12px",
+                              "paddingTop": "16px",
+                              "paddingBottom": "16px"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "PaginatorComponent",
+                                  "name": "ComponentPaginator",
+                                  "key": "component-paginator",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/common/paginatorComponent"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "showPagination"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "ModalsComponent",
+            "name": "ComponentModals",
+            "key": "component-modals",
+            "dependency": {
+              "type": "local",
+              "path": "../../components/modalsComponent"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "view": {
+      "type": "string",
+      "defaultValue": "list"
+    },
+    "newProjectModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "pageIndex": {
+      "type": "number",
+      "defaultValue": 1
+    },
+    "pageSize": {
+      "type": "number",
+      "defaultValue": 12
+    },
+    "search": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "flowType": {
+      "type": "string",
+      "defaultValue": "components"
+    },
+    "selectedFlows": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "lastSelectedIndex": {
+      "type": "number",
+      "defaultValue": null
+    },
+    "isShiftPressed": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isCtrlPressed": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isEmptyFolder": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "viewIsGrid": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "viewIsList": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "hasComponents": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasNoComponents": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "isNotEmptyFolder": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "showPagination": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "data": {
+      "type": "object",
+      "defaultValue": {
+        "flows": [],
+        "name": "",
+        "description": "",
+        "parent_id": "",
+        "components": [],
+        "pagination": {
+          "page": 1,
+          "size": 12,
+          "total": 0,
+          "pages": 0
+        }
+      }
+    }
+  },
+  "propDefinitions": {
+    "type": {
+      "type": "string",
+      "defaultValue": "components"
+    },
+    "onFileDrop": {
+      "type": "func",
+      "defaultValue": "() => {}"
+    }
+  },
+  "styleSetDefinitions": {
+    "primaryContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "height": "100vh",
+        "width": "100vw"
+      }
+    },
+    "gridLayout": {
+      "type": "reusable-component-style-map", 
+      "content": {
+        "display": "grid",
+        "gridTemplateColumns": "repeat(auto-fill, minmax(300px, 1fr))",
+        "gap": "16px",
+        "padding": "16px"
+      }
+    },
+    "listLayout": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "8px",
+        "padding": "16px"
+      }
+    },
+    "emptyState": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "height": "400px",
+        "textAlign": "center",
+        "color": "#6b7280"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280"
+    }
+  }
+}

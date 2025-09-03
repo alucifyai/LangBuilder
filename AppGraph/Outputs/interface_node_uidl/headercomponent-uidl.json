@@ -1,0 +1,979 @@
+{
+  "name": "HeaderComponent",
+  "globals": {
+    "settings": {
+      "title": "Header Component",
+      "language": "en"
+    },
+    "customCode": {
+      "head": "",
+      "body": ""
+    },
+    "meta": [],
+    "assets": [],
+    "manifest": {},
+    "variables": {}
+  },
+  "root": {
+    "name": "HeaderComponent",
+    "node": {
+      "type": "element",
+      "content": {
+        "elementType": "container",
+        "name": "header-component-wrapper",
+        "children": [
+          {
+            "type": "element",
+            "content": {
+              "elementType": "container",
+              "name": "title-bar-section",
+              "children": [
+                {
+                  "type": "element",
+                  "content": {
+                    "elementType": "container",
+                    "name": "sidebar-trigger-container",
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "logo-trigger-wrapper",
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "button",
+                                "name": "sidebar-toggle-button",
+                                "style": {
+                                  "background": "transparent",
+                                  "border": "none",
+                                  "cursor": "pointer",
+                                  "padding": "4px",
+                                  "display": "flex",
+                                  "alignItems": "center",
+                                  "justifyContent": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "icon",
+                                    "name": "langflow-logo-icon",
+                                    "style": {
+                                      "width": "16px",
+                                      "height": "16px",
+                                      "color": "$token-color-primary"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ],
+                          "style": {
+                            "position": "relative",
+                            "left": "0",
+                            "opacity": "1",
+                            "transition": "all 0.3s ease"
+                          }
+                        }
+                      }
+                    ],
+                    "style": {
+                      "height": "28px",
+                      "width": "40px",
+                      "transition": "all 0.3s ease"
+                    }
+                  }
+                },
+                {
+                  "type": "element",
+                  "content": {
+                    "elementType": "text",
+                    "name": "folder-name-title",
+                    "style": {
+                      "fontSize": "$token-font-size-sm",
+                      "fontWeight": "500",
+                      "color": "$token-color-text-primary"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "folderName"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "style": {
+                "display": "flex",
+                "alignItems": "center",
+                "paddingBottom": "16px",
+                "fontSize": "$token-font-size-sm",
+                "fontWeight": "500"
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "main-header-content",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "tabs-navigation-section",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "tabs-border-line",
+                              "style": {
+                                "width": "100%",
+                                "borderBottom": "1px solid $token-color-border"
+                              }
+                            }
+                          },
+                          {
+                            "type": "repeat",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "button",
+                                  "name": "tab-button",
+                                  "attrs": [
+                                    {
+                                      "type": "dynamic",
+                                      "name": "id",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "tabType"
+                                      }
+                                    },
+                                    {
+                                      "type": "dynamic",
+                                      "name": "data-testid",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "tabType"
+                                      }
+                                    }
+                                  ],
+                                  "style": {
+                                    "borderBottom": "2px solid",
+                                    "borderBottomColor": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "computed",
+                                        "id": "isTabActive",
+                                        "conditions": [
+                                          {
+                                            "operand": true,
+                                            "operation": "===",
+                                            "value": "$token-color-foreground"
+                                          }
+                                        ],
+                                        "fallback": "$token-color-border"
+                                      }
+                                    },
+                                    "color": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "computed",
+                                        "id": "isTabActive",
+                                        "conditions": [
+                                          {
+                                            "operand": true,
+                                            "operation": "===",
+                                            "value": "$token-color-text-primary"
+                                          }
+                                        ],
+                                        "fallback": "$token-color-text-secondary"
+                                      }
+                                    },
+                                    "padding": "8px",
+                                    "paddingTop": "4px",
+                                    "paddingBottom": "8px",
+                                    "whiteSpace": "nowrap",
+                                    "fontSize": "$token-font-size-sm",
+                                    "background": "transparent",
+                                    "border": "none",
+                                    "cursor": "pointer",
+                                    "transition": "color 0.2s ease",
+                                    "hover": {
+                                      "color": "$token-color-text-primary"
+                                    }
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "tab-content",
+                                      "style": {
+                                        "marginBottom": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "computed",
+                                            "id": "isTabActive",
+                                            "conditions": [
+                                              {
+                                                "operand": true,
+                                                "operation": "===",
+                                                "value": "-1px"
+                                              }
+                                            ],
+                                            "fallback": "0"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "static",
+                                            "content": "MCP Server"
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "tabType",
+                                              "conditions": [
+                                                {
+                                                  "operand": "mcp",
+                                                  "operation": "===",
+                                                  "value": true
+                                                }
+                                              ],
+                                              "fallback": false
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "computed",
+                                              "id": "capitalizedTabType"
+                                            }
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "tabType",
+                                              "conditions": [
+                                                {
+                                                  "operand": "mcp",
+                                                  "operation": "!==",
+                                                  "value": true
+                                                }
+                                              ],
+                                              "fallback": false
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              "dataSource": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "tabTypes"
+                                }
+                              }
+                            }
+                          }
+                        ],
+                        "style": {
+                          "display": "flex",
+                          "flexDirection": "row-reverse",
+                          "paddingBottom": "16px"
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "search-and-filters-section",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "left-controls-group",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "search-input-container",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "input",
+                                              "name": "search-flows-input",
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "name": "type",
+                                                  "content": "text"
+                                                },
+                                                {
+                                                  "type": "dynamic",
+                                                  "name": "placeholder",
+                                                  "content": {
+                                                    "referenceType": "computed",
+                                                    "id": "searchPlaceholder"
+                                                  }
+                                                },
+                                                {
+                                                  "type": "static",
+                                                  "name": "data-testid",
+                                                  "content": "search-store-input"
+                                                },
+                                                {
+                                                  "type": "dynamic",
+                                                  "name": "value",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "debouncedSearch"
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "width": "100%",
+                                                "padding": "8px 12px 8px 36px",
+                                                "border": "1px solid $token-color-border",
+                                                "borderRadius": "$token-border-radius-md",
+                                                "fontSize": "$token-font-size-sm",
+                                                "backgroundColor": "$token-color-surface",
+                                                "color": "$token-color-text-primary"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "icon",
+                                              "name": "search-input-icon",
+                                              "style": {
+                                                "position": "absolute",
+                                                "left": "12px",
+                                                "top": "50%",
+                                                "transform": "translateY(-50%)",
+                                                "width": "16px",
+                                                "height": "16px",
+                                                "color": "$token-color-text-secondary"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "style": {
+                                          "position": "relative",
+                                          "marginRight": "8px",
+                                          "fontSize": "$token-font-size-sm"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "view-toggle-container",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "view-toggle-slider",
+                                              "style": {
+                                                "position": "absolute",
+                                                "top": "2px",
+                                                "height": "32px",
+                                                "width": "32px",
+                                                "borderRadius": "$token-border-radius-md",
+                                                "backgroundColor": "$token-color-background",
+                                                "boxShadow": "$token-shadow-md",
+                                                "transition": "transform 0.3s ease",
+                                                "transform": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "view",
+                                                    "conditions": [
+                                                      {
+                                                        "operand": "list",
+                                                        "operation": "===",
+                                                        "value": "translateX(2px)"
+                                                      }
+                                                    ],
+                                                    "fallback": "translateX(38px)"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "repeat",
+                                            "content": {
+                                              "node": {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "button",
+                                                  "name": "view-toggle-button",
+                                                  "style": {
+                                                    "position": "relative",
+                                                    "zIndex": "10",
+                                                    "margin": "2px",
+                                                    "flex": "1",
+                                                    "borderRadius": "$token-border-radius-md",
+                                                    "padding": "8px",
+                                                    "background": "transparent",
+                                                    "border": "none",
+                                                    "cursor": "pointer",
+                                                    "color": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "computed",
+                                                        "id": "isViewActive",
+                                                        "conditions": [
+                                                          {
+                                                            "operand": true,
+                                                            "operation": "===",
+                                                            "value": "$token-color-text-primary"
+                                                          }
+                                                        ],
+                                                        "fallback": "$token-color-text-secondary"
+                                                      }
+                                                    },
+                                                    "hover": {
+                                                      "backgroundColor": "$token-color-surface",
+                                                      "color": "$token-color-text-primary"
+                                                    }
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "icon",
+                                                      "name": "view-toggle-icon",
+                                                      "style": {
+                                                        "width": "16px",
+                                                        "height": "16px"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "dataSource": {
+                                                "type": "static",
+                                                "content": [
+                                                  { "type": "list", "icon": "Menu" },
+                                                  { "type": "grid", "icon": "LayoutGrid" }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "style": {
+                                          "position": "relative",
+                                          "marginRight": "8px",
+                                          "display": "flex",
+                                          "height": "fit-content",
+                                          "borderRadius": "$token-border-radius-lg",
+                                          "border": "1px solid $token-color-border",
+                                          "backgroundColor": "$token-color-muted"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "style": {
+                                    "display": "flex",
+                                    "width": "100%"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "right-actions-group",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "bulk-actions-container",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "button",
+                                              "name": "download-bulk-button",
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "name": "data-testid",
+                                                  "content": "download-bulk-btn"
+                                                },
+                                                {
+                                                  "type": "dynamic",
+                                                  "name": "disabled",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "isDownloading"
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "height": "32px",
+                                                "width": "32px",
+                                                "padding": "0",
+                                                "border": "1px solid $token-color-border",
+                                                "borderRadius": "$token-border-radius-md",
+                                                "backgroundColor": "$token-color-surface",
+                                                "color": "$token-color-text-primary",
+                                                "cursor": "pointer",
+                                                "display": "flex",
+                                                "alignItems": "center",
+                                                "justifyContent": "center"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "icon",
+                                                  "name": "download-icon",
+                                                  "style": {
+                                                    "width": "16px",
+                                                    "height": "16px"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "button",
+                                              "name": "delete-bulk-button",
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "name": "data-testid",
+                                                  "content": "delete-bulk-btn"
+                                                },
+                                                {
+                                                  "type": "dynamic",
+                                                  "name": "disabled",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "isDeleting"
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "height": "32px",
+                                                "padding": "0 10px",
+                                                "border": "1px solid $token-color-destructive",
+                                                "borderRadius": "$token-border-radius-md",
+                                                "backgroundColor": "$token-color-destructive",
+                                                "color": "$token-color-destructive-contrast",
+                                                "cursor": "pointer",
+                                                "display": "flex",
+                                                "alignItems": "center",
+                                                "gap": "4px",
+                                                "fontSize": "$token-font-size-sm"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "icon",
+                                                  "name": "trash-icon",
+                                                  "style": {
+                                                    "width": "16px",
+                                                    "height": "16px"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "static",
+                                                "content": "Delete"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex",
+                                          "width": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "computed",
+                                              "id": "hasBulkActions",
+                                              "conditions": [
+                                                {
+                                                  "operand": true,
+                                                  "operation": "===",
+                                                  "value": "144px"
+                                                }
+                                              ],
+                                              "fallback": "0"
+                                            }
+                                          },
+                                          "alignItems": "center",
+                                          "gap": "8px",
+                                          "overflow": "hidden",
+                                          "opacity": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "computed",
+                                              "id": "hasBulkActions",
+                                              "conditions": [
+                                                {
+                                                  "operand": true,
+                                                  "operation": "===",
+                                                  "value": "1"
+                                                }
+                                              ],
+                                              "fallback": "0"
+                                            }
+                                          },
+                                          "transition": "all 0.3s ease"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "button",
+                                        "name": "new-flow-button",
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "name": "id",
+                                            "content": "new-project-btn"
+                                          },
+                                          {
+                                            "type": "static",
+                                            "name": "data-testid",
+                                            "content": "new-project-btn"
+                                          }
+                                        ],
+                                        "style": {
+                                          "zIndex": "50",
+                                          "padding": "0 10px",
+                                          "fontSize": "$token-font-size-sm",
+                                          "height": "32px",
+                                          "backgroundColor": "$token-color-primary",
+                                          "color": "$token-color-primary-contrast",
+                                          "border": "none",
+                                          "borderRadius": "$token-border-radius-md",
+                                          "cursor": "pointer",
+                                          "display": "flex",
+                                          "alignItems": "center",
+                                          "gap": "4px",
+                                          "fontWeight": "600"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "icon",
+                                            "name": "plus-icon",
+                                            "style": {
+                                              "width": "16px",
+                                              "height": "16px"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "text",
+                                            "name": "new-flow-text",
+                                            "style": {
+                                              "whiteSpace": "nowrap",
+                                              "fontWeight": "600",
+                                              "display": "none"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "New Flow"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "style": {
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                    "gap": "8px"
+                                  }
+                                }
+                              }
+                            ],
+                            "style": {
+                              "display": "flex",
+                              "justifyContent": "space-between",
+                              "alignItems": "center"
+                            }
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "showSearchSection"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "computed",
+                  "id": "showMainContent"
+                }
+              }
+            }
+          }
+        ],
+        "style": {
+          "width": "100%"
+        }
+      }
+    },
+    "stateDefinitions": {
+      "flowType": {
+        "type": "string",
+        "defaultValue": "flows"
+      },
+      "view": {
+        "type": "string",
+        "defaultValue": "grid"
+      },
+      "debouncedSearch": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "selectedFlows": {
+        "type": "array",
+        "defaultValue": []
+      },
+      "isDownloading": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "isDeleting": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "isMCPEnabled": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "tabTypes": {
+        "type": "array",
+        "defaultValue": ["components", "flows"]
+      }
+    },
+    "propDefinitions": {
+      "folderName": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "flowType": {
+        "type": "string",
+        "defaultValue": "flows"
+      },
+      "view": {
+        "type": "string",
+        "defaultValue": "grid"
+      },
+      "isEmptyFolder": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "selectedFlows": {
+        "type": "array",
+        "defaultValue": []
+      }
+    },
+    "compDefinitions": {
+      "showMainContent": {
+        "type": "boolean",
+        "content": "!$props.isEmptyFolder"
+      },
+      "showSearchSection": {
+        "type": "boolean",
+        "content": "$state.flowType !== 'mcp'"
+      },
+      "searchPlaceholder": {
+        "type": "string",
+        "content": "`Search ${$state.flowType}...`"
+      },
+      "isTabActive": {
+        "type": "boolean",
+        "content": "$state.flowType === $local.tabType"
+      },
+      "capitalizedTabType": {
+        "type": "string",
+        "content": "$local.tabType.charAt(0).toUpperCase() + $local.tabType.slice(1)"
+      },
+      "isViewActive": {
+        "type": "boolean",
+        "content": "$state.view === $local.type"
+      },
+      "hasBulkActions": {
+        "type": "boolean",
+        "content": "$state.selectedFlows.length > 0"
+      }
+    }
+  },
+  "styleSetDefinitions": {
+    "primaryButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "$token-color-primary",
+        "color": "$token-color-primary-contrast",
+        "border": "none",
+        "borderRadius": "$token-border-radius-md",
+        "cursor": "pointer",
+        "fontSize": "$token-font-size-sm",
+        "fontWeight": "600",
+        "padding": "8px 16px",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "outlineButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "$token-color-surface",
+        "color": "$token-color-text-primary",
+        "border": "1px solid $token-color-border",
+        "borderRadius": "$token-border-radius-md",
+        "cursor": "pointer",
+        "fontSize": "$token-font-size-sm",
+        "padding": "8px 16px",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "destructiveButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "$token-color-destructive",
+        "color": "$token-color-destructive-contrast",
+        "border": "1px solid $token-color-destructive",
+        "borderRadius": "$token-border-radius-md",
+        "cursor": "pointer",
+        "fontSize": "$token-font-size-sm",
+        "padding": "8px 16px",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "inputField": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "100%",
+        "padding": "8px 12px",
+        "border": "1px solid $token-color-border",
+        "borderRadius": "$token-border-radius-md",
+        "fontSize": "$token-font-size-sm",
+        "backgroundColor": "$token-color-surface",
+        "color": "$token-color-text-primary"
+      }
+    },
+    "tabButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "background": "transparent",
+        "border": "none",
+        "borderBottom": "2px solid transparent",
+        "cursor": "pointer",
+        "fontSize": "$token-font-size-sm",
+        "fontWeight": "500",
+        "padding": "8px",
+        "transition": "all 0.2s ease",
+        "whiteSpace": "nowrap"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "token-color-primary": "#0066FF",
+        "token-color-primary-contrast": "#FFFFFF",
+        "token-color-secondary": "#6B7280",
+        "token-color-secondary-contrast": "#FFFFFF",
+        "token-color-destructive": "#EF4444",
+        "token-color-destructive-contrast": "#FFFFFF",
+        "token-color-background": "#FFFFFF",
+        "token-color-surface": "#F9FAFB",
+        "token-color-muted": "#F3F4F6",
+        "token-color-border": "#E5E7EB",
+        "token-color-foreground": "#111827",
+        "token-color-text-primary": "#111827",
+        "token-color-text-secondary": "#6B7280",
+        "token-color-text-disabled": "#9CA3AF"
+      },
+      "spacing": {
+        "token-spacing-xs": "4px",
+        "token-spacing-sm": "8px",
+        "token-spacing-md": "16px",
+        "token-spacing-lg": "24px",
+        "token-spacing-xl": "32px"
+      },
+      "borderRadius": {
+        "token-border-radius-sm": "4px",
+        "token-border-radius-md": "6px",
+        "token-border-radius-lg": "8px"
+      },
+      "typography": {
+        "token-font-size-sm": "14px",
+        "token-font-size-md": "16px",
+        "token-font-size-lg": "18px"
+      },
+      "shadows": {
+        "token-shadow-md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+      }
+    }
+  }
+}

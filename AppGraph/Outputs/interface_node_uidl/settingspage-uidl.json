@@ -1,0 +1,1005 @@
+{
+  "name": "SettingsPage",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "SettingsPageRoot",
+      "key": "settings-page-root",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "PageLayout",
+            "name": "SettingsPageLayout",
+            "key": "settings-page-layout",
+            "dependency": {
+              "type": "local",
+              "path": "../../components/common/pageLayout"
+            },
+            "attrs": [
+              {
+                "type": "static",
+                "content": -1
+              },
+              {
+                "type": "static",
+                "content": "Settings"
+              },
+              {
+                "type": "static",
+                "content": "Manage the general settings for Langflow."
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "SidebarProvider",
+                  "name": "SettingsSidebarProvider",
+                  "key": "settings-sidebar-provider",
+                  "dependency": {
+                    "type": "local",
+                    "path": "@/components/ui/sidebar"
+                  },
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": "15rem"
+                    },
+                    {
+                      "type": "static",
+                      "content": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "SideBarButtonsComponent",
+                        "name": "SettingsSidebarButtons",
+                        "key": "settings-sidebar-buttons",
+                        "dependency": {
+                          "type": "local",
+                          "path": "@/components/core/sidebarComponent"
+                        },
+                        "attrs": [
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "sidebarNavItems"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "main",
+                        "name": "SettingsMainContent",
+                        "key": "settings-main-content",
+                        "style": {
+                          "display": "flex",
+                          "flex": "1",
+                          "overflow": "hidden"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "SettingsContentWrapper",
+                              "key": "settings-content-wrapper",
+                              "style": {
+                                "display": "flex",
+                                "flex": "1",
+                                "flexDirection": "column",
+                                "overflowX": "hidden",
+                                "paddingTop": "4px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Outlet",
+                                    "name": "SettingsOutlet",
+                                    "key": "settings-outlet",
+                                    "dependency": {
+                                      "type": "external",
+                                      "path": "react-router-dom"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "autoLogin": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasStore": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "showGeneralSettings": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "enableProfileIcons": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "enableLangflowStore": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "enableDatastaxLangflow": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "sidebarNavItems": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "title": "General",
+          "href": "/settings/general",
+          "icon": "SlidersHorizontal"
+        },
+        {
+          "title": "MCP Servers",
+          "href": "/settings/mcp-servers",
+          "icon": "Mcp"
+        },
+        {
+          "title": "API Keys",
+          "href": "/settings/api-keys",
+          "icon": "Key"
+        },
+        {
+          "title": "Store API Key",
+          "href": "/settings/store-api-key",
+          "icon": "Store"
+        },
+        {
+          "title": "Global Variables",
+          "href": "/settings/global-variables",
+          "icon": "Globe"
+        },
+        {
+          "title": "Shortcuts",
+          "href": "/settings/shortcuts",
+          "icon": "Keyboard"
+        },
+        {
+          "title": "Messages",
+          "href": "/settings/messages",
+          "icon": "MessagesSquare"
+        }
+      ]
+    }
+  },
+  "propDefinitions": {},
+  "styleSetDefinitions": {
+    "sidebarLayout": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "height": "100vh",
+        "width": "100vw"
+      }
+    },
+    "mainContentArea": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flex": "1",
+        "overflow": "hidden"
+      }
+    },
+    "contentWrapper": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flex": "1",
+        "flexDirection": "column",
+        "overflowX": "hidden",
+        "paddingTop": "4px"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280",
+      "sidebarWidth": "15rem"
+    }
+  },
+  "subComponents": {
+    "GeneralPage": {
+      "name": "GeneralPage",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "container",
+          "name": "GeneralPageContainer",
+          "key": "general-page-container",
+          "style": {
+            "display": "flex",
+            "height": "100vh",
+            "width": "100vw",
+            "flexDirection": "column",
+            "gap": "24px",
+            "overflowX": "hidden"
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "GeneralPageHeaderComponent",
+                "name": "GeneralPageHeader",
+                "key": "general-page-header",
+                "dependency": {
+                  "type": "local",
+                  "path": "./components/GeneralPageHeader"
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "GeneralPageFormsContainer",
+                "key": "general-page-forms-container",
+                "style": {
+                  "display": "flex",
+                  "width": "100vw",
+                  "flexDirection": "column",
+                  "gap": "24px"
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "ProfilePictureFormComponent",
+                          "name": "ProfilePictureForm",
+                          "key": "profile-picture-form",
+                          "dependency": {
+                            "type": "local",
+                            "path": "./components/ProfilePictureForm"
+                          }
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "enableProfileIcons"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "PasswordFormComponent",
+                          "name": "PasswordForm",
+                          "key": "password-form",
+                          "dependency": {
+                            "type": "local",
+                            "path": "./components/PasswordForm"
+                          }
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "isNotAutoLogin"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "CustomTermsLinks",
+                "name": "TermsLinks",
+                "key": "terms-links",
+                "dependency": {
+                  "type": "local",
+                  "path": "@/customization/components/custom-terms-links"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ApiKeysPage": {
+      "name": "ApiKeysPage",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "container",
+          "name": "ApiKeysPageContainer",
+          "key": "api-keys-page-container",
+          "style": {
+            "display": "flex",
+            "height": "100vh",
+            "width": "100vw",
+            "flexDirection": "column",
+            "justifyContent": "space-between",
+            "gap": "24px"
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "ApiKeyHeaderComponent",
+                "name": "ApiKeyHeader",
+                "key": "api-key-header",
+                "dependency": {
+                  "type": "local",
+                  "path": "./components/ApiKeyHeader"
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "ApiKeysTableContainer",
+                "key": "api-keys-table-container",
+                "style": {
+                  "display": "flex",
+                  "height": "100vh",
+                  "width": "100vw",
+                  "flexDirection": "column",
+                  "justifyContent": "space-between"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "TableComponent",
+                      "name": "ApiKeysTable",
+                      "key": "api-keys-table",
+                      "dependency": {
+                        "type": "local",
+                        "path": "@/components/core/parameterRenderComponent/components/tableComponent"
+                      },
+                      "attrs": [
+                        {
+                          "type": "static",
+                          "content": "apiKeys"
+                        },
+                        {
+                          "type": "static",
+                          "content": "No data available"
+                        },
+                        {
+                          "type": "static",
+                          "content": "multiple"
+                        },
+                        {
+                          "type": "static",
+                          "content": true
+                        },
+                        {
+                          "type": "static",
+                          "content": true
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "GlobalVariablesPage": {
+      "name": "GlobalVariablesPage",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "container",
+          "name": "GlobalVariablesPageContainer",
+          "key": "global-variables-page-container",
+          "style": {
+            "display": "flex",
+            "height": "100vh",
+            "width": "100vw",
+            "flexDirection": "column",
+            "justifyContent": "space-between",
+            "gap": "24px"
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "GlobalVariablesHeader",
+                "key": "global-variables-header",
+                "style": {
+                  "display": "flex",
+                  "width": "100vw",
+                  "alignItems": "flex-start",
+                  "justifyContent": "space-between",
+                  "gap": "24px"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "GlobalVariablesHeaderContent",
+                      "key": "global-variables-header-content",
+                      "style": {
+                        "display": "flex",
+                        "width": "100vw",
+                        "flexDirection": "column"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "GlobalVariablesTitle",
+                            "key": "global-variables-title",
+                            "style": {
+                              "display": "flex",
+                              "alignItems": "center",
+                              "fontSize": "18px",
+                              "fontWeight": "600",
+                              "letterSpacing": "tight"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "GlobalVariablesTitleText",
+                                  "key": "global-variables-title-text",
+                                  "children": [
+                                    {
+                                      "type": "static",
+                                      "content": "Global Variables"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "ForwardedIconComponent",
+                                  "name": "GlobalVariablesIcon",
+                                  "key": "global-variables-icon",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/common/genericIconComponent"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "Globe"
+                                    }
+                                  ],
+                                  "style": {
+                                    "marginLeft": "8px",
+                                    "height": "20px",
+                                    "width": "20px",
+                                    "color": "#3b82f6"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "text",
+                            "name": "GlobalVariablesDescription",
+                            "key": "global-variables-description",
+                            "style": {
+                              "fontSize": "14px",
+                              "color": "#6b7280"
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Manage global variables and assign them to fields."
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "GlobalVariablesHeaderActions",
+                      "key": "global-variables-header-actions",
+                      "style": {
+                        "display": "flex",
+                        "flexShrink": "0",
+                        "alignItems": "center",
+                        "gap": "8px"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "GlobalVariableModal",
+                            "name": "AddGlobalVariableModal",
+                            "key": "add-global-variable-modal",
+                            "dependency": {
+                              "type": "local",
+                              "path": "@/components/core/GlobalVariableModal/GlobalVariableModal"
+                            },
+                            "attrs": [
+                              {
+                                "type": "static",
+                                "content": true
+                              }
+                            ],
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "Button",
+                                  "name": "AddNewVariableButton",
+                                  "key": "add-new-variable-button",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/ui/button"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "api-key-button-store"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "primary"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "ForwardedIconComponent",
+                                        "name": "AddIcon",
+                                        "key": "add-icon",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/common/genericIconComponent"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "Plus"
+                                          }
+                                        ],
+                                        "style": {
+                                          "width": "16px"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "AddNewButtonText",
+                                        "key": "add-new-button-text",
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Add New"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "GlobalVariablesTableContainer",
+                "key": "global-variables-table-container",
+                "style": {
+                  "display": "flex",
+                  "height": "100vh",
+                  "width": "100vw",
+                  "flexDirection": "column",
+                  "justifyContent": "space-between"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "TableComponent",
+                      "name": "GlobalVariablesTable",
+                      "key": "global-variables-table",
+                      "dependency": {
+                        "type": "local",
+                        "path": "@/components/core/parameterRenderComponent/components/tableComponent"
+                      },
+                      "attrs": [
+                        {
+                          "type": "static",
+                          "content": "globalVariables"
+                        },
+                        {
+                          "type": "static",
+                          "content": "No data available"
+                        },
+                        {
+                          "type": "static",
+                          "content": "multiple"
+                        },
+                        {
+                          "type": "static",
+                          "content": true
+                        },
+                        {
+                          "type": "static",
+                          "content": true
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ShortcutsPage": {
+      "name": "ShortcutsPage",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "container",
+          "name": "ShortcutsPageContainer",
+          "key": "shortcuts-page-container",
+          "style": {
+            "display": "flex",
+            "height": "100vh",
+            "width": "100vw",
+            "flexDirection": "column",
+            "gap": "24px"
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "ShortcutsHeader",
+                "key": "shortcuts-header",
+                "style": {
+                  "display": "flex",
+                  "width": "100vw",
+                  "alignItems": "flex-start",
+                  "justifyContent": "space-between",
+                  "gap": "24px"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "ShortcutsHeaderContent",
+                      "key": "shortcuts-header-content",
+                      "style": {
+                        "display": "flex",
+                        "width": "100vw",
+                        "flexDirection": "column"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "ShortcutsTitle",
+                            "key": "shortcuts-title",
+                            "style": {
+                              "display": "flex",
+                              "alignItems": "center",
+                              "fontSize": "18px",
+                              "fontWeight": "600",
+                              "letterSpacing": "tight"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "ShortcutsTitleText",
+                                  "key": "shortcuts-title-text",
+                                  "children": [
+                                    {
+                                      "type": "static",
+                                      "content": "Shortcuts"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "ForwardedIconComponent",
+                                  "name": "ShortcutsIcon",
+                                  "key": "shortcuts-icon",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/common/genericIconComponent"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "Keyboard"
+                                    }
+                                  ],
+                                  "style": {
+                                    "marginLeft": "8px",
+                                    "height": "20px",
+                                    "width": "20px",
+                                    "color": "#3b82f6"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "text",
+                            "name": "ShortcutsDescription",
+                            "key": "shortcuts-description",
+                            "style": {
+                              "fontSize": "14px",
+                              "color": "#6b7280"
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Manage Shortcuts for quick access to frequently used actions."
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "ShortcutsHeaderActions",
+                      "key": "shortcuts-header-actions",
+                      "style": {
+                        "display": "flex",
+                        "width": "100vw",
+                        "alignItems": "flex-end",
+                        "justifyContent": "flex-end"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "ShortcutsActionsContainer",
+                            "key": "shortcuts-actions-container",
+                            "style": {
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            },
+                            "children": [
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "EditShortcutButton",
+                                      "name": "EditShortcutModal",
+                                      "key": "edit-shortcut-modal",
+                                      "dependency": {
+                                        "type": "local",
+                                        "path": "./EditShortcutButton"
+                                      }
+                                    }
+                                  },
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "editModalOpen"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "Button",
+                                  "name": "RestoreShortcutsButton",
+                                  "key": "restore-shortcuts-button",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/ui/button"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "primary"
+                                    }
+                                  ],
+                                  "style": {
+                                    "display": "flex",
+                                    "gap": "8px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "ForwardedIconComponent",
+                                        "name": "RestoreIcon",
+                                        "key": "restore-icon",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/common/genericIconComponent"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "RotateCcw"
+                                          }
+                                        ],
+                                        "style": {
+                                          "width": "16px"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "RestoreButtonText",
+                                        "key": "restore-button-text",
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Restore"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "ShortcutsTableGrid",
+                "key": "shortcuts-table-grid",
+                "style": {
+                  "display": "grid",
+                  "gap": "24px",
+                  "paddingBottom": "32px"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "ShortcutsTableContainer",
+                      "key": "shortcuts-table-container",
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "TableComponent",
+                                "name": "ShortcutsTable",
+                                "key": "shortcuts-table",
+                                "dependency": {
+                                  "type": "local",
+                                  "path": "@/components/core/parameterRenderComponent/components/tableComponent"
+                                },
+                                "attrs": [
+                                  {
+                                    "type": "static",
+                                    "content": true
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": "autoHeight"
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": false
+                                  }
+                                ]
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "hasShortcutsData"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1583 @@
+{
+  "name": "FolderSidebarComponent",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "FolderSidebarContainer",
+      "key": "folder-sidebar-container",
+      "style": {
+        "display": "flex",
+        "flexDirection": "column",
+        "width": "280px",
+        "height": "100vh",
+        "backgroundColor": "white",
+        "borderRight": "1px solid #e5e7eb"
+      },
+      "attrs": {
+        "data-testid": "project-sidebar"
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "SidebarHeader",
+            "key": "sidebar-header",
+            "style": {
+              "padding": "4px 16px",
+              "borderBottom": "1px solid #f3f4f6"
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "GetStartedProgressContainer",
+                      "key": "get-started-progress-container",
+                      "style": {
+                        "marginBottom": "16px"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "GetStartedProgressCard",
+                            "key": "get-started-progress-card",
+                            "style": {
+                              "padding": "12px",
+                              "backgroundColor": "#f8fafc",
+                              "borderRadius": "8px",
+                              "border": "1px solid #e2e8f0"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "GetStartedTitle",
+                                  "key": "get-started-title",
+                                  "style": {
+                                    "fontSize": "14px",
+                                    "fontWeight": "600",
+                                    "marginBottom": "8px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "ProgressActions",
+                                  "key": "progress-actions",
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "gap": "8px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "button",
+                                        "name": "GithubStarButton",
+                                        "key": "github-star-button",
+                                        "style": {
+                                          "padding": "6px 12px",
+                                          "fontSize": "12px",
+                                          "backgroundColor": "#374151",
+                                          "color": "white",
+                                          "borderRadius": "4px",
+                                          "border": "none",
+                                          "cursor": "pointer"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "StarButtonText",
+                                              "key": "star-button-text"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "button",
+                                        "name": "DiscordJoinButton",
+                                        "key": "discord-join-button",
+                                        "style": {
+                                          "padding": "6px 12px",
+                                          "fontSize": "12px",
+                                          "backgroundColor": "#5865f2",
+                                          "color": "white",
+                                          "borderRadius": "4px",
+                                          "border": "none",
+                                          "cursor": "pointer"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "DiscordButtonText",
+                                              "key": "discord-button-text"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "SeparatorLine",
+                            "key": "separator-line",
+                            "style": {
+                              "margin": "4px -16px",
+                              "width": "280px",
+                              "height": "1px",
+                              "backgroundColor": "#e5e7eb"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "isDismissedDialog"
+                    }
+                  },
+                  "value": {
+                    "type": "static",
+                    "content": false
+                  },
+                  "condition": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "!isDismissedDialog && userData"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "HeaderActionsContainer",
+                  "key": "header-actions-container",
+                  "style": {
+                    "display": "flex",
+                    "alignItems": "center",
+                    "justifyContent": "space-between",
+                    "gap": "8px",
+                    "paddingTop": "8px"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "button",
+                        "name": "SidebarToggleButton",
+                        "key": "sidebar-toggle-button",
+                        "style": {
+                          "display": "block",
+                          "padding": "8px",
+                          "backgroundColor": "transparent",
+                          "border": "none",
+                          "cursor": "pointer",
+                          "borderRadius": "4px"
+                        },
+                        "attrs": {
+                          "className": "lg:hidden"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "icon",
+                              "name": "PanelLeftCloseIcon",
+                              "key": "panel-left-close-icon",
+                              "style": {
+                                "width": "16px",
+                                "height": "16px"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "ProjectsTitle",
+                        "key": "projects-title",
+                        "style": {
+                          "flex": "1",
+                          "fontSize": "14px",
+                          "fontWeight": "500"
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "HeaderButtonsContainer",
+                        "key": "header-buttons-container",
+                        "style": {
+                          "display": "flex",
+                          "alignItems": "center",
+                          "gap": "4px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "UploadButtonTooltip",
+                              "key": "upload-button-tooltip",
+                              "style": {
+                                "position": "relative"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "button",
+                                    "name": "UploadFolderButton",
+                                    "key": "upload-folder-button",
+                                    "style": {
+                                      "width": "28px",
+                                      "height": "28px",
+                                      "padding": "0",
+                                      "backgroundColor": "transparent",
+                                      "border": "none",
+                                      "cursor": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "comp",
+                                          "id": "isUpdatingFolder ? 'not-allowed' : 'pointer'"
+                                        }
+                                      },
+                                      "borderRadius": "4px",
+                                      "color": "#71717a"
+                                    },
+                                    "attrs": {
+                                      "disabled": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "isUpdatingFolder"
+                                        }
+                                      }
+                                    },
+                                    "events": {
+                                      "click": {
+                                        "type": "propCall",
+                                        "calls": "handleUploadFlowsToFolder"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "icon",
+                                          "name": "UploadIcon",
+                                          "key": "upload-icon",
+                                          "style": {
+                                            "width": "16px",
+                                            "height": "16px"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "AddButtonTooltip",
+                              "key": "add-button-tooltip",
+                              "style": {
+                                "position": "relative"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "button",
+                                    "name": "AddNewProjectButton",
+                                    "key": "add-new-project-button",
+                                    "style": {
+                                      "width": "28px",
+                                      "height": "28px",
+                                      "padding": "0",
+                                      "backgroundColor": "transparent",
+                                      "border": "none",
+                                      "cursor": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "comp",
+                                          "id": "isUpdatingFolder ? 'not-allowed' : 'pointer'"
+                                        }
+                                      },
+                                      "borderRadius": "4px",
+                                      "color": "#71717a"
+                                    },
+                                    "attrs": {
+                                      "data-testid": "add-project-button",
+                                      "disabled": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "isUpdatingFolder"
+                                        }
+                                      }
+                                    },
+                                    "events": {
+                                      "click": {
+                                        "type": "propCall",
+                                        "calls": "addNewFolder"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "LoadingSpinner",
+                                              "key": "loading-spinner",
+                                              "style": {
+                                                "width": "16px",
+                                                "height": "16px",
+                                                "border": "2px solid #e5e7eb",
+                                                "borderTop": "2px solid #6366f1",
+                                                "borderRadius": "50%",
+                                                "animation": "spin 1s linear infinite"
+                                              }
+                                            }
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "isPending"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "icon",
+                                              "name": "PlusIcon",
+                                              "key": "plus-icon",
+                                              "style": {
+                                                "width": "16px",
+                                                "height": "16px"
+                                              }
+                                            }
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "isPending"
+                                            }
+                                          },
+                                          "value": {
+                                            "type": "static",
+                                            "content": false
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "SidebarContent",
+            "key": "sidebar-content",
+            "style": {
+              "flex": "1",
+              "overflow": "auto"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "ProjectsListContainer",
+                  "key": "projects-list-container",
+                  "style": {
+                    "padding": "8px 16px",
+                    "paddingTop": "8px"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "ProjectsMenu",
+                        "key": "projects-menu",
+                        "style": {
+                          "display": "flex",
+                          "flexDirection": "column",
+                          "gap": "2px"
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "repeat",
+                                "content": {
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "ProjectMenuItem",
+                                      "key": "project-menu-item",
+                                      "style": {
+                                        "position": "relative",
+                                        "marginBottom": "2px"
+                                      },
+                                      "attrs": {
+                                        "className": "group/menu-button"
+                                      },
+                                      "events": {
+                                        "mouseEnter": {
+                                          "type": "stateChange",
+                                          "transitions": [
+                                            {
+                                              "type": "stateChange",
+                                              "stateKey": "hoveredFolderId",
+                                              "newValue": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "local",
+                                                  "id": "item.id"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "mouseLeave": {
+                                          "type": "stateChange",
+                                          "transitions": [
+                                            {
+                                              "type": "stateChange",
+                                              "stateKey": "hoveredFolderId",
+                                              "newValue": null
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "ProjectItemContainer",
+                                            "key": "project-item-container",
+                                            "style": {
+                                              "position": "relative",
+                                              "display": "flex",
+                                              "width": "100%"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "button",
+                                                  "name": "ProjectButton",
+                                                  "key": "project-button",
+                                                  "style": {
+                                                    "flexGrow": "1",
+                                                    "paddingRight": "32px",
+                                                    "padding": "8px 12px",
+                                                    "backgroundColor": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "comp",
+                                                        "id": "checkPathName(item.id) ? '#f3f4f6' : (hoveredFolderId === item.id ? '#f9fafb' : 'transparent')"
+                                                      }
+                                                    },
+                                                    "borderRadius": "6px",
+                                                    "border": "none",
+                                                    "cursor": "pointer",
+                                                    "textAlign": "left",
+                                                    "transition": "background-color 0.2s ease"
+                                                  },
+                                                  "attrs": {
+                                                    "data-testid": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "'sidebar-nav-' + item.name"
+                                                      }
+                                                    }
+                                                  },
+                                                  "events": {
+                                                    "click": {
+                                                      "type": "propCall",
+                                                      "calls": "handleChangeFolder",
+                                                      "args": [
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "item.id"
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "dragOver": {
+                                                      "type": "propCall",
+                                                      "calls": "dragOver"
+                                                    },
+                                                    "dragEnter": {
+                                                      "type": "propCall",
+                                                      "calls": "dragEnter"
+                                                    },
+                                                    "dragLeave": {
+                                                      "type": "propCall",
+                                                      "calls": "dragLeave"
+                                                    },
+                                                    "drop": {
+                                                      "type": "propCall",
+                                                      "calls": "onDrop"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "ProjectButtonContent",
+                                                        "key": "project-button-content",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "width": "100%",
+                                                          "alignItems": "center",
+                                                          "justifyContent": "space-between",
+                                                          "gap": "8px"
+                                                        },
+                                                        "events": {
+                                                          "doubleClick": {
+                                                            "type": "propCall",
+                                                            "calls": "handleDoubleClick"
+                                                          }
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "ProjectNameContainer",
+                                                              "key": "project-name-container",
+                                                              "style": {
+                                                                "display": "flex",
+                                                                "flex": "1",
+                                                                "alignItems": "center",
+                                                                "gap": "8px"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "conditional",
+                                                                  "content": {
+                                                                    "node": {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "input",
+                                                                        "name": "EditProjectNameInput",
+                                                                        "key": "edit-project-name-input",
+                                                                        "style": {
+                                                                          "width": "100%",
+                                                                          "padding": "4px 8px",
+                                                                          "border": "1px solid #d1d5db",
+                                                                          "borderRadius": "4px",
+                                                                          "fontSize": "14px",
+                                                                          "outline": "none"
+                                                                        },
+                                                                        "attrs": {
+                                                                          "type": "text",
+                                                                          "value": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "local",
+                                                                              "id": "foldersNames[item.name]"
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "events": {
+                                                                          "change": {
+                                                                            "type": "propCall",
+                                                                            "calls": "handleEditFolderName"
+                                                                          },
+                                                                          "keyDown": {
+                                                                            "type": "propCall",
+                                                                            "calls": "handleKeyDownFn"
+                                                                          },
+                                                                          "blur": {
+                                                                            "type": "propCall",
+                                                                            "calls": "handleEditNameFolder"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "reference": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "comp",
+                                                                        "id": "editFolderName?.edit && !isUpdatingFolder"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "conditional",
+                                                                  "content": {
+                                                                    "node": {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "text",
+                                                                        "name": "ProjectName",
+                                                                        "key": "project-name",
+                                                                        "style": {
+                                                                          "display": "block",
+                                                                          "width": "0",
+                                                                          "flexGrow": "1",
+                                                                          "overflow": "hidden",
+                                                                          "textOverflow": "ellipsis",
+                                                                          "whiteSpace": "nowrap",
+                                                                          "fontSize": "14px",
+                                                                          "opacity": "1"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "reference": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "comp",
+                                                                        "id": "!(editFolderName?.edit && !isUpdatingFolder)"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "ProjectOptionsContainer",
+                                                  "key": "project-options-container",
+                                                  "style": {
+                                                    "position": "absolute",
+                                                    "right": "8px",
+                                                    "top": "7px",
+                                                    "display": "flex",
+                                                    "alignItems": "center"
+                                                  },
+                                                  "events": {
+                                                    "click": {
+                                                      "type": "stopPropagation"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "ProjectOptionsDropdown",
+                                                        "key": "project-options-dropdown",
+                                                        "style": {
+                                                          "position": "relative"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "button",
+                                                              "name": "OptionsMenuTrigger",
+                                                              "key": "options-menu-trigger",
+                                                              "style": {
+                                                                "width": "fit-content",
+                                                                "padding": "4px",
+                                                                "backgroundColor": "transparent",
+                                                                "border": "none",
+                                                                "cursor": "pointer",
+                                                                "borderRadius": "4px"
+                                                              },
+                                                              "attrs": {
+                                                                "data-testid": "more-options-button"
+                                                              },
+                                                              "events": {
+                                                                "click": {
+                                                                  "type": "stateChange",
+                                                                  "transitions": [
+                                                                    {
+                                                                      "type": "stateChange",
+                                                                      "stateKey": "showOptionsMenu",
+                                                                      "newValue": true
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "icon",
+                                                                    "name": "MoreHorizontalIcon",
+                                                                    "key": "more-horizontal-icon",
+                                                                    "style": {
+                                                                      "width": "16px",
+                                                                      "height": "16px",
+                                                                      "strokeWidth": "1.5",
+                                                                      "padding": "0",
+                                                                      "color": "#6b7280",
+                                                                      "display": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "comp",
+                                                                          "id": "checkPathName(item.id) ? 'block' : 'hidden'"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "OptionsMenuContent",
+                                                                  "key": "options-menu-content",
+                                                                  "style": {
+                                                                    "position": "absolute",
+                                                                    "top": "100%",
+                                                                    "right": "0",
+                                                                    "backgroundColor": "white",
+                                                                    "border": "1px solid #e5e7eb",
+                                                                    "borderRadius": "6px",
+                                                                    "boxShadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                                                                    "zIndex": "50",
+                                                                    "minWidth": "120px"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "conditional",
+                                                                      "content": {
+                                                                        "node": {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "button",
+                                                                            "name": "RenameProjectOption",
+                                                                            "key": "rename-project-option",
+                                                                            "style": {
+                                                                              "width": "100%",
+                                                                              "padding": "8px 12px",
+                                                                              "fontSize": "12px",
+                                                                              "textAlign": "left",
+                                                                              "backgroundColor": "transparent",
+                                                                              "border": "none",
+                                                                              "cursor": "pointer",
+                                                                              "borderRadius": "4px"
+                                                                            },
+                                                                            "attrs": {
+                                                                              "data-testid": "btn-rename-project"
+                                                                            },
+                                                                            "events": {
+                                                                              "click": {
+                                                                                "type": "propCall",
+                                                                                "calls": "handleSelectFolderToRename"
+                                                                              }
+                                                                            },
+                                                                            "children": [
+                                                                              {
+                                                                                "type": "element",
+                                                                                "content": {
+                                                                                  "elementType": "container",
+                                                                                  "name": "RenameOptionContent",
+                                                                                  "key": "rename-option-content",
+                                                                                  "style": {
+                                                                                    "display": "flex",
+                                                                                    "alignItems": "center",
+                                                                                    "gap": "8px"
+                                                                                  },
+                                                                                  "children": [
+                                                                                    {
+                                                                                      "type": "element",
+                                                                                      "content": {
+                                                                                        "elementType": "icon",
+                                                                                        "name": "SquarePenIcon",
+                                                                                        "key": "square-pen-icon",
+                                                                                        "style": {
+                                                                                          "width": "14px",
+                                                                                          "height": "14px"
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    {
+                                                                                      "type": "element",
+                                                                                      "content": {
+                                                                                        "elementType": "text",
+                                                                                        "name": "RenameText",
+                                                                                        "key": "rename-text"
+                                                                                      }
+                                                                                    }
+                                                                                  ]
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        },
+                                                                        "reference": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "comp",
+                                                                            "id": "item.name !== DEFAULT_FOLDER"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "button",
+                                                                        "name": "DownloadProjectOption",
+                                                                        "key": "download-project-option",
+                                                                        "style": {
+                                                                          "width": "100%",
+                                                                          "padding": "8px 12px",
+                                                                          "fontSize": "12px",
+                                                                          "textAlign": "left",
+                                                                          "backgroundColor": "transparent",
+                                                                          "border": "none",
+                                                                          "cursor": "pointer",
+                                                                          "borderRadius": "4px"
+                                                                        },
+                                                                        "attrs": {
+                                                                          "data-testid": "btn-download-project"
+                                                                        },
+                                                                        "events": {
+                                                                          "click": {
+                                                                            "type": "propCall",
+                                                                            "calls": "handleDownloadFolder"
+                                                                          }
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "DownloadOptionContent",
+                                                                              "key": "download-option-content",
+                                                                              "style": {
+                                                                                "display": "flex",
+                                                                                "alignItems": "center",
+                                                                                "gap": "8px"
+                                                                              },
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "icon",
+                                                                                    "name": "DownloadIcon",
+                                                                                    "key": "download-icon",
+                                                                                    "style": {
+                                                                                      "width": "14px",
+                                                                                      "height": "14px"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "text",
+                                                                                    "name": "DownloadText",
+                                                                                    "key": "download-text"
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "conditional",
+                                                                      "content": {
+                                                                        "node": {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "button",
+                                                                            "name": "DeleteProjectOption",
+                                                                            "key": "delete-project-option",
+                                                                            "style": {
+                                                                              "width": "100%",
+                                                                              "padding": "8px 12px",
+                                                                              "fontSize": "12px",
+                                                                              "textAlign": "left",
+                                                                              "backgroundColor": "transparent",
+                                                                              "border": "none",
+                                                                              "cursor": "pointer",
+                                                                              "borderRadius": "4px",
+                                                                              "color": "#dc2626"
+                                                                            },
+                                                                            "attrs": {
+                                                                              "data-testid": "btn-delete-project"
+                                                                            },
+                                                                            "events": {
+                                                                              "click": {
+                                                                                "type": "propCall",
+                                                                                "calls": "handleDeleteFolder"
+                                                                              }
+                                                                            },
+                                                                            "children": [
+                                                                              {
+                                                                                "type": "element",
+                                                                                "content": {
+                                                                                  "elementType": "container",
+                                                                                  "name": "DeleteOptionContent",
+                                                                                  "key": "delete-option-content",
+                                                                                  "style": {
+                                                                                    "display": "flex",
+                                                                                    "alignItems": "center",
+                                                                                    "gap": "8px"
+                                                                                  },
+                                                                                  "children": [
+                                                                                    {
+                                                                                      "type": "element",
+                                                                                      "content": {
+                                                                                        "elementType": "icon",
+                                                                                        "name": "TrashIcon",
+                                                                                        "key": "trash-icon",
+                                                                                        "style": {
+                                                                                          "width": "14px",
+                                                                                          "height": "14px"
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    {
+                                                                                      "type": "element",
+                                                                                      "content": {
+                                                                                        "elementType": "text",
+                                                                                        "name": "DeleteText",
+                                                                                        "key": "delete-text"
+                                                                                      }
+                                                                                    }
+                                                                                  ]
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        },
+                                                                        "reference": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "comp",
+                                                                            "id": "index > 0"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "showOptionsMenu"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "dataSource": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "folders"
+                                    }
+                                  }
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "loading"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": false
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "SkeletonLoadingContainer",
+                                  "key": "skeleton-loading-container",
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "gap": "8px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "SkeletonItem1",
+                                        "key": "skeleton-item-1",
+                                        "style": {
+                                          "height": "40px",
+                                          "backgroundColor": "#f3f4f6",
+                                          "borderRadius": "6px",
+                                          "animation": "pulse 1.5s ease-in-out infinite"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "SkeletonItem2",
+                                        "key": "skeleton-item-2",
+                                        "style": {
+                                          "height": "40px",
+                                          "backgroundColor": "#f3f4f6",
+                                          "borderRadius": "6px",
+                                          "animation": "pulse 1.5s ease-in-out infinite"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "loading"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "FlexSpacer",
+                  "key": "flex-spacer",
+                  "style": {
+                    "flex": "1"
+                  }
+                }
+              },
+              {
+                "type": "conditional",
+                "content": {
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "MCPServerNoticeContainer",
+                      "key": "mcp-server-notice-container",
+                      "style": {
+                        "padding": "8px"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "MCPNoticeCard",
+                            "key": "mcp-notice-card",
+                            "style": {
+                              "padding": "12px",
+                              "backgroundColor": "#fef3c7",
+                              "borderRadius": "8px",
+                              "border": "1px solid #f59e0b"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "MCPNoticeTitle",
+                                  "key": "mcp-notice-title",
+                                  "style": {
+                                    "fontSize": "14px",
+                                    "fontWeight": "600",
+                                    "marginBottom": "4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "MCPNoticeMessage",
+                                  "key": "mcp-notice-message",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "color": "#92400e"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "button",
+                                  "name": "DismissMCPNoticeButton",
+                                  "key": "dismiss-mcp-notice-button",
+                                  "style": {
+                                    "marginTop": "8px",
+                                    "padding": "4px 8px",
+                                    "fontSize": "12px",
+                                    "backgroundColor": "#d97706",
+                                    "color": "white",
+                                    "border": "none",
+                                    "borderRadius": "4px",
+                                    "cursor": "pointer"
+                                  },
+                                  "events": {
+                                    "click": {
+                                      "type": "propCall",
+                                      "calls": "handleDismissMcpDialog"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "DismissButtonText",
+                                        "key": "dismiss-button-text"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "ENABLE_MCP_NOTICE && !isDismissedMcpDialog"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "conditional",
+          "content": {
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "SidebarFooter",
+                "key": "sidebar-footer",
+                "style": {
+                  "borderTop": "1px solid #e5e7eb",
+                  "padding": "8px"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "FooterContent",
+                      "key": "footer-content",
+                      "style": {
+                        "display": "grid",
+                        "width": "100%",
+                        "alignItems": "center",
+                        "gap": "8px"
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "button",
+                                "name": "CustomStoreButton",
+                                "key": "custom-store-button",
+                                "style": {
+                                  "width": "100%",
+                                  "padding": "8px 12px",
+                                  "backgroundColor": "transparent",
+                                  "border": "none",
+                                  "cursor": "pointer",
+                                  "borderRadius": "6px",
+                                  "textAlign": "left",
+                                  "fontSize": "14px"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "text",
+                                      "name": "StoreButtonText",
+                                      "key": "store-button-text"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "comp",
+                                "id": "ENABLE_DATASTAX_LANGFLOW"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "button",
+                            "name": "MyFilesButton",
+                            "key": "my-files-button",
+                            "style": {
+                              "width": "100%",
+                              "padding": "8px 12px",
+                              "backgroundColor": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "checkPathFiles ? '#f3f4f6' : 'transparent'"
+                                }
+                              },
+                              "border": "none",
+                              "cursor": "pointer",
+                              "borderRadius": "6px",
+                              "textAlign": "left",
+                              "fontSize": "14px",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "gap": "8px"
+                            },
+                            "events": {
+                              "click": {
+                                "type": "propCall",
+                                "calls": "handleFilesClick"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "icon",
+                                  "name": "FileIcon",
+                                  "key": "file-icon",
+                                  "style": {
+                                    "width": "16px",
+                                    "height": "16px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "MyFilesText",
+                                  "key": "my-files-text"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "comp",
+                "id": "ENABLE_FILE_MANAGEMENT"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "loading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "folders": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "foldersNames": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "editFolders": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "hoveredFolderId": {
+      "type": "string",
+      "defaultValue": null
+    },
+    "isDismissedDialog": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isGithubStarred": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isDiscordJoined": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isDismissedMcpDialog": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isUpdatingFolder": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isPending": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "showOptionsMenu": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "folderIdDragging": {
+      "type": "string",
+      "defaultValue": null
+    },
+    "myCollectionId": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "propDefinitions": {
+    "handleChangeFolder": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDeleteFolder": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleFilesClick": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleUploadFlowsToFolder": {
+      "type": "function",
+      "isRequired": false
+    },
+    "addNewFolder": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDownloadFolder": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleEditFolderName": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleEditNameFolder": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDoubleClick": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleSelectFolderToRename": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleKeyDownFn": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDismissMcpDialog": {
+      "type": "function",
+      "isRequired": false
+    },
+    "checkPathName": {
+      "type": "function",
+      "isRequired": false
+    },
+    "dragOver": {
+      "type": "function",
+      "isRequired": false
+    },
+    "dragEnter": {
+      "type": "function",
+      "isRequired": false
+    },
+    "dragLeave": {
+      "type": "function",
+      "isRequired": false
+    },
+    "onDrop": {
+      "type": "function",
+      "isRequired": false
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "primary": "#6366f1",
+        "background": "#ffffff",
+        "muted": "#f8f9fa",
+        "border": "#e5e7eb",
+        "text": "#374151",
+        "textMuted": "#6b7280",
+        "accent": "#f3f4f6",
+        "accentHover": "#f9fafb",
+        "error": "#dc2626",
+        "warning": "#f59e0b",
+        "warningBg": "#fef3c7",
+        "warningText": "#92400e",
+        "github": "#374151",
+        "discord": "#5865f2",
+        "skeleton": "#f3f4f6"
+      },
+      "spacing": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "12px",
+        "lg": "16px",
+        "xl": "32px"
+      },
+      "borderRadius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px"
+      },
+      "fontSize": {
+        "xs": "12px",
+        "sm": "14px",
+        "base": "16px",
+        "lg": "18px"
+      },
+      "fontWeight": {
+        "normal": "400",
+        "medium": "500",
+        "semibold": "600"
+      },
+      "shadows": {
+        "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+      },
+      "animations": {
+        "pulse": "pulse 1.5s ease-in-out infinite",
+        "spin": "spin 1s linear infinite"
+      }
+    }
+  }
+}

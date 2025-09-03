@@ -1,0 +1,849 @@
+{
+  "name": "ErrorBoundary",
+  "globals": {
+    "settings": {
+      "title": "Error Boundary System",
+      "language": "en"
+    },
+    "customCode": {
+      "head": "",
+      "body": ""
+    },
+    "meta": [],
+    "assets": [],
+    "manifest": {},
+    "variables": {}
+  },
+  "root": {
+    "name": "ErrorBoundary",
+    "node": {
+      "type": "element",
+      "content": {
+        "elementType": "container",
+        "name": "error-boundary-wrapper",
+        "children": [
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "crash-error-display",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "crash-error-overlay",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "crash-error-background",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "crash-error-container",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "container",
+                                          "name": "crash-error-card",
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "crash-error-header",
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "crash-error-icon-container",
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "icon",
+                                                            "name": "crash-error-x-circle-icon",
+                                                            "style": {
+                                                              "width": "64px",
+                                                              "height": "64px",
+                                                              "color": "$token-color-error",
+                                                              "strokeWidth": "1.5"
+                                                            }
+                                                          }
+                                                        }
+                                                      ],
+                                                      "style": {
+                                                        "margin": "0 auto"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "crash-error-title-container",
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "text",
+                                                            "name": "crash-error-title-message",
+                                                            "style": {
+                                                              "marginBottom": "16px",
+                                                              "fontSize": "$token-font-size-xl",
+                                                              "color": "$token-color-text-primary"
+                                                            }
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "static",
+                                                              "content": "Sorry, we found an unexpected error!"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "crash-error-content",
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "crash-error-description",
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "text",
+                                                            "name": "crash-error-description-text",
+                                                            "style": {
+                                                              "color": "$token-color-text-primary",
+                                                              "lineHeight": "1.5"
+                                                            }
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "static",
+                                                              "content": "Please report errors with detailed tracebacks on the "
+                                                            },
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "link",
+                                                                "name": "github-issues-link",
+                                                                "attrs": [
+                                                                  {
+                                                                    "type": "static",
+                                                                    "name": "href",
+                                                                    "content": "https://github.com/langflow-ai/langflow/issues"
+                                                                  },
+                                                                  {
+                                                                    "type": "static",
+                                                                    "name": "target",
+                                                                    "content": "_blank"
+                                                                  },
+                                                                  {
+                                                                    "type": "static",
+                                                                    "name": "rel",
+                                                                    "content": "noopener noreferrer"
+                                                                  }
+                                                                ],
+                                                                "style": {
+                                                                  "fontWeight": "500",
+                                                                  "color": "$token-color-primary",
+                                                                  "textDecoration": "none",
+                                                                  "hover": {
+                                                                    "textDecoration": "underline"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "GitHub Issues"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "type": "static",
+                                                              "content": " page."
+                                                            },
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "line-break",
+                                                                "name": "error-description-line-break"
+                                                              }
+                                                            },
+                                                            {
+                                                              "type": "static",
+                                                              "content": "Thank you!"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "display": "grid"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "crash-error-footer",
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "crash-error-actions-container",
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "button",
+                                                            "name": "restart-langflow-button",
+                                                            "style": {
+                                                              "backgroundColor": "$token-color-primary",
+                                                              "color": "$token-color-primary-contrast",
+                                                              "padding": "8px 16px",
+                                                              "borderRadius": "$token-border-radius-md",
+                                                              "border": "none",
+                                                              "cursor": "pointer",
+                                                              "fontSize": "$token-font-size-sm",
+                                                              "fontWeight": "500",
+                                                              "transition": "all 0.2s ease"
+                                                            }
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "static",
+                                                              "content": "Restart Langflow"
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "link",
+                                                            "name": "report-github-link-wrapper",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "name": "href",
+                                                                "content": "https://github.com/langflow-ai/langflow/issues/new"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "name": "target",
+                                                                "content": "_blank"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "name": "rel",
+                                                                "content": "noopener noreferrer"
+                                                              }
+                                                            ],
+                                                            "style": {
+                                                              "textDecoration": "none"
+                                                            }
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "button",
+                                                                "name": "report-on-github-button",
+                                                                "style": {
+                                                                  "marginLeft": "12px",
+                                                                  "backgroundColor": "transparent",
+                                                                  "color": "$token-color-text-primary",
+                                                                  "padding": "8px 16px",
+                                                                  "borderRadius": "$token-border-radius-md",
+                                                                  "border": "1px solid $token-color-border",
+                                                                  "cursor": "pointer",
+                                                                  "fontSize": "$token-font-size-sm",
+                                                                  "fontWeight": "500",
+                                                                  "transition": "all 0.2s ease"
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "static",
+                                                                  "content": "Report on GitHub"
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ],
+                                                      "style": {
+                                                        "margin": "0 auto",
+                                                        "marginTop": "16px",
+                                                        "display": "flex",
+                                                        "justifyContent": "center"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ],
+                                          "style": {
+                                            "padding": "32px",
+                                            "backgroundColor": "$token-color-surface",
+                                            "borderRadius": "$token-border-radius-lg",
+                                            "border": "1px solid $token-color-border",
+                                            "boxShadow": "$token-shadow-lg"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "style": {
+                                      "margin": "auto",
+                                      "display": "grid",
+                                      "width": "50%",
+                                      "justifyContent": "center",
+                                      "gap": "20px",
+                                      "textAlign": "center"
+                                    }
+                                  }
+                                }
+                              ],
+                              "style": {
+                                "display": "flex",
+                                "height": "100vh",
+                                "width": "100vw",
+                                "flexDirection": "column",
+                                "backgroundColor": "$token-color-background",
+                                "textAlign": "start",
+                                "boxShadow": "$token-shadow-lg"
+                              }
+                            }
+                          }
+                        ],
+                        "style": {
+                          "zIndex": "50",
+                          "display": "flex",
+                          "height": "100vh",
+                          "width": "100vw",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "backgroundColor": "rgba(0, 0, 0, 0.5)",
+                          "position": "fixed",
+                          "top": "0",
+                          "left": "0"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "hasError"
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "generic-error-display",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "server-error-modal",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "server-error-modal-content",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "server-error-content",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "server-error-message",
+                                              "style": {
+                                                "fontSize": "$token-font-size-lg",
+                                                "color": "$token-color-primary",
+                                                "textAlign": "center",
+                                                "marginBottom": "8px"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "errorMessage"
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "server-error-description",
+                                              "style": {
+                                                "textAlign": "center",
+                                                "fontSize": "$token-font-size-lg",
+                                                "color": "$token-color-primary"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "errorDescription"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex",
+                                          "flexDirection": "column",
+                                          "alignItems": "center",
+                                          "margin": "0 auto"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "style": {
+                              "position": "fixed",
+                              "top": "0",
+                              "left": "0",
+                              "width": "100vw",
+                              "height": "100vh",
+                              "backgroundColor": "rgba(0, 0, 0, 0.5)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center",
+                              "zIndex": "1000"
+                            }
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "errorType",
+                            "conditions": [
+                              {
+                                "operand": "serverDown",
+                                "operation": "===",
+                                "value": true
+                              }
+                            ],
+                            "fallback": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "timeout-error-modal",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "timeout-error-modal-content",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "timeout-error-content",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "timeout-loading-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "timeout-loading-spinner",
+                                                    "style": {
+                                                      "width": "64px",
+                                                      "height": "64px",
+                                                      "border": "4px solid $token-color-border",
+                                                      "borderTop": "4px solid $token-color-primary",
+                                                      "borderRadius": "50%",
+                                                      "animation": "spin 1s linear infinite",
+                                                      "marginBottom": "16px"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "timeout-error-message",
+                                              "style": {
+                                                "fontSize": "$token-font-size-lg",
+                                                "color": "$token-color-primary",
+                                                "textAlign": "center",
+                                                "marginBottom": "8px"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "timeoutMessage"
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "timeout-error-description",
+                                              "style": {
+                                                "textAlign": "center",
+                                                "fontSize": "$token-font-size-lg",
+                                                "color": "$token-color-primary"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "timeoutDescription"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex",
+                                          "flexDirection": "column",
+                                          "alignItems": "center",
+                                          "margin": "0 auto"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "style": {
+                              "position": "fixed",
+                              "top": "0",
+                              "left": "0",
+                              "width": "100vw",
+                              "height": "100vh",
+                              "backgroundColor": "rgba(0, 0, 0, 0.5)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center",
+                              "zIndex": "1000"
+                            }
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "errorType",
+                            "conditions": [
+                              {
+                                "operand": "timeout",
+                                "operation": "===",
+                                "value": true
+                              }
+                            ],
+                            "fallback": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "computed",
+                  "id": "hasGenericError"
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "normal-app-content",
+                  "children": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "children"
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "computed",
+                  "id": "showNormalContent"
+                }
+              }
+            }
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "height": "100%",
+          "width": "100%",
+          "flexDirection": "column"
+        }
+      }
+    },
+    "stateDefinitions": {
+      "hasError": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "error": {
+        "type": "object",
+        "defaultValue": null
+      },
+      "errorInfo": {
+        "type": "object",
+        "defaultValue": null
+      },
+      "errorType": {
+        "type": "string",
+        "defaultValue": null
+      },
+      "errorMessage": {
+        "type": "string",
+        "defaultValue": "Connection Error"
+      },
+      "errorDescription": {
+        "type": "string",
+        "defaultValue": "Unable to connect to the server. Please check your connection and try again."
+      },
+      "timeoutMessage": {
+        "type": "string",
+        "defaultValue": "Loading..."
+      },
+      "timeoutDescription": {
+        "type": "string",
+        "defaultValue": "This is taking longer than expected. Please wait while we establish a connection."
+      },
+      "healthCheckTimeout": {
+        "type": "string",
+        "defaultValue": null
+      },
+      "fetchingHealth": {
+        "type": "boolean",
+        "defaultValue": false
+      }
+    },
+    "propDefinitions": {
+      "children": {
+        "type": "element",
+        "defaultValue": null
+      },
+      "onReset": {
+        "type": "function",
+        "defaultValue": null
+      },
+      "retry": {
+        "type": "function",
+        "defaultValue": null
+      }
+    },
+    "compDefinitions": {
+      "hasGenericError": {
+        "type": "boolean",
+        "content": "$state.errorType === 'serverDown' || $state.errorType === 'timeout'"
+      },
+      "showNormalContent": {
+        "type": "boolean",
+        "content": "!$state.hasError && !$computed.hasGenericError"
+      }
+    }
+  },
+  "styleSetDefinitions": {
+    "primaryButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "$token-color-primary",
+        "color": "$token-color-primary-contrast",
+        "padding": "8px 16px",
+        "borderRadius": "$token-border-radius-md",
+        "border": "none",
+        "cursor": "pointer",
+        "fontSize": "$token-font-size-sm",
+        "fontWeight": "500",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "outlineButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "transparent",
+        "color": "$token-color-text-primary",
+        "padding": "8px 16px",
+        "borderRadius": "$token-border-radius-md",
+        "border": "1px solid $token-color-border",
+        "cursor": "pointer",
+        "fontSize": "$token-font-size-sm",
+        "fontWeight": "500",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "errorCard": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "padding": "32px",
+        "backgroundColor": "$token-color-surface",
+        "borderRadius": "$token-border-radius-lg",
+        "border": "1px solid $token-color-border",
+        "boxShadow": "$token-shadow-lg",
+        "textAlign": "center"
+      }
+    },
+    "errorOverlay": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "position": "fixed",
+        "top": "0",
+        "left": "0",
+        "width": "100vw",
+        "height": "100vh",
+        "backgroundColor": "rgba(0, 0, 0, 0.5)",
+        "display": "flex",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "zIndex": "1000"
+      }
+    },
+    "loadingSpinner": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "64px",
+        "height": "64px",
+        "border": "4px solid $token-color-border",
+        "borderTop": "4px solid $token-color-primary",
+        "borderRadius": "50%",
+        "animation": "spin 1s linear infinite"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "token-color-primary": "#0066FF",
+        "token-color-primary-contrast": "#FFFFFF",
+        "token-color-secondary": "#6B7280",
+        "token-color-error": "#EF4444",
+        "token-color-error-background": "#FEF2F2",
+        "token-color-success": "#22C55E",
+        "token-color-warning": "#F59E0B",
+        "token-color-background": "#FFFFFF",
+        "token-color-surface": "#F9FAFB",
+        "token-color-border": "#E5E7EB",
+        "token-color-text-primary": "#111827",
+        "token-color-text-secondary": "#6B7280",
+        "token-color-text-disabled": "#9CA3AF"
+      },
+      "spacing": {
+        "token-spacing-xs": "4px",
+        "token-spacing-sm": "8px",
+        "token-spacing-md": "16px",
+        "token-spacing-lg": "24px",
+        "token-spacing-xl": "32px"
+      },
+      "borderRadius": {
+        "token-border-radius-sm": "4px",
+        "token-border-radius-md": "6px",
+        "token-border-radius-lg": "8px",
+        "token-border-radius-xl": "12px"
+      },
+      "typography": {
+        "token-font-size-sm": "14px",
+        "token-font-size-md": "16px",
+        "token-font-size-lg": "18px",
+        "token-font-size-xl": "20px"
+      },
+      "shadows": {
+        "token-shadow-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "token-shadow-md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "token-shadow-lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        "token-shadow-xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+      }
+    }
+  }
+}

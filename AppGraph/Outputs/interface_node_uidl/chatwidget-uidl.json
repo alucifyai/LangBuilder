@@ -1,0 +1,565 @@
+{
+  "name": "ChatWidget",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "ChatWidgetContainer",
+      "key": "chat-widget-container",
+      "style": {
+        "display": "block",
+        "width": "100%",
+        "height": "100%",
+        "position": "relative"
+      },
+      "attrs": {
+        "className": {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "prop",
+            "id": "className"
+          }
+        }
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "ChatScriptLoaderContainer",
+            "key": "chat-script-loader-container",
+            "style": {
+              "display": "none"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "script",
+                  "name": "LangflowEmbeddedChatScript",
+                  "key": "langflow-embedded-chat-script",
+                  "attrs": {
+                    "src": "https://cdn.jsdelivr.net/gh/langflow-ai/langflow-embedded-chat@main/dist/build/static/js/bundle.min.js",
+                    "async": true,
+                    "type": "text/javascript"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "LangflowChatWidget",
+            "key": "langflow-chat-widget",
+            "style": {
+              "width": "100%",
+              "height": "100%",
+              "border": "none",
+              "borderRadius": "8px",
+              "overflow": "hidden"
+            },
+            "attrs": {
+              "data-widget-type": "langflow-chat",
+              "data-host-url": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "host_url"
+                }
+              },
+              "data-flow-id": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "flow_id"
+                }
+              },
+              "data-chat-inputs": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_inputs"
+                }
+              },
+              "data-input-value": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "input_value"
+                }
+              },
+              "data-input-type": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "input_type"
+                }
+              },
+              "data-output-type": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "output_type"
+                }
+              },
+              "data-output-value": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "output_value"
+                }
+              },
+              "data-tweaks": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "tweaks"
+                }
+              },
+              "data-session-id": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "session_id"
+                }
+              },
+              "data-chat-position": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_position"
+                }
+              },
+              "data-chat-window-open": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_window_open"
+                }
+              },
+              "data-error-message-text": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "error_message_text"
+                }
+              },
+              "data-placeholder-sending": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "placeholder_sending"
+                }
+              },
+              "data-placeholder": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "placeholder"
+                }
+              },
+              "data-send-icon-src": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "send_icon_src"
+                }
+              },
+              "data-bot-message-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "bot_message_style"
+                }
+              },
+              "data-user-message-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "user_message_style"
+                }
+              },
+              "data-chat-input-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_input_style"
+                }
+              },
+              "data-chat-input-container-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_input_container_style"
+                }
+              },
+              "data-chat-output-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_output_style"
+                }
+              },
+              "data-footer-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "footer_style"
+                }
+              },
+              "data-chat-window-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_window_style"
+                }
+              },
+              "data-chat-container-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_container_style"
+                }
+              },
+              "data-send-button-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "send_button_style"
+                }
+              },
+              "data-chat-trigger-style": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "chat_trigger_style"
+                }
+              },
+              "data-online-message": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "online_message"
+                }
+              },
+              "data-offline-message": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "offline_message"
+                }
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "ChatWidgetPlaceholder",
+                  "key": "chat-widget-placeholder",
+                  "style": {
+                    "width": "100%",
+                    "height": "400px",
+                    "backgroundColor": "#f8f9fa",
+                    "border": "2px dashed #e0e0e0",
+                    "borderRadius": "8px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "padding": "32px",
+                    "textAlign": "center"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "ChatIconContainer",
+                        "key": "chat-icon-container",
+                        "style": {
+                          "width": "64px",
+                          "height": "64px",
+                          "backgroundColor": "#6366f1",
+                          "borderRadius": "50%",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "marginBottom": "16px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "icon",
+                              "name": "ChatBubbleIcon",
+                              "key": "chat-bubble-icon",
+                              "style": {
+                                "width": "32px",
+                                "height": "32px",
+                                "color": "white"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "ChatWidgetTitle",
+                        "key": "chat-widget-title",
+                        "style": {
+                          "fontSize": "18px",
+                          "fontWeight": "600",
+                          "color": "#374151",
+                          "marginBottom": "8px"
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "ChatWidgetDescription",
+                        "key": "chat-widget-description",
+                        "style": {
+                          "fontSize": "14px",
+                          "color": "#6b7280",
+                          "lineHeight": "1.5",
+                          "maxWidth": "300px"
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "LoadingIndicator",
+                        "key": "loading-indicator",
+                        "style": {
+                          "marginTop": "16px",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "gap": "8px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "LoadingSpinner",
+                              "key": "loading-spinner",
+                              "style": {
+                                "width": "16px",
+                                "height": "16px",
+                                "border": "2px solid #e0e0e0",
+                                "borderTop": "2px solid #6366f1",
+                                "borderRadius": "50%",
+                                "animation": "spin 1s linear infinite"
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "text",
+                              "name": "LoadingText",
+                              "key": "loading-text",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#6b7280"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "scriptLoaded": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "widgetInitialized": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "errorState": {
+      "type": "string",
+      "defaultValue": null
+    }
+  },
+  "propDefinitions": {
+    "className": {
+      "type": "string",
+      "isRequired": false
+    },
+    "host_url": {
+      "type": "string",
+      "isRequired": true,
+      "defaultValue": "http://localhost:7860"
+    },
+    "flow_id": {
+      "type": "string",
+      "isRequired": true,
+      "defaultValue": "YOUR_FLOW_ID"
+    },
+    "chat_inputs": {
+      "type": "object",
+      "isRequired": false
+    },
+    "input_value": {
+      "type": "string",
+      "isRequired": false
+    },
+    "input_type": {
+      "type": "string",
+      "isRequired": false
+    },
+    "output_type": {
+      "type": "string",
+      "isRequired": false
+    },
+    "output_value": {
+      "type": "string",
+      "isRequired": false
+    },
+    "tweaks": {
+      "type": "object",
+      "isRequired": false
+    },
+    "session_id": {
+      "type": "string",
+      "isRequired": false
+    },
+    "chat_position": {
+      "type": "string",
+      "isRequired": false,
+      "defaultValue": "bottom-right"
+    },
+    "chat_window_open": {
+      "type": "boolean",
+      "isRequired": false,
+      "defaultValue": false
+    },
+    "error_message_text": {
+      "type": "string",
+      "isRequired": false,
+      "defaultValue": "Something went wrong"
+    },
+    "placeholder_sending": {
+      "type": "string",
+      "isRequired": false,
+      "defaultValue": "Sending..."
+    },
+    "placeholder": {
+      "type": "string",
+      "isRequired": false,
+      "defaultValue": "Type your message..."
+    },
+    "send_icon_src": {
+      "type": "string",
+      "isRequired": false
+    },
+    "bot_message_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "user_message_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "chat_input_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "chat_input_container_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "chat_output_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "footer_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "chat_window_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "chat_container_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "send_button_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "chat_trigger_style": {
+      "type": "object",
+      "isRequired": false
+    },
+    "online_message": {
+      "type": "string",
+      "isRequired": false,
+      "defaultValue": "We're online!"
+    },
+    "offline_message": {
+      "type": "string",
+      "isRequired": false,
+      "defaultValue": "We're currently offline"
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "primary": "#6366f1",
+        "background": "#ffffff",
+        "muted": "#f8f9fa",
+        "border": "#e0e0e0",
+        "text": "#374151",
+        "textMuted": "#6b7280"
+      },
+      "spacing": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "32px",
+        "xl": "64px"
+      },
+      "borderRadius": {
+        "sm": "4px",
+        "md": "8px",
+        "full": "50%"
+      },
+      "fontSize": {
+        "sm": "12px",
+        "base": "14px",
+        "lg": "18px"
+      },
+      "fontWeight": {
+        "normal": "400",
+        "semibold": "600"
+      }
+    }
+  }
+}

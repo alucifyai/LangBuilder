@@ -1,0 +1,625 @@
+{
+  "name": "PlaygroundPage",
+  "stateDefinitions": {
+    "currentSavedFlow": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "currentFlowId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "clientId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "sidebarOpen": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "visibleSession": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "sessionId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "selectedViewField": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "sessions": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "chatValue": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isBuilding": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "messages": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "playgroundPageRoot",
+      "attrs": {
+        "className": {
+          "type": "static",
+          "content": "flex h-full w-full flex-col items-center justify-center align-middle"
+        }
+      },
+      "children": [
+        {
+          "type": "conditional",
+          "content": {
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "currentSavedFlow"
+              }
+            },
+            "value": true,
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "component",
+                "name": "playgroundModal",
+                "semanticType": "BaseModal",
+                "attrs": {
+                  "open": {
+                    "type": "static",
+                    "content": true
+                  },
+                  "type": {
+                    "type": "static",
+                    "content": "full-screen"
+                  },
+                  "size": {
+                    "type": "static",
+                    "content": "x-large"
+                  },
+                  "className": {
+                    "type": "static",
+                    "content": "!rounded-[12px] p-0"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "modalContent",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "flex-max-width h-full"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "playgroundSidebar",
+                            "attrs": {
+                              "className": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "computed",
+                                  "id": "sidebarOpen ? 'absolute z-50 lg:relative lg:w-1/5 lg:max-w-[280px]' : 'w-0'"
+                                }
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "sidebarInner",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "relative flex h-full flex-col overflow-y-auto border-r border-border bg-muted p-4 text-center custom-scroll dark:bg-canvas pt-[15px]"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "sidebarHeader",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "flex items-center justify-between gap-2 pb-8 align-middle"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "flowTitleContainer",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "flex items-center gap-2"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "flowIcon",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "flex rounded p-1"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "component",
+                                                          "name": "workflowIcon",
+                                                          "semanticType": "IconComponent",
+                                                          "attrs": {
+                                                            "name": {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "state",
+                                                                "id": "currentSavedFlow.icon"
+                                                              }
+                                                            },
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "h-3.5 w-3.5"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "sidebarOpen"
+                                                      }
+                                                    },
+                                                    "value": true,
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "text",
+                                                        "name": "playgroundTitle",
+                                                        "attrs": {
+                                                          "className": {
+                                                            "type": "static",
+                                                            "content": "truncate font-semibold"
+                                                          }
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "state",
+                                                              "id": "currentSavedFlow.name"
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "component",
+                                              "name": "hideSidebarTooltip",
+                                              "semanticType": "ShadTooltip",
+                                              "attrs": {
+                                                "content": {
+                                                  "type": "static",
+                                                  "content": "Hide sidebar"
+                                                },
+                                                "side": {
+                                                  "type": "static",
+                                                  "content": "right"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "button",
+                                                    "name": "toggleSidebarButton",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "flex h-8 w-8 items-center justify-center !p-0"
+                                                      }
+                                                    },
+                                                    "events": {
+                                                      "onClick": [
+                                                        {
+                                                          "type": "stateChange",
+                                                          "modifies": "sidebarOpen",
+                                                          "newState": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "state",
+                                                              "id": "sidebarOpen",
+                                                              "operator": "!"
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "component",
+                                                          "name": "sidebarToggleIcon",
+                                                          "semanticType": "IconComponent",
+                                                          "attrs": {
+                                                            "name": {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "computed",
+                                                                "id": "sidebarOpen ? 'PanelLeftClose' : 'PanelLeftOpen'"
+                                                              }
+                                                            },
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "h-[18px] w-[18px] text-ring"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "sidebarOpen"
+                                          }
+                                        },
+                                        "value": true,
+                                        "node": {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "component",
+                                            "name": "sidebarOpenView",
+                                            "semanticType": "SidebarOpenView",
+                                            "attrs": {
+                                              "sessions": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "sessions"
+                                                }
+                                              },
+                                              "visibleSession": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "visibleSession"
+                                                }
+                                              },
+                                              "selectedViewField": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "selectedViewField"
+                                                }
+                                              },
+                                              "playgroundPage": {
+                                                "type": "static",
+                                                "content": true
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "publishOptionsFooter",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "absolute bottom-2 left-0 flex w-full flex-col gap-8 border-t border-border px-2 py-4 transition-all"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "themeSelector",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "flex items-center justify-between px-2"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "themeLabel",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "text-sm"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "static",
+                                                        "content": "Theme"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "component",
+                                                    "name": "themeButtons",
+                                                    "semanticType": "ThemeButtons"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "button",
+                                              "name": "builtWithLangflowButton",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "w-full !rounded-xl shadow-lg"
+                                                }
+                                              },
+                                              "events": {
+                                                "onClick": [
+                                                  {
+                                                    "type": "action",
+                                                    "calls": "openLangflowPage"
+                                                  }
+                                                ]
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "component",
+                                                    "name": "langflowLogo",
+                                                    "semanticType": "LangflowLogoColor"
+                                                  }
+                                                },
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "builtWithLabel",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "text-sm"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "static",
+                                                        "content": "Built with Langflow"
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "mainPlaygroundArea",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "flex h-full min-w-96 flex-grow bg-background"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "selectedViewField"
+                                    }
+                                  },
+                                  "value": true,
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "component",
+                                      "name": "selectedViewField",
+                                      "semanticType": "SelectedViewField",
+                                      "attrs": {
+                                        "selectedViewField": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "selectedViewField"
+                                          }
+                                        },
+                                        "haveChat": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "computed",
+                                            "id": "hasChat"
+                                          }
+                                        },
+                                        "sessions": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "sessions"
+                                          }
+                                        },
+                                        "currentFlowId": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "currentFlowId"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "component",
+                                  "name": "chatViewWrapper",
+                                  "semanticType": "ChatViewWrapper",
+                                  "attrs": {
+                                    "playgroundPage": {
+                                      "type": "static",
+                                      "content": true
+                                    },
+                                    "selectedViewField": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "selectedViewField"
+                                      }
+                                    },
+                                    "visibleSession": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "visibleSession"
+                                      }
+                                    },
+                                    "sessions": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "sessions"
+                                      }
+                                    },
+                                    "sidebarOpen": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "sidebarOpen"
+                                      }
+                                    },
+                                    "currentFlowId": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "currentFlowId"
+                                      }
+                                    },
+                                    "isPlayground": {
+                                      "type": "static",
+                                      "content": true
+                                    },
+                                    "haveChat": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "computed",
+                                        "id": "hasChat"
+                                      }
+                                    },
+                                    "sessionId": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "sessionId"
+                                      }
+                                    },
+                                    "playgroundTitle": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "currentSavedFlow.name"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

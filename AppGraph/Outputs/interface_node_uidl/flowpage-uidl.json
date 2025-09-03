@@ -1,0 +1,710 @@
+{
+  "name": "FlowPage",
+  "propDefinitions": {
+    "view": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "stateDefinitions": {
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "currentFlow": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "blocker": {
+      "type": "object", 
+      "defaultValue": {}
+    },
+    "changesNotSaved": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isBuilding": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isMobile": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "autoSaving": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "updatedAt": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "flowPageRoot",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "flowPagePositioning",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flow-page-positioning"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "currentFlow"
+                    }
+                  },
+                  "value": true,
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "flowMainContainer",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "flex h-full overflow-hidden"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "component",
+                            "name": "sidebarProvider",
+                            "semanticType": "SidebarProvider",
+                            "attrs": {
+                              "width": {
+                                "type": "static",
+                                "content": "17.5rem"
+                              },
+                              "defaultOpen": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isMobile",
+                                  "operator": "!"
+                                }
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "view",
+                                      "operator": "!"
+                                    }
+                                  },
+                                  "value": true,
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "component",
+                                      "name": "flowSidebarComponent",
+                                      "semanticType": "FlowSidebarComponent",
+                                      "attrs": {
+                                        "isLoading": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "isLoading"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "mainContentArea",
+                                  "semanticType": "main",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex w-full overflow-hidden"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "pageContainer",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "h-full w-full"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "component",
+                                              "name": "pageComponent",
+                                              "semanticType": "Page",
+                                              "attrs": {
+                                                "setIsLoading": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "function",
+                                                    "id": "setIsLoading"
+                                                  }
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "canvasWrapper",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "h-full w-full bg-canvas"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "conditional",
+                                                        "content": {
+                                                          "reference": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "state",
+                                                              "id": "showCanvas"
+                                                            }
+                                                          },
+                                                          "value": true,
+                                                          "node": {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "reactFlowContainer",
+                                                              "attrs": {
+                                                                "id": {
+                                                                  "type": "static",
+                                                                  "content": "react-flow-id"
+                                                                },
+                                                                "className": {
+                                                                  "type": "static",
+                                                                  "content": "h-full w-full bg-canvas"
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "conditional",
+                                                                  "content": {
+                                                                    "reference": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "prop",
+                                                                        "id": "view",
+                                                                        "operator": "!"
+                                                                      }
+                                                                    },
+                                                                    "value": true,
+                                                                    "node": {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "container",
+                                                                        "name": "flowToolsContainer",
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "component",
+                                                                              "name": "logCanvasControls",
+                                                                              "semanticType": "MemoizedLogCanvasControls"
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "component",
+                                                                              "name": "canvasControls",
+                                                                              "semanticType": "MemoizedCanvasControls",
+                                                                              "attrs": {
+                                                                                "setIsAddingNote": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "function",
+                                                                                    "id": "setIsAddingNote"
+                                                                                  }
+                                                                                },
+                                                                                "position": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "state",
+                                                                                    "id": "position"
+                                                                                  }
+                                                                                },
+                                                                                "shadowBoxWidth": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "state",
+                                                                                    "id": "shadowBoxWidth"
+                                                                                  }
+                                                                                },
+                                                                                "shadowBoxHeight": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "state",
+                                                                                    "id": "shadowBoxHeight"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "component",
+                                                                              "name": "flowToolbar",
+                                                                              "semanticType": "FlowToolbar"
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "component",
+                                                                    "name": "sidebarTrigger",
+                                                                    "semanticType": "MemoizedSidebarTrigger"
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "component",
+                                                                    "name": "selectionMenu",
+                                                                    "semanticType": "SelectionMenu",
+                                                                    "attrs": {
+                                                                      "lastSelection": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "lastSelection"
+                                                                        }
+                                                                      },
+                                                                      "isVisible": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "selectionMenuVisible"
+                                                                        }
+                                                                      },
+                                                                      "nodes": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "lastSelection.nodes"
+                                                                        }
+                                                                      },
+                                                                      "onClick": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "function",
+                                                                          "id": "handleGroupNode"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "component",
+                                                                    "name": "reactFlow",
+                                                                    "semanticType": "ReactFlow",
+                                                                    "attrs": {
+                                                                      "nodes": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "nodes"
+                                                                        }
+                                                                      },
+                                                                      "edges": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "edges"
+                                                                        }
+                                                                      },
+                                                                      "onNodesChange": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "function",
+                                                                          "id": "onNodesChangeWithHelperLines"
+                                                                        }
+                                                                      },
+                                                                      "onEdgesChange": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "function",
+                                                                          "id": "onEdgesChange"
+                                                                        }
+                                                                      },
+                                                                      "onConnect": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "function",
+                                                                          "id": "onConnectMod"
+                                                                        }
+                                                                      },
+                                                                      "onInit": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "function",
+                                                                          "id": "setReactFlowInstance"
+                                                                        }
+                                                                      },
+                                                                      "nodeTypes": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "nodeTypes"
+                                                                        }
+                                                                      },
+                                                                      "edgeTypes": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "edgeTypes"
+                                                                        }
+                                                                      },
+                                                                      "className": {
+                                                                        "type": "static",
+                                                                        "content": "theme-attribution"
+                                                                      },
+                                                                      "minZoom": {
+                                                                        "type": "static",
+                                                                        "content": 0.2
+                                                                      },
+                                                                      "maxZoom": {
+                                                                        "type": "static",
+                                                                        "content": 8
+                                                                      },
+                                                                      "zoomOnScroll": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "prop",
+                                                                          "id": "view",
+                                                                          "operator": "!"
+                                                                        }
+                                                                      },
+                                                                      "zoomOnPinch": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "prop",
+                                                                          "id": "view",
+                                                                          "operator": "!"
+                                                                        }
+                                                                      },
+                                                                      "panOnDrag": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "prop",
+                                                                          "id": "view",
+                                                                          "operator": "!"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "component",
+                                                                          "name": "flowBuildingComponent",
+                                                                          "semanticType": "FlowBuildingComponent"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "component",
+                                                                          "name": "updateAllComponents",
+                                                                          "semanticType": "UpdateAllComponents"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "component",
+                                                                          "name": "memoizedBackground",
+                                                                          "semanticType": "MemoizedBackground"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "conditional",
+                                                                        "content": {
+                                                                          "reference": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "state",
+                                                                              "id": "helperLineEnabled"
+                                                                            }
+                                                                          },
+                                                                          "value": true,
+                                                                          "node": {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "component",
+                                                                              "name": "helperLines",
+                                                                              "semanticType": "HelperLines",
+                                                                              "attrs": {
+                                                                                "helperLines": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "state",
+                                                                                    "id": "helperLines"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "container",
+                                                                    "name": "shadowBox",
+                                                                    "attrs": {
+                                                                      "id": {
+                                                                        "type": "static",
+                                                                        "content": "shadow-box"
+                                                                      }
+                                                                    },
+                                                                    "style": {
+                                                                      "position": {
+                                                                        "type": "static",
+                                                                        "content": "absolute"
+                                                                      },
+                                                                      "width": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "shadowBoxWidth"
+                                                                        }
+                                                                      },
+                                                                      "height": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "shadowBoxHeight"
+                                                                        }
+                                                                      },
+                                                                      "backgroundColor": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "shadowBoxBackgroundColor"
+                                                                        }
+                                                                      },
+                                                                      "opacity": {
+                                                                        "type": "static",
+                                                                        "content": 0.7
+                                                                      },
+                                                                      "pointerEvents": {
+                                                                        "type": "static",
+                                                                        "content": "none"
+                                                                      },
+                                                                      "display": {
+                                                                        "type": "static",
+                                                                        "content": "none"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          "fallbackNode": {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "loadingContainer",
+                                                              "attrs": {
+                                                                "className": {
+                                                                  "type": "static",
+                                                                  "content": "flex h-full w-full items-center justify-center"
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "component",
+                                                                    "name": "customLoader",
+                                                                    "semanticType": "CustomLoader",
+                                                                    "attrs": {
+                                                                      "remSize": {
+                                                                        "type": "static",
+                                                                        "content": 30
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "conditional",
+          "content": {
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "blocker.state"
+              }
+            },
+            "value": "blocked",
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "blockerModalContainer",
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "isBuilding",
+                          "operator": "!"
+                        }
+                      },
+                      "value": true,
+                      "node": {
+                        "type": "conditional",
+                        "content": {
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "currentSavedFlow"
+                            }
+                          },
+                          "value": true,
+                          "node": {
+                            "type": "element",
+                            "content": {
+                              "elementType": "component",
+                              "name": "saveChangesModal",
+                              "semanticType": "SaveChangesModal",
+                              "attrs": {
+                                "onSave": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "function",
+                                    "id": "handleSave"
+                                  }
+                                },
+                                "onCancel": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "function",
+                                    "id": "blocker.reset"
+                                  }
+                                },
+                                "onProceed": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "function",
+                                    "id": "handleExit"
+                                  }
+                                },
+                                "flowName": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "currentSavedFlow.name"
+                                  }
+                                },
+                                "lastSaved": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "formattedUpdatedAt"
+                                  }
+                                },
+                                "autoSave": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "autoSaving"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

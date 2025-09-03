@@ -1,0 +1,2082 @@
+{
+  "name": "FlowGrid",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "FlowGridContainer",
+      "key": "flow-grid-container",
+      "style": {
+        "display": "flex",
+        "height": "100%",
+        "width": "100%",
+        "flexDirection": "column",
+        "overflowY": "auto"
+      },
+      "attrs": {
+        "data-testid": "cards-wrapper"
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "MainContentWrapper",
+            "key": "main-content-wrapper",
+            "style": {
+              "display": "flex",
+              "height": "100%",
+              "width": "100%",
+              "flexDirection": "column"
+            },
+            "attrs": {
+              "className": "3xl:container"
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "CustomBannerContainer",
+                      "key": "custom-banner-container",
+                      "style": {
+                        "width": "100%",
+                        "padding": "16px",
+                        "backgroundColor": "#f8fafc",
+                        "borderRadius": "8px",
+                        "marginBottom": "16px"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "text",
+                            "name": "BannerText",
+                            "key": "banner-text",
+                            "style": {
+                              "fontSize": "14px",
+                              "color": "#374151"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "ENABLE_DATASTAX_LANGFLOW"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "MainContentArea",
+                  "key": "main-content-area",
+                  "style": {
+                    "display": "flex",
+                    "flex": "1",
+                    "flexDirection": "column",
+                    "justifyContent": "flex-start",
+                    "padding": "16px"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "ContentContainer",
+                        "key": "content-container",
+                        "style": {
+                          "display": "flex",
+                          "height": "100%",
+                          "flexDirection": "column",
+                          "justifyContent": "flex-start"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "HeaderSection",
+                              "key": "header-section",
+                              "style": {
+                                "width": "100%"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "TitleSection",
+                                    "key": "title-section",
+                                    "style": {
+                                      "display": "flex",
+                                      "alignItems": "center",
+                                      "paddingBottom": "16px",
+                                      "fontSize": "14px",
+                                      "fontWeight": "500"
+                                    },
+                                    "attrs": {
+                                      "data-testid": "mainpage_title"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "container",
+                                          "name": "SidebarTriggerContainer",
+                                          "key": "sidebar-trigger-container",
+                                          "style": {
+                                            "height": "28px",
+                                            "width": "40px",
+                                            "transition": "all 0.3s ease"
+                                          },
+                                          "attrs": {
+                                            "className": "lg:hidden"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "LogoContainer",
+                                                "key": "logo-container",
+                                                "style": {
+                                                  "position": "relative",
+                                                  "left": "0",
+                                                  "opacity": "1",
+                                                  "transition": "all 0.3s ease"
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "button",
+                                                      "name": "SidebarToggleButton",
+                                                      "key": "sidebar-toggle-button",
+                                                      "style": {
+                                                        "padding": "8px",
+                                                        "backgroundColor": "transparent",
+                                                        "border": "none",
+                                                        "cursor": "pointer",
+                                                        "borderRadius": "4px"
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "image",
+                                                            "name": "LangflowLogo",
+                                                            "key": "langflow-logo",
+                                                            "style": {
+                                                              "height": "16px",
+                                                              "width": "16px"
+                                                            },
+                                                            "attrs": {
+                                                              "src": "/assets/LangflowLogo.svg",
+                                                              "alt": "Langflow logo"
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "FolderTitle",
+                                          "key": "folder-title",
+                                          "style": {
+                                            "fontSize": "14px",
+                                            "fontWeight": "500"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "TabsAndActionsContainer",
+                                        "key": "tabs-and-actions-container",
+                                        "style": {
+                                          "width": "100%"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "TabsContainer",
+                                              "key": "tabs-container",
+                                              "style": {
+                                                "display": "flex",
+                                                "flexDirection": "row-reverse",
+                                                "paddingBottom": "16px"
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "TabBorderLine",
+                                                    "key": "tab-border-line",
+                                                    "style": {
+                                                      "width": "100%",
+                                                      "borderBottom": "1px solid #e5e7eb"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "repeat",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "button",
+                                                        "name": "TabButton",
+                                                        "key": "tab-button",
+                                                        "style": {
+                                                          "borderBottom": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "comp",
+                                                              "id": "flowType === tabType ? '2px solid #111827' : '1px solid #e5e7eb'"
+                                                            }
+                                                          },
+                                                          "color": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "comp",
+                                                              "id": "flowType === tabType ? '#111827' : '#6b7280'"
+                                                            }
+                                                          },
+                                                          "whiteSpace": "nowrap",
+                                                          "padding": "8px",
+                                                          "paddingTop": "4px",
+                                                          "paddingBottom": "8px",
+                                                          "fontSize": "14px",
+                                                          "backgroundColor": "transparent",
+                                                          "border": "none",
+                                                          "cursor": "pointer"
+                                                        },
+                                                        "attrs": {
+                                                          "data-testid": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "local",
+                                                              "id": "tabType + '-btn'"
+                                                            }
+                                                          }
+                                                        },
+                                                        "events": {
+                                                          "click": {
+                                                            "type": "stateChange",
+                                                            "transitions": [
+                                                              {
+                                                                "type": "stateChange",
+                                                                "stateKey": "flowType",
+                                                                "newValue": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "local",
+                                                                    "id": "tabType"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "TabContent",
+                                                              "key": "tab-content",
+                                                              "style": {
+                                                                "marginBottom": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "flowType === tabType ? '-1px' : '0'"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "TabLabel",
+                                                                    "key": "tab-label"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "dataSource": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "tabTypes"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "conditional",
+                                            "content": {
+                                              "node": {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "SearchAndActionsContainer",
+                                                  "key": "search-and-actions-container",
+                                                  "style": {
+                                                    "display": "flex",
+                                                    "justifyContent": "space-between"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "SearchAndViewControls",
+                                                        "key": "search-and-view-controls",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "width": "100%"
+                                                        },
+                                                        "attrs": {
+                                                          "className": "xl:w-5/12"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "SearchInputContainer",
+                                                              "key": "search-input-container",
+                                                              "style": {
+                                                                "position": "relative",
+                                                                "marginRight": "8px",
+                                                                "flex": "1"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "input",
+                                                                    "name": "SearchInput",
+                                                                    "key": "search-input",
+                                                                    "style": {
+                                                                      "width": "100%",
+                                                                      "padding": "8px 12px 8px 36px",
+                                                                      "border": "1px solid #d1d5db",
+                                                                      "borderRadius": "6px",
+                                                                      "fontSize": "14px",
+                                                                      "outline": "none"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "data-testid": "search-store-input",
+                                                                      "type": "text",
+                                                                      "placeholder": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "comp",
+                                                                          "id": "'Search ' + flowType + '...'"
+                                                                        }
+                                                                      },
+                                                                      "value": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "debouncedSearch"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "events": {
+                                                                      "change": {
+                                                                        "type": "propCall",
+                                                                        "calls": "handleSearch"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "icon",
+                                                                    "name": "SearchIcon",
+                                                                    "key": "search-icon",
+                                                                    "style": {
+                                                                      "position": "absolute",
+                                                                      "left": "12px",
+                                                                      "top": "50%",
+                                                                      "transform": "translateY(-50%)",
+                                                                      "width": "16px",
+                                                                      "height": "16px",
+                                                                      "color": "#9ca3af"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "ViewToggleContainer",
+                                                              "key": "view-toggle-container",
+                                                              "style": {
+                                                                "position": "relative",
+                                                                "marginRight": "8px",
+                                                                "display": "flex",
+                                                                "height": "fit-content",
+                                                                "borderRadius": "8px",
+                                                                "border": "1px solid #f3f4f6",
+                                                                "backgroundColor": "#f3f4f6"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "container",
+                                                                    "name": "ViewToggleSlider",
+                                                                    "key": "view-toggle-slider",
+                                                                    "style": {
+                                                                      "position": "absolute",
+                                                                      "top": "2px",
+                                                                      "height": "32px",
+                                                                      "width": "32px",
+                                                                      "transform": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "comp",
+                                                                          "id": "view === 'list' ? 'translateX(2px)' : 'translateX(38px)'"
+                                                                        }
+                                                                      },
+                                                                      "borderRadius": "6px",
+                                                                      "backgroundColor": "white",
+                                                                      "boxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+                                                                      "transition": "transform 0.3s ease"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "repeat",
+                                                                  "content": {
+                                                                    "node": {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "button",
+                                                                        "name": "ViewToggleButton",
+                                                                        "key": "view-toggle-button",
+                                                                        "style": {
+                                                                          "position": "relative",
+                                                                          "zIndex": "10",
+                                                                          "margin": "2px",
+                                                                          "flex": "1",
+                                                                          "borderRadius": "8px",
+                                                                          "padding": "8px",
+                                                                          "backgroundColor": "transparent",
+                                                                          "border": "none",
+                                                                          "cursor": "pointer",
+                                                                          "color": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "comp",
+                                                                              "id": "view === viewType ? '#111827' : '#6b7280'"
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "events": {
+                                                                          "click": {
+                                                                            "type": "stateChange",
+                                                                            "transitions": [
+                                                                              {
+                                                                                "type": "stateChange",
+                                                                                "stateKey": "view",
+                                                                                "newValue": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "local",
+                                                                                    "id": "viewType"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "icon",
+                                                                              "name": "ViewIcon",
+                                                                              "key": "view-icon",
+                                                                              "style": {
+                                                                                "width": "16px",
+                                                                                "height": "16px"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    "dataSource": {
+                                                                      "type": "static",
+                                                                      "content": ["list", "grid"]
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "ActionsContainer",
+                                                        "key": "actions-container",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "alignItems": "center"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "BulkActionsContainer",
+                                                              "key": "bulk-actions-container",
+                                                              "style": {
+                                                                "display": "flex",
+                                                                "width": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "selectedFlows.length > 0 ? '144px' : '0'"
+                                                                  }
+                                                                },
+                                                                "alignItems": "center",
+                                                                "gap": "8px",
+                                                                "overflow": "hidden",
+                                                                "opacity": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "selectedFlows.length > 0 ? '1' : '0'"
+                                                                  }
+                                                                },
+                                                                "transition": "all 0.3s ease"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "button",
+                                                                    "name": "DownloadBulkButton",
+                                                                    "key": "download-bulk-button",
+                                                                    "style": {
+                                                                      "height": "32px",
+                                                                      "width": "32px",
+                                                                      "padding": "8px",
+                                                                      "backgroundColor": "transparent",
+                                                                      "border": "1px solid #d1d5db",
+                                                                      "borderRadius": "6px",
+                                                                      "cursor": "pointer"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "data-testid": "download-bulk-btn"
+                                                                    },
+                                                                    "events": {
+                                                                      "click": {
+                                                                        "type": "propCall",
+                                                                        "calls": "handleDownload"
+                                                                      }
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "conditional",
+                                                                        "content": {
+                                                                          "node": {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "DownloadLoadingSpinner",
+                                                                              "key": "download-loading-spinner",
+                                                                              "style": {
+                                                                                "width": "16px",
+                                                                                "height": "16px",
+                                                                                "border": "2px solid #e5e7eb",
+                                                                                "borderTop": "2px solid #6366f1",
+                                                                                "borderRadius": "50%",
+                                                                                "animation": "spin 1s linear infinite"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "reference": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "state",
+                                                                              "id": "isDownloading"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "conditional",
+                                                                        "content": {
+                                                                          "node": {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "icon",
+                                                                              "name": "DownloadIcon",
+                                                                              "key": "download-icon",
+                                                                              "style": {
+                                                                                "width": "16px",
+                                                                                "height": "16px"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "reference": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "state",
+                                                                              "id": "isDownloading"
+                                                                            }
+                                                                          },
+                                                                          "value": {
+                                                                            "type": "static",
+                                                                            "content": false
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "button",
+                                                                    "name": "DeleteBulkButton",
+                                                                    "key": "delete-bulk-button",
+                                                                    "style": {
+                                                                      "paddingLeft": "10px",
+                                                                      "paddingRight": "10px",
+                                                                      "height": "32px",
+                                                                      "backgroundColor": "#dc2626",
+                                                                      "color": "white",
+                                                                      "border": "none",
+                                                                      "borderRadius": "6px",
+                                                                      "cursor": "pointer",
+                                                                      "fontSize": "14px",
+                                                                      "display": "flex",
+                                                                      "alignItems": "center",
+                                                                      "gap": "4px"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "data-testid": "delete-bulk-btn"
+                                                                    },
+                                                                    "events": {
+                                                                      "click": {
+                                                                        "type": "propCall",
+                                                                        "calls": "handleDelete"
+                                                                      }
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "conditional",
+                                                                        "content": {
+                                                                          "node": {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "DeleteLoadingSpinner",
+                                                                              "key": "delete-loading-spinner",
+                                                                              "style": {
+                                                                                "width": "16px",
+                                                                                "height": "16px",
+                                                                                "border": "2px solid rgba(255, 255, 255, 0.3)",
+                                                                                "borderTop": "2px solid white",
+                                                                                "borderRadius": "50%",
+                                                                                "animation": "spin 1s linear infinite"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "reference": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "state",
+                                                                              "id": "isDeleting"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "conditional",
+                                                                        "content": {
+                                                                          "node": {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "DeleteButtonContent",
+                                                                              "key": "delete-button-content",
+                                                                              "style": {
+                                                                                "display": "flex",
+                                                                                "alignItems": "center",
+                                                                                "gap": "4px"
+                                                                              },
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "icon",
+                                                                                    "name": "TrashIcon",
+                                                                                    "key": "trash-icon",
+                                                                                    "style": {
+                                                                                      "width": "16px",
+                                                                                      "height": "16px"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "text",
+                                                                                    "name": "DeleteButtonText",
+                                                                                    "key": "delete-button-text"
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          },
+                                                                          "reference": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "state",
+                                                                              "id": "isDeleting"
+                                                                            }
+                                                                          },
+                                                                          "value": {
+                                                                            "type": "static",
+                                                                            "content": false
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "NewFlowButtonTooltip",
+                                                              "key": "new-flow-button-tooltip",
+                                                              "style": {
+                                                                "position": "relative"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "button",
+                                                                    "name": "NewFlowButton",
+                                                                    "key": "new-flow-button",
+                                                                    "style": {
+                                                                      "zIndex": "50",
+                                                                      "paddingLeft": "10px",
+                                                                      "paddingRight": "10px",
+                                                                      "height": "32px",
+                                                                      "backgroundColor": "#6366f1",
+                                                                      "color": "white",
+                                                                      "border": "none",
+                                                                      "borderRadius": "6px",
+                                                                      "cursor": "pointer",
+                                                                      "fontSize": "14px",
+                                                                      "display": "flex",
+                                                                      "alignItems": "center",
+                                                                      "gap": "4px"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "data-testid": "new-project-btn"
+                                                                    },
+                                                                    "events": {
+                                                                      "click": {
+                                                                        "type": "stateChange",
+                                                                        "transitions": [
+                                                                          {
+                                                                            "type": "stateChange",
+                                                                            "stateKey": "newProjectModal",
+                                                                            "newValue": true
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "icon",
+                                                                          "name": "PlusIcon",
+                                                                          "key": "plus-icon",
+                                                                          "style": {
+                                                                            "width": "16px",
+                                                                            "height": "16px"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "text",
+                                                                          "name": "NewFlowText",
+                                                                          "key": "new-flow-text",
+                                                                          "style": {
+                                                                            "whiteSpace": "nowrap",
+                                                                            "fontWeight": "600",
+                                                                            "display": "none"
+                                                                          },
+                                                                          "attrs": {
+                                                                            "className": "md:inline"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "reference": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "comp",
+                                                  "id": "flowType !== 'mcp'"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "isEmptyFolder"
+                                      }
+                                    },
+                                    "value": {
+                                      "type": "static",
+                                      "content": false
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "EmptyFolderContainer",
+                                  "key": "empty-folder-container",
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "height": "400px",
+                                    "textAlign": "center"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "EmptyFolderTitle",
+                                        "key": "empty-folder-title",
+                                        "style": {
+                                          "fontSize": "24px",
+                                          "fontWeight": "600",
+                                          "color": "#374151",
+                                          "marginBottom": "16px"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "button",
+                                        "name": "CreateFirstFlowButton",
+                                        "key": "create-first-flow-button",
+                                        "style": {
+                                          "padding": "12px 24px",
+                                          "backgroundColor": "#6366f1",
+                                          "color": "white",
+                                          "border": "none",
+                                          "borderRadius": "8px",
+                                          "cursor": "pointer",
+                                          "fontSize": "16px",
+                                          "fontWeight": "500"
+                                        },
+                                        "events": {
+                                          "click": {
+                                            "type": "stateChange",
+                                            "transitions": [
+                                              {
+                                                "type": "stateChange",
+                                                "stateKey": "newProjectModal",
+                                                "newValue": true
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "CreateFirstFlowText",
+                                              "key": "create-first-flow-text"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isEmptyFolder"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "FlowsContentContainer",
+                                  "key": "flows-content-container",
+                                  "style": {
+                                    "display": "flex",
+                                    "height": "100%",
+                                    "flexDirection": "column"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "node": {
+                                          "type": "conditional",
+                                          "content": {
+                                            "node": {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "GridLoadingSkeleton",
+                                                "key": "grid-loading-skeleton",
+                                                "style": {
+                                                  "marginTop": "16px",
+                                                  "display": "grid",
+                                                  "gridTemplateColumns": "1fr",
+                                                  "gap": "4px"
+                                                },
+                                                "attrs": {
+                                                  "className": "md:grid-cols-2 lg:grid-cols-3"
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "SkeletonCard1",
+                                                      "key": "skeleton-card-1",
+                                                      "style": {
+                                                        "height": "120px",
+                                                        "backgroundColor": "#f3f4f6",
+                                                        "borderRadius": "8px",
+                                                        "animation": "pulse 1.5s ease-in-out infinite"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "SkeletonCard2",
+                                                      "key": "skeleton-card-2",
+                                                      "style": {
+                                                        "height": "120px",
+                                                        "backgroundColor": "#f3f4f6",
+                                                        "borderRadius": "8px",
+                                                        "animation": "pulse 1.5s ease-in-out infinite"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "reference": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "comp",
+                                                "id": "view === 'grid'"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "isLoading"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "node": {
+                                          "type": "conditional",
+                                          "content": {
+                                            "node": {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "ListLoadingSkeleton",
+                                                "key": "list-loading-skeleton",
+                                                "style": {
+                                                  "marginTop": "16px",
+                                                  "display": "flex",
+                                                  "flexDirection": "column",
+                                                  "gap": "4px"
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "SkeletonListItem1",
+                                                      "key": "skeleton-list-item-1",
+                                                      "style": {
+                                                        "height": "80px",
+                                                        "backgroundColor": "#f3f4f6",
+                                                        "borderRadius": "8px",
+                                                        "animation": "pulse 1.5s ease-in-out infinite"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "SkeletonListItem2",
+                                                      "key": "skeleton-list-item-2",
+                                                      "style": {
+                                                        "height": "80px",
+                                                        "backgroundColor": "#f3f4f6",
+                                                        "borderRadius": "8px",
+                                                        "animation": "pulse 1.5s ease-in-out infinite"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "reference": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "comp",
+                                                "id": "view === 'list'"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "isLoading"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "node": {
+                                          "type": "conditional",
+                                          "content": {
+                                            "node": {
+                                              "type": "conditional",
+                                              "content": {
+                                                "node": {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "GridViewContainer",
+                                                    "key": "grid-view-container",
+                                                    "style": {
+                                                      "marginTop": "16px",
+                                                      "display": "grid",
+                                                      "gridTemplateColumns": "1fr",
+                                                      "gap": "4px"
+                                                    },
+                                                    "attrs": {
+                                                      "className": "md:grid-cols-2 lg:grid-cols-3"
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "repeat",
+                                                        "content": {
+                                                          "node": {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "FlowGridCard",
+                                                              "key": "flow-grid-card",
+                                                              "style": {
+                                                                "display": "flex",
+                                                                "flexDirection": "row",
+                                                                "backgroundColor": "white",
+                                                                "cursor": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "flow.is_component ? 'default' : 'pointer'"
+                                                                  }
+                                                                },
+                                                                "justifyContent": "space-between",
+                                                                "borderRadius": "8px",
+                                                                "border": "none",
+                                                                "padding": "12px 16px",
+                                                                "boxShadow": "none"
+                                                              },
+                                                              "attrs": {
+                                                                "data-testid": "list-card",
+                                                                "draggable": "true"
+                                                              },
+                                                              "events": {
+                                                                "click": {
+                                                                  "type": "propCall",
+                                                                  "calls": "handleFlowClick"
+                                                                },
+                                                                "dragStart": {
+                                                                  "type": "propCall",
+                                                                  "calls": "onDragStart"
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "container",
+                                                                    "name": "FlowCardContent",
+                                                                    "key": "flow-card-content",
+                                                                    "style": {
+                                                                      "display": "flex",
+                                                                      "minWidth": "0",
+                                                                      "alignItems": "center",
+                                                                      "gap": "16px"
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "container",
+                                                                          "name": "FlowIconContainer",
+                                                                          "key": "flow-icon-container",
+                                                                          "style": {
+                                                                            "position": "relative",
+                                                                            "display": "flex",
+                                                                            "alignItems": "center"
+                                                                          },
+                                                                          "attrs": {
+                                                                            "className": "group/checkbox"
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "container",
+                                                                                "name": "CheckboxContainer",
+                                                                                "key": "checkbox-container",
+                                                                                "style": {
+                                                                                  "zIndex": "20",
+                                                                                  "display": "flex",
+                                                                                  "width": {
+                                                                                    "type": "dynamic",
+                                                                                    "content": {
+                                                                                      "referenceType": "comp",
+                                                                                      "id": "selected ? '40px' : '0'"
+                                                                                    }
+                                                                                  },
+                                                                                  "alignItems": "center",
+                                                                                  "transition": "all 0.3s ease"
+                                                                                },
+                                                                                "children": [
+                                                                                  {
+                                                                                    "type": "element",
+                                                                                    "content": {
+                                                                                      "elementType": "input",
+                                                                                      "name": "FlowSelectionCheckbox",
+                                                                                      "key": "flow-selection-checkbox",
+                                                                                      "style": {
+                                                                                        "marginLeft": "8px",
+                                                                                        "transition": "opacity 0.3s ease",
+                                                                                        "opacity": {
+                                                                                          "type": "dynamic",
+                                                                                          "content": {
+                                                                                            "referenceType": "comp",
+                                                                                            "id": "selected ? '1' : '0'"
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "attrs": {
+                                                                                        "type": "checkbox",
+                                                                                        "checked": {
+                                                                                          "type": "dynamic",
+                                                                                          "content": {
+                                                                                            "referenceType": "state",
+                                                                                            "id": "selected"
+                                                                                          }
+                                                                                        },
+                                                                                        "data-testid": {
+                                                                                          "type": "dynamic",
+                                                                                          "content": {
+                                                                                            "referenceType": "local",
+                                                                                            "id": "'checkbox-' + flow.id"
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "events": {
+                                                                                        "change": {
+                                                                                          "type": "propCall",
+                                                                                          "calls": "setSelected"
+                                                                                        },
+                                                                                        "click": {
+                                                                                          "type": "stopPropagation"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            },
+                                                                            {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "container",
+                                                                                "name": "FlowIconWrapper",
+                                                                                "key": "flow-icon-wrapper",
+                                                                                "style": {
+                                                                                  "display": "flex",
+                                                                                  "alignItems": "center",
+                                                                                  "justifyContent": "center",
+                                                                                  "borderRadius": "8px",
+                                                                                  "padding": "6px",
+                                                                                  "transition": "opacity 0.2s ease",
+                                                                                  "backgroundColor": {
+                                                                                    "type": "dynamic",
+                                                                                    "content": {
+                                                                                      "referenceType": "local",
+                                                                                      "id": "swatchColors[swatchIndex]"
+                                                                                    }
+                                                                                  },
+                                                                                  "opacity": {
+                                                                                    "type": "dynamic",
+                                                                                    "content": {
+                                                                                      "referenceType": "comp",
+                                                                                      "id": "selected ? '0.3' : '1'"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "children": [
+                                                                                  {
+                                                                                    "type": "element",
+                                                                                    "content": {
+                                                                                      "elementType": "icon",
+                                                                                      "name": "FlowIcon",
+                                                                                      "key": "flow-icon",
+                                                                                      "style": {
+                                                                                        "display": "flex",
+                                                                                        "width": "20px",
+                                                                                        "height": "20px",
+                                                                                        "alignItems": "center",
+                                                                                        "justifyContent": "center"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "container",
+                                                                          "name": "FlowInfoContainer",
+                                                                          "key": "flow-info-container",
+                                                                          "style": {
+                                                                            "display": "flex",
+                                                                            "minWidth": "0",
+                                                                            "flexDirection": "column",
+                                                                            "justifyContent": "flex-start"
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "container",
+                                                                                "name": "FlowTitleAndTimeContainer",
+                                                                                "key": "flow-title-and-time-container",
+                                                                                "style": {
+                                                                                  "display": "flex",
+                                                                                  "minWidth": "0",
+                                                                                  "flexWrap": "wrap",
+                                                                                  "alignItems": "baseline",
+                                                                                  "gap": "8px 16px"
+                                                                                },
+                                                                                "children": [
+                                                                                  {
+                                                                                    "type": "element",
+                                                                                    "content": {
+                                                                                      "elementType": "container",
+                                                                                      "name": "FlowNameContainer",
+                                                                                      "key": "flow-name-container",
+                                                                                      "style": {
+                                                                                        "display": "flex",
+                                                                                        "minWidth": "0",
+                                                                                        "flexShrink": "1",
+                                                                                        "overflow": "hidden",
+                                                                                        "textOverflow": "ellipsis",
+                                                                                        "fontSize": "14px",
+                                                                                        "fontWeight": "600"
+                                                                                      },
+                                                                                      "attrs": {
+                                                                                        "data-testid": "flow-name-div"
+                                                                                      },
+                                                                                      "children": [
+                                                                                        {
+                                                                                          "type": "element",
+                                                                                          "content": {
+                                                                                            "elementType": "text",
+                                                                                            "name": "FlowName",
+                                                                                            "key": "flow-name",
+                                                                                            "style": {
+                                                                                              "overflow": "hidden",
+                                                                                              "textOverflow": "ellipsis"
+                                                                                            },
+                                                                                            "attrs": {
+                                                                                              "data-testid": {
+                                                                                                "type": "dynamic",
+                                                                                                "content": {
+                                                                                                  "referenceType": "local",
+                                                                                                  "id": "'flow-name-' + flow.id"
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      ]
+                                                                                    }
+                                                                                  },
+                                                                                  {
+                                                                                    "type": "element",
+                                                                                    "content": {
+                                                                                      "elementType": "container",
+                                                                                      "name": "FlowTimeContainer",
+                                                                                      "key": "flow-time-container",
+                                                                                      "style": {
+                                                                                        "display": "flex",
+                                                                                        "minWidth": "0",
+                                                                                        "flexShrink": "1",
+                                                                                        "fontSize": "12px",
+                                                                                        "color": "#6b7280"
+                                                                                      },
+                                                                                      "children": [
+                                                                                        {
+                                                                                          "type": "element",
+                                                                                          "content": {
+                                                                                            "elementType": "text",
+                                                                                            "name": "FlowEditedTime",
+                                                                                            "key": "flow-edited-time",
+                                                                                            "style": {
+                                                                                              "overflow": "hidden",
+                                                                                              "textOverflow": "ellipsis"
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      ]
+                                                                                    }
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "container",
+                                                                    "name": "FlowActionsContainer",
+                                                                    "key": "flow-actions-container",
+                                                                    "style": {
+                                                                      "marginLeft": "20px",
+                                                                      "display": "flex",
+                                                                      "alignItems": "center",
+                                                                      "gap": "8px"
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "container",
+                                                                          "name": "FlowDropdownMenuContainer",
+                                                                          "key": "flow-dropdown-menu-container",
+                                                                          "style": {
+                                                                            "position": "relative"
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "button",
+                                                                                "name": "FlowOptionsButton",
+                                                                                "key": "flow-options-button",
+                                                                                "style": {
+                                                                                  "padding": "8px",
+                                                                                  "backgroundColor": "transparent",
+                                                                                  "border": "none",
+                                                                                  "cursor": "pointer",
+                                                                                  "borderRadius": "4px"
+                                                                                },
+                                                                                "attrs": {
+                                                                                  "data-testid": "home-dropdown-menu"
+                                                                                },
+                                                                                "events": {
+                                                                                  "click": {
+                                                                                    "type": "stateChange",
+                                                                                    "transitions": [
+                                                                                      {
+                                                                                        "type": "stateChange",
+                                                                                        "stateKey": "showDropdownMenu",
+                                                                                        "newValue": true
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                },
+                                                                                "children": [
+                                                                                  {
+                                                                                    "type": "element",
+                                                                                    "content": {
+                                                                                      "elementType": "icon",
+                                                                                      "name": "EllipsisIcon",
+                                                                                      "key": "ellipsis-icon",
+                                                                                      "style": {
+                                                                                        "width": "20px",
+                                                                                        "height": "20px",
+                                                                                        "color": "#6b7280"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            },
+                                                                            {
+                                                                              "type": "conditional",
+                                                                              "content": {
+                                                                                "node": {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "container",
+                                                                                    "name": "FlowDropdownMenuContent",
+                                                                                    "key": "flow-dropdown-menu-content",
+                                                                                    "style": {
+                                                                                      "position": "absolute",
+                                                                                      "top": "100%",
+                                                                                      "right": "0",
+                                                                                      "width": "185px",
+                                                                                      "backgroundColor": "white",
+                                                                                      "border": "1px solid #e5e7eb",
+                                                                                      "borderRadius": "6px",
+                                                                                      "boxShadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                                                                                      "zIndex": "50",
+                                                                                      "padding": "4px"
+                                                                                    },
+                                                                                    "children": [
+                                                                                      {
+                                                                                        "type": "element",
+                                                                                        "content": {
+                                                                                          "elementType": "button",
+                                                                                          "name": "EditFlowOption",
+                                                                                          "key": "edit-flow-option",
+                                                                                          "style": {
+                                                                                            "width": "100%",
+                                                                                            "padding": "8px 12px",
+                                                                                            "fontSize": "14px",
+                                                                                            "textAlign": "left",
+                                                                                            "backgroundColor": "transparent",
+                                                                                            "border": "none",
+                                                                                            "cursor": "pointer",
+                                                                                            "borderRadius": "4px"
+                                                                                          },
+                                                                                          "events": {
+                                                                                            "click": {
+                                                                                              "type": "propCall",
+                                                                                              "calls": "handleEdit"
+                                                                                            }
+                                                                                          },
+                                                                                          "children": [
+                                                                                            {
+                                                                                              "type": "element",
+                                                                                              "content": {
+                                                                                                "elementType": "text",
+                                                                                                "name": "EditOptionText",
+                                                                                                "key": "edit-option-text"
+                                                                                              }
+                                                                                            }
+                                                                                          ]
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "type": "element",
+                                                                                        "content": {
+                                                                                          "elementType": "button",
+                                                                                          "name": "ExportFlowOption",
+                                                                                          "key": "export-flow-option",
+                                                                                          "style": {
+                                                                                            "width": "100%",
+                                                                                            "padding": "8px 12px",
+                                                                                            "fontSize": "14px",
+                                                                                            "textAlign": "left",
+                                                                                            "backgroundColor": "transparent",
+                                                                                            "border": "none",
+                                                                                            "cursor": "pointer",
+                                                                                            "borderRadius": "4px"
+                                                                                          },
+                                                                                          "events": {
+                                                                                            "click": {
+                                                                                              "type": "propCall",
+                                                                                              "calls": "handleExport"
+                                                                                            }
+                                                                                          },
+                                                                                          "children": [
+                                                                                            {
+                                                                                              "type": "element",
+                                                                                              "content": {
+                                                                                                "elementType": "text",
+                                                                                                "name": "ExportOptionText",
+                                                                                                "key": "export-option-text"
+                                                                                              }
+                                                                                            }
+                                                                                          ]
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "type": "element",
+                                                                                        "content": {
+                                                                                          "elementType": "button",
+                                                                                          "name": "DeleteFlowOption",
+                                                                                          "key": "delete-flow-option",
+                                                                                          "style": {
+                                                                                            "width": "100%",
+                                                                                            "padding": "8px 12px",
+                                                                                            "fontSize": "14px",
+                                                                                            "textAlign": "left",
+                                                                                            "backgroundColor": "transparent",
+                                                                                            "border": "none",
+                                                                                            "cursor": "pointer",
+                                                                                            "borderRadius": "4px",
+                                                                                            "color": "#dc2626"
+                                                                                          },
+                                                                                          "events": {
+                                                                                            "click": {
+                                                                                              "type": "propCall",
+                                                                                              "calls": "setOpenDelete"
+                                                                                            }
+                                                                                          },
+                                                                                          "children": [
+                                                                                            {
+                                                                                              "type": "element",
+                                                                                              "content": {
+                                                                                                "elementType": "text",
+                                                                                                "name": "DeleteOptionText",
+                                                                                                "key": "delete-option-text"
+                                                                                              }
+                                                                                            }
+                                                                                          ]
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                },
+                                                                                "reference": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "state",
+                                                                                    "id": "showDropdownMenu"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          "dataSource": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "state",
+                                                              "id": "flows"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                "reference": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "comp",
+                                                    "id": "view === 'grid'"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "reference": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "comp",
+                                                "id": "flowType === 'mcp'"
+                                              }
+                                            },
+                                            "value": {
+                                              "type": "static",
+                                              "content": false
+                                            }
+                                          }
+                                        },
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "isLoading"
+                                          }
+                                        },
+                                        "value": {
+                                          "type": "static",
+                                          "content": false
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isEmptyFolder"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": false
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "conditional",
+          "content": {
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "PaginationContainer",
+                "key": "pagination-container",
+                "style": {
+                  "display": "flex",
+                  "justifyContent": "flex-end",
+                  "padding": "12px 12px 16px"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "PaginationControls",
+                      "key": "pagination-controls",
+                      "style": {
+                        "display": "flex",
+                        "alignItems": "center",
+                        "gap": "8px"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "text",
+                            "name": "PaginationInfo",
+                            "key": "pagination-info",
+                            "style": {
+                              "fontSize": "14px",
+                              "color": "#6b7280"
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "button",
+                            "name": "PreviousPageButton",
+                            "key": "previous-page-button",
+                            "style": {
+                              "padding": "8px 12px",
+                              "backgroundColor": "transparent",
+                              "border": "1px solid #d1d5db",
+                              "borderRadius": "6px",
+                              "cursor": "pointer",
+                              "fontSize": "14px"
+                            },
+                            "events": {
+                              "click": {
+                                "type": "propCall",
+                                "calls": "handlePreviousPage"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "PreviousText",
+                                  "key": "previous-text"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "button",
+                            "name": "NextPageButton",
+                            "key": "next-page-button",
+                            "style": {
+                              "padding": "8px 12px",
+                              "backgroundColor": "transparent",
+                              "border": "1px solid #d1d5db",
+                              "borderRadius": "6px",
+                              "cursor": "pointer",
+                              "fontSize": "14px"
+                            },
+                            "events": {
+                              "click": {
+                                "type": "propCall",
+                                "calls": "handleNextPage"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "NextText",
+                                  "key": "next-text"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "comp",
+                "id": "(flowType === 'flows' || flowType === 'components') && !isLoading && !isEmptyFolder && data.pagination.total >= 10"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "view": {
+      "type": "string",
+      "defaultValue": "list"
+    },
+    "newProjectModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "pageIndex": {
+      "type": "number",
+      "defaultValue": 1
+    },
+    "pageSize": {
+      "type": "number",
+      "defaultValue": 12
+    },
+    "search": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "flowType": {
+      "type": "string",
+      "defaultValue": "flows"
+    },
+    "selectedFlows": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "lastSelectedIndex": {
+      "type": "number",
+      "defaultValue": null
+    },
+    "isShiftPressed": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isCtrlPressed": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "debouncedSearch": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isEmptyFolder": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "flows": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "folderName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "tabTypes": {
+      "type": "array",
+      "defaultValue": ["components", "flows"]
+    },
+    "isDownloading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isDeleting": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "showDropdownMenu": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "propDefinitions": {
+    "type": {
+      "type": "string",
+      "isRequired": true,
+      "defaultValue": "flows"
+    },
+    "handlePageChange": {
+      "type": "function",
+      "isRequired": false
+    },
+    "onSearch": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleFileDrop": {
+      "type": "function",
+      "isRequired": false
+    },
+    "setSelectedFlow": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleSearch": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDownload": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDelete": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleFlowClick": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleEdit": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleExport": {
+      "type": "function",
+      "isRequired": false
+    },
+    "setOpenDelete": {
+      "type": "function",
+      "isRequired": false
+    },
+    "onDragStart": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handlePreviousPage": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleNextPage": {
+      "type": "function",
+      "isRequired": false
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "primary": "#6366f1",
+        "background": "#ffffff",
+        "muted": "#f8f9fa",
+        "mutedForeground": "#6b7280",
+        "border": "#e5e7eb",
+        "text": "#111827",
+        "textMuted": "#6b7280",
+        "accent": "#f3f4f6",
+        "destructive": "#dc2626",
+        "skeleton": "#f3f4f6"
+      },
+      "spacing": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "12px",
+        "lg": "16px",
+        "xl": "20px",
+        "2xl": "24px",
+        "3xl": "32px"
+      },
+      "borderRadius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px"
+      },
+      "fontSize": {
+        "xs": "12px",
+        "sm": "14px",
+        "base": "16px",
+        "lg": "18px",
+        "xl": "20px",
+        "2xl": "24px"
+      },
+      "fontWeight": {
+        "normal": "400",
+        "medium": "500",
+        "semibold": "600"
+      },
+      "shadows": {
+        "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+      },
+      "animations": {
+        "pulse": "pulse 1.5s ease-in-out infinite",
+        "spin": "spin 1s linear infinite"
+      },
+      "transitions": {
+        "all": "all 0.3s ease",
+        "opacity": "opacity 0.3s ease",
+        "transform": "transform 0.3s ease"
+      }
+    }
+  }
+}

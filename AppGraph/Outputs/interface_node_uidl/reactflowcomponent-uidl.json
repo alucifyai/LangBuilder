@@ -1,0 +1,678 @@
+{
+  "name": "ReactFlowComponent",
+  "propDefinitions": {
+    "view": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "setIsLoading": {
+      "type": "function",
+      "defaultValue": null
+    }
+  },
+  "stateDefinitions": {
+    "nodes": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "edges": {
+      "type": "array", 
+      "defaultValue": []
+    },
+    "reactFlowInstance": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "isEmptyFlow": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "selectionMenuVisible": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "lastSelection": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "isAddingNote": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "helperLines": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "isDragging": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "showCanvas": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isLocked": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "helperLineEnabled": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "shadowBoxWidth": {
+      "type": "number",
+      "defaultValue": 240
+    },
+    "shadowBoxHeight": {
+      "type": "number", 
+      "defaultValue": 80
+    },
+    "shadowBoxBackgroundColor": {
+      "type": "string",
+      "defaultValue": "#3B82F6"
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "reactFlowWrapper",
+      "attrs": {
+        "className": {
+          "type": "static",
+          "content": "h-full w-full bg-canvas"
+        }
+      },
+      "children": [
+        {
+          "type": "conditional",
+          "content": {
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "showCanvas"
+              }
+            },
+            "value": true,
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "reactFlowContainer",
+                "attrs": {
+                  "id": {
+                    "type": "static",
+                    "content": "react-flow-id"
+                  },
+                  "className": {
+                    "type": "static",
+                    "content": "h-full w-full bg-canvas"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "view",
+                          "operator": "!"
+                        }
+                      },
+                      "value": true,
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "flowControlsContainer",
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "component",
+                                "name": "logCanvasControls",
+                                "semanticType": "MemoizedLogCanvasControls"
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "component",
+                                "name": "canvasControls",
+                                "semanticType": "MemoizedCanvasControls",
+                                "attrs": {
+                                  "setIsAddingNote": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "function",
+                                      "id": "setIsAddingNote"
+                                    }
+                                  },
+                                  "position": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "mousePosition"
+                                    }
+                                  },
+                                  "shadowBoxWidth": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "shadowBoxWidth"
+                                    }
+                                  },
+                                  "shadowBoxHeight": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "shadowBoxHeight"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "component",
+                                "name": "flowToolbar",
+                                "semanticType": "FlowToolbar"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "component",
+                      "name": "sidebarTrigger",
+                      "semanticType": "MemoizedSidebarTrigger"
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "component",
+                      "name": "selectionMenu",
+                      "semanticType": "SelectionMenu",
+                      "attrs": {
+                        "lastSelection": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "lastSelection"
+                          }
+                        },
+                        "isVisible": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "selectionMenuVisible"
+                          }
+                        },
+                        "nodes": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "lastSelection.nodes"
+                          }
+                        },
+                        "onClick": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "handleGroupNode"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "component",
+                      "name": "mainReactFlow",
+                      "semanticType": "ReactFlow",
+                      "attrs": {
+                        "nodes": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "nodes"
+                          }
+                        },
+                        "edges": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "edges"
+                          }
+                        },
+                        "onNodesChange": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onNodesChangeWithHelperLines"
+                          }
+                        },
+                        "onEdgesChange": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onEdgesChange"
+                          }
+                        },
+                        "onConnect": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isLocked ? undefined : onConnectMod"
+                          }
+                        },
+                        "disableKeyboardA11y": {
+                          "type": "static",
+                          "content": true
+                        },
+                        "onInit": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "setReactFlowInstance"
+                          }
+                        },
+                        "nodeTypes": {
+                          "type": "static",
+                          "content": {
+                            "genericNode": "GenericNode",
+                            "noteNode": "NoteNode"
+                          }
+                        },
+                        "edgeTypes": {
+                          "type": "static",
+                          "content": {
+                            "default": "DefaultEdge"
+                          }
+                        },
+                        "onReconnect": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isLocked ? undefined : onEdgeUpdate"
+                          }
+                        },
+                        "onReconnectStart": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isLocked ? undefined : onEdgeUpdateStart"
+                          }
+                        },
+                        "onReconnectEnd": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isLocked ? undefined : onEdgeUpdateEnd"
+                          }
+                        },
+                        "onNodeDrag": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onNodeDrag"
+                          }
+                        },
+                        "onNodeDragStart": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onNodeDragStart"
+                          }
+                        },
+                        "onNodeDragStop": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onNodeDragStop"
+                          }
+                        },
+                        "onSelectionDragStart": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onSelectionDragStart"
+                          }
+                        },
+                        "elevateEdgesOnSelect": {
+                          "type": "static",
+                          "content": true
+                        },
+                        "onSelectionEnd": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onSelectionEnd"
+                          }
+                        },
+                        "onSelectionStart": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onSelectionStart"
+                          }
+                        },
+                        "connectionRadius": {
+                          "type": "static",
+                          "content": 30
+                        },
+                        "connectionLineComponent": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "component",
+                            "id": "ConnectionLineComponent"
+                          }
+                        },
+                        "onDragOver": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onDragOver"
+                          }
+                        },
+                        "onDrop": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onDrop"
+                          }
+                        },
+                        "onSelectionChange": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onSelectionChange"
+                          }
+                        },
+                        "deleteKeyCode": {
+                          "type": "static",
+                          "content": []
+                        },
+                        "fitView": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isEmptyFlow ? false : true"
+                          }
+                        },
+                        "fitViewOptions": {
+                          "type": "static",
+                          "content": {
+                            "minZoom": 0.2,
+                            "maxZoom": 8
+                          }
+                        },
+                        "className": {
+                          "type": "static",
+                          "content": "theme-attribution"
+                        },
+                        "minZoom": {
+                          "type": "static",
+                          "content": 0.2
+                        },
+                        "maxZoom": {
+                          "type": "static",
+                          "content": 8
+                        },
+                        "zoomOnScroll": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "view",
+                            "operator": "!"
+                          }
+                        },
+                        "zoomOnPinch": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "view",
+                            "operator": "!"
+                          }
+                        },
+                        "panOnDrag": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "view",
+                            "operator": "!"
+                          }
+                        },
+                        "panActivationKeyCode": {
+                          "type": "static",
+                          "content": ""
+                        },
+                        "proOptions": {
+                          "type": "static",
+                          "content": {
+                            "hideAttribution": true
+                          }
+                        },
+                        "onPaneClick": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "onPaneClick"
+                          }
+                        },
+                        "onEdgeClick": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "function",
+                            "id": "handleEdgeClick"
+                          }
+                        }
+                      },
+                      "events": {
+                        "onNodesChange": [
+                          {
+                            "type": "action",
+                            "calls": "onNodesChangeWithHelperLines"
+                          }
+                        ],
+                        "onEdgesChange": [
+                          {
+                            "type": "action", 
+                            "calls": "onEdgesChange"
+                          }
+                        ],
+                        "onConnect": [
+                          {
+                            "type": "action",
+                            "calls": "onConnectMod"
+                          }
+                        ],
+                        "onDragOver": [
+                          {
+                            "type": "action",
+                            "calls": "onDragOver"
+                          }
+                        ],
+                        "onDrop": [
+                          {
+                            "type": "action",
+                            "calls": "onDrop"
+                          }
+                        ],
+                        "onPaneClick": [
+                          {
+                            "type": "action",
+                            "calls": "onPaneClick"
+                          }
+                        ],
+                        "onEdgeClick": [
+                          {
+                            "type": "action",
+                            "calls": "handleEdgeClick"
+                          }
+                        ],
+                        "onSelectionChange": [
+                          {
+                            "type": "action",
+                            "calls": "onSelectionChange"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "component",
+                            "name": "flowBuildingComponent",
+                            "semanticType": "FlowBuildingComponent"
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "component",
+                            "name": "updateAllComponents",
+                            "semanticType": "UpdateAllComponents"
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "component",
+                            "name": "memoizedBackground",
+                            "semanticType": "MemoizedBackground"
+                          }
+                        },
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "helperLineEnabled"
+                              }
+                            },
+                            "value": true,
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "component",
+                                "name": "helperLines",
+                                "semanticType": "HelperLines",
+                                "attrs": {
+                                  "helperLines": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "helperLines"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "shadowBox",
+                      "attrs": {
+                        "id": {
+                          "type": "static",
+                          "content": "shadow-box"
+                        }
+                      },
+                      "style": {
+                        "position": {
+                          "type": "static",
+                          "content": "absolute"
+                        },
+                        "width": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "`${shadowBoxWidth}px`"
+                          }
+                        },
+                        "height": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "`${shadowBoxHeight}px`"
+                          }
+                        },
+                        "backgroundColor": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "shadowBoxBackgroundColor"
+                          }
+                        },
+                        "opacity": {
+                          "type": "static",
+                          "content": 0.7
+                        },
+                        "pointerEvents": {
+                          "type": "static",
+                          "content": "none"
+                        },
+                        "display": {
+                          "type": "static",
+                          "content": "none"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "fallbackNode": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "loadingContainer",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "flex h-full w-full items-center justify-center"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "component",
+                      "name": "customLoader",
+                      "semanticType": "CustomLoader",
+                      "attrs": {
+                        "remSize": {
+                          "type": "static",
+                          "content": 30
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1415 @@
+{
+  "root": {
+    "type": "element",
+    "name": "search-interface-container",
+    "elementType": "div",
+    "attrs": {
+      "className": {
+        "type": "static",
+        "content": "h-full w-full flex flex-col bg-background"
+      }
+    },
+    "children": [
+      {
+        "type": "element",
+        "name": "search-interface-header",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex items-center justify-between p-4 border-b border-border bg-card"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "header-title-section",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-3"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "search-interface-icon",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 bg-primary/10 rounded-md"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "search-icon-svg",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "20"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "20"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "text-primary"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "search-icon-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "header-title",
+                "elementType": "div",
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "page-title",
+                    "elementType": "h1",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-xl font-semibold text-foreground"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Search Interface"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "header-actions",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-2"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "refresh-button",
+                "elementType": "button",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 hover:bg-muted rounded-md transition-colors"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Refresh Search Results"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleRefresh"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "refresh-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "refreshIconClass"
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "refresh-path-1",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-2",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 8-3-3-3 3"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-3",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-4",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m3 16 3 3 3-3"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "element",
+        "name": "search-interface-main",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex-1 flex flex-col overflow-hidden"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "search-controls-section",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "p-4 border-b border-border bg-card/50"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "search-input-container",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "flex flex-col gap-4"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "main-search-input-wrapper",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "relative flex-1"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "search-input-icon",
+                        "elementType": "svg",
+                        "attrs": {
+                          "width": {
+                            "type": "static",
+                            "content": "16"
+                          },
+                          "height": {
+                            "type": "static",
+                            "content": "16"
+                          },
+                          "viewBox": {
+                            "type": "static",
+                            "content": "0 0 24 24"
+                          },
+                          "fill": {
+                            "type": "static",
+                            "content": "none"
+                          },
+                          "stroke": {
+                            "type": "static",
+                            "content": "currentColor"
+                          },
+                          "strokeWidth": {
+                            "type": "static",
+                            "content": "2"
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "input-search-path",
+                            "elementType": "path",
+                            "attrs": {
+                              "d": {
+                                "type": "static",
+                                "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "main-search-input",
+                        "elementType": "input",
+                        "attrs": {
+                          "type": {
+                            "type": "static",
+                            "content": "search"
+                          },
+                          "placeholder": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "searchPlaceholder"
+                            }
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "flex h-12 w-full rounded-md border border-input bg-background pl-10 pr-4 py-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          },
+                          "value": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "searchQuery"
+                            }
+                          },
+                          "disabled": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "isLoading"
+                            }
+                          }
+                        },
+                        "events": {
+                          "onChange": [
+                            {
+                              "type": "propCall",
+                              "id": "handleSearchChange"
+                            }
+                          ],
+                          "onKeyDown": [
+                            {
+                              "type": "propCall",
+                              "id": "handleSearchKeyDown"
+                            }
+                          ],
+                          "onFocus": [
+                            {
+                              "type": "propCall",
+                              "id": "handleSearchFocus"
+                            }
+                          ],
+                          "onBlur": [
+                            {
+                              "type": "propCall",
+                              "id": "handleSearchBlur"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "search-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded"
+                          },
+                          "disabled": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "isLoading"
+                            }
+                          },
+                          "title": {
+                            "type": "static",
+                            "content": "Execute Search"
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "handleSearch"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "isLoading"
+                              }
+                            },
+                            "value": true,
+                            "node": {
+                              "type": "element",
+                              "name": "loading-spinner",
+                              "elementType": "svg",
+                              "attrs": {
+                                "width": {
+                                  "type": "static",
+                                  "content": "16"
+                                },
+                                "height": {
+                                  "type": "static",
+                                  "content": "16"
+                                },
+                                "viewBox": {
+                                  "type": "static",
+                                  "content": "0 0 24 24"
+                                },
+                                "fill": {
+                                  "type": "static",
+                                  "content": "none"
+                                },
+                                "stroke": {
+                                  "type": "static",
+                                  "content": "currentColor"
+                                },
+                                "strokeWidth": {
+                                  "type": "static",
+                                  "content": "2"
+                                },
+                                "className": {
+                                  "type": "static",
+                                  "content": "animate-spin text-muted-foreground"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "name": "spinner-path",
+                                  "elementType": "path",
+                                  "attrs": {
+                                    "d": {
+                                      "type": "static",
+                                      "content": "M21 12a9 9 0 11-6.219-8.56"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "fallback": {
+                              "type": "element",
+                              "name": "search-execute-icon",
+                              "elementType": "svg",
+                              "attrs": {
+                                "width": {
+                                  "type": "static",
+                                  "content": "16"
+                                },
+                                "height": {
+                                  "type": "static",
+                                  "content": "16"
+                                },
+                                "viewBox": {
+                                  "type": "static",
+                                  "content": "0 0 24 24"
+                                },
+                                "fill": {
+                                  "type": "static",
+                                  "content": "none"
+                                },
+                                "stroke": {
+                                  "type": "static",
+                                  "content": "currentColor"
+                                },
+                                "strokeWidth": {
+                                  "type": "static",
+                                  "content": "2"
+                                },
+                                "className": {
+                                  "type": "static",
+                                  "content": "text-muted-foreground"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "name": "execute-search-path",
+                                  "elementType": "path",
+                                  "attrs": {
+                                    "d": {
+                                      "type": "static",
+                                      "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "conditional",
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "comp",
+                            "id": "showShortcut"
+                          }
+                        },
+                        "value": true,
+                        "node": {
+                          "type": "element",
+                          "name": "search-shortcut-hint",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "pointer-events-none absolute right-12 top-1/2 transform -translate-y-1/2 flex items-center gap-1 text-xs text-muted-foreground"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "shortcut-key",
+                              "elementType": "kbd",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "px-1.5 py-0.5 text-xs font-mono bg-muted border border-border rounded"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "/"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "search-filters-container",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex flex-wrap items-center gap-3"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "search-scope-filters",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex items-center gap-2"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "filters-label",
+                            "elementType": "label",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-sm font-medium text-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Search in:"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "repeat",
+                            "dataSource": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "comp",
+                                "id": "searchScopes"
+                              }
+                            },
+                            "node": {
+                              "type": "element",
+                              "name": "scope-filter-option",
+                              "elementType": "label",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "flex items-center gap-2 cursor-pointer"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "name": "scope-checkbox",
+                                  "elementType": "input",
+                                  "attrs": {
+                                    "type": {
+                                      "type": "static",
+                                      "content": "checkbox"
+                                    },
+                                    "checked": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "isSelected"
+                                      }
+                                    },
+                                    "className": {
+                                      "type": "static",
+                                      "content": "h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-2"
+                                    }
+                                  },
+                                  "events": {
+                                    "onChange": [
+                                      {
+                                        "type": "propCall",
+                                        "id": "handleScopeToggle"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "scope-label-text",
+                                  "elementType": "span",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "text-sm text-foreground"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "label"
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "clear-filters-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-xs text-muted-foreground hover:text-foreground underline transition-colors"
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "handleClearFilters"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Clear filters"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "search-results-container",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex-1 overflow-y-auto"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "comp",
+                    "id": "shouldShowResults"
+                  }
+                },
+                "value": false,
+                "node": {
+                  "type": "element",
+                  "name": "search-empty-state",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex flex-col items-center justify-center h-full text-center p-8"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "empty-state-icon",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "mb-4 p-4 bg-muted rounded-full"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "search-empty-icon",
+                          "elementType": "svg",
+                          "attrs": {
+                            "width": {
+                              "type": "static",
+                              "content": "48"
+                            },
+                            "height": {
+                              "type": "static",
+                              "content": "48"
+                            },
+                            "viewBox": {
+                              "type": "static",
+                              "content": "0 0 24 24"
+                            },
+                            "fill": {
+                              "type": "static",
+                              "content": "none"
+                            },
+                            "stroke": {
+                              "type": "static",
+                              "content": "currentColor"
+                            },
+                            "strokeWidth": {
+                              "type": "static",
+                              "content": "1.5"
+                            },
+                            "className": {
+                              "type": "static",
+                              "content": "text-muted-foreground"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "empty-search-path",
+                              "elementType": "path",
+                              "attrs": {
+                                "d": {
+                                  "type": "static",
+                                  "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "name": "empty-state-title",
+                      "elementType": "h3",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "text-lg font-semibold text-foreground mb-2"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Start Your Search"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "name": "empty-state-description",
+                      "elementType": "p",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "text-muted-foreground max-w-md"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Enter a search term to find flows, components, and other resources across your workspace."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "fallback": {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "hasNoResults"
+                    }
+                  },
+                  "value": true,
+                  "node": {
+                    "type": "element",
+                    "name": "no-results-state",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex flex-col items-center justify-center h-full text-center p-8"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "no-results-icon",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "mb-4 p-4 bg-muted rounded-full"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "no-results-search-icon",
+                            "elementType": "svg",
+                            "attrs": {
+                              "width": {
+                                "type": "static",
+                                "content": "48"
+                              },
+                              "height": {
+                                "type": "static",
+                                "content": "48"
+                              },
+                              "viewBox": {
+                                "type": "static",
+                                "content": "0 0 24 24"
+                              },
+                              "fill": {
+                                "type": "static",
+                                "content": "none"
+                              },
+                              "stroke": {
+                                "type": "static",
+                                "content": "currentColor"
+                              },
+                              "strokeWidth": {
+                                "type": "static",
+                                "content": "1.5"
+                              },
+                              "className": {
+                                "type": "static",
+                                "content": "text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "no-results-path",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "name": "no-results-slash",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "m9 9 6 6"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "no-results-title",
+                        "elementType": "h3",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-lg font-semibold text-foreground mb-2"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "No Results Found"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "no-results-description",
+                        "elementType": "p",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-muted-foreground max-w-md mb-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "No items match your search criteria. Try adjusting your search terms or filters."
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "clear-search-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "handleClearSearch"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Clear Search"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "fallback": {
+                    "type": "element",
+                    "name": "search-results-list",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "p-4"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "results-header",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex items-center justify-between mb-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "results-count",
+                            "elementType": "p",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-sm text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "resultsCountText"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "sort-dropdown",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "flex items-center gap-2"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "sort-label",
+                                "elementType": "label",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-sm font-medium text-foreground"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Sort by:"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "name": "sort-select",
+                                "elementType": "select",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-sm border border-input rounded px-2 py-1 bg-background"
+                                  },
+                                  "value": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "sortBy"
+                                    }
+                                  }
+                                },
+                                "events": {
+                                  "onChange": [
+                                    {
+                                      "type": "propCall",
+                                      "id": "handleSortChange"
+                                    }
+                                  ]
+                                },
+                                "children": [
+                                  {
+                                    "type": "repeat",
+                                    "dataSource": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "comp",
+                                        "id": "sortOptions"
+                                      }
+                                    },
+                                    "node": {
+                                      "type": "element",
+                                      "name": "sort-option",
+                                      "elementType": "option",
+                                      "attrs": {
+                                        "value": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "value"
+                                          }
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "label"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "search-results-grid",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "space-y-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "dataSource": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "searchResults"
+                              }
+                            },
+                            "node": {
+                              "type": "element",
+                              "name": "search-result-item",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors cursor-pointer"
+                                }
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "propCall",
+                                    "id": "handleResultClick"
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "name": "result-header",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex items-start justify-between mb-2"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "result-title",
+                                      "elementType": "h3",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "font-semibold text-foreground"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "title"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "result-type-badge",
+                                      "elementType": "span",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "type"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "result-description",
+                                  "elementType": "p",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "text-muted-foreground text-sm mb-2 line-clamp-2"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "description"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "result-metadata",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex items-center gap-4 text-xs text-muted-foreground"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "result-path",
+                                      "elementType": "span",
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "path"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "result-modified-date",
+                                      "elementType": "span",
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Modified: "
+                                        },
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "modifiedDate"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "stateDefinitions": {
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "searchQuery": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isInputFocused": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "searchResults": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "selectedScopes": {
+      "type": "array",
+      "defaultValue": ["flows", "components"]
+    },
+    "sortBy": {
+      "type": "string",
+      "defaultValue": "relevance"
+    },
+    "hasSearched": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "propDefinitions": {
+    "isLoading": {
+      "type": "boolean"
+    },
+    "searchQuery": {
+      "type": "string"
+    },
+    "isInputFocused": {
+      "type": "boolean"
+    },
+    "searchResults": {
+      "type": "array"
+    },
+    "selectedScopes": {
+      "type": "array"
+    },
+    "sortBy": {
+      "type": "string"
+    },
+    "hasSearched": {
+      "type": "boolean"
+    },
+    "handleRefresh": {
+      "type": "func"
+    },
+    "handleSearchChange": {
+      "type": "func"
+    },
+    "handleSearchKeyDown": {
+      "type": "func"
+    },
+    "handleSearchFocus": {
+      "type": "func"
+    },
+    "handleSearchBlur": {
+      "type": "func"
+    },
+    "handleSearch": {
+      "type": "func"
+    },
+    "handleScopeToggle": {
+      "type": "func"
+    },
+    "handleClearFilters": {
+      "type": "func"
+    },
+    "handleClearSearch": {
+      "type": "func"
+    },
+    "handleSortChange": {
+      "type": "func"
+    },
+    "handleResultClick": {
+      "type": "func"
+    }
+  },
+  "mappings": {
+    "components": {
+      "refreshIconClass": "props.isLoading ? 'animate-spin' : ''",
+      "searchPlaceholder": "props.selectedScopes.includes('flows') && props.selectedScopes.includes('components') ? 'Search Flows and Components' : props.selectedScopes.includes('flows') ? 'Search Flows' : props.selectedScopes.includes('components') ? 'Search Components' : 'Search...'",
+      "showShortcut": "!props.isInputFocused && props.searchQuery === ''",
+      "searchScopes": "[{id: 'flows', label: 'Flows', isSelected: props.selectedScopes.includes('flows')}, {id: 'components', label: 'Components', isSelected: props.selectedScopes.includes('components')}, {id: 'variables', label: 'Variables', isSelected: props.selectedScopes.includes('variables')}, {id: 'files', label: 'Files', isSelected: props.selectedScopes.includes('files')}]",
+      "shouldShowResults": "props.hasSearched && props.searchQuery.length > 0",
+      "hasNoResults": "props.hasSearched && props.searchResults.length === 0",
+      "resultsCountText": "props.searchResults.length === 1 ? '1 result found' : `${props.searchResults.length} results found`",
+      "sortOptions": "[{value: 'relevance', label: 'Relevance'}, {value: 'name', label: 'Name'}, {value: 'modified', label: 'Last Modified'}, {value: 'created', label: 'Date Created'}, {value: 'type', label: 'Type'}]"
+    }
+  }
+}

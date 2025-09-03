@@ -1,0 +1,1020 @@
+{
+  "name": "AuthGuard",
+  "globals": {
+    "settings": {
+      "title": "Authentication Guard System",
+      "language": "en"
+    },
+    "customCode": {
+      "head": "",
+      "body": ""
+    },
+    "meta": [],
+    "assets": [],
+    "manifest": {},
+    "variables": {}
+  },
+  "root": {
+    "name": "AuthGuard",
+    "node": {
+      "type": "element",
+      "content": {
+        "elementType": "container",
+        "name": "auth-guard-wrapper",
+        "children": [
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "protected-route-guard",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "login-redirect-container",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "redirect-loading-screen",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "redirect-loading-spinner",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "loading-spinner-component",
+                                              "style": {
+                                                "width": "64px",
+                                                "height": "64px",
+                                                "border": "4px solid $token-color-border",
+                                                "borderTop": "4px solid $token-color-primary",
+                                                "borderRadius": "50%",
+                                                "animation": "spin 1s linear infinite"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "redirect-message",
+                                        "style": {
+                                          "fontSize": "$token-font-size-lg",
+                                          "color": "$token-color-primary",
+                                          "marginTop": "16px",
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Redirecting to login..."
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "minHeight": "100vh",
+                                    "backgroundColor": "$token-color-background"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "shouldRedirectToLogin"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "children"
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isAuthorizedForContent"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "guardType",
+                  "conditions": [
+                    {
+                      "operand": "protected",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "admin-route-guard",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "admin-loading-page",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "admin-loading-container",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "admin-loading-spinner",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "svg",
+                                              "name": "admin-loading-svg",
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "name": "role",
+                                                  "content": "status"
+                                                },
+                                                {
+                                                  "type": "static",
+                                                  "name": "aria-hidden",
+                                                  "content": "true"
+                                                },
+                                                {
+                                                  "type": "static",
+                                                  "name": "viewBox",
+                                                  "content": "0 0 100 101"
+                                                },
+                                                {
+                                                  "type": "static",
+                                                  "name": "fill",
+                                                  "content": "none"
+                                                },
+                                                {
+                                                  "type": "static",
+                                                  "name": "xmlns",
+                                                  "content": "http://www.w3.org/2000/svg"
+                                                }
+                                              ],
+                                              "style": {
+                                                "width": "200px",
+                                                "height": "200px",
+                                                "animation": "spin 1s linear infinite",
+                                                "fill": "$token-color-primary",
+                                                "color": "$token-color-muted"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "path",
+                                                  "name": "admin-spinner-background",
+                                                  "attrs": [
+                                                    {
+                                                      "type": "static",
+                                                      "name": "d",
+                                                      "content": "M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                                    },
+                                                    {
+                                                      "type": "static",
+                                                      "name": "fill",
+                                                      "content": "currentColor"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "path",
+                                                  "name": "admin-spinner-foreground",
+                                                  "attrs": [
+                                                    {
+                                                      "type": "static",
+                                                      "name": "d",
+                                                      "content": "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                                    },
+                                                    {
+                                                      "type": "static",
+                                                      "name": "fill",
+                                                      "content": "currentFill"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "admin-loading-text",
+                                        "style": {
+                                          "animation": "pulse 2s infinite",
+                                          "fontSize": "$token-font-size-xl",
+                                          "color": "$token-color-primary",
+                                          "marginTop": "24px"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Verifying admin access..."
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "alignItems": "center",
+                                    "justifyContent": "center"
+                                  }
+                                }
+                              }
+                            ],
+                            "style": {
+                              "display": "flex",
+                              "height": "100vh",
+                              "width": "100vw",
+                              "alignItems": "center",
+                              "justifyContent": "center",
+                              "backgroundColor": "$token-color-background"
+                            }
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "showAdminLoading"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "admin-access-denied",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "access-denied-content",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "icon",
+                                        "name": "access-denied-icon",
+                                        "style": {
+                                          "width": "80px",
+                                          "height": "80px",
+                                          "color": "$token-color-error",
+                                          "marginBottom": "16px"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "access-denied-title",
+                                        "style": {
+                                          "fontSize": "$token-font-size-xxl",
+                                          "fontWeight": "600",
+                                          "color": "$token-color-text-primary",
+                                          "marginBottom": "8px",
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Access Denied"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "access-denied-message",
+                                        "style": {
+                                          "fontSize": "$token-font-size-lg",
+                                          "color": "$token-color-text-secondary",
+                                          "textAlign": "center",
+                                          "marginBottom": "24px"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "You don't have permission to access this area. Admin privileges required."
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "redirect-home-message",
+                                        "style": {
+                                          "fontSize": "$token-font-size-sm",
+                                          "color": "$token-color-text-disabled",
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Redirecting to home..."
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "style": {
+                              "display": "flex",
+                              "height": "100vh",
+                              "width": "100vw",
+                              "alignItems": "center",
+                              "justifyContent": "center",
+                              "backgroundColor": "$token-color-background"
+                            }
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "showAccessDenied"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "children"
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "isAuthorizedAdmin"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "guardType",
+                  "conditions": [
+                    {
+                      "operand": "admin",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "login-route-guard",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "already-authenticated-redirect",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "redirect-authenticated-message",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "icon",
+                                        "name": "check-circle-icon",
+                                        "style": {
+                                          "width": "64px",
+                                          "height": "64px",
+                                          "color": "$token-color-success",
+                                          "marginBottom": "16px"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "already-authenticated-text",
+                                        "style": {
+                                          "fontSize": "$token-font-size-lg",
+                                          "color": "$token-color-text-primary",
+                                          "marginBottom": "8px",
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Already authenticated"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "redirect-home-text",
+                                        "style": {
+                                          "fontSize": "$token-font-size-sm",
+                                          "color": "$token-color-text-secondary",
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Redirecting to dashboard..."
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "style": {
+                              "display": "flex",
+                              "height": "100vh",
+                              "width": "100vw",
+                              "alignItems": "center",
+                              "justifyContent": "center",
+                              "backgroundColor": "$token-color-background"
+                            }
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "shouldRedirectFromLogin"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "children"
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "canShowLoginForm"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "guardType",
+                  "conditions": [
+                    {
+                      "operand": "login",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "settings-route-guard",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "settings-redirect-message",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "settings-unavailable-text",
+                                  "style": {
+                                    "fontSize": "$token-font-size-lg",
+                                    "color": "$token-color-text-primary",
+                                    "textAlign": "center",
+                                    "marginBottom": "8px"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "General settings not available"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "redirect-global-vars-text",
+                                  "style": {
+                                    "fontSize": "$token-font-size-sm",
+                                    "color": "$token-color-text-secondary",
+                                    "textAlign": "center"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Redirecting to Global Variables..."
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "shouldRedirectFromSettings"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "children"
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "canShowSettings"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "guardType",
+                  "conditions": [
+                    {
+                      "operand": "settings",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          },
+          {
+            "type": "conditional",
+            "content": {
+              "node": {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "store-route-guard",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "store-redirect-message",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "store-unavailable-text",
+                                  "style": {
+                                    "fontSize": "$token-font-size-lg",
+                                    "color": "$token-color-text-primary",
+                                    "textAlign": "center",
+                                    "marginBottom": "8px"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Store not available"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "redirect-all-text",
+                                  "style": {
+                                    "fontSize": "$token-font-size-sm",
+                                    "color": "$token-color-text-secondary",
+                                    "textAlign": "center"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Redirecting to flows..."
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "shouldRedirectFromStore"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "children"
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "computed",
+                            "id": "canShowStore"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "guardType",
+                  "conditions": [
+                    {
+                      "operand": "store",
+                      "operation": "===",
+                      "value": true
+                    }
+                  ],
+                  "fallback": false
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "stateDefinitions": {
+      "isAuthenticated": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "isAdmin": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "autoLogin": {
+        "type": "boolean",
+        "defaultValue": null
+      },
+      "hasStore": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "enableProfileIcons": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "guardType": {
+        "type": "string",
+        "defaultValue": "protected"
+      },
+      "currentPath": {
+        "type": "string",
+        "defaultValue": "/"
+      },
+      "redirectPath": {
+        "type": "string",
+        "defaultValue": null
+      },
+      "userData": {
+        "type": "object",
+        "defaultValue": null
+      },
+      "isLoading": {
+        "type": "boolean",
+        "defaultValue": true
+      }
+    },
+    "propDefinitions": {
+      "children": {
+        "type": "element",
+        "defaultValue": null
+      },
+      "guardType": {
+        "type": "string",
+        "defaultValue": "protected"
+      }
+    },
+    "compDefinitions": {
+      "shouldRedirectToLogin": {
+        "type": "boolean",
+        "content": "!$state.isAuthenticated && $state.autoLogin !== undefined && (!$state.autoLogin || !$state.isAutoLoginEnv)"
+      },
+      "isAuthorizedForContent": {
+        "type": "boolean",
+        "content": "$state.isAuthenticated && !$computed.shouldRedirectToLogin"
+      },
+      "showAdminLoading": {
+        "type": "boolean",
+        "content": "!$state.isAuthenticated"
+      },
+      "showAccessDenied": {
+        "type": "boolean",
+        "content": "$state.isAuthenticated && $state.userData && !$state.isAdmin"
+      },
+      "isAuthorizedAdmin": {
+        "type": "boolean",
+        "content": "$state.isAuthenticated && $state.isAdmin && !$state.autoLogin"
+      },
+      "shouldRedirectFromLogin": {
+        "type": "boolean",
+        "content": "$state.autoLogin === true || $state.isAuthenticated"
+      },
+      "canShowLoginForm": {
+        "type": "boolean",
+        "content": "!$computed.shouldRedirectFromLogin"
+      },
+      "shouldRedirectFromSettings": {
+        "type": "boolean",
+        "content": "!$computed.canShowSettings"
+      },
+      "canShowSettings": {
+        "type": "boolean",
+        "content": "$state.enableProfileIcons || $state.hasStore || !$state.autoLogin"
+      },
+      "shouldRedirectFromStore": {
+        "type": "boolean",
+        "content": "!$state.hasStore"
+      },
+      "canShowStore": {
+        "type": "boolean",
+        "content": "$state.hasStore"
+      }
+    }
+  },
+  "styleSetDefinitions": {
+    "loadingContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "height": "100vh",
+        "width": "100vw",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "backgroundColor": "$token-color-background"
+      }
+    },
+    "loadingSpinner": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "64px",
+        "height": "64px",
+        "border": "4px solid $token-color-border",
+        "borderTop": "4px solid $token-color-primary",
+        "borderRadius": "50%",
+        "animation": "spin 1s linear infinite"
+      }
+    },
+    "redirectMessage": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "fontSize": "$token-font-size-lg",
+        "color": "$token-color-primary",
+        "marginTop": "16px",
+        "textAlign": "center"
+      }
+    },
+    "accessDeniedContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "minHeight": "100vh",
+        "backgroundColor": "$token-color-background",
+        "padding": "$token-spacing-xl"
+      }
+    },
+    "statusIcon": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "80px",
+        "height": "80px",
+        "marginBottom": "16px"
+      }
+    },
+    "statusTitle": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "fontSize": "$token-font-size-xxl",
+        "fontWeight": "600",
+        "marginBottom": "8px",
+        "textAlign": "center"
+      }
+    },
+    "statusMessage": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "fontSize": "$token-font-size-lg",
+        "textAlign": "center",
+        "marginBottom": "24px"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "token-color-primary": "#0066FF",
+        "token-color-secondary": "#6B7280",
+        "token-color-success": "#22C55E",
+        "token-color-warning": "#F59E0B",
+        "token-color-error": "#EF4444",
+        "token-color-background": "#FFFFFF",
+        "token-color-surface": "#F9FAFB",
+        "token-color-muted": "#F3F4F6",
+        "token-color-border": "#E5E7EB",
+        "token-color-text-primary": "#111827",
+        "token-color-text-secondary": "#6B7280",
+        "token-color-text-disabled": "#9CA3AF"
+      },
+      "spacing": {
+        "token-spacing-xs": "4px",
+        "token-spacing-sm": "8px",
+        "token-spacing-md": "16px",
+        "token-spacing-lg": "24px",
+        "token-spacing-xl": "32px"
+      },
+      "borderRadius": {
+        "token-border-radius-sm": "4px",
+        "token-border-radius-md": "6px",
+        "token-border-radius-lg": "8px"
+      },
+      "typography": {
+        "token-font-size-sm": "12px",
+        "token-font-size-md": "14px",
+        "token-font-size-lg": "16px",
+        "token-font-size-xl": "20px",
+        "token-font-size-xxl": "24px"
+      }
+    }
+  }
+}

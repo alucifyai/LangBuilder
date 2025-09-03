@@ -1,0 +1,501 @@
+{
+  "name": "ApiKeysSettings",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "ApiKeysSettingsRoot",
+      "key": "api-keys-settings-root",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "Form",
+            "name": "ApiKeySettingsForm",
+            "key": "api-key-settings-form",
+            "dependency": {
+              "type": "external",
+              "path": "@radix-ui/react-form"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "Card",
+                  "name": "ApiKeySettingsCard",
+                  "key": "api-key-settings-card",
+                  "dependency": {
+                    "type": "local",
+                    "path": "@/components/ui/card"
+                  },
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": "dashboard-04-chunk-2"
+                    },
+                    {
+                      "type": "static",
+                      "content": "api"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "CardHeader",
+                        "name": "ApiKeySettingsHeader",
+                        "key": "api-key-settings-header",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "CardTitle",
+                              "name": "StoreApiKeyTitle",
+                              "key": "store-api-key-title",
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Store API Key"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "CardDescription",
+                              "name": "ApiKeySettingsDescription",
+                              "key": "api-key-settings-description",
+                              "children": [
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "apiKeyDescription"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "CardContent",
+                        "name": "ApiKeySettingsContent",
+                        "key": "api-key-settings-content",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "ApiKeyInputContainer",
+                              "key": "api-key-input-container",
+                              "style": {
+                                "display": "flex",
+                                "width": "100vw",
+                                "flexDirection": "column",
+                                "gap": "12px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "ApiKeyFieldContainer",
+                                    "key": "api-key-field-container",
+                                    "style": {
+                                      "display": "flex",
+                                      "width": "100vw",
+                                      "gap": "16px"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "FormField",
+                                          "name": "ApiKeyFormField",
+                                          "key": "api-key-form-field",
+                                          "dependency": {
+                                            "type": "external",
+                                            "path": "@radix-ui/react-form"
+                                          },
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": "apikey"
+                                            }
+                                          ],
+                                          "style": {
+                                            "width": "100vw"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "InputComponent",
+                                                "name": "ApiKeyInput",
+                                                "key": "api-key-input",
+                                                "dependency": {
+                                                  "type": "local",
+                                                  "path": "@/components/core/parameterRenderComponent/components/inputComponent"
+                                                },
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "apikey"
+                                                  },
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "state",
+                                                      "id": "apikey"
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": true
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": true
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Insert your API Key"
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "width": "100vw"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "FormMessage",
+                                                "name": "ApiKeyValidationMessage",
+                                                "key": "api-key-validation-message",
+                                                "dependency": {
+                                                  "type": "external",
+                                                  "path": "@radix-ui/react-form"
+                                                },
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "valueMissing"
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "color": "#ef4444"
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Please enter your API Key"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "ApiKeyHelpText",
+                                    "key": "api-key-help-text",
+                                    "style": {
+                                      "paddingRight": "4px",
+                                      "fontSize": "12px",
+                                      "color": "#6b7280"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "CreateApiKeyText",
+                                          "key": "create-api-key-text",
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "state",
+                                                "id": "createApiKeyText"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "SpacerText",
+                                          "key": "spacer-text",
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": " "
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "link",
+                                          "name": "LangflowStoreLink",
+                                          "key": "langflow-store-link",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": "https://langflow.store/"
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": "_blank"
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": "noopener"
+                                            }
+                                          ],
+                                          "style": {
+                                            "color": "#6366f1",
+                                            "textDecoration": "underline"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "langflow.store"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "CardFooter",
+                        "name": "ApiKeySettingsFooter",
+                        "key": "api-key-settings-footer",
+                        "style": {
+                          "borderTop": "1px solid #e5e7eb",
+                          "paddingLeft": "24px",
+                          "paddingRight": "24px",
+                          "paddingTop": "16px",
+                          "paddingBottom": "16px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "FormSubmit",
+                              "name": "ApiKeySubmitWrapper",
+                              "key": "api-key-submit-wrapper",
+                              "dependency": {
+                                "type": "external",
+                                "path": "@radix-ui/react-form"
+                              },
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": true
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Button",
+                                    "name": "SaveApiKeyButton",
+                                    "key": "save-api-key-button",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/button"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "loadingApiKey"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "submit"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "api-key-save-button-store"
+                                      }
+                                    ],
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Save"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "apikey": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "loadingApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "validApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "apiKeyDescription": {
+      "type": "string",
+      "defaultValue": "Enter your Langflow Store API key to access premium features and store components."
+    },
+    "createApiKeyText": {
+      "type": "string",
+      "defaultValue": "Don't have an API key? Create one at"
+    },
+    "invalidApiKeyMessage": {
+      "type": "string",
+      "defaultValue": "Invalid API key. "
+    },
+    "noApiKeyMessage": {
+      "type": "string",
+      "defaultValue": "No API key found. "
+    },
+    "insertApiKeyMessage": {
+      "type": "string",
+      "defaultValue": "Please insert your API key to continue."
+    }
+  },
+  "propDefinitions": {
+    "apikey": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "handleInput": {
+      "type": "func",
+      "defaultValue": "() => {}"
+    },
+    "handleSaveKey": {
+      "type": "func",
+      "defaultValue": "() => {}"
+    },
+    "loadingApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "validApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "styleSetDefinitions": {
+    "cardContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "borderRadius": "8px",
+        "border": "1px solid #e5e7eb",
+        "backgroundColor": "#ffffff",
+        "boxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1)"
+      }
+    },
+    "inputField": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "100%",
+        "padding": "8px 12px",
+        "border": "1px solid #d1d5db",
+        "borderRadius": "6px",
+        "fontSize": "14px"
+      }
+    },
+    "helpText": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "fontSize": "12px",
+        "color": "#6b7280",
+        "marginTop": "4px"
+      }
+    },
+    "submitButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "#3b82f6",
+        "color": "#ffffff",
+        "padding": "8px 16px",
+        "borderRadius": "6px",
+        "border": "none",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "cursor": "pointer"
+      }
+    },
+    "errorText": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "color": "#ef4444",
+        "fontSize": "12px",
+        "marginTop": "4px"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280",
+      "errorColor": "#ef4444",
+      "linkColor": "#6366f1",
+      "cardBackground": "#ffffff",
+      "inputBorder": "#d1d5db"
+    }
+  }
+}

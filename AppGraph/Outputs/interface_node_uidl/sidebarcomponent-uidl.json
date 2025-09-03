@@ -1,0 +1,950 @@
+{
+  "name": "SidebarComponent",
+  "propDefinitions": {
+    "defaultOpen": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "open": {
+      "type": "boolean",
+      "defaultValue": null
+    },
+    "width": {
+      "type": "string",
+      "defaultValue": "19rem"
+    },
+    "side": {
+      "type": "string",
+      "defaultValue": "left"
+    },
+    "variant": {
+      "type": "string",
+      "defaultValue": "sidebar"
+    },
+    "collapsible": {
+      "type": "string",
+      "defaultValue": "offcanvas"
+    }
+  },
+  "stateDefinitions": {
+    "sidebarOpen": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "sidebarState": {
+      "type": "string",
+      "defaultValue": "expanded"
+    },
+    "isMobile": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "component",
+      "name": "sidebarProvider",
+      "semanticType": "SidebarProvider",
+      "attrs": {
+        "className": {
+          "type": "static",
+          "content": "group/sidebar-wrapper flex h-full w-full text-foreground has-[[data-variant=inset]]:bg-background"
+        },
+        "data-open": {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "state",
+            "id": "sidebarOpen"
+          }
+        }
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "component",
+            "name": "tooltipProvider",
+            "semanticType": "TooltipProvider",
+            "attrs": {
+              "delayDuration": {
+                "type": "static",
+                "content": 0
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "component",
+                  "name": "mainSidebar",
+                  "semanticType": "Sidebar",
+                  "attrs": {
+                    "data-state": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "sidebarState"
+                      }
+                    },
+                    "data-collapsible": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "collapsible"
+                      }
+                    },
+                    "data-variant": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "variant"
+                      }
+                    },
+                    "data-side": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "side"
+                      }
+                    },
+                    "className": {
+                      "type": "static",
+                      "content": "group peer relative block h-full flex-col"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "sidebarSpacing",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "relative h-full w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "sidebarContainer",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "absolute inset-y-0 z-50 flex h-full transition-[left,right,width] duration-200 ease-linear w-[--sidebar-width] max-sm:group-data-[state=collapsed]:w-[--sidebar-width-icon]"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "sidebarInner",
+                              "attrs": {
+                                "data-sidebar": {
+                                  "type": "static",
+                                  "content": "sidebar"
+                                },
+                                "className": {
+                                  "type": "static",
+                                  "content": "flex h-full w-full flex-col bg-background group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-border group-data-[variant=floating]:shadow max-sm:shadow-lg"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "component",
+                                    "name": "sidebarHeader",
+                                    "semanticType": "SidebarHeader",
+                                    "attrs": {
+                                      "data-sidebar": {
+                                        "type": "static",
+                                        "content": "header"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex flex-col gap-2 p-2"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "sidebarInput",
+                                          "semanticType": "SidebarInput",
+                                          "attrs": {
+                                            "data-sidebar": {
+                                              "type": "static",
+                                              "content": "input"
+                                            },
+                                            "placeholder": {
+                                              "type": "static",
+                                              "content": "Search..."
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "h-8 w-full bg-background shadow-none focus-visible:ring-1 focus-visible:ring-ring"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "component",
+                                    "name": "sidebarContent",
+                                    "semanticType": "SidebarContent",
+                                    "attrs": {
+                                      "data-sidebar": {
+                                        "type": "static",
+                                        "content": "content"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "sidebarGroup",
+                                          "semanticType": "SidebarGroup",
+                                          "attrs": {
+                                            "data-sidebar": {
+                                              "type": "static",
+                                              "content": "group"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "relative flex w-full min-w-0 flex-col p-2"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "sidebarGroupLabel",
+                                                "semanticType": "SidebarGroupLabel",
+                                                "attrs": {
+                                                  "data-sidebar": {
+                                                    "type": "static",
+                                                    "content": "group-label"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-semibold text-foreground/70 outline-none ring-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-1"
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Navigation"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "sidebarGroupContent",
+                                                "semanticType": "SidebarGroupContent",
+                                                "attrs": {
+                                                  "data-sidebar": {
+                                                    "type": "static",
+                                                    "content": "group-content"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "w-full text-sm"
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "component",
+                                                      "name": "sidebarMenu",
+                                                      "semanticType": "SidebarMenu",
+                                                      "attrs": {
+                                                        "data-sidebar": {
+                                                          "type": "static",
+                                                          "content": "menu"
+                                                        },
+                                                        "className": {
+                                                          "type": "static",
+                                                          "content": "flex w-full min-w-0 flex-col gap-1"
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "repeat",
+                                                          "content": {
+                                                            "iteratorName": "menuItem",
+                                                            "dataSource": {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "state",
+                                                                "id": "menuItems"
+                                                              }
+                                                            },
+                                                            "node": {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "component",
+                                                                "name": "sidebarMenuItem",
+                                                                "semanticType": "SidebarMenuItem",
+                                                                "attrs": {
+                                                                  "data-sidebar": {
+                                                                    "type": "static",
+                                                                    "content": "menu-item"
+                                                                  },
+                                                                  "className": {
+                                                                    "type": "static",
+                                                                    "content": "group/menu-item relative"
+                                                                  }
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "type": "element",
+                                                                    "content": {
+                                                                      "elementType": "component",
+                                                                      "name": "sidebarMenuButton",
+                                                                      "semanticType": "SidebarMenuButton",
+                                                                      "attrs": {
+                                                                        "data-sidebar": {
+                                                                          "type": "static",
+                                                                          "content": "menu-button"
+                                                                        },
+                                                                        "data-active": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "local",
+                                                                            "id": "menuItem.isActive"
+                                                                          }
+                                                                        },
+                                                                        "className": {
+                                                                          "type": "static",
+                                                                          "content": "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-ring transition-[width,height,padding] hover:bg-accent hover:text-accent-foreground focus-visible:ring-1"
+                                                                        },
+                                                                        "tooltip": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "local",
+                                                                            "id": "menuItem.tooltip"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "events": {
+                                                                        "onClick": [
+                                                                          {
+                                                                            "type": "action",
+                                                                            "calls": "handleMenuItemClick"
+                                                                          }
+                                                                        ]
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "component",
+                                                                            "name": "menuItemIcon",
+                                                                            "semanticType": "IconComponent",
+                                                                            "attrs": {
+                                                                              "name": {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "menuItem.icon"
+                                                                                }
+                                                                              },
+                                                                              "className": {
+                                                                                "type": "static",
+                                                                                "content": "size-4 shrink-0"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "text",
+                                                                            "name": "menuItemLabel",
+                                                                            "semanticType": "span",
+                                                                            "attrs": {
+                                                                              "className": {
+                                                                                "type": "static",
+                                                                                "content": "truncate"
+                                                                              }
+                                                                            },
+                                                                            "children": [
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "menuItem.label"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  },
+                                                                  {
+                                                                    "type": "conditional",
+                                                                    "content": {
+                                                                      "reference": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "local",
+                                                                          "id": "menuItem.badge"
+                                                                        }
+                                                                      },
+                                                                      "value": true,
+                                                                      "node": {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "component",
+                                                                          "name": "sidebarMenuBadge",
+                                                                          "semanticType": "SidebarMenuBadge",
+                                                                          "attrs": {
+                                                                            "data-sidebar": {
+                                                                              "type": "static",
+                                                                              "content": "menu-badge"
+                                                                            },
+                                                                            "className": {
+                                                                              "type": "static",
+                                                                              "content": "pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-foreground"
+                                                                            }
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "dynamic",
+                                                                              "content": {
+                                                                                "referenceType": "local",
+                                                                                "id": "menuItem.badge"
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  {
+                                                                    "type": "conditional",
+                                                                    "content": {
+                                                                      "reference": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "local",
+                                                                          "id": "menuItem.hasAction"
+                                                                        }
+                                                                      },
+                                                                      "value": true,
+                                                                      "node": {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "component",
+                                                                          "name": "sidebarMenuAction",
+                                                                          "semanticType": "SidebarMenuAction",
+                                                                          "attrs": {
+                                                                            "data-sidebar": {
+                                                                              "type": "static",
+                                                                              "content": "menu-action"
+                                                                            },
+                                                                            "className": {
+                                                                              "type": "static",
+                                                                              "content": "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-foreground outline-none ring-ring transition-transform hover:bg-accent hover:text-accent-foreground focus-visible:ring-1"
+                                                                            },
+                                                                            "showOnHover": {
+                                                                              "type": "static",
+                                                                              "content": true
+                                                                            }
+                                                                          },
+                                                                          "events": {
+                                                                            "onClick": [
+                                                                              {
+                                                                                "type": "action",
+                                                                                "calls": "handleMenuAction"
+                                                                              }
+                                                                            ]
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "component",
+                                                                                "name": "actionIcon",
+                                                                                "semanticType": "IconComponent",
+                                                                                "attrs": {
+                                                                                  "name": {
+                                                                                    "type": "dynamic",
+                                                                                    "content": {
+                                                                                      "referenceType": "local",
+                                                                                      "id": "menuItem.actionIcon"
+                                                                                    }
+                                                                                  },
+                                                                                  "className": {
+                                                                                    "type": "static",
+                                                                                    "content": "size-4 shrink-0"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  {
+                                                                    "type": "conditional",
+                                                                    "content": {
+                                                                      "reference": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "local",
+                                                                          "id": "menuItem.subItems"
+                                                                        }
+                                                                      },
+                                                                      "value": true,
+                                                                      "node": {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "component",
+                                                                          "name": "sidebarMenuSub",
+                                                                          "semanticType": "SidebarMenuSub",
+                                                                          "attrs": {
+                                                                            "data-sidebar": {
+                                                                              "type": "static",
+                                                                              "content": "menu-sub"
+                                                                            },
+                                                                            "className": {
+                                                                              "type": "static",
+                                                                              "content": "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-border px-2.5 py-0.5"
+                                                                            }
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "repeat",
+                                                                              "content": {
+                                                                                "iteratorName": "subItem",
+                                                                                "dataSource": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "local",
+                                                                                    "id": "menuItem.subItems"
+                                                                                  }
+                                                                                },
+                                                                                "node": {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "component",
+                                                                                    "name": "sidebarMenuSubItem",
+                                                                                    "semanticType": "SidebarMenuSubItem",
+                                                                                    "children": [
+                                                                                      {
+                                                                                        "type": "element",
+                                                                                        "content": {
+                                                                                          "elementType": "component",
+                                                                                          "name": "sidebarMenuSubButton",
+                                                                                          "semanticType": "SidebarMenuSubButton",
+                                                                                          "attrs": {
+                                                                                            "data-sidebar": {
+                                                                                              "type": "static",
+                                                                                              "content": "menu-sub-button"
+                                                                                            },
+                                                                                            "data-active": {
+                                                                                              "type": "dynamic",
+                                                                                              "content": {
+                                                                                                "referenceType": "local",
+                                                                                                "id": "subItem.isActive"
+                                                                                              }
+                                                                                            },
+                                                                                            "className": {
+                                                                                              "type": "static",
+                                                                                              "content": "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-foreground outline-none ring-ring hover:bg-accent hover:text-accent-foreground focus-visible:ring-1"
+                                                                                            }
+                                                                                          },
+                                                                                          "events": {
+                                                                                            "onClick": [
+                                                                                              {
+                                                                                                "type": "action",
+                                                                                                "calls": "handleSubItemClick"
+                                                                                              }
+                                                                                            ]
+                                                                                          },
+                                                                                          "children": [
+                                                                                            {
+                                                                                              "type": "element",
+                                                                                              "content": {
+                                                                                                "elementType": "component",
+                                                                                                "name": "subItemIcon",
+                                                                                                "semanticType": "IconComponent",
+                                                                                                "attrs": {
+                                                                                                  "name": {
+                                                                                                    "type": "dynamic",
+                                                                                                    "content": {
+                                                                                                      "referenceType": "local",
+                                                                                                      "id": "subItem.icon"
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "className": {
+                                                                                                    "type": "static",
+                                                                                                    "content": "size-4 shrink-0"
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            {
+                                                                                              "type": "element",
+                                                                                              "content": {
+                                                                                                "elementType": "text",
+                                                                                                "name": "subItemLabel",
+                                                                                                "semanticType": "span",
+                                                                                                "attrs": {
+                                                                                                  "className": {
+                                                                                                    "type": "static",
+                                                                                                    "content": "truncate"
+                                                                                                  }
+                                                                                                },
+                                                                                                "children": [
+                                                                                                  {
+                                                                                                    "type": "dynamic",
+                                                                                                    "content": {
+                                                                                                      "referenceType": "local",
+                                                                                                      "id": "subItem.label"
+                                                                                                    }
+                                                                                                  }
+                                                                                                ]
+                                                                                              }
+                                                                                            }
+                                                                                          ]
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "sidebarSeparator",
+                                          "semanticType": "SidebarSeparator",
+                                          "attrs": {
+                                            "data-sidebar": {
+                                              "type": "static",
+                                              "content": "separator"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "mx-2 w-auto bg-border"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "component",
+                                    "name": "sidebarFooter",
+                                    "semanticType": "SidebarFooter",
+                                    "attrs": {
+                                      "data-sidebar": {
+                                        "type": "static",
+                                        "content": "footer"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex flex-col gap-2 p-2"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "userProfileButton",
+                                          "semanticType": "SidebarMenuButton",
+                                          "attrs": {
+                                            "size": {
+                                              "type": "static",
+                                              "content": "lg"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "h-12 text-sm group-data-[collapsible=icon]:!p-0"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "userAvatar",
+                                                "semanticType": "Avatar",
+                                                "attrs": {
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "h-8 w-8 rounded-lg"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "userInfo",
+                                                "attrs": {
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "grid flex-1 text-left text-sm leading-tight"
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "text",
+                                                      "name": "userName",
+                                                      "semanticType": "span",
+                                                      "attrs": {
+                                                        "className": {
+                                                          "type": "static",
+                                                          "content": "truncate font-semibold"
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "state",
+                                                            "id": "currentUser.name"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "text",
+                                                      "name": "userEmail",
+                                                      "semanticType": "span",
+                                                      "attrs": {
+                                                        "className": {
+                                                          "type": "static",
+                                                          "content": "truncate text-xs"
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "state",
+                                                            "id": "currentUser.email"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "chevronUpIcon",
+                                                "semanticType": "IconComponent",
+                                                "attrs": {
+                                                  "name": {
+                                                    "type": "static",
+                                                    "content": "ChevronsUpDown"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "ml-auto size-4"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "component",
+                        "name": "sidebarRail",
+                        "semanticType": "SidebarRail",
+                        "attrs": {
+                          "data-sidebar": {
+                            "type": "static",
+                            "content": "rail"
+                          },
+                          "aria-label": {
+                            "type": "static",
+                            "content": "Toggle Sidebar"
+                          },
+                          "title": {
+                            "type": "static",
+                            "content": "Toggle Sidebar"
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-border sm:flex"
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "stateChange",
+                              "modifies": "sidebarOpen",
+                              "newState": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "sidebarOpen",
+                                  "operator": "!"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "component",
+                  "name": "sidebarTrigger",
+                  "semanticType": "SidebarTrigger",
+                  "attrs": {
+                    "data-sidebar": {
+                      "type": "static",
+                      "content": "trigger"
+                    },
+                    "variant": {
+                      "type": "static",
+                      "content": "ghost"
+                    },
+                    "size": {
+                      "type": "static",
+                      "content": "icon"
+                    },
+                    "className": {
+                      "type": "static",
+                      "content": "h-7 w-7 text-muted-foreground"
+                    }
+                  },
+                  "events": {
+                    "onClick": [
+                      {
+                        "type": "stateChange",
+                        "modifies": "sidebarOpen",
+                        "newState": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "sidebarOpen",
+                            "operator": "!"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "component",
+                        "name": "langflowLogo",
+                        "semanticType": "LangflowLogo",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "h-4 w-4"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "toggleSidebarLabel",
+                        "semanticType": "span",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "sr-only"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Toggle Sidebar"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

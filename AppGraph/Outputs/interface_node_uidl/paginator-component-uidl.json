@@ -1,0 +1,659 @@
+{
+  "root": {
+    "type": "element",
+    "name": "paginator-container",
+    "elementType": "div",
+    "attrs": {
+      "className": {
+        "type": "static",
+        "content": "flex flex-1 items-center justify-between px-6"
+      }
+    },
+    "children": [
+      {
+        "type": "element",
+        "name": "items-count-display",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex items-center justify-end gap-1 text-mmd text-secondary-foreground"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "current-range-start",
+            "elementType": "span",
+            "children": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "comp",
+                  "id": "rangeStart"
+                }
+              }
+            ]
+          },
+          {
+            "type": "static",
+            "content": "-"
+          },
+          {
+            "type": "element",
+            "name": "current-range-end",
+            "elementType": "span",
+            "children": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "comp",
+                  "id": "rangeEnd"
+                }
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "total-items-info",
+            "elementType": "span",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "text-muted-foreground"
+              }
+            },
+            "children": [
+              {
+                "type": "static",
+                "content": " of "
+              },
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "totalRowsCount"
+                }
+              },
+              {
+                "type": "static",
+                "content": " "
+              },
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "comp",
+                  "id": "itemTypeLabel"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "element",
+        "name": "pagination-controls",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex items-center gap-2"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "page-selector-container",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-1 text-mmd text-secondary-foreground"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "page-select-dropdown",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "relative"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "page-select-trigger",
+                    "elementType": "button",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex h-7 w-fit items-center justify-between gap-1 border-none p-1 pl-1.5 text-mmd focus:border-none focus:ring-0 focus:!ring-offset-0 bg-transparent hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
+                      },
+                      "type": {
+                        "type": "static",
+                        "content": "button"
+                      },
+                      "aria-expanded": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "isPageSelectOpen"
+                        }
+                      },
+                      "aria-label": {
+                        "type": "static",
+                        "content": "Select page number"
+                      }
+                    },
+                    "events": {
+                      "onClick": [
+                        {
+                          "type": "propCall",
+                          "id": "handleTogglePageSelect"
+                        }
+                      ]
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "current-page-display",
+                        "elementType": "span",
+                        "children": [
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "pageIndex"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "page-select-chevron",
+                        "elementType": "svg",
+                        "attrs": {
+                          "width": {
+                            "type": "static",
+                            "content": "16"
+                          },
+                          "height": {
+                            "type": "static",
+                            "content": "16"
+                          },
+                          "viewBox": {
+                            "type": "static",
+                            "content": "0 0 24 24"
+                          },
+                          "fill": {
+                            "type": "static",
+                            "content": "none"
+                          },
+                          "stroke": {
+                            "type": "static",
+                            "content": "currentColor"
+                          },
+                          "strokeWidth": {
+                            "type": "static",
+                            "content": "2"
+                          },
+                          "className": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "chevronClass"
+                            }
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "chevron-up-path",
+                            "elementType": "path",
+                            "attrs": {
+                              "d": {
+                                "type": "static",
+                                "content": "m18 15-6-6-6 6"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "conditional",
+                    "reference": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "isPageSelectOpen"
+                      }
+                    },
+                    "value": true,
+                    "node": {
+                      "type": "element",
+                      "name": "page-select-dropdown-content",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "absolute bottom-full mb-1 z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "page-options-list",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "p-1 max-h-48 overflow-y-auto"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "repeat",
+                              "dataSource": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "pageNumbers"
+                                }
+                              },
+                              "node": {
+                                "type": "element",
+                                "name": "page-option-item",
+                                "elementType": "button",
+                                "attrs": {
+                                  "className": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "comp",
+                                      "id": "pageOptionClass"
+                                    }
+                                  },
+                                  "type": {
+                                    "type": "static",
+                                    "content": "button"
+                                  }
+                                },
+                                "events": {
+                                  "onClick": [
+                                    {
+                                      "type": "propCall",
+                                      "id": "handlePageSelect"
+                                    }
+                                  ]
+                                },
+                                "children": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "local",
+                                      "id": "pageNumber"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "pages-total-label",
+                "elementType": "span",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "text-muted-foreground"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "static",
+                    "content": "of "
+                  },
+                  {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "maxIndex"
+                    }
+                  },
+                  {
+                    "type": "static",
+                    "content": " pages"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "navigation-buttons",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-1"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "previous-page-button",
+                "elementType": "button",
+                "attrs": {
+                  "type": {
+                    "type": "static",
+                    "content": "button"
+                  },
+                  "className": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "previousButtonClass"
+                    }
+                  },
+                  "disabled": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "disableFirstPage"
+                    }
+                  },
+                  "aria-label": {
+                    "type": "static",
+                    "content": "Go to previous page"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Previous page"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handlePreviousPage"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "previous-page-screen-reader-text",
+                    "elementType": "span",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "sr-only"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Go to previous page"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "previous-page-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "h-4 w-4"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "chevron-left-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m15 18-6-6 6-6"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "next-page-button",
+                "elementType": "button",
+                "attrs": {
+                  "type": {
+                    "type": "static",
+                    "content": "button"
+                  },
+                  "className": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "nextButtonClass"
+                    }
+                  },
+                  "disabled": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "disableLastPage"
+                    }
+                  },
+                  "aria-label": {
+                    "type": "static",
+                    "content": "Go to next page"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Next page"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleNextPage"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "next-page-screen-reader-text",
+                    "elementType": "span",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "sr-only"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Go to next page"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "next-page-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "h-4 w-4"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "chevron-right-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m9 18 6-6-6-6"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "stateDefinitions": {
+    "pageSize": {
+      "type": "number",
+      "defaultValue": 10
+    },
+    "pageIndex": {
+      "type": "number",
+      "defaultValue": 1
+    },
+    "maxIndex": {
+      "type": "number",
+      "defaultValue": 1
+    },
+    "totalRowsCount": {
+      "type": "number",
+      "defaultValue": 0
+    },
+    "isComponent": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isPageSelectOpen": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "pages": {
+      "type": "number",
+      "defaultValue": null
+    }
+  },
+  "propDefinitions": {
+    "pageSize": {
+      "type": "number"
+    },
+    "pageIndex": {
+      "type": "number"
+    },
+    "rowsCount": {
+      "type": "array"
+    },
+    "totalRowsCount": {
+      "type": "number"
+    },
+    "paginate": {
+      "type": "func"
+    },
+    "pages": {
+      "type": "number"
+    },
+    "isComponent": {
+      "type": "boolean"
+    },
+    "maxIndex": {
+      "type": "number"
+    },
+    "isPageSelectOpen": {
+      "type": "boolean"
+    },
+    "handleTogglePageSelect": {
+      "type": "func"
+    },
+    "handlePageSelect": {
+      "type": "func"
+    },
+    "handlePreviousPage": {
+      "type": "func"
+    },
+    "handleNextPage": {
+      "type": "func"
+    }
+  },
+  "mappings": {
+    "components": {
+      "rangeStart": "(props.pageIndex - 1) * props.pageSize + 1",
+      "rangeEnd": "Math.min(props.totalRowsCount, (props.pageIndex - 1) * props.pageSize + props.pageSize)",
+      "itemTypeLabel": "props.isComponent === undefined ? 'items' : props.isComponent ? 'components' : 'flows'",
+      "chevronClass": "props.isPageSelectOpen ? 'h-4 w-4 transition-transform transform rotate-180' : 'h-4 w-4 transition-transform'",
+      "pageNumbers": "Array.from({ length: props.maxIndex }, (_, i) => ({ pageNumber: i + 1, isSelected: i + 1 === props.pageIndex }))",
+      "pageOptionClass": "local.isSelected ? 'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground bg-accent text-accent-foreground' : 'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground'",
+      "disableFirstPage": "props.pageIndex <= 1",
+      "disableLastPage": "props.pageIndex === props.maxIndex",
+      "previousButtonClass": "state.disableFirstPage ? 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 opacity-50 cursor-not-allowed' : 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0'",
+      "nextButtonClass": "state.disableLastPage ? 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 opacity-50 cursor-not-allowed' : 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0'"
+    }
+  }
+}

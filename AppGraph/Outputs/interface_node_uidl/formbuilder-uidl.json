@@ -1,0 +1,1810 @@
+{
+  "root": {
+    "type": "element",
+    "name": "form-builder-container",
+    "elementType": "div",
+    "attrs": {
+      "className": {
+        "type": "static",
+        "content": "h-full w-full flex flex-col bg-background"
+      }
+    },
+    "children": [
+      {
+        "type": "element",
+        "name": "form-builder-header",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex items-center justify-between p-4 border-b border-border bg-card"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "header-title-section",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-3"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "form-builder-icon",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 bg-primary/10 rounded-md"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "form-icon-svg",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "20"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "20"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "text-primary"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "form-icon-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "header-title-text",
+                "elementType": "h2",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "text-xl font-semibold text-foreground"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "static",
+                    "content": "Form Builder"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "header-actions",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-2"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "preview-toggle-button",
+                "elementType": "button",
+                "attrs": {
+                  "className": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "previewButtonClass"
+                    }
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Toggle Preview Mode"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleTogglePreview"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "preview-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "preview-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "preview-circle",
+                        "elementType": "circle",
+                        "attrs": {
+                          "cx": {
+                            "type": "static",
+                            "content": "12"
+                          },
+                          "cy": {
+                            "type": "static",
+                            "content": "12"
+                          },
+                          "r": {
+                            "type": "static",
+                            "content": "3"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "refresh-button",
+                "elementType": "button",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 hover:bg-muted rounded-md transition-colors"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Refresh Form Builder"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleRefresh"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "refresh-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "refreshIconClass"
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "refresh-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-2",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-3",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 8-3-3-3 3"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-4",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m3 16 3 3 3-3"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "element",
+        "name": "form-builder-main-content",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex-1 flex overflow-hidden"
+          }
+        },
+        "children": [
+          {
+            "type": "conditional",
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "isPreviewMode"
+              }
+            },
+            "value": false,
+            "node": {
+              "type": "element",
+              "name": "form-builder-design-mode",
+              "elementType": "div",
+              "attrs": {
+                "className": {
+                  "type": "static",
+                  "content": "flex flex-1"
+                }
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "name": "field-palette",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "w-64 bg-card border-r border-border p-4 overflow-y-auto"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "palette-header",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "mb-4"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "palette-title",
+                          "elementType": "h3",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "text-sm font-semibold text-foreground mb-2"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "static",
+                              "content": "Form Elements"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "element",
+                          "name": "palette-search",
+                          "elementType": "input",
+                          "attrs": {
+                            "type": {
+                              "type": "static",
+                              "content": "text"
+                            },
+                            "placeholder": {
+                              "type": "static",
+                              "content": "Search elements..."
+                            },
+                            "className": {
+                              "type": "static",
+                              "content": "w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+                            },
+                            "value": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "paletteSearch"
+                              }
+                            }
+                          },
+                          "events": {
+                            "onChange": [
+                              {
+                                "type": "propCall",
+                                "id": "handlePaletteSearch"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "name": "field-groups",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "space-y-6"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "basic-fields-group",
+                          "elementType": "div",
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "basic-fields-title",
+                              "elementType": "h4",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Basic Fields"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "name": "basic-fields-list",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "space-y-2"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "repeat",
+                                  "dataSource": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "comp",
+                                      "id": "basicFieldTypes"
+                                    }
+                                  },
+                                  "node": {
+                                    "type": "element",
+                                    "name": "draggable-field-item",
+                                    "elementType": "div",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "p-3 border border-border rounded-md cursor-move hover:bg-accent hover:border-accent-foreground/20 transition-all duration-200 flex items-center gap-2"
+                                      },
+                                      "draggable": {
+                                        "type": "static",
+                                        "content": true
+                                      }
+                                    },
+                                    "events": {
+                                      "onDragStart": [
+                                        {
+                                          "type": "propCall",
+                                          "id": "handleDragStart"
+                                        }
+                                      ]
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "field-type-icon",
+                                        "elementType": "div",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "w-4 h-4"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "icon"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "name": "field-type-label",
+                                        "elementType": "span",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "text-sm font-medium"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "label"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "element",
+                          "name": "advanced-fields-group",
+                          "elementType": "div",
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "advanced-fields-title",
+                              "elementType": "h4",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Advanced Fields"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "name": "advanced-fields-list",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "space-y-2"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "repeat",
+                                  "dataSource": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "comp",
+                                      "id": "advancedFieldTypes"
+                                    }
+                                  },
+                                  "node": {
+                                    "type": "element",
+                                    "name": "draggable-advanced-field-item",
+                                    "elementType": "div",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "p-3 border border-border rounded-md cursor-move hover:bg-accent hover:border-accent-foreground/20 transition-all duration-200 flex items-center gap-2"
+                                      },
+                                      "draggable": {
+                                        "type": "static",
+                                        "content": true
+                                      }
+                                    },
+                                    "events": {
+                                      "onDragStart": [
+                                        {
+                                          "type": "propCall",
+                                          "id": "handleDragStart"
+                                        }
+                                      ]
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "advanced-field-type-icon",
+                                        "elementType": "div",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "w-4 h-4"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "icon"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "name": "advanced-field-type-label",
+                                        "elementType": "span",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "text-sm font-medium"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "label"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "name": "form-canvas",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex-1 bg-muted/30 p-6 overflow-auto"
+                    }
+                  },
+                  "events": {
+                    "onDrop": [
+                      {
+                        "type": "propCall",
+                        "id": "handleDrop"
+                      }
+                    ],
+                    "onDragOver": [
+                      {
+                        "type": "propCall",
+                        "id": "handleDragOver"
+                      }
+                    ]
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "form-canvas-container",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "max-w-2xl mx-auto"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "hasFormFields"
+                            }
+                          },
+                          "value": false,
+                          "node": {
+                            "type": "element",
+                            "name": "empty-canvas-state",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "flex flex-col items-center justify-center h-96 text-center border-2 border-dashed border-border rounded-lg bg-background/50"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "empty-state-icon",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "mb-4 p-4 bg-muted rounded-full"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "form-empty-icon",
+                                    "elementType": "svg",
+                                    "attrs": {
+                                      "width": {
+                                        "type": "static",
+                                        "content": "48"
+                                      },
+                                      "height": {
+                                        "type": "static",
+                                        "content": "48"
+                                      },
+                                      "viewBox": {
+                                        "type": "static",
+                                        "content": "0 0 24 24"
+                                      },
+                                      "fill": {
+                                        "type": "static",
+                                        "content": "none"
+                                      },
+                                      "stroke": {
+                                        "type": "static",
+                                        "content": "currentColor"
+                                      },
+                                      "strokeWidth": {
+                                        "type": "static",
+                                        "content": "1.5"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "text-muted-foreground"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "form-empty-path",
+                                        "elementType": "path",
+                                        "attrs": {
+                                          "d": {
+                                            "type": "static",
+                                            "content": "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "name": "empty-state-title",
+                                "elementType": "h3",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-lg font-semibold text-foreground mb-2"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Start Building Your Form"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "name": "empty-state-description",
+                                "elementType": "p",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-muted-foreground max-w-sm"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Drag and drop form elements from the sidebar to create your dynamic form. Add validation rules, conditional logic, and custom styling."
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "fallback": {
+                            "type": "element",
+                            "name": "form-fields-container",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "space-y-6 bg-background p-6 rounded-lg border border-border shadow-sm"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "form-header-section",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "border-b border-border pb-4 mb-6"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "form-title-input",
+                                    "elementType": "input",
+                                    "attrs": {
+                                      "type": {
+                                        "type": "static",
+                                        "content": "text"
+                                      },
+                                      "placeholder": {
+                                        "type": "static",
+                                        "content": "Form Title"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "text-2xl font-bold bg-transparent border-none outline-none w-full placeholder:text-muted-foreground"
+                                      },
+                                      "value": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "prop",
+                                          "id": "formTitle"
+                                        }
+                                      }
+                                    },
+                                    "events": {
+                                      "onChange": [
+                                        {
+                                          "type": "propCall",
+                                          "id": "handleFormTitleChange"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "element",
+                                    "name": "form-description-textarea",
+                                    "elementType": "textarea",
+                                    "attrs": {
+                                      "placeholder": {
+                                        "type": "static",
+                                        "content": "Form description (optional)"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "mt-2 bg-transparent border-none outline-none w-full placeholder:text-muted-foreground text-muted-foreground resize-none"
+                                      },
+                                      "rows": {
+                                        "type": "static",
+                                        "content": "2"
+                                      },
+                                      "value": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "prop",
+                                          "id": "formDescription"
+                                        }
+                                      }
+                                    },
+                                    "events": {
+                                      "onChange": [
+                                        {
+                                          "type": "propCall",
+                                          "id": "handleFormDescriptionChange"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "repeat",
+                                "dataSource": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "prop",
+                                    "id": "formFields"
+                                  }
+                                },
+                                "node": {
+                                  "type": "element",
+                                  "name": "form-field-wrapper",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "comp",
+                                        "id": "fieldWrapperClass"
+                                      }
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "field-toolbar",
+                                      "elementType": "div",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1 z-10"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "name": "field-settings-button",
+                                          "elementType": "button",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "w-6 h-6 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 flex items-center justify-center text-xs"
+                                            },
+                                            "title": {
+                                              "type": "static",
+                                              "content": "Field Settings"
+                                            }
+                                          },
+                                          "events": {
+                                            "onClick": [
+                                              {
+                                                "type": "propCall",
+                                                "id": "handleFieldSettings"
+                                              }
+                                            ]
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "name": "settings-icon",
+                                              "elementType": "svg",
+                                              "attrs": {
+                                                "width": {
+                                                  "type": "static",
+                                                  "content": "12"
+                                                },
+                                                "height": {
+                                                  "type": "static",
+                                                  "content": "12"
+                                                },
+                                                "viewBox": {
+                                                  "type": "static",
+                                                  "content": "0 0 24 24"
+                                                },
+                                                "fill": {
+                                                  "type": "static",
+                                                  "content": "none"
+                                                },
+                                                "stroke": {
+                                                  "type": "static",
+                                                  "content": "currentColor"
+                                                },
+                                                "strokeWidth": {
+                                                  "type": "static",
+                                                  "content": "2"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "name": "settings-path",
+                                                  "elementType": "path",
+                                                  "attrs": {
+                                                    "d": {
+                                                      "type": "static",
+                                                      "content": "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "element",
+                                                  "name": "settings-circle",
+                                                  "elementType": "circle",
+                                                  "attrs": {
+                                                    "cx": {
+                                                      "type": "static",
+                                                      "content": "12"
+                                                    },
+                                                    "cy": {
+                                                      "type": "static",
+                                                      "content": "12"
+                                                    },
+                                                    "r": {
+                                                      "type": "static",
+                                                      "content": "3"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "element",
+                                          "name": "field-delete-button",
+                                          "elementType": "button",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "w-6 h-6 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 flex items-center justify-center text-xs"
+                                            },
+                                            "title": {
+                                              "type": "static",
+                                              "content": "Delete Field"
+                                            }
+                                          },
+                                          "events": {
+                                            "onClick": [
+                                              {
+                                                "type": "propCall",
+                                                "id": "handleFieldDelete"
+                                              }
+                                            ]
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "name": "delete-icon",
+                                              "elementType": "svg",
+                                              "attrs": {
+                                                "width": {
+                                                  "type": "static",
+                                                  "content": "12"
+                                                },
+                                                "height": {
+                                                  "type": "static",
+                                                  "content": "12"
+                                                },
+                                                "viewBox": {
+                                                  "type": "static",
+                                                  "content": "0 0 24 24"
+                                                },
+                                                "fill": {
+                                                  "type": "static",
+                                                  "content": "none"
+                                                },
+                                                "stroke": {
+                                                  "type": "static",
+                                                  "content": "currentColor"
+                                                },
+                                                "strokeWidth": {
+                                                  "type": "static",
+                                                  "content": "2"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "name": "delete-path",
+                                                  "elementType": "path",
+                                                  "attrs": {
+                                                    "d": {
+                                                      "type": "static",
+                                                      "content": "M18 6 6 18M6 6l12 12"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "comp",
+                                        "id": "renderFormField"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "name": "field-properties-panel",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "comp",
+                        "id": "propertiesPanelClass"
+                      }
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "selectedField"
+                        }
+                      },
+                      "value": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "hasSelectedField"
+                        }
+                      },
+                      "node": {
+                        "type": "element",
+                        "name": "field-properties-content",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "h-full"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "properties-header",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "p-4 border-b border-border"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "properties-title",
+                                "elementType": "h3",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-sm font-semibold text-foreground"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Field Properties"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "properties-form",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "p-4 space-y-4 overflow-y-auto"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "field-label-property",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "space-y-2"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "field-label-property-label",
+                                    "elementType": "label",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "text-sm font-medium text-foreground"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Field Label"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "element",
+                                    "name": "field-label-input",
+                                    "elementType": "input",
+                                    "attrs": {
+                                      "type": {
+                                        "type": "static",
+                                        "content": "text"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+                                      },
+                                      "value": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "prop",
+                                          "id": "selectedFieldLabel"
+                                        }
+                                      }
+                                    },
+                                    "events": {
+                                      "onChange": [
+                                        {
+                                          "type": "propCall",
+                                          "id": "handleFieldLabelChange"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "name": "field-required-property",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "flex items-center space-x-2"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "field-required-checkbox",
+                                    "elementType": "input",
+                                    "attrs": {
+                                      "type": {
+                                        "type": "static",
+                                        "content": "checkbox"
+                                      },
+                                      "id": {
+                                        "type": "static",
+                                        "content": "field-required"
+                                      },
+                                      "checked": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "prop",
+                                          "id": "selectedFieldRequired"
+                                        }
+                                      }
+                                    },
+                                    "events": {
+                                      "onChange": [
+                                        {
+                                          "type": "propCall",
+                                          "id": "handleFieldRequiredChange"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "element",
+                                    "name": "field-required-label",
+                                    "elementType": "label",
+                                    "attrs": {
+                                      "for": {
+                                        "type": "static",
+                                        "content": "field-required"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "text-sm font-medium text-foreground cursor-pointer"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Required Field"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "fallback": {
+                        "type": "element",
+                        "name": "no-field-selected",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex flex-col items-center justify-center h-full text-center p-8"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "no-selection-icon",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "mb-4 p-3 bg-muted rounded-full"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "cursor-icon",
+                                "elementType": "svg",
+                                "attrs": {
+                                  "width": {
+                                    "type": "static",
+                                    "content": "24"
+                                  },
+                                  "height": {
+                                    "type": "static",
+                                    "content": "24"
+                                  },
+                                  "viewBox": {
+                                    "type": "static",
+                                    "content": "0 0 24 24"
+                                  },
+                                  "fill": {
+                                    "type": "static",
+                                    "content": "none"
+                                  },
+                                  "stroke": {
+                                    "type": "static",
+                                    "content": "currentColor"
+                                  },
+                                  "strokeWidth": {
+                                    "type": "static",
+                                    "content": "1.5"
+                                  },
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-muted-foreground"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "cursor-path",
+                                    "elementType": "path",
+                                    "attrs": {
+                                      "d": {
+                                        "type": "static",
+                                        "content": "m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "no-selection-title",
+                            "elementType": "h3",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-sm font-medium text-foreground mb-2"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Select a Field"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "no-selection-description",
+                            "elementType": "p",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-xs text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Click on a form field to edit its properties and validation rules."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "fallback": {
+              "type": "element",
+              "name": "form-preview-mode",
+              "elementType": "div",
+              "attrs": {
+                "className": {
+                  "type": "static",
+                  "content": "flex-1 bg-background p-6 overflow-auto"
+                }
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "name": "preview-container",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "max-w-2xl mx-auto"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "preview-form",
+                      "elementType": "form",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "space-y-6 bg-card p-6 rounded-lg border border-border shadow-sm"
+                        }
+                      },
+                      "events": {
+                        "onSubmit": [
+                          {
+                            "type": "propCall",
+                            "id": "handleFormPreviewSubmit"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "formTitle"
+                            }
+                          },
+                          "value": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "hasFormTitle"
+                            }
+                          },
+                          "node": {
+                            "type": "element",
+                            "name": "preview-form-header",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "border-b border-border pb-4 mb-6"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "preview-form-title",
+                                "elementType": "h2",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "text-2xl font-bold text-foreground"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "formTitle"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "conditional",
+                                "reference": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "prop",
+                                    "id": "formDescription"
+                                  }
+                                },
+                                "value": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "comp",
+                                    "id": "hasFormDescription"
+                                  }
+                                },
+                                "node": {
+                                  "type": "element",
+                                  "name": "preview-form-description",
+                                  "elementType": "p",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "mt-2 text-muted-foreground"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "formDescription"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "repeat",
+                          "dataSource": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "formFields"
+                            }
+                          },
+                          "node": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "renderPreviewField"
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "name": "preview-submit-section",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "flex justify-end gap-3 pt-4 border-t border-border"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "preview-reset-button",
+                              "elementType": "button",
+                              "attrs": {
+                                "type": {
+                                  "type": "static",
+                                  "content": "button"
+                                },
+                                "className": {
+                                  "type": "static",
+                                  "content": "px-4 py-2 text-sm font-medium text-muted-foreground border border-input rounded-md hover:bg-muted transition-colors"
+                                }
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "propCall",
+                                    "id": "handlePreviewReset"
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Reset"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "name": "preview-submit-button",
+                              "elementType": "button",
+                              "attrs": {
+                                "type": {
+                                  "type": "static",
+                                  "content": "submit"
+                                },
+                                "className": {
+                                  "type": "static",
+                                  "content": "px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Submit Form"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "stateDefinitions": {
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isPreviewMode": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "formTitle": {
+      "type": "string",
+      "defaultValue": "Untitled Form"
+    },
+    "formDescription": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "formFields": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "selectedField": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "selectedFieldLabel": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "selectedFieldRequired": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "paletteSearch": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "draggedFieldType": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "showPropertiesPanel": {
+      "type": "boolean",
+      "defaultValue": true
+    }
+  },
+  "propDefinitions": {
+    "isLoading": {
+      "type": "boolean"
+    },
+    "isPreviewMode": {
+      "type": "boolean"
+    },
+    "formTitle": {
+      "type": "string"
+    },
+    "formDescription": {
+      "type": "string"
+    },
+    "formFields": {
+      "type": "array"
+    },
+    "selectedField": {
+      "type": "object"
+    },
+    "selectedFieldLabel": {
+      "type": "string"
+    },
+    "selectedFieldRequired": {
+      "type": "boolean"
+    },
+    "paletteSearch": {
+      "type": "string"
+    },
+    "showPropertiesPanel": {
+      "type": "boolean"
+    },
+    "handleRefresh": {
+      "type": "func"
+    },
+    "handleTogglePreview": {
+      "type": "func"
+    },
+    "handlePaletteSearch": {
+      "type": "func"
+    },
+    "handleDragStart": {
+      "type": "func"
+    },
+    "handleDrop": {
+      "type": "func"
+    },
+    "handleDragOver": {
+      "type": "func"
+    },
+    "handleFormTitleChange": {
+      "type": "func"
+    },
+    "handleFormDescriptionChange": {
+      "type": "func"
+    },
+    "handleFieldSettings": {
+      "type": "func"
+    },
+    "handleFieldDelete": {
+      "type": "func"
+    },
+    "handleFieldLabelChange": {
+      "type": "func"
+    },
+    "handleFieldRequiredChange": {
+      "type": "func"
+    },
+    "handleFormPreviewSubmit": {
+      "type": "func"
+    },
+    "handlePreviewReset": {
+      "type": "func"
+    }
+  },
+  "mappings": {
+    "components": {
+      "previewButtonClass": "state.isPreviewMode ? 'p-2 bg-primary text-primary-foreground rounded-md transition-colors' : 'p-2 hover:bg-muted rounded-md transition-colors'",
+      "refreshIconClass": "state.isLoading ? 'animate-spin' : ''",
+      "hasFormFields": "state.formFields.length > 0",
+      "fieldWrapperClass": "'relative group border border-transparent hover:border-border/50 rounded-lg p-4 transition-all duration-200 ' + (local.isSelected ? 'border-primary bg-primary/5' : '')",
+      "propertiesPanelClass": "state.showPropertiesPanel ? 'w-80 bg-card border-l border-border overflow-hidden' : 'w-0 overflow-hidden'",
+      "hasSelectedField": "state.selectedField !== null",
+      "hasFormTitle": "state.formTitle !== ''",
+      "hasFormDescription": "state.formDescription !== ''",
+      "renderFormField": "local.fieldComponent",
+      "renderPreviewField": "local.previewFieldComponent",
+      "basicFieldTypes": "[{type: 'text', label: 'Text Input', icon: 'Type'}, {type: 'email', label: 'Email', icon: 'Mail'}, {type: 'number', label: 'Number', icon: 'Hash'}, {type: 'textarea', label: 'Textarea', icon: 'AlignLeft'}, {type: 'select', label: 'Select', icon: 'ChevronDown'}, {type: 'checkbox', label: 'Checkbox', icon: 'Check'}, {type: 'radio', label: 'Radio Group', icon: 'Circle'}]",
+      "advancedFieldTypes": "[{type: 'date', label: 'Date Picker', icon: 'Calendar'}, {type: 'file', label: 'File Upload', icon: 'Upload'}, {type: 'range', label: 'Range Slider', icon: 'Minus'}, {type: 'color', label: 'Color Picker', icon: 'Palette'}, {type: 'section', label: 'Section Divider', icon: 'Separator'}, {type: 'html', label: 'Custom HTML', icon: 'Code'}]"
+    }
+  }
+}

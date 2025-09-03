@@ -1,0 +1,1642 @@
+{
+  "name": "MCPServerTab",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "MCPServerTabRoot",
+      "key": "mcp-server-tab-root",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "HeaderSection",
+            "key": "header-section",
+            "style": {
+              "display": "flex",
+              "justifyContent": "space-between",
+              "gap": "16px",
+              "alignItems": "flex-start"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "HeaderContent",
+                  "key": "header-content",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "MCPServerTitle",
+                        "key": "mcp-server-title",
+                        "style": {
+                          "paddingBottom": "8px",
+                          "fontWeight": "500"
+                        },
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": "mcp-server-title"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "MCP Server"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "MCPServerDescription",
+                        "key": "mcp-server-description",
+                        "style": {
+                          "paddingBottom": "16px",
+                          "fontSize": "14px",
+                          "color": "#6b7280"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "text",
+                              "name": "DescriptionText",
+                              "key": "description-text",
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Access your Project's flows as Tools within a MCP Server. Learn more in our"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "link",
+                              "name": "MCPGuideLink",
+                              "key": "mcp-guide-link",
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": "https://docs.langflow.org/mcp-server"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "_blank"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "noreferrer"
+                                }
+                              ],
+                              "style": {
+                                "color": "#db2777"
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": " Projects as MCP Servers guide."
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "MainContent",
+            "key": "main-content",
+            "style": {
+              "display": "flex",
+              "flexDirection": "column",
+              "justifyContent": "space-between",
+              "gap": "32px"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "ToolsSection",
+                  "key": "tools-section",
+                  "style": {
+                    "width": "100%"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "ToolsHeader",
+                        "key": "tools-header",
+                        "style": {
+                          "display": "flex",
+                          "flexDirection": "row",
+                          "justifyContent": "space-between",
+                          "paddingTop": "4px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "ShadTooltip",
+                              "name": "FlowsToolsTooltip",
+                              "key": "flows-tools-tooltip",
+                              "dependency": {
+                                "type": "local",
+                                "path": "@/components/common/shadTooltipComponent"
+                              },
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": "Flows in this project can be exposed as callable MCP tools."
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "right"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "FlowsToolsLabel",
+                                    "key": "flows-tools-label",
+                                    "style": {
+                                      "display": "flex",
+                                      "alignItems": "center",
+                                      "fontSize": "14px",
+                                      "fontWeight": "500",
+                                      "cursor": "help"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "FlowsToolsText",
+                                          "key": "flows-tools-text",
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Flows/Tools"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "ForwardedIconComponent",
+                                          "name": "InfoIcon",
+                                          "key": "info-icon",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/common/genericIconComponent"
+                                          },
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": "info"
+                                            }
+                                          ],
+                                          "style": {
+                                            "marginLeft": "6px",
+                                            "height": "16px",
+                                            "width": "16px",
+                                            "color": "#6b7280"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "ToolsContent",
+                        "key": "tools-content",
+                        "style": {
+                          "display": "flex",
+                          "flexDirection": "row",
+                          "flexWrap": "wrap",
+                          "gap": "8px",
+                          "paddingTop": "8px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "ToolsComponent",
+                              "name": "MCPServerTools",
+                              "key": "mcp-server-tools",
+                              "dependency": {
+                                "type": "local",
+                                "path": "@/components/core/parameterRenderComponent/components/ToolsComponent"
+                              },
+                              "attrs": [
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "flowsMCPData"
+                                  }
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "MCP Server Tools"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "Select tools to add to this server"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "mcp-server-tools"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "Edit Tools"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": false
+                                },
+                                {
+                                  "type": "static",
+                                  "content": true
+                                },
+                                {
+                                  "type": "static",
+                                  "content": false
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "ConfigurationSection",
+                  "key": "configuration-section",
+                  "style": {
+                    "display": "flex",
+                    "flex": "1",
+                    "flexDirection": "column",
+                    "gap": "16px",
+                    "overflow": "hidden"
+                  },
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "AuthenticationSection",
+                            "key": "authentication-section",
+                            "style": {
+                              "display": "flex",
+                              "justifyContent": "space-between"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "AuthStatusContainer",
+                                  "key": "auth-status-container",
+                                  "style": {
+                                    "display": "flex",
+                                    "gap": "8px",
+                                    "alignItems": "center"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "AuthLabel",
+                                        "key": "auth-label",
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Auth:"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "node": {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "NoAuthStatus",
+                                            "key": "no-auth-status",
+                                            "style": {
+                                              "color": "#f59e0b",
+                                              "display": "flex",
+                                              "gap": "8px",
+                                              "fontSize": "14px",
+                                              "alignItems": "center"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "ForwardedIconComponent",
+                                                  "name": "WarningIcon",
+                                                  "key": "warning-icon",
+                                                  "dependency": {
+                                                    "type": "local",
+                                                    "path": "@/components/common/genericIconComponent"
+                                                  },
+                                                  "attrs": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "AlertTriangle"
+                                                    }
+                                                  ],
+                                                  "style": {
+                                                    "height": "16px",
+                                                    "width": "16px",
+                                                    "flexShrink": "0"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "text",
+                                                  "name": "NoAuthText",
+                                                  "key": "no-auth-text",
+                                                  "children": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "None (public)"
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "hasNoAuthentication"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "node": {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "AuthenticatedStatus",
+                                            "key": "authenticated-status",
+                                            "style": {
+                                              "color": "#10b981",
+                                              "display": "flex",
+                                              "gap": "8px",
+                                              "fontSize": "14px",
+                                              "alignItems": "center"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "ForwardedIconComponent",
+                                                  "name": "CheckIcon",
+                                                  "key": "check-icon",
+                                                  "dependency": {
+                                                    "type": "local",
+                                                    "path": "@/components/common/genericIconComponent"
+                                                  },
+                                                  "attrs": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "Check"
+                                                    }
+                                                  ],
+                                                  "style": {
+                                                    "height": "16px",
+                                                    "width": "16px",
+                                                    "flexShrink": "0"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "text",
+                                                  "name": "AuthMethodText",
+                                                  "key": "auth-method-text",
+                                                  "children": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "currentAuthMethod"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "hasAuthentication"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "Button",
+                                  "name": "EditAuthButton",
+                                  "key": "edit-auth-button",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/ui/button"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "outline"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "sm"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "ForwardedIconComponent",
+                                        "name": "FingerprintIcon",
+                                        "key": "fingerprint-icon",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/common/genericIconComponent"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "Fingerprint"
+                                          }
+                                        ],
+                                        "style": {
+                                          "height": "16px",
+                                          "width": "16px",
+                                          "flexShrink": "0"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "EditAuthButtonText",
+                                        "key": "edit-auth-button-text",
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "authButtonText"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "enableMCPComposer"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "ModeSelectionContainer",
+                        "key": "mode-selection-container",
+                        "style": {
+                          "display": "flex",
+                          "flexDirection": "column"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "ModeTabsContainer",
+                              "key": "mode-tabs-container",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "row",
+                                "justifyContent": "flex-start",
+                                "borderBottom": "1px solid",
+                                "borderColor": "#e5e7eb"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Button",
+                                    "name": "AutoInstallTab",
+                                    "key": "auto-install-tab",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/button"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": true
+                                      }
+                                    ],
+                                    "style": {
+                                      "display": "flex",
+                                      "height": "24px",
+                                      "flexDirection": "row",
+                                      "alignItems": "flex-end",
+                                      "gap": "8px",
+                                      "whiteSpace": "nowrap",
+                                      "borderBottom": "2px solid transparent",
+                                      "fontWeight": "500",
+                                      "paddingX": "12px",
+                                      "paddingY": "8px",
+                                      "fontSize": "13px"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "AutoInstallTabText",
+                                          "key": "auto-install-tab-text",
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Auto install"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Button",
+                                    "name": "JSONTab",
+                                    "key": "json-tab",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/button"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": true
+                                      }
+                                    ],
+                                    "style": {
+                                      "display": "flex",
+                                      "height": "24px",
+                                      "flexDirection": "row",
+                                      "alignItems": "flex-end",
+                                      "gap": "8px",
+                                      "whiteSpace": "nowrap",
+                                      "borderBottom": "2px solid transparent",
+                                      "fontWeight": "500",
+                                      "paddingX": "12px",
+                                      "paddingY": "8px",
+                                      "fontSize": "13px"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "JSONTabText",
+                                          "key": "json-tab-text",
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "JSON"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "JSONModeContent",
+                            "key": "json-mode-content",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "JSONConfigSection",
+                                  "key": "json-config-section",
+                                  "style": {
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "gap": "16px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "Tabs",
+                                        "name": "PlatformTabs",
+                                        "key": "platform-tabs",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/ui/tabs-button"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "selectedPlatform"
+                                            }
+                                          }
+                                        ],
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "TabsList",
+                                              "name": "PlatformTabsList",
+                                              "key": "platform-tabs-list",
+                                              "children": [
+                                                {
+                                                  "type": "repeat",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TabsTrigger",
+                                                        "name": "PlatformTab",
+                                                        "key": "platform-tab",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "alignItems": "center",
+                                                          "gap": "8px"
+                                                        },
+                                                        "attrs": [
+                                                          {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "local",
+                                                              "id": "tab.name"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "ForwardedIconComponent",
+                                                              "name": "PlatformIcon",
+                                                              "key": "platform-icon",
+                                                              "dependency": {
+                                                                "type": "local",
+                                                                "path": "@/components/common/genericIconComponent"
+                                                              },
+                                                              "attrs": [
+                                                                {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "local",
+                                                                    "id": "tab.icon"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "text",
+                                                              "name": "PlatformTabTitle",
+                                                              "key": "platform-tab-title",
+                                                              "children": [
+                                                                {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "local",
+                                                                    "id": "tab.title"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "dataSource": {
+                                                      "type": "static",
+                                                      "content": [
+                                                        {
+                                                          "name": "macoslinux",
+                                                          "title": "macOS/Linux",
+                                                          "icon": "FaApple"
+                                                        },
+                                                        {
+                                                          "name": "windows",
+                                                          "title": "Windows",
+                                                          "icon": "FaWindows"
+                                                        },
+                                                        {
+                                                          "name": "wsl",
+                                                          "title": "WSL",
+                                                          "icon": "FaLinux"
+                                                        }
+                                                      ]
+                                                    },
+                                                    "meta": {
+                                                      "useIndex": true,
+                                                      "iteratorName": "tab",
+                                                      "indexName": "index"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "CodeDisplayContainer",
+                                        "key": "code-display-container",
+                                        "style": {
+                                          "overflow": "hidden",
+                                          "borderRadius": "8px",
+                                          "border": "1px solid",
+                                          "borderColor": "#e5e7eb"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "SyntaxHighlighter",
+                                              "name": "JSONSyntaxHighlighter",
+                                              "key": "json-syntax-highlighter",
+                                              "dependency": {
+                                                "type": "external",
+                                                "path": "react-syntax-highlighter"
+                                              },
+                                              "attrs": [
+                                                {
+                                                  "type": "static",
+                                                  "content": "json"
+                                                }
+                                              ],
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "MemoizedCodeTag",
+                                                    "name": "JSONCodeContent",
+                                                    "key": "json-code-content",
+                                                    "style": {
+                                                      "position": "relative",
+                                                      "backgroundColor": "#f8fafc",
+                                                      "fontSize": "13px"
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "container",
+                                                          "name": "CodeActions",
+                                                          "key": "code-actions",
+                                                          "style": {
+                                                            "position": "absolute",
+                                                            "right": "16px",
+                                                            "top": "16px",
+                                                            "display": "flex",
+                                                            "alignItems": "center",
+                                                            "gap": "24px"
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "conditional",
+                                                              "content": {
+                                                                "node": {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "Button",
+                                                                    "name": "GenerateAPIKeyButton",
+                                                                    "key": "generate-api-key-button",
+                                                                    "dependency": {
+                                                                      "type": "local",
+                                                                      "path": "@/components/ui/button"
+                                                                    },
+                                                                    "attrs": [
+                                                                      {
+                                                                        "type": "static",
+                                                                        "content": true
+                                                                      }
+                                                                    ],
+                                                                    "style": {
+                                                                      "display": "flex",
+                                                                      "alignItems": "center",
+                                                                      "gap": "8px",
+                                                                      "fontFamily": "sans-serif",
+                                                                      "color": "#6b7280"
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "ForwardedIconComponent",
+                                                                          "name": "KeyIcon",
+                                                                          "key": "key-icon",
+                                                                          "dependency": {
+                                                                            "type": "local",
+                                                                            "path": "@/components/common/genericIconComponent"
+                                                                          },
+                                                                          "attrs": [
+                                                                            {
+                                                                              "type": "static",
+                                                                              "content": "key"
+                                                                            }
+                                                                          ],
+                                                                          "style": {
+                                                                            "height": "16px",
+                                                                            "width": "16px"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "text",
+                                                                          "name": "GenerateKeyButtonText",
+                                                                          "key": "generate-key-button-text",
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "dynamic",
+                                                                              "content": {
+                                                                                "referenceType": "state",
+                                                                                "id": "apiKeyButtonText"
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                "reference": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "state",
+                                                                    "id": "isNotAutoLogin"
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "Button",
+                                                                "name": "CopyCodeButton",
+                                                                "key": "copy-code-button",
+                                                                "dependency": {
+                                                                  "type": "local",
+                                                                  "path": "@/components/ui/button"
+                                                                },
+                                                                "attrs": [
+                                                                  {
+                                                                    "type": "static",
+                                                                    "content": true
+                                                                  },
+                                                                  {
+                                                                    "type": "static",
+                                                                    "content": "icon"
+                                                                  }
+                                                                ],
+                                                                "style": {
+                                                                  "height": "16px",
+                                                                  "width": "16px",
+                                                                  "color": "#6b7280"
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "type": "element",
+                                                                    "content": {
+                                                                      "elementType": "ForwardedIconComponent",
+                                                                      "name": "CopyIcon",
+                                                                      "key": "copy-icon",
+                                                                      "dependency": {
+                                                                        "type": "local",
+                                                                        "path": "@/components/common/genericIconComponent"
+                                                                      },
+                                                                      "attrs": [
+                                                                        {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "state",
+                                                                            "id": "copyIconName"
+                                                                          }
+                                                                        }
+                                                                      ],
+                                                                      "style": {
+                                                                        "height": "16px",
+                                                                        "width": "16px"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "container",
+                                                          "name": "JSONCodeContainer",
+                                                          "key": "json-code-container",
+                                                          "style": {
+                                                            "overflowX": "auto",
+                                                            "padding": "16px"
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "text",
+                                                                "name": "MCPServerJSONCode",
+                                                                "key": "mcp-server-json-code",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "dynamic",
+                                                                    "content": {
+                                                                      "referenceType": "state",
+                                                                      "id": "mcpServerJSON"
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "SetupInstructions",
+                                  "key": "setup-instructions",
+                                  "style": {
+                                    "paddingLeft": "8px",
+                                    "paddingRight": "8px",
+                                    "fontSize": "14px",
+                                    "color": "#6b7280"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "SetupInstructionText",
+                                        "key": "setup-instruction-text",
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Add this config to your client of choice. Need help? See the "
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "link",
+                                        "name": "SetupGuideLink",
+                                        "key": "setup-guide-link",
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "https://docs.langflow.org/mcp-server#connect-clients-to-use-the-servers-actions"
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "_blank"
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "noreferrer"
+                                          }
+                                        ],
+                                        "style": {
+                                          "color": "#db2777"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "setup guide"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "text",
+                                        "name": "SetupInstructionEndText",
+                                        "key": "setup-instruction-end-text",
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "."
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "selectedModeIsJSON"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "AutoInstallModeContent",
+                            "key": "auto-install-mode-content",
+                            "style": {
+                              "display": "flex",
+                              "flexDirection": "column",
+                              "gap": "4px"
+                            },
+                            "children": [
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "LocalConnectionWarning",
+                                      "key": "local-connection-warning",
+                                      "style": {
+                                        "marginBottom": "8px",
+                                        "borderRadius": "6px",
+                                        "backgroundColor": "#fef3c7",
+                                        "paddingLeft": "12px",
+                                        "paddingRight": "12px",
+                                        "paddingTop": "8px",
+                                        "paddingBottom": "8px",
+                                        "fontSize": "14px",
+                                        "color": "#92400e"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "WarningContent",
+                                            "key": "warning-content",
+                                            "style": {
+                                              "display": "flex",
+                                              "alignItems": "center",
+                                              "gap": "12px"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "ForwardedIconComponent",
+                                                  "name": "LocalWarningIcon",
+                                                  "key": "local-warning-icon",
+                                                  "dependency": {
+                                                    "type": "local",
+                                                    "path": "@/components/common/genericIconComponent"
+                                                  },
+                                                  "attrs": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "AlertTriangle"
+                                                    }
+                                                  ],
+                                                  "style": {
+                                                    "height": "16px",
+                                                    "width": "16px",
+                                                    "flexShrink": "0"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "text",
+                                                  "name": "LocalWarningText",
+                                                  "key": "local-warning-text",
+                                                  "children": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "One-click install is disabled because the Langflow server is not running on your local machine. Use the JSON tab to configure your client manually."
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "isNotLocalConnection"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "repeat",
+                                "content": {
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "Button",
+                                      "name": "AutoInstallerButton",
+                                      "key": "auto-installer-button",
+                                      "dependency": {
+                                        "type": "local",
+                                        "path": "@/components/ui/button"
+                                      },
+                                      "attrs": [
+                                        {
+                                          "type": "static",
+                                          "content": "ghost"
+                                        }
+                                      ],
+                                      "style": {
+                                        "display": "flex",
+                                        "alignItems": "center",
+                                        "justifyContent": "space-between"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "InstallerInfo",
+                                            "key": "installer-info",
+                                            "style": {
+                                              "display": "flex",
+                                              "alignItems": "center",
+                                              "gap": "16px",
+                                              "fontSize": "14px",
+                                              "fontWeight": "500"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "ForwardedIconComponent",
+                                                  "name": "InstallerIcon",
+                                                  "key": "installer-icon",
+                                                  "dependency": {
+                                                    "type": "local",
+                                                    "path": "@/components/common/genericIconComponent"
+                                                  },
+                                                  "attrs": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "installer.icon"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "style": {
+                                                    "height": "20px",
+                                                    "width": "20px"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "text",
+                                                  "name": "InstallerTitle",
+                                                  "key": "installer-title",
+                                                  "children": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "installer.title"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "ForwardedIconComponent",
+                                            "name": "InstallerStatusIcon",
+                                            "key": "installer-status-icon",
+                                            "dependency": {
+                                              "type": "local",
+                                              "path": "@/components/common/genericIconComponent"
+                                            },
+                                            "attrs": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "installerStatusIcon"
+                                                }
+                                              }
+                                            ],
+                                            "style": {
+                                              "height": "16px",
+                                              "width": "16px"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "dataSource": {
+                                    "type": "static",
+                                    "content": [
+                                      {
+                                        "name": "cursor",
+                                        "title": "Cursor",
+                                        "icon": "Cursor"
+                                      },
+                                      {
+                                        "name": "claude",
+                                        "title": "Claude",
+                                        "icon": "Claude"
+                                      },
+                                      {
+                                        "name": "windsurf",
+                                        "title": "Windsurf",
+                                        "icon": "Windsurf"
+                                      }
+                                    ]
+                                  },
+                                  "meta": {
+                                    "useIndex": true,
+                                    "iteratorName": "installer",
+                                    "indexName": "index"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "selectedModeIsAutoInstall"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "conditional",
+          "content": {
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "AuthModal",
+                "name": "AuthenticationModal",
+                "key": "authentication-modal",
+                "dependency": {
+                  "type": "local",
+                  "path": "@/modals/authModal"
+                }
+              }
+            },
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "enableMCPComposer"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "folderName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isCopied": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "apiKey": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isGeneratingApiKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "authModalOpen": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "selectedPlatform": {
+      "type": "string",
+      "defaultValue": "macoslinux"
+    },
+    "selectedMode": {
+      "type": "string",
+      "defaultValue": "Auto install"
+    },
+    "loadingMCP": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "flowsMCPData": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "currentAuthSettings": {
+      "type": "object",
+      "defaultValue": {
+        "auth_type": "none"
+      }
+    },
+    "mcpServerJSON": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "enableMCPComposer": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "isAutoLogin": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isLocalConnection": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "installedMCP": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "hasAuthentication": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasNoAuthentication": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "currentAuthMethod": {
+      "type": "string",
+      "defaultValue": "None"
+    },
+    "authButtonText": {
+      "type": "string",
+      "defaultValue": "Add Auth"
+    },
+    "selectedModeIsJSON": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "selectedModeIsAutoInstall": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "isNotAutoLogin": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "isNotLocalConnection": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "copyIconName": {
+      "type": "string",
+      "defaultValue": "copy"
+    },
+    "apiKeyButtonText": {
+      "type": "string",
+      "defaultValue": "Generate API key"
+    },
+    "installerStatusIcon": {
+      "type": "string",
+      "defaultValue": "Plus"
+    }
+  },
+  "propDefinitions": {
+    "folderName": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "styleSetDefinitions": {
+    "containerLayout": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "16px"
+      }
+    },
+    "flexRow": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "gap": "8px"
+      }
+    },
+    "codeDisplay": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "#f8fafc",
+        "border": "1px solid #e5e7eb",
+        "borderRadius": "8px",
+        "padding": "16px",
+        "fontFamily": "monospace",
+        "fontSize": "13px",
+        "overflowX": "auto"
+      }
+    },
+    "warningBox": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "#fef3c7",
+        "border": "1px solid #fcd34d",
+        "borderRadius": "6px",
+        "padding": "12px",
+        "color": "#92400e"
+      }
+    },
+    "successStatus": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "color": "#10b981",
+        "display": "flex",
+        "alignItems": "center",
+        "gap": "8px"
+      }
+    },
+    "errorStatus": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "color": "#f59e0b",
+        "display": "flex",
+        "alignItems": "center",
+        "gap": "8px"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280",
+      "accentPink": "#db2777",
+      "accentGreen": "#10b981",
+      "accentAmber": "#f59e0b",
+      "warningBackground": "#fef3c7",
+      "warningText": "#92400e",
+      "codeBackground": "#f8fafc"
+    }
+  }
+}

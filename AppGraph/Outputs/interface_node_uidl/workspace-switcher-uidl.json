@@ -1,0 +1,1211 @@
+{
+  "root": {
+    "type": "element",
+    "name": "workspace-switcher-container",
+    "elementType": "div",
+    "attrs": {
+      "className": {
+        "type": "static",
+        "content": "h-full w-full flex flex-col bg-background"
+      }
+    },
+    "children": [
+      {
+        "type": "element",
+        "name": "workspace-switcher-header",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex items-center justify-between p-4 border-b border-border bg-card"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "header-title-section",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-3"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "workspace-switcher-icon",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 bg-primary/10 rounded-md"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "workspace-icon-svg",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "20"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "20"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "text-primary"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "workspace-icon-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "header-title",
+                "elementType": "div",
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "page-title",
+                    "elementType": "h1",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-xl font-semibold text-foreground"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Workspace Switcher"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "page-subtitle",
+                    "elementType": "p",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-sm text-muted-foreground mt-1"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Switch between workspaces or create new ones"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "header-actions",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-2"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "create-workspace-button",
+                "elementType": "button",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Create New Workspace"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleCreateWorkspace"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "plus-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "mr-2"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "plus-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M5 12h14m-7-7v14"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "static",
+                    "content": "New Workspace"
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "refresh-workspaces-button",
+                "elementType": "button",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 hover:bg-muted rounded-md transition-colors"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Refresh Workspaces"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleRefresh"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "refresh-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "refreshIconClass"
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "refresh-path-1",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-2",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 8-3-3-3 3"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-3",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-4",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m3 16 3 3 3-3"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "element",
+        "name": "workspace-switcher-main",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex-1 p-6 overflow-y-auto"
+          }
+        },
+        "children": [
+          {
+            "type": "conditional",
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "isLoading"
+              }
+            },
+            "value": true,
+            "node": {
+              "type": "element",
+              "name": "loading-state",
+              "elementType": "div",
+              "attrs": {
+                "className": {
+                  "type": "static",
+                  "content": "flex items-center justify-center h-64"
+                }
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "name": "loading-spinner",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+                    }
+                  }
+                },
+                {
+                  "type": "element",
+                  "name": "loading-text",
+                  "elementType": "span",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "ml-3 text-muted-foreground"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "static",
+                      "content": "Loading workspaces..."
+                    }
+                  ]
+                }
+              ]
+            },
+            "fallback": {
+              "type": "conditional",
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "comp",
+                  "id": "hasWorkspaces"
+                }
+              },
+              "value": false,
+              "node": {
+                "type": "element",
+                "name": "empty-workspaces-state",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "flex flex-col items-center justify-center h-96 text-center"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "empty-state-icon",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "mb-4 p-4 bg-muted rounded-full"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "empty-workspace-icon",
+                        "elementType": "svg",
+                        "attrs": {
+                          "width": {
+                            "type": "static",
+                            "content": "48"
+                          },
+                          "height": {
+                            "type": "static",
+                            "content": "48"
+                          },
+                          "viewBox": {
+                            "type": "static",
+                            "content": "0 0 24 24"
+                          },
+                          "fill": {
+                            "type": "static",
+                            "content": "none"
+                          },
+                          "stroke": {
+                            "type": "static",
+                            "content": "currentColor"
+                          },
+                          "strokeWidth": {
+                            "type": "static",
+                            "content": "1.5"
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "text-muted-foreground"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "empty-workspace-path",
+                            "elementType": "path",
+                            "attrs": {
+                              "d": {
+                                "type": "static",
+                                "content": "M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "empty-state-title",
+                    "elementType": "h3",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-lg font-semibold text-foreground mb-2"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "No Workspaces Found"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "empty-state-description",
+                    "elementType": "p",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-muted-foreground max-w-sm mb-6"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Create your first workspace to organize your flows and collaborate with your team."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "create-first-workspace-button",
+                    "elementType": "button",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                      }
+                    },
+                    "events": {
+                      "onClick": [
+                        {
+                          "type": "propCall",
+                          "id": "handleCreateWorkspace"
+                        }
+                      ]
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "create-first-plus-icon",
+                        "elementType": "svg",
+                        "attrs": {
+                          "width": {
+                            "type": "static",
+                            "content": "16"
+                          },
+                          "height": {
+                            "type": "static",
+                            "content": "16"
+                          },
+                          "viewBox": {
+                            "type": "static",
+                            "content": "0 0 24 24"
+                          },
+                          "fill": {
+                            "type": "static",
+                            "content": "none"
+                          },
+                          "stroke": {
+                            "type": "static",
+                            "content": "currentColor"
+                          },
+                          "strokeWidth": {
+                            "type": "static",
+                            "content": "2"
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "mr-2"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "create-first-plus-path",
+                            "elementType": "path",
+                            "attrs": {
+                              "d": {
+                                "type": "static",
+                                "content": "M5 12h14m-7-7v14"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "static",
+                        "content": "Create First Workspace"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "fallback": {
+                "type": "element",
+                "name": "workspaces-grid",
+                "elementType": "div",
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "current-workspace-section",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "mb-8"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "current-workspace-title",
+                        "elementType": "h2",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-lg font-semibold text-foreground mb-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Current Workspace"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "current-workspace-card",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "bg-primary/5 border-2 border-primary/20 rounded-lg p-6 max-w-md"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "current-workspace-header",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "flex items-center gap-3 mb-3"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "current-workspace-avatar",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "current-workspace-icon",
+                                    "elementType": "span",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "text-lg font-semibold text-primary"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "comp",
+                                          "id": "currentWorkspaceInitials"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "name": "current-workspace-details",
+                                "elementType": "div",
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "current-workspace-name",
+                                    "elementType": "h3",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "font-semibold text-foreground"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "prop",
+                                          "id": "currentWorkspaceName"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "element",
+                                    "name": "current-workspace-badge",
+                                    "elementType": "span",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-medium"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Current"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "current-workspace-description",
+                            "elementType": "p",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-muted-foreground text-sm mb-4"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "currentWorkspaceDescription"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "current-workspace-stats",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "flex items-center gap-4 text-xs text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "workspace-flows-count",
+                                "elementType": "span",
+                                "children": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "currentWorkspaceFlowsCount"
+                                    }
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": " flows"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "element",
+                                "name": "workspace-members-count",
+                                "elementType": "span",
+                                "children": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "currentWorkspaceMembersCount"
+                                    }
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": " members"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "other-workspaces-section",
+                    "elementType": "div",
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "other-workspaces-title",
+                        "elementType": "h2",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-lg font-semibold text-foreground mb-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Available Workspaces"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "workspaces-grid-container",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "dataSource": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "otherWorkspaces"
+                              }
+                            },
+                            "node": {
+                              "type": "element",
+                              "name": "workspace-card",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:border-primary/30"
+                                }
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "propCall",
+                                    "id": "handleSwitchWorkspace"
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "name": "workspace-card-header",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex items-center gap-3 mb-3"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "workspace-avatar",
+                                      "elementType": "div",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "w-10 h-10 bg-muted rounded-lg flex items-center justify-center"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "name": "workspace-initials",
+                                          "elementType": "span",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "text-sm font-semibold text-foreground"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "comp",
+                                                "id": "workspaceInitials"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "workspace-details",
+                                      "elementType": "div",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "flex-1 min-w-0"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "name": "workspace-name",
+                                          "elementType": "h3",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "font-medium text-foreground truncate"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "local",
+                                                "id": "name"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "element",
+                                          "name": "workspace-role",
+                                          "elementType": "p",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "text-xs text-muted-foreground"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "local",
+                                                "id": "role"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "workspace-menu-button",
+                                      "elementType": "button",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "p-1 hover:bg-muted rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                        },
+                                        "title": {
+                                          "type": "static",
+                                          "content": "Workspace options"
+                                        }
+                                      },
+                                      "events": {
+                                        "onClick": [
+                                          {
+                                            "type": "propCall",
+                                            "id": "handleWorkspaceMenu"
+                                          }
+                                        ]
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "name": "menu-dots-icon",
+                                          "elementType": "svg",
+                                          "attrs": {
+                                            "width": {
+                                              "type": "static",
+                                              "content": "16"
+                                            },
+                                            "height": {
+                                              "type": "static",
+                                              "content": "16"
+                                            },
+                                            "viewBox": {
+                                              "type": "static",
+                                              "content": "0 0 24 24"
+                                            },
+                                            "fill": {
+                                              "type": "static",
+                                              "content": "none"
+                                            },
+                                            "stroke": {
+                                              "type": "static",
+                                              "content": "currentColor"
+                                            },
+                                            "strokeWidth": {
+                                              "type": "static",
+                                              "content": "2"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "name": "dots-path",
+                                              "elementType": "path",
+                                              "attrs": {
+                                                "d": {
+                                                  "type": "static",
+                                                  "content": "M12 12h.01M12 6h.01M12 18h.01"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "workspace-description",
+                                  "elementType": "p",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "text-muted-foreground text-sm mb-3 line-clamp-2"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "description"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "workspace-stats",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex items-center justify-between text-xs text-muted-foreground"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "workspace-counts",
+                                      "elementType": "div",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "flex items-center gap-3"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "name": "flows-count",
+                                          "elementType": "span",
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "local",
+                                                "id": "flowsCount"
+                                              }
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": " flows"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "element",
+                                          "name": "members-count",
+                                          "elementType": "span",
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "local",
+                                                "id": "membersCount"
+                                              }
+                                            },
+                                            {
+                                              "type": "static",
+                                              "content": " members"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "last-activity",
+                                      "elementType": "span",
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "lastActivity"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "stateDefinitions": {
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "currentWorkspace": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "otherWorkspaces": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "selectedWorkspace": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "showCreateModal": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "propDefinitions": {
+    "isLoading": {
+      "type": "boolean"
+    },
+    "currentWorkspace": {
+      "type": "object"
+    },
+    "currentWorkspaceName": {
+      "type": "string"
+    },
+    "currentWorkspaceDescription": {
+      "type": "string"
+    },
+    "currentWorkspaceFlowsCount": {
+      "type": "number"
+    },
+    "currentWorkspaceMembersCount": {
+      "type": "number"
+    },
+    "otherWorkspaces": {
+      "type": "array"
+    },
+    "selectedWorkspace": {
+      "type": "object"
+    },
+    "showCreateModal": {
+      "type": "boolean"
+    },
+    "handleRefresh": {
+      "type": "func"
+    },
+    "handleCreateWorkspace": {
+      "type": "func"
+    },
+    "handleSwitchWorkspace": {
+      "type": "func"
+    },
+    "handleWorkspaceMenu": {
+      "type": "func"
+    }
+  },
+  "mappings": {
+    "components": {
+      "refreshIconClass": "props.isLoading ? 'animate-spin' : ''",
+      "hasWorkspaces": "props.otherWorkspaces.length > 0 || props.currentWorkspace !== null",
+      "currentWorkspaceInitials": "props.currentWorkspaceName ? props.currentWorkspaceName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() : 'WS'",
+      "workspaceInitials": "local.name ? local.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() : 'WS'"
+    }
+  }
+}

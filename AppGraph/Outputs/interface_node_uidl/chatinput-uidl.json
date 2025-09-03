@@ -1,0 +1,1140 @@
+{
+  "name": "ChatInput",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "ChatInputContainer",
+      "key": "chat-input-container",
+      "style": {
+        "width": "100%",
+        "height": "100%"
+      },
+      "children": [
+        {
+          "type": "conditional",
+          "content": {
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "NoInputView",
+                "key": "no-input-view",
+                "style": {
+                  "display": "flex",
+                  "height": "100%",
+                  "width": "100%",
+                  "flexDirection": "column",
+                  "alignItems": "center",
+                  "justifyContent": "center"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "NoInputContent",
+                      "key": "no-input-content",
+                      "style": {
+                        "display": "flex",
+                        "width": "100%",
+                        "flexDirection": "column",
+                        "alignItems": "center",
+                        "justifyContent": "center",
+                        "gap": "12px",
+                        "borderRadius": "8px",
+                        "border": "1px solid #e0e0e0",
+                        "backgroundColor": "#f8f9fa",
+                        "padding": "8px",
+                        "paddingTop": "16px",
+                        "paddingBottom": "16px"
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "button",
+                                "name": "RunFlowButton",
+                                "key": "run-flow-button",
+                                "style": {
+                                  "fontWeight": "600",
+                                  "backgroundColor": "#6366f1",
+                                  "color": "white",
+                                  "padding": "8px 16px",
+                                  "borderRadius": "6px",
+                                  "border": "none",
+                                  "cursor": "pointer"
+                                },
+                                "attrs": {
+                                  "data-testid": "button-send"
+                                },
+                                "events": {
+                                  "click": {
+                                    "type": "propCall",
+                                    "calls": "sendMessage",
+                                    "args": [{"repeat": 1}]
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "text",
+                                      "name": "RunFlowText",
+                                      "key": "run-flow-text"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "isBuilding"
+                              }
+                            },
+                            "value": {
+                              "type": "static",
+                              "content": false
+                            },
+                            "condition": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "comp",
+                                "id": "!isBuilding"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "button",
+                                "name": "StopBuildingButton",
+                                "key": "stop-building-button",
+                                "style": {
+                                  "backgroundColor": "#f8f9fa",
+                                  "color": "#374151",
+                                  "padding": "8px 16px",
+                                  "borderRadius": "6px",
+                                  "border": "none",
+                                  "cursor": "pointer"
+                                },
+                                "attrs": {
+                                  "data-testid": "button-stop"
+                                },
+                                "events": {
+                                  "click": {
+                                    "type": "propCall",
+                                    "calls": "stopBuilding"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "StopButtonContent",
+                                      "key": "stop-button-content",
+                                      "style": {
+                                        "display": "flex",
+                                        "alignItems": "center",
+                                        "gap": "8px",
+                                        "borderRadius": "8px",
+                                        "fontSize": "14px",
+                                        "fontWeight": "500"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "text",
+                                            "name": "StopText",
+                                            "key": "stop-text"
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "LoadingSpinner",
+                                            "key": "loading-spinner",
+                                            "style": {
+                                              "width": "16px",
+                                              "height": "16px",
+                                              "border": "2px solid #e0e0e0",
+                                              "borderTop": "2px solid #6366f1",
+                                              "borderRadius": "50%",
+                                              "animation": "spin 1s linear infinite"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "isBuilding"
+                              }
+                            },
+                            "value": {
+                              "type": "static",
+                              "content": true
+                            },
+                            "condition": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "comp",
+                                "id": "isBuilding"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "text",
+                            "name": "NoInputHelpText",
+                            "key": "no-input-help-text",
+                            "style": {
+                              "color": "#6b7280",
+                              "fontSize": "14px",
+                              "textAlign": "center"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "AddText",
+                                  "key": "add-text"
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "link",
+                                  "name": "ChatInputDocLink",
+                                  "key": "chat-input-doc-link",
+                                  "style": {
+                                    "textDecoration": "underline",
+                                    "textUnderlineOffset": "4px"
+                                  },
+                                  "attrs": {
+                                    "href": "https://docs.langflow.org/components-io#chat-input",
+                                    "target": "_blank",
+                                    "rel": "noopener"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "noInput"
+              }
+            }
+          }
+        },
+        {
+          "type": "conditional",
+          "content": {
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "AnimatedInputContainer",
+                "key": "animated-input-container",
+                "style": {
+                  "width": "100%",
+                  "height": "100%"
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "VoiceAssistantContainer",
+                          "key": "voice-assistant-container",
+                          "style": {
+                            "opacity": "1",
+                            "transition": "opacity 0.2s ease"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "container",
+                                "name": "VoiceAssistantPlaceholder",
+                                "key": "voice-assistant-placeholder",
+                                "style": {
+                                  "width": "100%",
+                                  "height": "200px",
+                                  "backgroundColor": "#f8f9fa",
+                                  "border": "2px dashed #e0e0e0",
+                                  "borderRadius": "8px",
+                                  "display": "flex",
+                                  "alignItems": "center",
+                                  "justifyContent": "center",
+                                  "padding": "32px"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "text",
+                                      "name": "VoiceAssistantText",
+                                      "key": "voice-assistant-text",
+                                      "style": {
+                                        "fontSize": "16px",
+                                        "color": "#6b7280"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "showAudioInput"
+                        }
+                      },
+                      "value": {
+                        "type": "static",
+                        "content": true
+                      },
+                      "condition": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "showAudioInput && !newSessionCloseVoiceAssistant"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "InputWrapperContainer",
+                          "key": "input-wrapper-container",
+                          "style": {
+                            "opacity": "1",
+                            "transition": "opacity 0.2s ease"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "container",
+                                "name": "InputWrapperMain",
+                                "key": "input-wrapper-main",
+                                "style": {
+                                  "display": "flex",
+                                  "width": "100%",
+                                  "flexDirection": "column-reverse"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "InputFieldContainer",
+                                      "key": "input-field-container",
+                                      "style": {
+                                        "display": "flex",
+                                        "width": "100%",
+                                        "flexDirection": "column",
+                                        "borderRadius": "8px",
+                                        "border": "1px solid #e0e0e0",
+                                        "padding": "16px"
+                                      },
+                                      "attrs": {
+                                        "data-testid": "input-wrapper"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "textarea",
+                                            "name": "ChatMessageTextarea",
+                                            "key": "chat-message-textarea",
+                                            "style": {
+                                              "resize": "none",
+                                              "maxHeight": "150px",
+                                              "overflow": "hidden",
+                                              "width": "100%",
+                                              "border": "none",
+                                              "backgroundColor": "transparent",
+                                              "outline": "none",
+                                              "padding": "0",
+                                              "fontSize": "14px"
+                                            },
+                                            "attrs": {
+                                              "data-testid": "input-chat-playground",
+                                              "rows": "1",
+                                              "placeholder": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "placeholderText"
+                                                }
+                                              },
+                                              "disabled": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "comp",
+                                                  "id": "isBuilding || noInput"
+                                                }
+                                              },
+                                              "value": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "chatValue"
+                                                }
+                                              }
+                                            },
+                                            "events": {
+                                              "keyDown": {
+                                                "type": "stateChange",
+                                                "transitions": [
+                                                  {
+                                                    "type": "propCall",
+                                                    "calls": "checkSendingOk"
+                                                  }
+                                                ]
+                                              },
+                                              "onChange": {
+                                                "type": "stateChange",
+                                                "transitions": [
+                                                  {
+                                                    "type": "stateChange",
+                                                    "stateKey": "chatValue",
+                                                    "newValue": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "event.target.value"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "FilePreviewContainer",
+                                            "key": "file-preview-container",
+                                            "style": {
+                                              "display": "flex",
+                                              "width": "100%",
+                                              "alignItems": "center",
+                                              "gap": "8px",
+                                              "paddingTop": "8px",
+                                              "paddingBottom": "8px",
+                                              "overflow": "auto"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "repeat",
+                                                "content": {
+                                                  "node": {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "container",
+                                                      "name": "FilePreviewItem",
+                                                      "key": "file-preview-item",
+                                                      "style": {
+                                                        "position": "relative",
+                                                        "display": "inline-flex",
+                                                        "alignItems": "center",
+                                                        "gap": "8px",
+                                                        "padding": "8px",
+                                                        "backgroundColor": "#f8f9fa",
+                                                        "borderRadius": "6px",
+                                                        "border": "1px solid #e0e0e0"
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "image",
+                                                            "name": "FilePreviewImage",
+                                                            "key": "file-preview-image",
+                                                            "style": {
+                                                              "width": "32px",
+                                                              "height": "32px",
+                                                              "objectFit": "cover",
+                                                              "borderRadius": "4px"
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "button",
+                                                            "name": "DeleteFileButton",
+                                                            "key": "delete-file-button",
+                                                            "style": {
+                                                              "position": "absolute",
+                                                              "top": "-4px",
+                                                              "right": "-4px",
+                                                              "width": "16px",
+                                                              "height": "16px",
+                                                              "backgroundColor": "#ef4444",
+                                                              "color": "white",
+                                                              "borderRadius": "50%",
+                                                              "border": "none",
+                                                              "cursor": "pointer",
+                                                              "fontSize": "10px"
+                                                            },
+                                                            "events": {
+                                                              "click": {
+                                                                "type": "propCall",
+                                                                "calls": "handleDeleteFile"
+                                                              }
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "icon",
+                                                                  "name": "XIcon",
+                                                                  "key": "x-icon",
+                                                                  "style": {
+                                                                    "width": "8px",
+                                                                    "height": "8px"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  "dataSource": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "state",
+                                                      "id": "files"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "InputActionsContainer",
+                                            "key": "input-actions-container",
+                                            "style": {
+                                              "display": "flex",
+                                              "width": "100%",
+                                              "alignItems": "flex-end",
+                                              "justifyContent": "space-between"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "UploadButtonContainer",
+                                                  "key": "upload-button-container",
+                                                  "style": {
+                                                    "cursor": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "comp",
+                                                        "id": "isBuilding ? 'not-allowed' : 'pointer'"
+                                                      }
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "container",
+                                                            "name": "UploadFileTooltipWrapper",
+                                                            "key": "upload-file-tooltip-wrapper",
+                                                            "style": {
+                                                              "position": "relative"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "input",
+                                                                  "name": "HiddenFileInput",
+                                                                  "key": "hidden-file-input",
+                                                                  "style": {
+                                                                    "display": "none"
+                                                                  },
+                                                                  "attrs": {
+                                                                    "type": "file",
+                                                                    "accept": "image/png,image/jpg,image/jpeg",
+                                                                    "disabled": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "state",
+                                                                        "id": "isBuilding"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "events": {
+                                                                    "change": {
+                                                                      "type": "propCall",
+                                                                      "calls": "handleFileChange"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "button",
+                                                                  "name": "AttachImageButton",
+                                                                  "key": "attach-image-button",
+                                                                  "style": {
+                                                                    "padding": "8px",
+                                                                    "backgroundColor": "transparent",
+                                                                    "border": "none",
+                                                                    "cursor": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "comp",
+                                                                        "id": "isBuilding ? 'not-allowed' : 'pointer'"
+                                                                      }
+                                                                    },
+                                                                    "color": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "comp",
+                                                                        "id": "isBuilding ? '#9ca3af' : '#6b7280'"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "attrs": {
+                                                                    "disabled": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "state",
+                                                                        "id": "isBuilding"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "events": {
+                                                                    "click": {
+                                                                      "type": "propCall",
+                                                                      "calls": "handleButtonClick"
+                                                                    }
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "icon",
+                                                                        "name": "ImageIcon",
+                                                                        "key": "image-icon",
+                                                                        "style": {
+                                                                          "width": "18px",
+                                                                          "height": "18px"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "comp",
+                                                            "id": "!playgroundPage || (playgroundPage && ENABLE_IMAGE_ON_PLAYGROUND)"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "RightActionsContainer",
+                                                  "key": "right-actions-container",
+                                                  "style": {
+                                                    "display": "flex",
+                                                    "alignItems": "center",
+                                                    "gap": "8px"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "button",
+                                                            "name": "VoiceAssistantButton",
+                                                            "key": "voice-assistant-button",
+                                                            "style": {
+                                                              "padding": "8px",
+                                                              "backgroundColor": "transparent",
+                                                              "border": "none",
+                                                              "cursor": "pointer",
+                                                              "borderRadius": "4px"
+                                                            },
+                                                            "events": {
+                                                              "click": {
+                                                                "type": "stateChange",
+                                                                "transitions": [
+                                                                  {
+                                                                    "type": "stateChange",
+                                                                    "stateKey": "showAudioInput",
+                                                                    "newValue": true
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "icon",
+                                                                  "name": "MicrophoneIcon",
+                                                                  "key": "microphone-icon",
+                                                                  "style": {
+                                                                    "width": "18px",
+                                                                    "height": "18px"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "comp",
+                                                            "id": "ENABLE_VOICE_ASSISTANT"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "SendButtonContainer",
+                                                        "key": "send-button-container",
+                                                        "style": {
+                                                          "marginLeft": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "comp",
+                                                              "id": "playgroundPage ? 'auto' : '0'"
+                                                            }
+                                                          }
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "button",
+                                                                  "name": "StopButton",
+                                                                  "key": "stop-button",
+                                                                  "style": {
+                                                                    "backgroundColor": "#f8f9fa",
+                                                                    "color": "#374151",
+                                                                    "padding": "8px 16px",
+                                                                    "borderRadius": "6px",
+                                                                    "border": "none",
+                                                                    "cursor": "pointer"
+                                                                  },
+                                                                  "attrs": {
+                                                                    "data-testid": "button-stop"
+                                                                  },
+                                                                  "events": {
+                                                                    "click": {
+                                                                      "type": "stateChange",
+                                                                      "transitions": [
+                                                                        {
+                                                                          "type": "propCall",
+                                                                          "calls": "stopBuilding"
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "container",
+                                                                        "name": "StopButtonContent",
+                                                                        "key": "stop-button-content",
+                                                                        "style": {
+                                                                          "display": "flex",
+                                                                          "alignItems": "center",
+                                                                          "gap": "8px",
+                                                                          "fontSize": "14px",
+                                                                          "fontWeight": "500"
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "text",
+                                                                              "name": "StopButtonText",
+                                                                              "key": "stop-button-text"
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "StopButtonSpinner",
+                                                                              "key": "stop-button-spinner",
+                                                                              "style": {
+                                                                                "width": "16px",
+                                                                                "height": "16px",
+                                                                                "border": "2px solid #e0e0e0",
+                                                                                "borderTop": "2px solid #6366f1",
+                                                                                "borderRadius": "50%",
+                                                                                "animation": "spin 1s linear infinite"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "comp",
+                                                                  "id": "isBuilding || files.some(file => file.loading)"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "conditional",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "button",
+                                                                  "name": "SendButton",
+                                                                  "key": "send-button",
+                                                                  "style": {
+                                                                    "backgroundColor": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "comp",
+                                                                        "id": "chatValue ? '#6366f1' : '#6366f1'"
+                                                                      }
+                                                                    },
+                                                                    "color": "white",
+                                                                    "padding": "8px 16px",
+                                                                    "borderRadius": "6px",
+                                                                    "border": "none",
+                                                                    "cursor": "pointer"
+                                                                  },
+                                                                  "attrs": {
+                                                                    "data-testid": "button-send"
+                                                                  },
+                                                                  "events": {
+                                                                    "click": {
+                                                                      "type": "propCall",
+                                                                      "calls": "send"
+                                                                    }
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "container",
+                                                                        "name": "SendButtonContent",
+                                                                        "key": "send-button-content",
+                                                                        "style": {
+                                                                          "display": "flex",
+                                                                          "alignItems": "center",
+                                                                          "gap": "8px",
+                                                                          "fontSize": "14px",
+                                                                          "fontWeight": "500"
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "text",
+                                                                              "name": "SendButtonText",
+                                                                              "key": "send-button-text"
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "reference": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "comp",
+                                                                  "id": "!(isBuilding || files.some(file => file.loading)) && !noInput"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "showAudioInput"
+                        }
+                      },
+                      "value": {
+                        "type": "static",
+                        "content": false
+                      },
+                      "condition": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "!showAudioInput || newSessionCloseVoiceAssistant"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "noInput"
+              }
+            },
+            "value": {
+              "type": "static",
+              "content": false
+            },
+            "condition": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "comp",
+                "id": "!noInput"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "isBuilding": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "showAudioInput": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "newSessionCloseVoiceAssistant": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "chatValue": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "files": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "isDragging": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "placeholderText": {
+      "type": "string",
+      "defaultValue": "Send a message..."
+    },
+    "isVoiceAssistantActive": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "propDefinitions": {
+    "sendMessage": {
+      "type": "function",
+      "isRequired": true
+    },
+    "inputRef": {
+      "type": "object",
+      "isRequired": false
+    },
+    "noInput": {
+      "type": "boolean",
+      "isRequired": false,
+      "defaultValue": false
+    },
+    "files": {
+      "type": "array",
+      "isRequired": false,
+      "defaultValue": []
+    },
+    "setFiles": {
+      "type": "function",
+      "isRequired": false
+    },
+    "isDragging": {
+      "type": "boolean",
+      "isRequired": false,
+      "defaultValue": false
+    },
+    "playgroundPage": {
+      "type": "boolean",
+      "isRequired": false,
+      "defaultValue": false
+    },
+    "stopBuilding": {
+      "type": "function",
+      "isRequired": false
+    },
+    "checkSendingOk": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleFileChange": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleButtonClick": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleDeleteFile": {
+      "type": "function",
+      "isRequired": false
+    },
+    "currentFlowId": {
+      "type": "string",
+      "isRequired": false
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "primary": "#6366f1",
+        "background": "#ffffff",
+        "muted": "#f8f9fa",
+        "border": "#e0e0e0",
+        "text": "#374151",
+        "textMuted": "#6b7280",
+        "error": "#ef4444",
+        "success": "#10b981"
+      },
+      "spacing": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "12px",
+        "lg": "16px",
+        "xl": "32px"
+      },
+      "borderRadius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px",
+        "full": "50%"
+      },
+      "fontSize": {
+        "sm": "12px",
+        "base": "14px",
+        "lg": "16px",
+        "xl": "18px"
+      },
+      "fontWeight": {
+        "normal": "400",
+        "medium": "500",
+        "semibold": "600"
+      },
+      "shadows": {
+        "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+      }
+    }
+  }
+}

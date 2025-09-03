@@ -1,0 +1,1748 @@
+{
+  "$schema": "https://docs.teleporthq.io/uidl-schema/v1/project.json",
+  "name": "StorePage",
+  "globals": {
+    "settings": {
+      "title": "Store Page",
+      "language": "en"
+    },
+    "customCode": {
+      "head": "",
+      "body": ""
+    },
+    "meta": [],
+    "assets": [],
+    "manifest": {},
+    "variables": {}
+  },
+  "root": {
+    "name": "StorePage",
+    "node": {
+      "type": "element",
+      "content": {
+        "elementType": "container",
+        "name": "store-page-container",
+        "children": [
+          {
+            "type": "element",
+            "content": {
+              "elementType": "container",
+              "name": "page-layout-wrapper",
+              "children": [
+                {
+                  "type": "element",
+                  "content": {
+                    "elementType": "container",
+                    "name": "page-header",
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "header-content",
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "text",
+                                "name": "page-title-store",
+                                "style": {
+                                  "fontSize": "24px",
+                                  "fontWeight": "600",
+                                  "color": "$token-color-text-primary"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Store"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "text",
+                                "name": "page-description-beta",
+                                "style": {
+                                  "fontSize": "14px",
+                                  "color": "$token-color-text-secondary",
+                                  "marginTop": "4px"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Discover and share custom components and flows"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "button",
+                          "name": "api-key-button-store",
+                          "attrs": [
+                            {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "disabled"
+                              }
+                            }
+                          ],
+                          "style": {
+                            "backgroundColor": "$token-color-primary",
+                            "color": "$token-color-primary-contrast",
+                            "padding": "8px 16px",
+                            "borderRadius": "$token-border-radius-md",
+                            "border": "none",
+                            "cursor": "pointer",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "icon",
+                              "name": "key-icon",
+                              "style": {
+                                "width": "16px",
+                                "height": "16px"
+                              }
+                            }
+                          },
+                          {
+                            "type": "static",
+                            "content": "API Key"
+                          }
+                        ]
+                      }
+                    ],
+                    "style": {
+                      "display": "flex",
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "16px 0"
+                    }
+                  }
+                },
+                {
+                  "type": "element",
+                  "content": {
+                    "elementType": "container",
+                    "name": "main-content",
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "search-and-tabs-section",
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "container",
+                                "name": "search-row",
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "search-input-container",
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "input",
+                                            "name": "search-components-input",
+                                            "attrs": [
+                                              {
+                                                "type": "static",
+                                                "name": "placeholder",
+                                                "content": "Search components and flows..."
+                                              },
+                                              {
+                                                "type": "static",
+                                                "name": "type",
+                                                "content": "text"
+                                              },
+                                              {
+                                                "type": "dynamic",
+                                                "name": "value",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "inputText"
+                                                }
+                                              },
+                                              {
+                                                "type": "dynamic",
+                                                "name": "disabled",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "loading"
+                                                }
+                                              }
+                                            ],
+                                            "style": {
+                                              "width": "100%",
+                                              "padding": "12px 16px",
+                                              "border": "1px solid $token-color-border",
+                                              "borderRadius": "$token-border-radius-md",
+                                              "fontSize": "14px"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "button",
+                                            "name": "search-submit-button",
+                                            "style": {
+                                              "position": "absolute",
+                                              "right": "8px",
+                                              "top": "50%",
+                                              "transform": "translateY(-50%)",
+                                              "background": "transparent",
+                                              "border": "none",
+                                              "cursor": "pointer",
+                                              "padding": "4px"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "icon",
+                                                "name": "search-icon",
+                                                "style": {
+                                                  "width": "16px",
+                                                  "height": "16px",
+                                                  "color": "$token-color-text-secondary"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ],
+                                      "style": {
+                                        "position": "relative",
+                                        "width": "40%"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "tabs-navigation",
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "button",
+                                            "name": "all-tab-button",
+                                            "attrs": [
+                                              {
+                                                "type": "dynamic",
+                                                "name": "disabled",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "loading"
+                                                }
+                                              }
+                                            ],
+                                            "style": {
+                                              "padding": "12px",
+                                              "borderBottom": "2px solid",
+                                              "borderBottomColor": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "tabActive",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "All",
+                                                      "operation": "===",
+                                                      "value": "$token-color-primary"
+                                                    }
+                                                  ],
+                                                  "fallback": "transparent"
+                                                }
+                                              },
+                                              "color": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "tabActive",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "All",
+                                                      "operation": "===",
+                                                      "value": "$token-color-text-primary"
+                                                    }
+                                                  ],
+                                                  "fallback": "$token-color-text-secondary"
+                                                }
+                                              },
+                                              "background": "transparent",
+                                              "border": "none",
+                                              "cursor": "pointer"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "All"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "button",
+                                            "name": "flows-tab-button",
+                                            "attrs": [
+                                              {
+                                                "type": "dynamic",
+                                                "name": "disabled",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "loading"
+                                                }
+                                              }
+                                            ],
+                                            "style": {
+                                              "padding": "12px",
+                                              "borderBottom": "2px solid",
+                                              "borderBottomColor": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "tabActive",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "Flows",
+                                                      "operation": "===",
+                                                      "value": "$token-color-primary"
+                                                    }
+                                                  ],
+                                                  "fallback": "transparent"
+                                                }
+                                              },
+                                              "color": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "tabActive",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "Flows",
+                                                      "operation": "===",
+                                                      "value": "$token-color-text-primary"
+                                                    }
+                                                  ],
+                                                  "fallback": "$token-color-text-secondary"
+                                                }
+                                              },
+                                              "background": "transparent",
+                                              "border": "none",
+                                              "cursor": "pointer"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Flows"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "button",
+                                            "name": "components-tab-button",
+                                            "attrs": [
+                                              {
+                                                "type": "dynamic",
+                                                "name": "disabled",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "loading"
+                                                }
+                                              }
+                                            ],
+                                            "style": {
+                                              "padding": "12px",
+                                              "borderBottom": "2px solid",
+                                              "borderBottomColor": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "tabActive",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "Components",
+                                                      "operation": "===",
+                                                      "value": "$token-color-primary"
+                                                    }
+                                                  ],
+                                                  "fallback": "transparent"
+                                                }
+                                              },
+                                              "color": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "tabActive",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "Components",
+                                                      "operation": "===",
+                                                      "value": "$token-color-text-primary"
+                                                    }
+                                                  ],
+                                                  "fallback": "$token-color-text-secondary"
+                                                }
+                                              },
+                                              "background": "transparent",
+                                              "border": "none",
+                                              "cursor": "pointer"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Components"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "button",
+                                            "name": "bundles-tab-button-disabled",
+                                            "attrs": [
+                                              {
+                                                "type": "static",
+                                                "name": "disabled",
+                                                "content": true
+                                              }
+                                            ],
+                                            "style": {
+                                              "padding": "12px",
+                                              "borderBottom": "2px solid transparent",
+                                              "color": "$token-color-text-disabled",
+                                              "background": "transparent",
+                                              "border": "none",
+                                              "cursor": "not-allowed"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Bundles"
+                                            }
+                                          ]
+                                        }
+                                      ],
+                                      "style": {
+                                        "display": "flex",
+                                        "gap": "0",
+                                        "borderBottom": "1px solid $token-color-border",
+                                        "marginLeft": "16px",
+                                        "width": "100%"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "style": {
+                                  "display": "flex",
+                                  "alignItems": "flex-end",
+                                  "gap": "16px",
+                                  "marginBottom": "16px"
+                                }
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "container",
+                                "name": "filters-row",
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "select",
+                                      "name": "filter-dropdown",
+                                      "attrs": [
+                                        {
+                                          "type": "dynamic",
+                                          "name": "disabled",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "loading"
+                                          }
+                                        },
+                                        {
+                                          "type": "dynamic",
+                                          "name": "value",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "selectFilter"
+                                          }
+                                        }
+                                      ],
+                                      "style": {
+                                        "width": "160px",
+                                        "padding": "8px 12px",
+                                        "border": "1px solid $token-color-border",
+                                        "borderRadius": "$token-border-radius-md",
+                                        "backgroundColor": "$token-color-surface"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "option",
+                                          "name": "filter-all-option",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "name": "value",
+                                              "content": "all"
+                                            }
+                                          ]
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "All"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "option",
+                                          "name": "filter-created-by-me-option",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "name": "value",
+                                              "content": "createdbyme"
+                                            },
+                                            {
+                                              "type": "dynamic",
+                                              "name": "disabled",
+                                              "content": {
+                                                "referenceType": "computed",
+                                                "id": "isFilterDisabled"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Created By Me"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "option",
+                                          "name": "filter-liked-by-me-option",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "name": "value",
+                                              "content": "likedbyme"
+                                            },
+                                            {
+                                              "type": "dynamic",
+                                              "name": "disabled",
+                                              "content": {
+                                                "referenceType": "computed",
+                                                "id": "isFilterDisabled"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Liked By Me"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "conditional",
+                                    "content": {
+                                      "node": {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "container",
+                                          "name": "tags-selector-container",
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "tags-selector",
+                                                "attrs": [
+                                                  {
+                                                    "type": "dynamic",
+                                                    "name": "disabled",
+                                                    "content": {
+                                                      "referenceType": "state",
+                                                      "id": "loading"
+                                                    }
+                                                  }
+                                                ],
+                                                "style": {
+                                                  "display": "flex",
+                                                  "flexWrap": "wrap",
+                                                  "gap": "8px"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "reference": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "computed",
+                                          "id": "showTagsSelector"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "conditional",
+                                    "content": {
+                                      "node": {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "container",
+                                          "name": "filter-badge",
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "container",
+                                                "name": "filter-tag-badge",
+                                                "style": {
+                                                  "display": "inline-flex",
+                                                  "alignItems": "center",
+                                                  "gap": "8px",
+                                                  "padding": "4px 8px",
+                                                  "backgroundColor": "$token-color-secondary",
+                                                  "color": "$token-color-secondary-contrast",
+                                                  "borderRadius": "$token-border-radius-sm",
+                                                  "fontSize": "12px"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "button",
+                                                    "name": "remove-filter-button",
+                                                    "style": {
+                                                      "background": "transparent",
+                                                      "border": "none",
+                                                      "cursor": "pointer",
+                                                      "padding": "0",
+                                                      "display": "flex",
+                                                      "alignItems": "center"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "icon",
+                                                        "name": "close-filter-icon",
+                                                        "style": {
+                                                          "width": "16px",
+                                                          "height": "16px"
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "currentFilterId"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "reference": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "computed",
+                                          "id": "hasActiveFilter"
+                                        }
+                                      }
+                                    }
+                                  }
+                                ],
+                                "style": {
+                                  "display": "flex",
+                                  "alignItems": "center",
+                                  "gap": "8px",
+                                  "marginBottom": "16px"
+                                }
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "container",
+                                "name": "results-and-sort-row",
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "text",
+                                      "name": "results-count",
+                                      "style": {
+                                        "fontSize": "14px",
+                                        "color": "$token-color-text-secondary"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "results-text",
+                                              "children": [
+                                                {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "totalRowsCount"
+                                                  }
+                                                },
+                                                {
+                                                  "type": "static",
+                                                  "content": " "
+                                                },
+                                                {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "totalRowsCount",
+                                                    "conditions": [
+                                                      {
+                                                        "operand": 1,
+                                                        "operation": "!==",
+                                                        "value": "results"
+                                                      }
+                                                    ],
+                                                    "fallback": "result"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "computed",
+                                              "id": "showResultsCount"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "select",
+                                      "name": "sort-order-dropdown",
+                                      "attrs": [
+                                        {
+                                          "type": "dynamic",
+                                          "name": "disabled",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "loading"
+                                          }
+                                        },
+                                        {
+                                          "type": "dynamic",
+                                          "name": "value",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "pageOrder"
+                                          }
+                                        }
+                                      ],
+                                      "style": {
+                                        "padding": "8px 12px",
+                                        "border": "1px solid $token-color-border",
+                                        "borderRadius": "$token-border-radius-md",
+                                        "backgroundColor": "$token-color-surface"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "option",
+                                          "name": "sort-popular-option",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "name": "value",
+                                              "content": "Popular"
+                                            }
+                                          ]
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Popular"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "option",
+                                          "name": "sort-alphabetical-option",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "name": "value",
+                                              "content": "Alphabetical"
+                                            }
+                                          ]
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Alphabetical"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "style": {
+                                  "display": "flex",
+                                  "justifyContent": "space-between",
+                                  "alignItems": "flex-end",
+                                  "marginBottom": "16px"
+                                }
+                              }
+                            }
+                          ],
+                          "style": {
+                            "display": "flex",
+                            "flexDirection": "column",
+                            "gap": "16px",
+                            "width": "100%"
+                          }
+                        }
+                      },
+                      {
+                        "type": "conditional",
+                        "content": {
+                          "node": {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "store-cards-grid",
+                              "children": [
+                                {
+                                  "type": "repeat",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "store-card-item",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "store-card",
+                                              "style": {
+                                                "border": "1px solid $token-color-border",
+                                                "borderRadius": "$token-border-radius-md",
+                                                "padding": "16px",
+                                                "backgroundColor": "$token-color-surface",
+                                                "cursor": "pointer",
+                                                "transition": "all 0.2s ease"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "card-header",
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "text",
+                                                        "name": "card-title",
+                                                        "style": {
+                                                          "fontSize": "16px",
+                                                          "fontWeight": "600",
+                                                          "color": "$token-color-text-primary"
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "name"
+                                                          }
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "text",
+                                                        "name": "card-description",
+                                                        "style": {
+                                                          "fontSize": "14px",
+                                                          "color": "$token-color-text-secondary",
+                                                          "marginTop": "4px",
+                                                          "display": "-webkit-box",
+                                                          "WebkitLineClamp": "2",
+                                                          "WebkitBoxOrient": "vertical",
+                                                          "overflow": "hidden"
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "description"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "card-metadata",
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "card-stats",
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "download-count",
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "icon",
+                                                                    "name": "download-icon",
+                                                                    "style": {
+                                                                      "width": "14px",
+                                                                      "height": "14px",
+                                                                      "color": "$token-color-text-secondary"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "download-count-text",
+                                                                    "style": {
+                                                                      "fontSize": "12px",
+                                                                      "color": "$token-color-text-secondary",
+                                                                      "marginLeft": "4px"
+                                                                    }
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "local",
+                                                                        "id": "downloads"
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ],
+                                                              "style": {
+                                                                "display": "flex",
+                                                                "alignItems": "center"
+                                                              }
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "card-tags",
+                                                        "children": [
+                                                          {
+                                                            "type": "repeat",
+                                                            "content": {
+                                                              "node": {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "span",
+                                                                  "name": "card-tag",
+                                                                  "style": {
+                                                                    "display": "inline-block",
+                                                                    "padding": "2px 6px",
+                                                                    "fontSize": "11px",
+                                                                    "backgroundColor": "$token-color-surface-variant",
+                                                                    "color": "$token-color-text-secondary",
+                                                                    "borderRadius": "$token-border-radius-xs",
+                                                                    "margin": "2px"
+                                                                  }
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "type": "dynamic",
+                                                                    "content": {
+                                                                      "referenceType": "local",
+                                                                      "id": "tag"
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              },
+                                                              "dataSource": {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "tags"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        ],
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "flexWrap": "wrap",
+                                                          "marginTop": "8px"
+                                                        }
+                                                      }
+                                                    }
+                                                  ],
+                                                  "style": {
+                                                    "display": "flex",
+                                                    "justifyContent": "space-between",
+                                                    "alignItems": "flex-start",
+                                                    "marginTop": "12px"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "dataSource": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "searchData"
+                                      }
+                                    }
+                                  }
+                                }
+                              ],
+                              "style": {
+                                "display": "grid",
+                                "gridTemplateColumns": "repeat(auto-fill, minmax(300px, 1fr))",
+                                "gap": "16px",
+                                "width": "100%"
+                              }
+                            }
+                          },
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "computed",
+                              "id": "hasSearchResults"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "conditional",
+                        "content": {
+                          "node": {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "loading-skeleton-grid",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-card-1",
+                                    "style": {
+                                      "border": "1px solid $token-color-border",
+                                      "borderRadius": "$token-border-radius-md",
+                                      "padding": "16px",
+                                      "backgroundColor": "$token-color-surface",
+                                      "animation": "pulse 2s infinite"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "skeleton-content-1",
+                                        "style": {
+                                          "height": "120px",
+                                          "backgroundColor": "$token-color-surface-variant",
+                                          "borderRadius": "$token-border-radius-sm"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-card-2",
+                                    "style": {
+                                      "border": "1px solid $token-color-border",
+                                      "borderRadius": "$token-border-radius-md",
+                                      "padding": "16px",
+                                      "backgroundColor": "$token-color-surface",
+                                      "animation": "pulse 2s infinite"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "skeleton-content-2",
+                                        "style": {
+                                          "height": "120px",
+                                          "backgroundColor": "$token-color-surface-variant",
+                                          "borderRadius": "$token-border-radius-sm"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "skeleton-card-3",
+                                    "style": {
+                                      "border": "1px solid $token-color-border",
+                                      "borderRadius": "$token-border-radius-md",
+                                      "padding": "16px",
+                                      "backgroundColor": "$token-color-surface",
+                                      "animation": "pulse 2s infinite"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "skeleton-content-3",
+                                        "style": {
+                                          "height": "120px",
+                                          "backgroundColor": "$token-color-surface-variant",
+                                          "borderRadius": "$token-border-radius-sm"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              ],
+                              "style": {
+                                "display": "grid",
+                                "gridTemplateColumns": "repeat(auto-fill, minmax(300px, 1fr))",
+                                "gap": "16px",
+                                "width": "100%"
+                              }
+                            }
+                          },
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "loading"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "conditional",
+                        "content": {
+                          "node": {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "empty-state-message",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "empty-state-content",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "no-results-message",
+                                          "style": {
+                                            "fontSize": "16px",
+                                            "color": "$token-color-text-secondary",
+                                            "textAlign": "center"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "conditional",
+                                            "content": {
+                                              "node": {
+                                                "type": "static",
+                                                "content": "You haven't created anything with the selected filters yet."
+                                              },
+                                              "reference": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "selectFilter",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "createdbyme",
+                                                      "operation": "===",
+                                                      "value": true
+                                                    }
+                                                  ],
+                                                  "fallback": false
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "conditional",
+                                            "content": {
+                                              "node": {
+                                                "type": "static",
+                                                "content": "You haven't liked anything with the selected filters yet."
+                                              },
+                                              "reference": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "selectFilter",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "likedbyme",
+                                                      "operation": "===",
+                                                      "value": true
+                                                    }
+                                                  ],
+                                                  "fallback": false
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "conditional",
+                                            "content": {
+                                              "node": {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "no-results-generic",
+                                                  "children": [
+                                                    {
+                                                      "type": "static",
+                                                      "content": "There are no "
+                                                    },
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "tabActive",
+                                                        "conditions": [
+                                                          {
+                                                            "operand": "Flows",
+                                                            "operation": "===",
+                                                            "value": "Flows"
+                                                          }
+                                                        ],
+                                                        "fallback": "Components"
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "static",
+                                                      "content": " with the selected filters."
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "reference": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "selectFilter",
+                                                  "conditions": [
+                                                    {
+                                                      "operand": "all",
+                                                      "operation": "===",
+                                                      "value": true
+                                                    }
+                                                  ],
+                                                  "fallback": false
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "style": {
+                                "display": "flex",
+                                "justifyContent": "center",
+                                "alignItems": "center",
+                                "width": "100%",
+                                "padding": "32px",
+                                "textAlign": "center"
+                              }
+                            }
+                          },
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "computed",
+                              "id": "showEmptyState"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "style": {
+                      "display": "flex",
+                      "flexDirection": "column",
+                      "justifyContent": "space-between",
+                      "height": "100%",
+                      "width": "100%"
+                    }
+                  }
+                },
+                {
+                  "type": "conditional",
+                  "content": {
+                    "node": {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "pagination-container",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "pagination-component",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "pagination-controls",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "button",
+                                          "name": "pagination-previous",
+                                          "attrs": [
+                                            {
+                                              "type": "dynamic",
+                                              "name": "disabled",
+                                              "content": {
+                                                "referenceType": "computed",
+                                                "id": "isPreviousDisabled"
+                                              }
+                                            }
+                                          ],
+                                          "style": {
+                                            "padding": "8px 12px",
+                                            "border": "1px solid $token-color-border",
+                                            "borderRadius": "$token-border-radius-md",
+                                            "backgroundColor": "$token-color-surface",
+                                            "cursor": "pointer"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Previous"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "pagination-info",
+                                          "style": {
+                                            "fontSize": "14px",
+                                            "color": "$token-color-text-secondary",
+                                            "margin": "0 16px"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Page "
+                                          },
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "pageIndex"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "button",
+                                          "name": "pagination-next",
+                                          "attrs": [
+                                            {
+                                              "type": "dynamic",
+                                              "name": "disabled",
+                                              "content": {
+                                                "referenceType": "computed",
+                                                "id": "isNextDisabled"
+                                              }
+                                            }
+                                          ],
+                                          "style": {
+                                            "padding": "8px 12px",
+                                            "border": "1px solid $token-color-border",
+                                            "borderRadius": "$token-border-radius-md",
+                                            "backgroundColor": "$token-color-surface",
+                                            "cursor": "pointer"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Next"
+                                          }
+                                        ]
+                                      }
+                                    ],
+                                    "style": {
+                                      "display": "flex",
+                                      "justifyContent": "center",
+                                      "alignItems": "center"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "style": {
+                          "position": "relative",
+                          "padding": "24px 0"
+                        }
+                      }
+                    },
+                    "reference": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "computed",
+                        "id": "showPagination"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "style": {
+          "display": "flex",
+          "flexDirection": "column",
+          "minHeight": "100vh",
+          "padding": "16px",
+          "backgroundColor": "$token-color-background"
+        }
+      }
+    },
+    "stateDefinitions": {
+      "hasApiKey": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "validApiKey": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "loadingApiKey": {
+        "type": "boolean",
+        "defaultValue": true
+      },
+      "loading": {
+        "type": "boolean",
+        "defaultValue": true
+      },
+      "inputText": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "searchData": {
+        "type": "array",
+        "defaultValue": []
+      },
+      "totalRowsCount": {
+        "type": "number",
+        "defaultValue": 0
+      },
+      "pageSize": {
+        "type": "number",
+        "defaultValue": 12
+      },
+      "pageIndex": {
+        "type": "number",
+        "defaultValue": 1
+      },
+      "pageOrder": {
+        "type": "string",
+        "defaultValue": "Popular"
+      },
+      "tabActive": {
+        "type": "string",
+        "defaultValue": "All"
+      },
+      "searchNow": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "selectFilter": {
+        "type": "string",
+        "defaultValue": "all"
+      },
+      "filteredCategories": {
+        "type": "array",
+        "defaultValue": []
+      },
+      "currentFilterId": {
+        "type": "string",
+        "defaultValue": ""
+      }
+    },
+    "propDefinitions": {
+      "disabled": {
+        "type": "boolean",
+        "defaultValue": false
+      }
+    },
+    "compDefinitions": {
+      "isFilterDisabled": {
+        "type": "boolean",
+        "content": "!$state.hasApiKey || !$state.validApiKey"
+      },
+      "showTagsSelector": {
+        "type": "boolean",
+        "content": "$state.currentFilterId === undefined"
+      },
+      "hasActiveFilter": {
+        "type": "boolean",
+        "content": "$state.currentFilterId !== undefined && $state.currentFilterId !== ''"
+      },
+      "showResultsCount": {
+        "type": "boolean",
+        "content": "(!$state.loading || $state.searchData.length !== 0)"
+      },
+      "hasSearchResults": {
+        "type": "boolean",
+        "content": "(!$state.loading || $state.searchData.length !== 0) && $state.searchData.length > 0"
+      },
+      "showEmptyState": {
+        "type": "boolean",
+        "content": "!$state.loading && $state.searchData.length === 0"
+      },
+      "showPagination": {
+        "type": "boolean",
+        "content": "!$state.loading && $state.searchData.length > 0"
+      },
+      "isPreviousDisabled": {
+        "type": "boolean",
+        "content": "$state.pageIndex <= 1"
+      },
+      "isNextDisabled": {
+        "type": "boolean",
+        "content": "$state.pageIndex * $state.pageSize >= $state.totalRowsCount"
+      }
+    }
+  },
+  "styleSetDefinitions": {
+    "primaryButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "backgroundColor": "$token-color-primary",
+        "color": "$token-color-primary-contrast",
+        "padding": "8px 16px",
+        "borderRadius": "$token-border-radius-md",
+        "border": "none",
+        "cursor": "pointer",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "inputField": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "100%",
+        "padding": "12px 16px",
+        "border": "1px solid $token-color-border",
+        "borderRadius": "$token-border-radius-md",
+        "fontSize": "14px",
+        "backgroundColor": "$token-color-surface",
+        "color": "$token-color-text-primary"
+      }
+    },
+    "selectDropdown": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "padding": "8px 12px",
+        "border": "1px solid $token-color-border",
+        "borderRadius": "$token-border-radius-md",
+        "backgroundColor": "$token-color-surface",
+        "fontSize": "14px",
+        "cursor": "pointer"
+      }
+    },
+    "cardContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "border": "1px solid $token-color-border",
+        "borderRadius": "$token-border-radius-md",
+        "padding": "16px",
+        "backgroundColor": "$token-color-surface",
+        "cursor": "pointer",
+        "transition": "all 0.2s ease",
+        "hover": {
+          "borderColor": "$token-color-primary",
+          "transform": "translateY(-2px)",
+          "boxShadow": "0 4px 12px rgba(0,0,0,0.1)"
+        }
+      }
+    },
+    "tabButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "padding": "12px",
+        "borderBottom": "2px solid transparent",
+        "background": "transparent",
+        "border": "none",
+        "cursor": "pointer",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "transition": "all 0.2s ease",
+        "hover": {
+          "color": "$token-color-primary"
+        }
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "token-color-primary": "#0066FF",
+        "token-color-primary-contrast": "#FFFFFF",
+        "token-color-secondary": "#6B7280",
+        "token-color-secondary-contrast": "#FFFFFF",
+        "token-color-background": "#FFFFFF",
+        "token-color-surface": "#F9FAFB",
+        "token-color-surface-variant": "#F3F4F6",
+        "token-color-border": "#E5E7EB",
+        "token-color-text-primary": "#111827",
+        "token-color-text-secondary": "#6B7280",
+        "token-color-text-disabled": "#9CA3AF"
+      },
+      "spacing": {
+        "token-spacing-xs": "4px",
+        "token-spacing-sm": "8px",
+        "token-spacing-md": "16px",
+        "token-spacing-lg": "24px",
+        "token-spacing-xl": "32px"
+      },
+      "borderRadius": {
+        "token-border-radius-xs": "2px",
+        "token-border-radius-sm": "4px",
+        "token-border-radius-md": "6px",
+        "token-border-radius-lg": "8px"
+      },
+      "typography": {
+        "token-font-size-xs": "12px",
+        "token-font-size-sm": "14px",
+        "token-font-size-md": "16px",
+        "token-font-size-lg": "18px",
+        "token-font-size-xl": "24px"
+      }
+    }
+  }
+}

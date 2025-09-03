@@ -1,0 +1,1120 @@
+{
+  "name": "IOModal",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "IOModalContainer",
+      "key": "iomodal-container",
+      "style": {
+        "display": "flex",
+        "position": "relative",
+        "width": "100%",
+        "height": "100%"
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "BaseModalOverlay",
+            "key": "base-modal-overlay",
+            "style": {
+              "position": "fixed",
+              "top": "0",
+              "left": "0",
+              "right": "0",
+              "bottom": "0",
+              "backgroundColor": "rgba(0, 0, 0, 0.8)",
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "center",
+              "zIndex": "50"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "ModalContent",
+                  "key": "modal-content",
+                  "style": {
+                    "backgroundColor": "white",
+                    "borderRadius": "8px",
+                    "width": "90vw",
+                    "height": "90vh",
+                    "maxWidth": "1200px",
+                    "display": "flex",
+                    "overflow": "hidden",
+                    "boxShadow": "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "SidebarContainer",
+                        "key": "sidebar-container",
+                        "style": {
+                          "width": "280px",
+                          "backgroundColor": "#f8f9fa",
+                          "borderRight": "1px solid #e0e0e0",
+                          "display": "flex",
+                          "flexDirection": "column",
+                          "transform": "translateX(0)",
+                          "transition": "transform 0.3s ease"
+                        },
+                        "attrs": {
+                          "data-state": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "sidebarOpen"
+                            }
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "SidebarHeader",
+                              "key": "sidebar-header",
+                              "style": {
+                                "padding": "12px",
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "gap": "8px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "ChatHeaderSection",
+                                    "key": "chat-header-section",
+                                    "style": {
+                                      "display": "flex",
+                                      "alignItems": "center",
+                                      "justifyContent": "space-between"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "container",
+                                          "name": "ChatTitleContainer",
+                                          "key": "chat-title-container",
+                                          "style": {
+                                            "display": "flex",
+                                            "alignItems": "center",
+                                            "gap": "8px"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "icon",
+                                                "name": "MessagesSquareIcon",
+                                                "key": "messages-square-icon",
+                                                "style": {
+                                                  "width": "18px",
+                                                  "height": "18px",
+                                                  "color": "#6366f1"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "text",
+                                                "name": "ChatTitle",
+                                                "key": "chat-title",
+                                                "style": {
+                                                  "fontSize": "14px",
+                                                  "fontWeight": "normal"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "button",
+                                          "name": "NewChatButton",
+                                          "key": "new-chat-button",
+                                          "style": {
+                                            "width": "32px",
+                                            "height": "32px",
+                                            "display": "flex",
+                                            "alignItems": "center",
+                                            "justifyContent": "center",
+                                            "padding": "0",
+                                            "backgroundColor": "transparent",
+                                            "border": "none",
+                                            "borderRadius": "4px",
+                                            "cursor": "pointer"
+                                          },
+                                          "events": {
+                                            "click": {
+                                              "type": "stateChange",
+                                              "transitions": [
+                                                {
+                                                  "type": "stateChange",
+                                                  "stateKey": "visibleSession",
+                                                  "newValue": "undefined"
+                                                },
+                                                {
+                                                  "type": "stateChange",
+                                                  "stateKey": "selectedViewField",
+                                                  "newValue": "undefined"
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "icon",
+                                                "name": "PlusIcon",
+                                                "key": "plus-icon",
+                                                "style": {
+                                                  "width": "18px",
+                                                  "height": "18px",
+                                                  "color": "#6366f1"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "SessionsList",
+                              "key": "sessions-list",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "flex": "1",
+                                "overflow": "auto"
+                              },
+                              "children": [
+                                {
+                                  "type": "repeat",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "SessionItem",
+                                        "key": "session-item",
+                                        "style": {
+                                          "padding": "8px 12px",
+                                          "margin": "2px 0",
+                                          "borderRadius": "4px",
+                                          "cursor": "pointer",
+                                          "display": "flex",
+                                          "alignItems": "center",
+                                          "justifyContent": "space-between"
+                                        },
+                                        "events": {
+                                          "click": {
+                                            "type": "stateChange",
+                                            "transitions": [
+                                              {
+                                                "type": "stateChange",
+                                                "stateKey": "visibleSession",
+                                                "newValue": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "local",
+                                                    "id": "session"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "SessionName",
+                                              "key": "session-name",
+                                              "style": {
+                                                "fontSize": "14px",
+                                                "overflow": "hidden",
+                                                "textOverflow": "ellipsis",
+                                                "whiteSpace": "nowrap"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "button",
+                                              "name": "DeleteSessionButton",
+                                              "key": "delete-session-button",
+                                              "style": {
+                                                "width": "16px",
+                                                "height": "16px",
+                                                "padding": "0",
+                                                "backgroundColor": "transparent",
+                                                "border": "none",
+                                                "cursor": "pointer"
+                                              },
+                                              "events": {
+                                                "click": {
+                                                  "type": "propCall",
+                                                  "calls": "handleDeleteSession"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "icon",
+                                                    "name": "TrashIcon",
+                                                    "key": "trash-icon",
+                                                    "style": {
+                                                      "width": "14px",
+                                                      "height": "14px",
+                                                      "color": "#ef4444"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "dataSource": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "sessions"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "MainContentArea",
+                        "key": "main-content-area",
+                        "style": {
+                          "flex": "1",
+                          "display": "flex",
+                          "flexDirection": "column",
+                          "position": "relative"
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "SelectedViewFieldContainer",
+                                  "key": "selected-view-field-container",
+                                  "style": {
+                                    "height": "100%",
+                                    "width": "100%",
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "padding": "16px",
+                                    "gap": "16px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "ViewFieldHeader",
+                                        "key": "view-field-header",
+                                        "style": {
+                                          "display": "flex",
+                                          "alignItems": "center",
+                                          "gap": "12px",
+                                          "fontSize": "20px",
+                                          "fontWeight": "600"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "button",
+                                              "name": "BackButton",
+                                              "key": "back-button",
+                                              "style": {
+                                                "padding": "0",
+                                                "backgroundColor": "transparent",
+                                                "border": "none",
+                                                "cursor": "pointer"
+                                              },
+                                              "events": {
+                                                "click": {
+                                                  "type": "stateChange",
+                                                  "transitions": [
+                                                    {
+                                                      "type": "stateChange",
+                                                      "stateKey": "selectedViewField",
+                                                      "newValue": "undefined"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "icon",
+                                                    "name": "ArrowLeftIcon",
+                                                    "key": "arrow-left-icon",
+                                                    "style": {
+                                                      "width": "24px",
+                                                      "height": "24px"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "ViewFieldTitle",
+                                              "key": "view-field-title",
+                                              "style": {
+                                                "fontSize": "20px",
+                                                "fontWeight": "600"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "ViewFieldContent",
+                                        "key": "view-field-content",
+                                        "style": {
+                                          "height": "100%",
+                                          "width": "100%",
+                                          "overflow": "auto"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "selectedViewField"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "ChatViewContainer",
+                                  "key": "chat-view-container",
+                                  "style": {
+                                    "height": "100%",
+                                    "width": "100%",
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "justifyContent": "space-between",
+                                    "padding": "16px"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "ChatHeader",
+                                        "key": "chat-header",
+                                        "style": {
+                                          "marginBottom": "16px",
+                                          "display": "flex",
+                                          "alignItems": "center",
+                                          "fontSize": "16px",
+                                          "fontWeight": "600",
+                                          "height": "5%",
+                                          "justifyContent": "space-between"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "SidebarToggleContainer",
+                                              "key": "sidebar-toggle-container",
+                                              "style": {
+                                                "position": "absolute",
+                                                "left": "16px"
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "button",
+                                                    "name": "ToggleSidebarButton",
+                                                    "key": "toggle-sidebar-button",
+                                                    "style": {
+                                                      "width": "32px",
+                                                      "height": "32px",
+                                                      "padding": "0",
+                                                      "backgroundColor": "transparent",
+                                                      "border": "none",
+                                                      "cursor": "pointer",
+                                                      "borderRadius": "4px"
+                                                    },
+                                                    "events": {
+                                                      "click": {
+                                                        "type": "stateChange",
+                                                        "transitions": [
+                                                          {
+                                                            "type": "stateChange",
+                                                            "stateKey": "sidebarOpen",
+                                                            "newValue": true
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "icon",
+                                                          "name": "PanelLeftOpenIcon",
+                                                          "key": "panel-left-open-icon",
+                                                          "style": {
+                                                            "width": "18px",
+                                                            "height": "18px",
+                                                            "color": "#6366f1"
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "conditional",
+                                            "content": {
+                                              "node": {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "SessionTitleContainer",
+                                                  "key": "session-title-container",
+                                                  "style": {
+                                                    "textAlign": "center",
+                                                    "fontWeight": "600",
+                                                    "overflow": "hidden",
+                                                    "textOverflow": "ellipsis",
+                                                    "whiteSpace": "nowrap",
+                                                    "marginRight": "48px",
+                                                    "flexGrow": "1"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "text",
+                                                        "name": "SessionTitle",
+                                                        "key": "session-title",
+                                                        "style": {
+                                                          "fontSize": "16px",
+                                                          "fontWeight": "600"
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "reference": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "visibleSession"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "HeaderActionsContainer",
+                                              "key": "header-actions-container",
+                                              "style": {
+                                                "display": "flex",
+                                                "alignItems": "center",
+                                                "justifyContent": "center",
+                                                "borderRadius": "4px",
+                                                "position": "absolute",
+                                                "right": "48px",
+                                                "top": "8px",
+                                                "height": "32px"
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "button",
+                                                    "name": "NewChatHeaderButton",
+                                                    "key": "new-chat-header-button",
+                                                    "style": {
+                                                      "marginRight": "8px",
+                                                      "height": "32px",
+                                                      "width": "32px",
+                                                      "padding": "0",
+                                                      "backgroundColor": "transparent",
+                                                      "border": "none",
+                                                      "borderRadius": "4px",
+                                                      "cursor": "pointer"
+                                                    },
+                                                    "events": {
+                                                      "click": {
+                                                        "type": "stateChange",
+                                                        "transitions": [
+                                                          {
+                                                            "type": "stateChange",
+                                                            "stateKey": "visibleSession",
+                                                            "newValue": "undefined"
+                                                          },
+                                                          {
+                                                            "type": "stateChange",
+                                                            "stateKey": "selectedViewField",
+                                                            "newValue": "undefined"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "icon",
+                                                          "name": "PlusHeaderIcon",
+                                                          "key": "plus-header-icon",
+                                                          "style": {
+                                                            "width": "18px",
+                                                            "height": "18px",
+                                                            "color": "#6366f1"
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "conditional",
+                                      "content": {
+                                        "node": {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "container",
+                                            "name": "ChatMessagesArea",
+                                            "key": "chat-messages-area",
+                                            "style": {
+                                              "height": "100%",
+                                              "width": "100%",
+                                              "display": "flex",
+                                              "flexDirection": "column",
+                                              "borderRadius": "8px"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "MessagesContainer",
+                                                  "key": "messages-container",
+                                                  "style": {
+                                                    "flex": "1",
+                                                    "overflow": "auto",
+                                                    "padding": "16px 0"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "repeat",
+                                                          "content": {
+                                                            "node": {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "container",
+                                                                "name": "ChatMessage",
+                                                                "key": "chat-message",
+                                                                "style": {
+                                                                  "margin": "8px 0",
+                                                                  "padding": "12px",
+                                                                  "borderRadius": "8px",
+                                                                  "maxWidth": "768px",
+                                                                  "wordBreak": "break-word"
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "type": "element",
+                                                                    "content": {
+                                                                      "elementType": "text",
+                                                                      "name": "MessageContent",
+                                                                      "key": "message-content",
+                                                                      "style": {
+                                                                        "fontSize": "14px",
+                                                                        "lineHeight": "1.5"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            "dataSource": {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "state",
+                                                                "id": "chatHistory"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "state",
+                                                            "id": "chatHistory"
+                                                          }
+                                                        },
+                                                        "value": {
+                                                          "type": "static",
+                                                          "content": []
+                                                        },
+                                                        "condition": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "comp",
+                                                            "id": "chatHistory.length > 0"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "container",
+                                                            "name": "EmptyStateContainer",
+                                                            "key": "empty-state-container",
+                                                            "style": {
+                                                              "display": "flex",
+                                                              "height": "100%",
+                                                              "width": "100%",
+                                                              "flexDirection": "column",
+                                                              "alignItems": "center",
+                                                              "justifyContent": "center"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "EmptyStateContent",
+                                                                  "key": "empty-state-content",
+                                                                  "style": {
+                                                                    "display": "flex",
+                                                                    "flexDirection": "column",
+                                                                    "alignItems": "center",
+                                                                    "justifyContent": "center",
+                                                                    "gap": "16px",
+                                                                    "padding": "32px"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "image",
+                                                                        "name": "LangflowLogo",
+                                                                        "key": "langflow-logo",
+                                                                        "style": {
+                                                                          "height": "40px",
+                                                                          "width": "40px",
+                                                                          "transform": "scale(1.5)"
+                                                                        },
+                                                                        "attrs": {
+                                                                          "src": "/assets/LangflowLogo.svg",
+                                                                          "alt": "Langflow logo"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "container",
+                                                                        "name": "EmptyStateText",
+                                                                        "key": "empty-state-text",
+                                                                        "style": {
+                                                                          "display": "flex",
+                                                                          "flexDirection": "column",
+                                                                          "alignItems": "center",
+                                                                          "justifyContent": "center"
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "text",
+                                                                              "name": "NewChatTitle",
+                                                                              "key": "new-chat-title",
+                                                                              "style": {
+                                                                                "marginTop": "8px",
+                                                                                "paddingBottom": "8px",
+                                                                                "fontSize": "24px",
+                                                                                "fontWeight": "600",
+                                                                                "color": "#6366f1"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "text",
+                                                                              "name": "NewChatSubtitle",
+                                                                              "key": "new-chat-subtitle",
+                                                                              "style": {
+                                                                                "fontSize": "18px",
+                                                                                "color": "#6b7280"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "state",
+                                                            "id": "chatHistory"
+                                                          }
+                                                        },
+                                                        "value": {
+                                                          "type": "static",
+                                                          "content": []
+                                                        },
+                                                        "condition": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "comp",
+                                                            "id": "chatHistory.length === 0"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "ChatInputContainer",
+                                                  "key": "chat-input-container",
+                                                  "style": {
+                                                    "margin": "auto",
+                                                    "width": "100%",
+                                                    "maxWidth": "768px",
+                                                    "padding": "16px 0"
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "InputFieldContainer",
+                                                        "key": "input-field-container",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "alignItems": "flex-end",
+                                                          "gap": "8px",
+                                                          "padding": "12px",
+                                                          "backgroundColor": "#f8f9fa",
+                                                          "borderRadius": "8px",
+                                                          "border": "1px solid #e0e0e0"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "input",
+                                                              "name": "ChatMessageInput",
+                                                              "key": "chat-message-input",
+                                                              "style": {
+                                                                "flex": "1",
+                                                                "minHeight": "40px",
+                                                                "maxHeight": "120px",
+                                                                "padding": "8px 12px",
+                                                                "fontSize": "14px",
+                                                                "border": "none",
+                                                                "outline": "none",
+                                                                "backgroundColor": "transparent",
+                                                                "resize": "none"
+                                                              },
+                                                              "attrs": {
+                                                                "placeholder": "Type your message...",
+                                                                "rows": "1"
+                                                              }
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "button",
+                                                              "name": "SendMessageButton",
+                                                              "key": "send-message-button",
+                                                              "style": {
+                                                                "width": "40px",
+                                                                "height": "40px",
+                                                                "display": "flex",
+                                                                "alignItems": "center",
+                                                                "justifyContent": "center",
+                                                                "backgroundColor": "#6366f1",
+                                                                "color": "white",
+                                                                "border": "none",
+                                                                "borderRadius": "6px",
+                                                                "cursor": "pointer"
+                                                              },
+                                                              "events": {
+                                                                "click": {
+                                                                  "type": "propCall",
+                                                                  "calls": "sendMessage"
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "icon",
+                                                                    "name": "SendIcon",
+                                                                    "key": "send-icon",
+                                                                    "style": {
+                                                                      "width": "18px",
+                                                                      "height": "18px"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "messagesFetched"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "selectedViewField"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": null
+                              },
+                              "condition": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "!selectedViewField"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "sidebarOpen": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "visibleSession": {
+      "type": "string",
+      "defaultValue": null
+    },
+    "selectedViewField": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "messagesFetched": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "chatHistory": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "isBuilding": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "displayLoadingMessage": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "canScroll": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "scrolledUp": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isLlmResponding": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "lastMessageContent": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "isDragging": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "files": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "propDefinitions": {
+    "sessions": {
+      "type": "array",
+      "isRequired": true
+    },
+    "currentFlowId": {
+      "type": "string",
+      "isRequired": true
+    },
+    "playgroundPage": {
+      "type": "boolean",
+      "isRequired": false
+    },
+    "canvasOpen": {
+      "type": "boolean",
+      "isRequired": false
+    },
+    "setOpen": {
+      "type": "function",
+      "isRequired": false
+    },
+    "sendMessage": {
+      "type": "function",
+      "isRequired": true
+    },
+    "handleDeleteSession": {
+      "type": "function",
+      "isRequired": true
+    },
+    "setActiveSession": {
+      "type": "function",
+      "isRequired": true
+    },
+    "sessionId": {
+      "type": "string",
+      "isRequired": false
+    },
+    "playgroundTitle": {
+      "type": "string",
+      "isRequired": false
+    },
+    "inputs": {
+      "type": "array",
+      "isRequired": false
+    },
+    "outputs": {
+      "type": "array",
+      "isRequired": false
+    },
+    "nodes": {
+      "type": "array",
+      "isRequired": false
+    }
+  }
+}

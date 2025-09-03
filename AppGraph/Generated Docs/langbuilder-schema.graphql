@@ -1,0 +1,360 @@
+# LangBuilder GraphQL Schema
+# Generated from application graph schema nodes
+
+# Scalar types
+scalar UUID
+scalar DateTime
+scalar JSON
+
+# User Management
+type User {
+  id: UUID! @primary
+  username: String! @unique @indexed
+  password: String!
+  email: String
+  is_active: Boolean! @default(false)
+  is_superuser: Boolean! @default(false)
+  profile_image: String
+  created_at: DateTime! @default(now)
+  updated_at: DateTime! @default(now)
+  last_login_at: DateTime
+  store_api_key: String
+  optins: JSON @default({github_starred: false, dialog_dismissed: false, discord_clicked: false})
+  
+  # Relationships
+  api_keys: [ApiKey!]! @cascade(delete)
+  flows: [Flow!]!
+  variables: [Variable!]! @cascade(delete)
+  folders: [Folder!]! @cascade(delete)
+  files: [File!]!
+}
+
+type ApiKey {
+  id: UUID! @primary
+  name: String @indexed
+  api_key: String! @unique @indexed
+  created_at: DateTime! @default(now)
+  last_used_at: DateTime
+  total_uses: Int! @default(0)
+  is_active: Boolean! @default(true)
+  
+  # Foreign Keys
+  user_id: UUID! @indexed @foreign(user.id)
+  user: User!
+}
+
+# Flow Management
+type Flow {
+  id: UUID! @primary
+  name: String! @indexed
+  description: String @indexed
+  data: JSON  # Contains nodes and edges structure
+  icon: String  # Emoji or lucide icon
+  icon_bg_color: String  # Hex color starting with #
+  gradient: String
+  is_component: Boolean @default(false)
+  updated_at: DateTime @default(now)
+  webhook: Boolean @default(false)
+  endpoint_name: String @unique @indexed  # Alphanumeric with hyphens/underscores
+  tags: [String!] @default([])
+  locked: Boolean @default(false)
+  mcp_enabled: Boolean @default(false)  # MCP server exposure
+  action_name: String
+  action_description: String
+  access_type: AccessTypeEnum! @default(PRIVATE)  # PRIVATE or PUBLIC
+  fs_path: String  # File system path
+  
+  # Foreign Keys
+  user_id: UUID @indexed @foreign(user.id)
+  user: User!
+  folder_id: UUID @indexed @foreign(folder.id)
+  folder: Folder
+  
+  # Unique Constraints
+  @@unique([user_id, name])
+  @@unique([user_id, endpoint_name])
+}
+
+type Folder {
+  id: UUID! @primary
+  name: String! @indexed
+  description: String
+  auth_settings: JSON  # Authentication settings for the folder/project
+  
+  # Foreign Keys
+  parent_id: UUID @foreign(folder.id)
+  parent: Folder
+  user_id: UUID @foreign(user.id)
+  user: User!
+  
+  # Relationships
+  children: [Folder!]!
+  flows: [Flow!]! @cascade(delete)
+  
+  # Unique Constraints
+  @@unique([user_id, name])
+}
+
+# Variables and Configuration
+type Variable {
+  id: UUID! @primary
+  name: String!
+  value: String! @encrypted  # Encrypted value
+  type: String  # e.g., "CREDENTIAL"
+  default_fields: [String!]
+  created_at: DateTime @default(now)
+  updated_at: DateTime
+  
+  # Foreign Keys
+  user_id: UUID! @foreign(user.id)
+  user: User!
+}
+
+type GlobalVariable {
+  id: UUID! @primary
+  name: String! @unique
+  value: String!
+  type: GlobalVariableType!
+  description: String
+  is_secret: Boolean! @default(false)
+  created_at: DateTime! @default(now)
+  updated_at: DateTime! @default(now)
+  
+  # Access Control
+  user_id: UUID @foreign(user.id)  # null for system-wide variables
+  user: User
+}
+
+# Messaging and Communication
+type Message {
+  id: UUID! @primary
+  timestamp: DateTime! @default(now)
+  sender: String!
+  sender_name: String!
+  session_id: String!
+  text: String!
+  files: [String!] @default([])
+  error: Boolean! @default(false)
+  edit: Boolean! @default(false)
+  properties: JSON  # Properties object
+  category: String! @default("message")
+  content_blocks: [JSON!] @default([])  # Voice Mode support
+  
+  # Foreign Keys
+  flow_id: UUID @foreign(flow.id)
+}
+
+# Execution and Monitoring
+type Transaction {
+  id: UUID! @primary
+  timestamp: DateTime! @default(now)
+  vertex_id: String!  # ID of the vertex/node in the flow
+  target_id: String
+  inputs: JSON  # Serialized with length limits
+  outputs: JSON  # Serialized with length limits
+  status: String!
+  error: String
+  
+  # Foreign Keys
+  flow_id: UUID! @foreign(flow.id)
+}
+
+type VertexBuild {
+  build_id: UUID! @primary
+  id: String!  # Vertex/component ID
+  timestamp: DateTime! @default(now)
+  data: JSON  # Serialized with limits
+  artifacts: JSON  # Serialized with limits
+  params: String  # Serialized parameters
+  valid: Boolean!
+  
+  # Foreign Keys
+  flow_id: UUID! @foreign(flow.id)
+}
+
+# File Management
+type File {
+  id: UUID! @primary
+  name: String! @unique
+  path: String!
+  size: Int!
+  provider: String  # Storage provider (e.g., 'local', 's3')
+  created_at: DateTime! @default(now)
+  updated_at: DateTime! @default(now)
+  
+  # Foreign Keys
+  user_id: UUID! @foreign(user.id)
+  user: User!
+}
+
+# Component System
+type Component {
+  display_name: String!
+  description: String!
+  icon: String
+  category: ComponentCategory!
+  inputs: [ComponentInput!]!
+  outputs: [ComponentOutput!]!
+  code: String!
+  template: JSON
+  documentation: String
+  beta: Boolean!
+  experimental: Boolean!
+}
+
+type ComponentInput {
+  name: String!
+  type: String!
+  required: Boolean!
+  description: String
+  default: String
+}
+
+type ComponentOutput {
+  name: String!
+  type: String!
+  description: String
+}
+
+# Graph Runtime
+type Vertex {
+  id: String!
+  display_name: String!
+  description: String
+  base_type: ComponentType!
+  inputs: [VertexInput!]!
+  outputs: [VertexOutput!]!
+  params: JSON
+  frozen: Boolean!
+  is_input: Boolean!
+  is_output: Boolean!
+  is_state: Boolean!
+  edges: [Edge!]!
+}
+
+type VertexInput {
+  name: String!
+  type: String!
+  value: String
+  required: Boolean!
+}
+
+type VertexOutput {
+  name: String!
+  type: String!
+  value: String
+}
+
+type Edge {
+  id: String!
+  source: Vertex!
+  target: Vertex!
+  source_handle: String!
+  target_handle: String!
+  data: JSON
+}
+
+# Security and Credentials
+type Credential {
+  id: UUID! @primary
+  name: String! @unique
+  credential_type: CredentialType!
+  encrypted_value: String! @encrypted
+  metadata: JSON
+  created_at: DateTime! @default(now)
+  updated_at: DateTime! @default(now)
+  expires_at: DateTime
+  is_active: Boolean! @default(true)
+  
+  # Foreign Keys
+  user_id: UUID! @foreign(user.id)
+  user: User!
+}
+
+# Store and Marketplace
+type Store {
+  id: UUID! @primary
+  name: String!
+  description: String!
+  flow_data: JSON!
+  tags: [String!]!
+  is_public: Boolean! @default(false)
+  downloads: Int! @default(0)
+  likes: Int! @default(0)
+  version: String!
+  author: String!
+  created_at: DateTime! @default(now)
+  updated_at: DateTime! @default(now)
+  
+  # Foreign Keys
+  user_id: UUID! @foreign(user.id)
+  user: User!
+}
+
+type StoreRating {
+  id: UUID! @primary
+  rating: Int!
+  review: String
+  created_at: DateTime! @default(now)
+  
+  # Foreign Keys
+  store_id: UUID! @foreign(store.id)
+  user_id: UUID! @foreign(user.id)
+  store: Store!
+  user: User!
+}
+
+# Enums
+enum AccessType {
+  PRIVATE
+  PUBLIC
+}
+
+enum AccessTypeEnum {
+  PRIVATE
+  PUBLIC
+}
+
+enum ComponentCategory {
+  INPUT_OUTPUT
+  TEXT_PROCESSING
+  AGENTS
+  CHAINS
+  DATA
+  EMBEDDINGS
+  LLMS
+  MEMORIES
+  TOOLS
+  RETRIEVERS
+  LOGIC
+  HELPERS
+  CUSTOM
+}
+
+enum ComponentType {
+  COMPONENT
+  CHAT_INPUT
+  CHAT_OUTPUT
+  TEXT_INPUT
+  TEXT_OUTPUT
+  DATA_INPUT
+  DATA_OUTPUT
+}
+
+enum CredentialType {
+  API_KEY
+  OAUTH_TOKEN
+  DATABASE_CONNECTION
+  WEBHOOK_SECRET
+  CERTIFICATE
+  SSH_KEY
+}
+
+enum GlobalVariableType {
+  STRING
+  INTEGER
+  FLOAT
+  BOOLEAN
+  JSON
+  SECRET
+}

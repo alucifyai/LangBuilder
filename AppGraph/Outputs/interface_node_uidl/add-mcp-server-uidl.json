@@ -1,0 +1,1838 @@
+{
+  "name": "AddMcpServerModal",
+  "propDefinitions": {
+    "children": {
+      "type": "element",
+      "isRequired": false
+    },
+    "initialData": {
+      "type": "object",
+      "isRequired": false
+    },
+    "open": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "setOpen": {
+      "type": "func",
+      "isRequired": false
+    },
+    "onSuccess": {
+      "type": "func",
+      "isRequired": false
+    }
+  },
+  "stateDefinitions": {
+    "open": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "type": {
+      "type": "string",
+      "defaultValue": "JSON"
+    },
+    "jsonValue": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "error": {
+      "type": "string",
+      "defaultValue": null
+    },
+    "stdioName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "stdioCommand": {
+      "type": "string", 
+      "defaultValue": ""
+    },
+    "stdioArgs": {
+      "type": "array",
+      "defaultValue": [""]
+    },
+    "stdioEnv": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "sseName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "sseUrl": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "sseEnv": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "sseHeaders": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "BaseModal",
+      "name": "AddMcpServerModal",
+      "attrs": [
+        {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "state",
+            "id": "open"
+          },
+          "name": "open"
+        },
+        {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "local",
+            "id": "setOpen"
+          },
+          "name": "setOpen"
+        },
+        {
+          "type": "static",
+          "content": {
+            "name": "size",
+            "value": "x-small"
+          }
+        },
+        {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "local",
+            "id": "submitForm"
+          },
+          "name": "onSubmit"
+        },
+        {
+          "type": "static",
+          "content": {
+            "name": "className",
+            "value": "!p-0"
+          }
+        }
+      ],
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "BaseModal.Trigger",
+            "name": "ModalTrigger",
+            "children": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "children"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "BaseModal.Content",
+            "name": "ModalContent",
+            "attrs": [
+              {
+                "type": "static",
+                "content": {
+                  "name": "className",
+                  "value": "flex flex-col justify-between overflow-hidden"
+                }
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "div",
+                  "name": "MainContainer",
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": {
+                        "name": "className",
+                        "value": "flex h-full w-full flex-col overflow-hidden"
+                      }
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "div",
+                        "name": "HeaderSection",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": {
+                              "name": "className",
+                              "value": "flex flex-col gap-3 p-4 tracking-normal"
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "div",
+                              "name": "HeaderTitle",
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": {
+                                    "name": "className",
+                                    "value": "flex items-center gap-2 text-sm font-medium"
+                                  }
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "ForwardedIconComponent",
+                                    "name": "McpIcon",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "name",
+                                          "value": "Mcp"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "className",
+                                          "value": "h-4 w-4 text-primary"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "aria-hidden",
+                                          "value": "true"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "initialData"
+                                      }
+                                    },
+                                    "value": true,
+                                    "node": {
+                                      "type": "static",
+                                      "content": "Update MCP Server"
+                                    },
+                                    "fallback": {
+                                      "type": "static",
+                                      "content": "Add MCP Server"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "span",
+                              "name": "HeaderDescription",
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": {
+                                    "name": "className",
+                                    "value": "text-mmd font-normal text-muted-foreground"
+                                  }
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Save MCP Servers. Manage added servers in "
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "CustomLink",
+                                    "name": "SettingsLink",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "className",
+                                          "value": "underline"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "to",
+                                          "value": "/settings/mcp-servers"
+                                        }
+                                      }
+                                    ],
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "settings"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "."
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "div",
+                        "name": "FormSection",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": {
+                              "name": "className",
+                              "value": "flex h-full w-full flex-col gap-4 overflow-hidden"
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "Tabs",
+                              "name": "ServerTypeTabs",
+                              "attrs": [
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "type"
+                                  },
+                                  "name": "defaultValue"
+                                },
+                                {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "local",
+                                    "id": "changeType"
+                                  },
+                                  "name": "onValueChange"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": {
+                                    "name": "className",
+                                    "value": "w-full"
+                                  }
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "name": "TabsContainer",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "className",
+                                          "value": "px-4"
+                                        }
+                                      }
+                                    ],
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "TabsList",
+                                          "name": "TabsList",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": {
+                                                "name": "className",
+                                                "value": "mb-4 grid w-full grid-cols-3"
+                                              }
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "TabsTrigger",
+                                                "name": "JSONTab",
+                                                "attrs": [
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "local",
+                                                      "id": "!!initialData && type !== 'JSON'"
+                                                    },
+                                                    "name": "disabled"
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "data-testid",
+                                                      "value": "json-tab"
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "value",
+                                                      "value": "JSON"
+                                                    }
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "JSON"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "TabsTrigger",
+                                                "name": "STDIOTab",
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "data-testid",
+                                                      "value": "stdio-tab"
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "local",
+                                                      "id": "!!initialData && type !== 'STDIO'"
+                                                    },
+                                                    "name": "disabled"
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "value",
+                                                      "value": "STDIO"
+                                                    }
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "STDIO"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "TabsTrigger",
+                                                "name": "SSETab",
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "data-testid",
+                                                      "value": "sse-tab"
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "local",
+                                                      "id": "!!initialData && type !== 'SSE'"
+                                                    },
+                                                    "name": "disabled"
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "value",
+                                                      "value": "SSE"
+                                                    }
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "SSE"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "name": "TabsContentContainer",
+                                    "attrs": [
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "className",
+                                          "value": "relative flex max-h-[280px] min-h-[280px] w-full flex-1 flex-col gap-2 overflow-y-auto border-y p-4 pt-2"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": {
+                                          "name": "id",
+                                          "value": "global-variable-modal-inputs"
+                                        }
+                                      }
+                                    ],
+                                    "children": [
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "error"
+                                            }
+                                          },
+                                          "value": true,
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "ShadTooltip",
+                                              "name": "ErrorTooltip",
+                                              "attrs": [
+                                                {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "error"
+                                                  },
+                                                  "name": "content"
+                                                }
+                                              ],
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "div",
+                                                    "name": "ErrorMessage",
+                                                    "attrs": [
+                                                      {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "local",
+                                                          "id": "cn('absolute right-4 top-4 truncate text-xs font-medium text-red-500', type === 'JSON' ? 'w-3/5' : 'w-4/5')"
+                                                        },
+                                                        "name": "className"
+                                                      }
+                                                    ],
+                                                    "children": [
+                                                      {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "state",
+                                                          "id": "error"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "TabsContent",
+                                          "name": "JSONContent",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": {
+                                                "name": "value",
+                                                "value": "JSON"
+                                              }
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "div",
+                                                "name": "JSONFormContainer",
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "className",
+                                                      "value": "flex flex-col gap-2"
+                                                    }
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "Label",
+                                                      "name": "JSONConfigLabel",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "!text-mmd"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": "Paste in JSON config"
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "Textarea",
+                                                      "name": "JSONConfigTextarea",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "state",
+                                                            "id": "jsonValue"
+                                                          },
+                                                          "name": "value"
+                                                        },
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "data-testid",
+                                                            "value": "json-input"
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "min-h-[225px] font-mono text-mmd"
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "placeholder",
+                                                            "value": "Paste in JSON config to add server"
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "isPending"
+                                                          },
+                                                          "name": "disabled"
+                                                        }
+                                                      ],
+                                                      "events": {
+                                                        "change": [
+                                                          {
+                                                            "type": "stateChange",
+                                                            "modifies": "jsonValue",
+                                                            "newState": "$event.target.value"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "TabsContent",
+                                          "name": "STDIOContent",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": {
+                                                "name": "value",
+                                                "value": "STDIO"
+                                              }
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "div",
+                                                "name": "STDIOFormContainer",
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "className",
+                                                      "value": "flex flex-col gap-4"
+                                                    }
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "STDIONameField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "STDIONameLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "flex items-start gap-1 !text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Name "
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "span",
+                                                                  "name": "RequiredIndicator",
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": {
+                                                                        "name": "className",
+                                                                        "value": "text-red-500"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "*"
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Input",
+                                                            "name": "STDIONameInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "stdioName"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "placeholder",
+                                                                  "value": "Type server name..."
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "data-testid",
+                                                                  "value": "stdio-name-input"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "isPending"
+                                                                },
+                                                                "name": "disabled"
+                                                              }
+                                                            ],
+                                                            "events": {
+                                                              "change": [
+                                                                {
+                                                                  "type": "stateChange",
+                                                                  "modifies": "stdioName",
+                                                                  "newState": "$event.target.value"
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "STDIOCommandField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "STDIOCommandLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "flex items-start gap-1 !text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Command"
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "span",
+                                                                  "name": "RequiredIndicator",
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": {
+                                                                        "name": "className",
+                                                                        "value": "text-red-500"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "*"
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Input",
+                                                            "name": "STDIOCommandInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "stdioCommand"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "placeholder",
+                                                                  "value": "Type command..."
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "data-testid",
+                                                                  "value": "stdio-command-input"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "isPending"
+                                                                },
+                                                                "name": "disabled"
+                                                              }
+                                                            ],
+                                                            "events": {
+                                                              "change": [
+                                                                {
+                                                                  "type": "stateChange",
+                                                                  "modifies": "stdioCommand",
+                                                                  "newState": "$event.target.value"
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "STDIOArgumentsField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "STDIOArgumentsLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "!text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Arguments"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "InputListComponent",
+                                                            "name": "STDIOArgumentsList",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "stdioArgs"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "({ value }) => setStdioArgs(value)"
+                                                                },
+                                                                "name": "handleOnNewValue"
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "isPending"
+                                                                },
+                                                                "name": "disabled"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "placeholder",
+                                                                  "value": "Type argument..."
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "listAddLabel",
+                                                                  "value": "Add Argument"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "editNode",
+                                                                  "value": false
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "id",
+                                                                  "value": "stdio-args"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "data-testid",
+                                                                  "value": "stdio-args-input"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "STDIOEnvironmentField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "STDIOEnvironmentLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "!text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Environment Variables"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "IOKeyPairInput",
+                                                            "name": "STDIOEnvironmentInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "stdioEnv"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "setStdioEnv"
+                                                                },
+                                                                "name": "onChange"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "duplicateKey",
+                                                                  "value": false
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "isList",
+                                                                  "value": true
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "isInputField",
+                                                                  "value": true
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "testId",
+                                                                  "value": "stdio-env"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "TabsContent",
+                                          "name": "SSEContent",
+                                          "attrs": [
+                                            {
+                                              "type": "static",
+                                              "content": {
+                                                "name": "value",
+                                                "value": "SSE"
+                                              }
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "div",
+                                                "name": "SSEFormContainer",
+                                                "attrs": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": {
+                                                      "name": "className",
+                                                      "value": "flex flex-col gap-4"
+                                                    }
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "SSENameField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "SSENameLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "flex items-start gap-1 !text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Name"
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "span",
+                                                                  "name": "RequiredIndicator",
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": {
+                                                                        "name": "className",
+                                                                        "value": "text-red-500"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "*"
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Input",
+                                                            "name": "SSENameInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "sseName"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "placeholder",
+                                                                  "value": "Name"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "data-testid",
+                                                                  "value": "sse-name-input"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "isPending"
+                                                                },
+                                                                "name": "disabled"
+                                                              }
+                                                            ],
+                                                            "events": {
+                                                              "change": [
+                                                                {
+                                                                  "type": "stateChange",
+                                                                  "modifies": "sseName",
+                                                                  "newState": "$event.target.value"
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "SSEUrlField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "SSEUrlLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "flex items-start gap-1 !text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "SSE URL"
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "span",
+                                                                  "name": "RequiredIndicator",
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": {
+                                                                        "name": "className",
+                                                                        "value": "text-red-500"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "*"
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Input",
+                                                            "name": "SSEUrlInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "sseUrl"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "placeholder",
+                                                                  "value": "SSE URL"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "data-testid",
+                                                                  "value": "sse-url-input"
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "isPending"
+                                                                },
+                                                                "name": "disabled"
+                                                              }
+                                                            ],
+                                                            "events": {
+                                                              "change": [
+                                                                {
+                                                                  "type": "stateChange",
+                                                                  "modifies": "sseUrl",
+                                                                  "newState": "$event.target.value"
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "SSEHeadersField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "SSEHeadersLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "!text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Headers"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "IOKeyPairInput",
+                                                            "name": "SSEHeadersInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "sseHeaders"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "setSseHeaders"
+                                                                },
+                                                                "name": "onChange"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "duplicateKey",
+                                                                  "value": false
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "isList",
+                                                                  "value": true
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "isInputField",
+                                                                  "value": true
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "testId",
+                                                                  "value": "sse-headers"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "div",
+                                                      "name": "SSEEnvironmentField",
+                                                      "attrs": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": {
+                                                            "name": "className",
+                                                            "value": "flex flex-col gap-2"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "Label",
+                                                            "name": "SSEEnvironmentLabel",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "className",
+                                                                  "value": "!text-mmd"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "children": [
+                                                              {
+                                                                "type": "static",
+                                                                "content": "Environment Variables"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "IOKeyPairInput",
+                                                            "name": "SSEEnvironmentInput",
+                                                            "attrs": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "state",
+                                                                  "id": "sseEnv"
+                                                                },
+                                                                "name": "value"
+                                                              },
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "setSseEnv"
+                                                                },
+                                                                "name": "onChange"
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "duplicateKey",
+                                                                  "value": false
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "isList",
+                                                                  "value": true
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "isInputField",
+                                                                  "value": true
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "static",
+                                                                "content": {
+                                                                  "name": "testId",
+                                                                  "value": "sse-env"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "div",
+                  "name": "ButtonsContainer",
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": {
+                        "name": "className",
+                        "value": "flex justify-end gap-2 p-4"
+                      }
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "Button",
+                        "name": "CancelButton",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": {
+                              "name": "variant",
+                              "value": "outline"
+                            }
+                          },
+                          {
+                            "type": "static",
+                            "content": {
+                              "name": "size",
+                              "value": "sm"
+                            }
+                          }
+                        ],
+                        "events": {
+                          "click": [
+                            {
+                              "type": "stateChange",
+                              "modifies": "open",
+                              "newState": false
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "span",
+                              "name": "CancelButtonText",
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": {
+                                    "name": "className",
+                                    "value": "text-mmd font-normal"
+                                  }
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Cancel"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "Button",
+                        "name": "SubmitButton",
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": {
+                              "name": "size",
+                              "value": "sm"
+                            }
+                          },
+                          {
+                            "type": "static",
+                            "content": {
+                              "name": "data-testid",
+                              "value": "add-mcp-server-button"
+                            }
+                          },
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "local",
+                              "id": "isPending"
+                            },
+                            "name": "loading"
+                          }
+                        ],
+                        "events": {
+                          "click": [
+                            {
+                              "type": "propCall",
+                              "calls": "submitForm"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "span",
+                              "name": "SubmitButtonText",
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": {
+                                    "name": "className",
+                                    "value": "text-mmd"
+                                  }
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "initialData"
+                                      }
+                                    },
+                                    "value": true,
+                                    "node": {
+                                      "type": "static",
+                                      "content": "Update Server"
+                                    },
+                                    "fallback": {
+                                      "type": "static",
+                                      "content": "Add Server"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "importDefinitions": {
+    "BaseModal": {
+      "type": "library",
+      "path": "@/modals/baseModal",
+      "version": "1.0.0"
+    },
+    "ForwardedIconComponent": {
+      "type": "library",
+      "path": "@/components/common/genericIconComponent",
+      "version": "1.0.0"
+    },
+    "CustomLink": {
+      "type": "library",
+      "path": "@/customization/components/custom-link",
+      "version": "1.0.0"
+    },
+    "Tabs": {
+      "type": "library",
+      "path": "@/components/ui/tabs-button",
+      "version": "1.0.0"
+    },
+    "TabsList": {
+      "type": "library",
+      "path": "@/components/ui/tabs-button",
+      "version": "1.0.0"
+    },
+    "TabsTrigger": {
+      "type": "library",
+      "path": "@/components/ui/tabs-button",
+      "version": "1.0.0"
+    },
+    "TabsContent": {
+      "type": "library",
+      "path": "@/components/ui/tabs-button", 
+      "version": "1.0.0"
+    },
+    "ShadTooltip": {
+      "type": "library",
+      "path": "@/components/common/shadTooltipComponent",
+      "version": "1.0.0"
+    },
+    "Label": {
+      "type": "library",
+      "path": "@/components/ui/label",
+      "version": "1.0.0"
+    },
+    "Textarea": {
+      "type": "library",
+      "path": "@/components/ui/textarea",
+      "version": "1.0.0"
+    },
+    "Input": {
+      "type": "library",
+      "path": "@/components/ui/input",
+      "version": "1.0.0"
+    },
+    "InputListComponent": {
+      "type": "library",
+      "path": "@/components/core/parameterRenderComponent/components/inputListComponent",
+      "version": "1.0.0"
+    },
+    "IOKeyPairInput": {
+      "type": "library",
+      "path": "@/modals/IOModal/components/IOFieldView/components/key-pair-input",
+      "version": "1.0.0"
+    },
+    "Button": {
+      "type": "library",
+      "path": "@/components/ui/button",
+      "version": "1.0.0"
+    }
+  }
+}

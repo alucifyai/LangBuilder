@@ -1,0 +1,764 @@
+{
+  "name": "GlobalVariablesSettings",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "GlobalVariablesSettingsRoot",
+      "key": "global-variables-settings-root",
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "BaseModal",
+            "name": "GlobalVariableModal",
+            "key": "global-variable-modal",
+            "dependency": {
+              "type": "local",
+              "path": "@/modals/baseModal"
+            },
+            "attrs": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "open"
+                }
+              },
+              {
+                "type": "static",
+                "content": "x-small"
+              },
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "disabled"
+                }
+              }
+            ],
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "BaseModalHeader",
+                  "name": "GlobalVariableModalHeader",
+                  "key": "global-variable-modal-header",
+                  "attrs": [
+                    {
+                      "type": "static",
+                      "content": "This variable will be available for use across your flows."
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "ForwardedIconComponent",
+                        "name": "GlobalVariableIcon",
+                        "key": "global-variable-icon",
+                        "dependency": {
+                          "type": "local",
+                          "path": "@/components/common/genericIconComponent"
+                        },
+                        "attrs": [
+                          {
+                            "type": "static",
+                            "content": "Globe"
+                          }
+                        ],
+                        "style": {
+                          "height": "24px",
+                          "width": "24px",
+                          "paddingRight": "4px",
+                          "color": "#3b82f6"
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "ModalTitle",
+                        "key": "modal-title",
+                        "children": [
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "modalTitle"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "BaseModalTrigger",
+                  "name": "GlobalVariableModalTrigger",
+                  "key": "global-variable-modal-trigger",
+                  "attrs": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "disabled"
+                      }
+                    },
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "asChild"
+                      }
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "children"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "BaseModalContent",
+                  "name": "GlobalVariableModalContent",
+                  "key": "global-variable-modal-content",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "GlobalVariableFormContainer",
+                        "key": "global-variable-form-container",
+                        "style": {
+                          "display": "flex",
+                          "height": "100vh",
+                          "width": "100vw",
+                          "flexDirection": "column",
+                          "gap": "16px"
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "VariableTypeSection",
+                              "key": "variable-type-section",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "gap": "8px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Label",
+                                    "name": "TypeLabel",
+                                    "key": "type-label",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/label"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Type*"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Tabs",
+                                    "name": "VariableTypeTabs",
+                                    "key": "variable-type-tabs",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/tabs-button"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "type"
+                                        }
+                                      }
+                                    ],
+                                    "style": {
+                                      "width": "100vw"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "TabsList",
+                                          "name": "VariableTypeTabsList",
+                                          "key": "variable-type-tabs-list",
+                                          "style": {
+                                            "display": "grid",
+                                            "width": "100vw",
+                                            "gridTemplateColumns": "1fr 1fr"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "TabsTrigger",
+                                                "name": "CredentialTab",
+                                                "key": "credential-tab",
+                                                "attrs": [
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "state",
+                                                      "id": "isEditingExistingType"
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": "credential-tab"
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Credential"
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Credential"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "TabsTrigger",
+                                                "name": "GenericTab",
+                                                "key": "generic-tab",
+                                                "attrs": [
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "state",
+                                                      "id": "isEditingExistingType"
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": "generic-tab"
+                                                  },
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Generic"
+                                                  }
+                                                ],
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Generic"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "VariableNameSection",
+                              "key": "variable-name-section",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "gap": "8px"
+                              },
+                              "attrs": [
+                                {
+                                  "type": "static",
+                                  "content": "global-variable-modal-inputs"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Label",
+                                    "name": "NameLabel",
+                                    "key": "name-label",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/label"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Name*"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Input",
+                                    "name": "VariableNameInput",
+                                    "key": "variable-name-input",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/input"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "key"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Enter a name for the variable..."
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "VariableValueSection",
+                              "key": "variable-value-section",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "gap": "8px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Label",
+                                    "name": "ValueLabel",
+                                    "key": "value-label",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/label"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Value*"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "InputComponent",
+                                        "name": "CredentialValueInput",
+                                        "key": "credential-value-input",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/core/parameterRenderComponent/components/inputComponent"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": true
+                                          },
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "value"
+                                            }
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "Enter a value for the variable..."
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": true
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "isCredentialType"
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "Input",
+                                        "name": "GenericValueInput",
+                                        "key": "generic-value-input",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/ui/input"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "value"
+                                            }
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "Enter a value for the variable..."
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "isGenericType"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "ApplyToFieldsSection",
+                              "key": "apply-to-fields-section",
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "gap": "8px"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "Label",
+                                    "name": "ApplyToFieldsLabel",
+                                    "key": "apply-to-fields-label",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/ui/label"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "static",
+                                        "content": "Apply to fields"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "InputComponent",
+                                    "name": "ApplyToFieldsInput",
+                                    "key": "apply-to-fields-input",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/core/parameterRenderComponent/components/inputComponent"
+                                    },
+                                    "attrs": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "fields"
+                                        }
+                                      },
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "availableFields"
+                                        }
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": false
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Choose a field for the variable..."
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "apply-to-fields"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "29rem"
+                                      },
+                                      {
+                                        "type": "static",
+                                        "content": "Fields"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "FieldsHelpText",
+                                    "key": "fields-help-text",
+                                    "style": {
+                                      "fontSize": "12px",
+                                      "color": "#6b7280"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "text",
+                                          "name": "FieldsHelpMessage",
+                                          "key": "fields-help-message",
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Selected fields will auto-apply the variable as a default value."
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "BaseModalFooter",
+                  "name": "GlobalVariableModalFooter",
+                  "key": "global-variable-modal-footer",
+                  "attrs": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "submitButtonConfig"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "key": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "value": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "type": {
+      "type": "string",
+      "defaultValue": "Credential"
+    },
+    "fields": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "open": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "disabled": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "availableFields": {
+      "type": "array",
+      "defaultValue": ["System", "System Message", "System Prompt"]
+    },
+    "isEditingExistingType": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isCredentialType": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "isGenericType": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "modalTitle": {
+      "type": "string",
+      "defaultValue": "Create Variable"
+    },
+    "submitButtonConfig": {
+      "type": "object",
+      "defaultValue": {
+        "label": "Save Variable",
+        "dataTestId": "save-variable-btn"
+      }
+    },
+    "initialData": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "referenceField": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "globalVariables": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "componentFields": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "propDefinitions": {
+    "children": {
+      "type": "node",
+      "defaultValue": null
+    },
+    "asChild": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "initialData": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "referenceField": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "open": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "setOpen": {
+      "type": "func",
+      "defaultValue": "() => {}"
+    },
+    "disabled": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "styleSetDefinitions": {
+    "modalContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "height": "100%",
+        "width": "100%",
+        "flexDirection": "column",
+        "gap": "16px"
+      }
+    },
+    "fieldSection": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "8px"
+      }
+    },
+    "tabsContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "grid",
+        "width": "100%",
+        "gridTemplateColumns": "1fr 1fr"
+      }
+    },
+    "helpText": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "fontSize": "12px",
+        "color": "#6b7280",
+        "marginTop": "4px"
+      }
+    },
+    "iconStyle": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "height": "24px",
+        "width": "24px",
+        "paddingRight": "4px",
+        "color": "#3b82f6"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280",
+      "modalBackground": "#ffffff",
+      "inputBorder": "#d1d5db",
+      "tabActiveColor": "#3b82f6",
+      "successColor": "#10b981",
+      "errorColor": "#ef4444"
+    }
+  }
+}

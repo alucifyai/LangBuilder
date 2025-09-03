@@ -1,0 +1,1576 @@
+{
+  "name": "AdminPage",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "AdminPageRoot",
+      "key": "admin-page-root",
+      "children": [
+        {
+          "type": "conditional",
+          "content": {
+            "node": {
+              "type": "element",
+              "content": {
+                "elementType": "container",
+                "name": "AdminPagePanel",
+                "key": "admin-page-panel",
+                "style": {
+                  "display": "flex",
+                  "height": "100vh",
+                  "flexDirection": "column",
+                  "paddingBottom": "32px"
+                },
+                "attrs": [
+                  {
+                    "type": "static",
+                    "content": "admin-page-panel"
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "AdminPageNavigation",
+                      "key": "admin-page-navigation",
+                      "style": {
+                        "display": "flex",
+                        "alignItems": "center",
+                        "gap": "8px",
+                        "paddingBottom": "16px"
+                      },
+                      "attrs": [
+                        {
+                          "type": "static",
+                          "content": "main-page-nav-arrangement"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "AdminPageTitle",
+                            "key": "admin-page-title",
+                            "style": {
+                              "display": "flex",
+                              "alignItems": "center",
+                              "gap": "8px",
+                              "fontSize": "24px",
+                              "fontWeight": "600"
+                            },
+                            "attrs": [
+                              {
+                                "type": "static",
+                                "content": "main-page-nav-title"
+                              }
+                            ],
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "IconComponent",
+                                  "name": "ShieldIcon",
+                                  "key": "shield-icon",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/common/genericIconComponent"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "Shield"
+                                    }
+                                  ],
+                                  "style": {
+                                    "width": "24px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "text",
+                                  "name": "AdminTitleText",
+                                  "key": "admin-title-text",
+                                  "children": [
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "adminHeaderTitle"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "text",
+                      "name": "AdminPageDescription",
+                      "key": "admin-page-description",
+                      "style": {
+                        "marginBottom": "16px",
+                        "color": "#6b7280",
+                        "fontSize": "14px"
+                      },
+                      "attrs": [
+                        {
+                          "type": "static",
+                          "content": "admin-page-description-text"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "adminHeaderDescription"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "container",
+                      "name": "AdminControlsBar",
+                      "key": "admin-controls-bar",
+                      "style": {
+                        "display": "flex",
+                        "width": "100vw",
+                        "justifyContent": "space-between",
+                        "paddingLeft": "16px",
+                        "paddingRight": "16px",
+                        "marginBottom": "16px"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "UserSearchContainer",
+                            "key": "user-search-container",
+                            "style": {
+                              "display": "flex",
+                              "width": "384px",
+                              "alignItems": "center",
+                              "gap": "16px"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "Input",
+                                  "name": "UserSearchInput",
+                                  "key": "user-search-input",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/ui/input"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "Search Username"
+                                    },
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "inputValue"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "ClearSearchButton",
+                                      "key": "clear-search-button",
+                                      "style": {
+                                        "cursor": "pointer"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "IconComponent",
+                                            "name": "ClearIcon",
+                                            "key": "clear-icon",
+                                            "dependency": {
+                                              "type": "local",
+                                              "path": "@/components/common/genericIconComponent"
+                                            },
+                                            "attrs": [
+                                              {
+                                                "type": "static",
+                                                "content": "X"
+                                              }
+                                            ],
+                                            "style": {
+                                              "width": "24px",
+                                              "color": "#1f2937"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "hasSearchValue"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "container",
+                                      "name": "SearchIconContainer",
+                                      "key": "search-icon-container",
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "IconComponent",
+                                            "name": "SearchIcon",
+                                            "key": "search-icon",
+                                            "dependency": {
+                                              "type": "local",
+                                              "path": "@/components/common/genericIconComponent"
+                                            },
+                                            "attrs": [
+                                              {
+                                                "type": "static",
+                                                "content": "Search"
+                                              }
+                                            ],
+                                            "style": {
+                                              "width": "24px",
+                                              "color": "#1f2937"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "hasNoSearchValue"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "AddUserContainer",
+                            "key": "add-user-container",
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "UserManagementModal",
+                                  "name": "AddUserModal",
+                                  "key": "add-user-modal",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/modals/userManagementModal"
+                                  },
+                                  "attrs": [
+                                    {
+                                      "type": "static",
+                                      "content": "New User"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "Add a new user"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "Cancel"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "Save"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "UserPlus2"
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": true
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "Button",
+                                        "name": "NewUserButton",
+                                        "key": "new-user-button",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/ui/button"
+                                        },
+                                        "attrs": [
+                                          {
+                                            "type": "static",
+                                            "content": "primary"
+                                          }
+                                        ],
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "New User"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "LoadingContainer",
+                          "key": "loading-container",
+                          "style": {
+                            "display": "flex",
+                            "height": "100vh",
+                            "width": "100vw",
+                            "alignItems": "center",
+                            "justifyContent": "center"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "CustomLoader",
+                                "name": "AdminPageLoader",
+                                "key": "admin-page-loader",
+                                "dependency": {
+                                  "type": "local",
+                                  "path": "@/customization/components/custom-loader"
+                                },
+                                "attrs": [
+                                  {
+                                    "type": "static",
+                                    "content": 12
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "isLoading"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "EmptyUsersContainer",
+                          "key": "empty-users-container",
+                          "style": {
+                            "margin": "16px",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "space-between",
+                            "fontSize": "14px"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "text",
+                                "name": "NoUsersMessage",
+                                "key": "no-users-message",
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "No users registered."
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "hasNoUsers"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "container",
+                          "name": "UsersTableContainer",
+                          "key": "users-table-container",
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "container",
+                                "name": "TableWrapper",
+                                "key": "table-wrapper",
+                                "style": {
+                                  "margin": "16px",
+                                  "height": "fit-content",
+                                  "overflowX": "hidden",
+                                  "overflowY": "scroll",
+                                  "borderRadius": "6px",
+                                  "border": "2px solid #e5e7eb",
+                                  "backgroundColor": "#ffffff"
+                                },
+                                "attrs": [
+                                  {
+                                    "type": "static",
+                                    "content": "custom-scroll"
+                                  }
+                                ],
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "Table",
+                                      "name": "UsersTable",
+                                      "key": "users-table",
+                                      "dependency": {
+                                        "type": "local",
+                                        "path": "@/components/ui/table"
+                                      },
+                                      "style": {
+                                        "tableLayout": "fixed",
+                                        "outline": "1px"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "TableHeader",
+                                            "name": "UsersTableHeader",
+                                            "key": "users-table-header",
+                                            "style": {
+                                              "tableLayout": "fixed",
+                                              "backgroundColor": "#f9fafb",
+                                              "outline": "1px"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "TableRow",
+                                                  "name": "HeaderRow",
+                                                  "key": "header-row",
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "IdHeader",
+                                                        "key": "id-header",
+                                                        "style": {
+                                                          "height": "40px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "Id"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "UsernameHeader",
+                                                        "key": "username-header",
+                                                        "style": {
+                                                          "height": "40px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "Username"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "ActiveHeader",
+                                                        "key": "active-header",
+                                                        "style": {
+                                                          "height": "40px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "Active"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "SuperuserHeader",
+                                                        "key": "superuser-header",
+                                                        "style": {
+                                                          "height": "40px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "Superuser"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "CreatedAtHeader",
+                                                        "key": "created-at-header",
+                                                        "style": {
+                                                          "height": "40px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "Created At"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "UpdatedAtHeader",
+                                                        "key": "updated-at-header",
+                                                        "style": {
+                                                          "height": "40px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "static",
+                                                            "content": "Updated At"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "TableHead",
+                                                        "name": "ActionsHeader",
+                                                        "key": "actions-header",
+                                                        "style": {
+                                                          "height": "40px",
+                                                          "width": "100px",
+                                                          "textAlign": "right"
+                                                        },
+                                                        "children": []
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "TableBody",
+                                            "name": "UsersTableBody",
+                                            "key": "users-table-body",
+                                            "children": [
+                                              {
+                                                "type": "repeat",
+                                                "content": {
+                                                  "node": {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "TableRow",
+                                                      "name": "UserTableRow",
+                                                      "key": "user-table-row",
+                                                      "children": [
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "UserIdCell",
+                                                            "key": "user-id-cell",
+                                                            "style": {
+                                                              "textOverflow": "ellipsis",
+                                                              "whiteSpace": "nowrap",
+                                                              "overflow": "hidden",
+                                                              "paddingY": "8px",
+                                                              "fontWeight": "500"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "ShadTooltip",
+                                                                  "name": "UserIdTooltip",
+                                                                  "key": "user-id-tooltip",
+                                                                  "dependency": {
+                                                                    "type": "local",
+                                                                    "path": "@/components/common/shadTooltipComponent"
+                                                                  },
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "local",
+                                                                        "id": "user.id"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "text",
+                                                                        "name": "UserIdText",
+                                                                        "key": "user-id-text",
+                                                                        "style": {
+                                                                          "cursor": "default"
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "local",
+                                                                              "id": "user.id"
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "UsernameCell",
+                                                            "key": "username-cell",
+                                                            "style": {
+                                                              "textOverflow": "ellipsis",
+                                                              "whiteSpace": "nowrap",
+                                                              "overflow": "hidden",
+                                                              "paddingY": "8px"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "ShadTooltip",
+                                                                  "name": "UsernameTooltip",
+                                                                  "key": "username-tooltip",
+                                                                  "dependency": {
+                                                                    "type": "local",
+                                                                    "path": "@/components/common/shadTooltipComponent"
+                                                                  },
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "local",
+                                                                        "id": "user.username"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "text",
+                                                                        "name": "UsernameText",
+                                                                        "key": "username-text",
+                                                                        "style": {
+                                                                          "cursor": "default"
+                                                                        },
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "local",
+                                                                              "id": "user.username"
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "ActiveStatusCell",
+                                                            "key": "active-status-cell",
+                                                            "style": {
+                                                              "position": "relative",
+                                                              "left": "4px",
+                                                              "textOverflow": "ellipsis",
+                                                              "whiteSpace": "nowrap",
+                                                              "overflow": "hidden",
+                                                              "paddingY": "8px"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "ConfirmationModal",
+                                                                  "name": "ActiveStatusModal",
+                                                                  "key": "active-status-modal",
+                                                                  "dependency": {
+                                                                    "type": "local",
+                                                                    "path": "@/modals/confirmationModal"
+                                                                  },
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "x-small"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Edit"
+                                                                    },
+                                                                    {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "local",
+                                                                        "id": "user.username"
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Attention!"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Cancel"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Confirm"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "UserCog2"
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ConfirmationModalContent",
+                                                                        "name": "ActiveStatusConfirmContent",
+                                                                        "key": "active-status-confirm-content",
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "text",
+                                                                              "name": "ActiveStatusConfirmText",
+                                                                              "key": "active-status-confirm-text",
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "static",
+                                                                                  "content": "Are you completely confident about the changes you are making to this user?"
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ConfirmationModalTrigger",
+                                                                        "name": "ActiveStatusTrigger",
+                                                                        "key": "active-status-trigger",
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "ActiveCheckboxContainer",
+                                                                              "key": "active-checkbox-container",
+                                                                              "style": {
+                                                                                "display": "flex",
+                                                                                "width": "fit-content"
+                                                                              },
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "CheckBoxDiv",
+                                                                                    "name": "ActiveCheckbox",
+                                                                                    "key": "active-checkbox",
+                                                                                    "dependency": {
+                                                                                      "type": "local",
+                                                                                      "path": "@/components/ui/checkbox"
+                                                                                    },
+                                                                                    "attrs": [
+                                                                                      {
+                                                                                        "type": "dynamic",
+                                                                                        "content": {
+                                                                                          "referenceType": "local",
+                                                                                          "id": "user.is_active"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "SuperuserStatusCell",
+                                                            "key": "superuser-status-cell",
+                                                            "style": {
+                                                              "position": "relative",
+                                                              "left": "4px",
+                                                              "textOverflow": "ellipsis",
+                                                              "whiteSpace": "nowrap",
+                                                              "overflow": "hidden",
+                                                              "paddingY": "8px"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "ConfirmationModal",
+                                                                  "name": "SuperuserStatusModal",
+                                                                  "key": "superuser-status-modal",
+                                                                  "dependency": {
+                                                                    "type": "local",
+                                                                    "path": "@/modals/confirmationModal"
+                                                                  },
+                                                                  "attrs": [
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "x-small"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Edit"
+                                                                    },
+                                                                    {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "local",
+                                                                        "id": "user.username"
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Attention!"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Cancel"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "Confirm"
+                                                                    },
+                                                                    {
+                                                                      "type": "static",
+                                                                      "content": "UserCog2"
+                                                                    }
+                                                                  ],
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ConfirmationModalContent",
+                                                                        "name": "SuperuserStatusConfirmContent",
+                                                                        "key": "superuser-status-confirm-content",
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "text",
+                                                                              "name": "SuperuserStatusConfirmText",
+                                                                              "key": "superuser-status-confirm-text",
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "static",
+                                                                                  "content": "Are you completely confident about the changes you are making to this user?"
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ConfirmationModalTrigger",
+                                                                        "name": "SuperuserStatusTrigger",
+                                                                        "key": "superuser-status-trigger",
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "SuperuserCheckboxContainer",
+                                                                              "key": "superuser-checkbox-container",
+                                                                              "style": {
+                                                                                "display": "flex",
+                                                                                "width": "fit-content"
+                                                                              },
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "CheckBoxDiv",
+                                                                                    "name": "SuperuserCheckbox",
+                                                                                    "key": "superuser-checkbox",
+                                                                                    "dependency": {
+                                                                                      "type": "local",
+                                                                                      "path": "@/components/ui/checkbox"
+                                                                                    },
+                                                                                    "attrs": [
+                                                                                      {
+                                                                                        "type": "dynamic",
+                                                                                        "content": {
+                                                                                          "referenceType": "local",
+                                                                                          "id": "user.is_superuser"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "CreatedAtCell",
+                                                            "key": "created-at-cell",
+                                                            "style": {
+                                                              "textOverflow": "ellipsis",
+                                                              "whiteSpace": "nowrap",
+                                                              "overflow": "hidden",
+                                                              "paddingY": "8px"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "user.formattedCreatedAt"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "UpdatedAtCell",
+                                                            "key": "updated-at-cell",
+                                                            "style": {
+                                                              "textOverflow": "ellipsis",
+                                                              "whiteSpace": "nowrap",
+                                                              "overflow": "hidden",
+                                                              "paddingY": "8px"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "user.formattedUpdatedAt"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "TableCell",
+                                                            "name": "UserActionsCell",
+                                                            "key": "user-actions-cell",
+                                                            "style": {
+                                                              "display": "flex",
+                                                              "width": "100px",
+                                                              "paddingY": "8px",
+                                                              "textAlign": "right"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "UserActionsContainer",
+                                                                  "key": "user-actions-container",
+                                                                  "style": {
+                                                                    "display": "flex"
+                                                                  },
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "UserManagementModal",
+                                                                        "name": "EditUserModal",
+                                                                        "key": "edit-user-modal",
+                                                                        "dependency": {
+                                                                          "type": "local",
+                                                                          "path": "@/modals/userManagementModal"
+                                                                        },
+                                                                        "attrs": [
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Edit"
+                                                                          },
+                                                                          {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "local",
+                                                                              "id": "user.id"
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Cancel"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Save"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "UserPlus2"
+                                                                          },
+                                                                          {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "local",
+                                                                              "id": "user"
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "local",
+                                                                              "id": "index"
+                                                                            }
+                                                                          }
+                                                                        ],
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "ShadTooltip",
+                                                                              "name": "EditUserTooltip",
+                                                                              "key": "edit-user-tooltip",
+                                                                              "dependency": {
+                                                                                "type": "local",
+                                                                                "path": "@/components/common/shadTooltipComponent"
+                                                                              },
+                                                                              "attrs": [
+                                                                                {
+                                                                                  "type": "static",
+                                                                                  "content": "Edit"
+                                                                                },
+                                                                                {
+                                                                                  "type": "static",
+                                                                                  "content": "top"
+                                                                                }
+                                                                              ],
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "IconComponent",
+                                                                                    "name": "EditUserIcon",
+                                                                                    "key": "edit-user-icon",
+                                                                                    "dependency": {
+                                                                                      "type": "local",
+                                                                                      "path": "@/components/common/genericIconComponent"
+                                                                                    },
+                                                                                    "attrs": [
+                                                                                      {
+                                                                                        "type": "static",
+                                                                                        "content": "Pencil"
+                                                                                      }
+                                                                                    ],
+                                                                                    "style": {
+                                                                                      "height": "16px",
+                                                                                      "width": "16px",
+                                                                                      "cursor": "pointer"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "ConfirmationModal",
+                                                                        "name": "DeleteUserModal",
+                                                                        "key": "delete-user-modal",
+                                                                        "dependency": {
+                                                                          "type": "local",
+                                                                          "path": "@/modals/confirmationModal"
+                                                                        },
+                                                                        "attrs": [
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "x-small"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Delete"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Delete User"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Attention!"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Cancel"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "Delete"
+                                                                          },
+                                                                          {
+                                                                            "type": "static",
+                                                                            "content": "UserMinus2"
+                                                                          }
+                                                                        ],
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "ConfirmationModalContent",
+                                                                              "name": "DeleteUserConfirmContent",
+                                                                              "key": "delete-user-confirm-content",
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "text",
+                                                                                    "name": "DeleteUserConfirmText",
+                                                                                    "key": "delete-user-confirm-text",
+                                                                                    "children": [
+                                                                                      {
+                                                                                        "type": "static",
+                                                                                        "content": "Are you sure you want to delete this user? This action cannot be undone."
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "ConfirmationModalTrigger",
+                                                                              "name": "DeleteUserTrigger",
+                                                                              "key": "delete-user-trigger",
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "element",
+                                                                                  "content": {
+                                                                                    "elementType": "IconComponent",
+                                                                                    "name": "DeleteUserIcon",
+                                                                                    "key": "delete-user-icon",
+                                                                                    "dependency": {
+                                                                                      "type": "local",
+                                                                                      "path": "@/components/common/genericIconComponent"
+                                                                                    },
+                                                                                    "attrs": [
+                                                                                      {
+                                                                                        "type": "static",
+                                                                                        "content": "Trash2"
+                                                                                      }
+                                                                                    ],
+                                                                                    "style": {
+                                                                                      "marginLeft": "8px",
+                                                                                      "height": "16px",
+                                                                                      "width": "16px",
+                                                                                      "cursor": "pointer"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  "dataSource": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "state",
+                                                      "id": "filterUserList"
+                                                    }
+                                                  },
+                                                  "meta": {
+                                                    "useIndex": true,
+                                                    "iteratorName": "user",
+                                                    "indexName": "index"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "PaginatorComponent",
+                                "name": "UsersPaginator",
+                                "key": "users-paginator",
+                                "dependency": {
+                                  "type": "local",
+                                  "path": "@/components/common/paginatorComponent"
+                                },
+                                "attrs": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "pageIndex"
+                                    }
+                                  },
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "pageSize"
+                                    }
+                                  },
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "totalRowsCount"
+                                    }
+                                  },
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "paginationRowsCount"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "hasUsersToDisplay"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "userDataExists"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "inputValue": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "pageSize": {
+      "type": "number",
+      "defaultValue": 10
+    },
+    "pageIndex": {
+      "type": "number",
+      "defaultValue": 1
+    },
+    "totalRowsCount": {
+      "type": "number",
+      "defaultValue": 0
+    },
+    "userList": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "filterUserList": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "userData": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "isIdle": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "hasSearchValue": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasNoSearchValue": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "hasNoUsers": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasUsersToDisplay": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "userDataExists": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "adminHeaderTitle": {
+      "type": "string",
+      "defaultValue": "Admin"
+    },
+    "adminHeaderDescription": {
+      "type": "string",
+      "defaultValue": "Manage system users and their permissions."
+    },
+    "paginationRowsCount": {
+      "type": "array",
+      "defaultValue": [10, 20, 50, 100]
+    }
+  },
+  "propDefinitions": {},
+  "styleSetDefinitions": {
+    "adminPagePanel": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "height": "100vh",
+        "flexDirection": "column",
+        "paddingBottom": "32px"
+      }
+    },
+    "navigationHeader": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "alignItems": "center",
+        "gap": "8px",
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "paddingBottom": "16px"
+      }
+    },
+    "controlsBar": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex",
+        "width": "100%",
+        "justifyContent": "space-between",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "marginBottom": "16px"
+      }
+    },
+    "tableWrapper": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "margin": "16px",
+        "height": "fit-content",
+        "overflowX": "hidden",
+        "overflowY": "scroll",
+        "borderRadius": "6px",
+        "border": "2px solid #e5e7eb",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "tableHeader": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "tableLayout": "fixed",
+        "backgroundColor": "#f9fafb",
+        "outline": "1px"
+      }
+    },
+    "tableCell": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "textOverflow": "ellipsis",
+        "whiteSpace": "nowrap",
+        "overflow": "hidden",
+        "paddingY": "8px"
+      }
+    },
+    "actionButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "height": "16px",
+        "width": "16px",
+        "cursor": "pointer"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#6b7280",
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "textColor": "#1f2937",
+      "mutedTextColor": "#6b7280",
+      "destructiveColor": "#ef4444",
+      "successColor": "#10b981",
+      "tableHeaderColor": "#f9fafb",
+      "adminIconColor": "#3b82f6"
+    }
+  }
+}

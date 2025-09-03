@@ -1,0 +1,1293 @@
+{
+  "name": "VoiceAssistant",
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "container",
+      "name": "VoiceAssistantContainer",
+      "key": "voice-assistant-container",
+      "style": {
+        "margin": "auto",
+        "display": "flex",
+        "width": "100%",
+        "maxWidth": "324px",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "borderRadius": "8px",
+        "border": "1px solid #e0e0e0",
+        "backgroundColor": "#ffffff",
+        "padding": "8px 16px",
+        "boxShadow": "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+      },
+      "attrs": {
+        "data-testid": "voice-assistant-container"
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "VoiceAssistantContent",
+            "key": "voice-assistant-content",
+            "style": {
+              "display": "flex",
+              "alignItems": "center",
+              "gap": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "comp",
+                  "id": "hasOpenAIAPIKey ? '12px' : '8px'"
+                }
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "MicrophoneButtonContainer",
+                  "key": "microphone-button-container",
+                  "style": {
+                    "position": "relative"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "button",
+                        "name": "MicrophoneToggleButton",
+                        "key": "microphone-toggle-button",
+                        "style": {
+                          "padding": "8px",
+                          "backgroundColor": "transparent",
+                          "border": "none",
+                          "cursor": "pointer",
+                          "borderRadius": "4px"
+                        },
+                        "events": {
+                          "click": {
+                            "type": "propCall",
+                            "calls": "handleToggleRecording"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "icon",
+                                  "name": "MicrophoneIcon",
+                                  "key": "microphone-icon",
+                                  "style": {
+                                    "width": "16px",
+                                    "height": "16px",
+                                    "color": "#6b7280"
+                                  }
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isRecording"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": true
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "icon",
+                                  "name": "MicrophoneOffIcon",
+                                  "key": "microphone-off-icon",
+                                  "style": {
+                                    "width": "16px",
+                                    "height": "16px",
+                                    "color": "#6b7280"
+                                  }
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "isRecording"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": false
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "WaveformVisualizerContainer",
+                  "key": "waveform-visualizer-container",
+                  "style": {
+                    "display": "flex",
+                    "height": "20px",
+                    "flex": "1",
+                    "alignItems": "center",
+                    "justifyContent": "center"
+                  },
+                  "children": [
+                    {
+                      "type": "repeat",
+                      "content": {
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "container",
+                            "name": "WaveformBar",
+                            "key": "waveform-bar",
+                            "style": {
+                              "marginLeft": "1px",
+                              "marginRight": "1px",
+                              "width": "2px",
+                              "borderRadius": "4px",
+                              "transition": "all 0.2s ease",
+                              "backgroundColor": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "isRecording && soundDetected ? '#ef4444' : '#6b7280'"
+                                }
+                              },
+                              "height": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "local",
+                                  "id": "height + '%'"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "dataSource": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "barHeights"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "RecordingTimeDisplay",
+                  "key": "recording-time-display",
+                  "style": {
+                    "minWidth": "50px",
+                    "cursor": "default",
+                    "textAlign": "center",
+                    "fontFamily": "monospace",
+                    "fontSize": "14px",
+                    "fontWeight": "500",
+                    "color": "#6b7280"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "text",
+                        "name": "RecordingTime",
+                        "key": "recording-time",
+                        "style": {
+                          "fontSize": "14px",
+                          "fontFamily": "monospace",
+                          "fontWeight": "500"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "container",
+                  "name": "SettingsDropdownContainer",
+                  "key": "settings-dropdown-container",
+                  "style": {
+                    "position": "relative"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "SettingsDropdownMenu",
+                        "key": "settings-dropdown-menu",
+                        "style": {
+                          "position": "relative"
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "button",
+                                  "name": "SettingsButton",
+                                  "key": "settings-button",
+                                  "style": {
+                                    "padding": "8px",
+                                    "backgroundColor": "transparent",
+                                    "border": "none",
+                                    "cursor": "pointer",
+                                    "borderRadius": "4px"
+                                  },
+                                  "attrs": {
+                                    "data-testid": "voice-assistant-settings-icon"
+                                  },
+                                  "events": {
+                                    "click": {
+                                      "type": "stateChange",
+                                      "transitions": [
+                                        {
+                                          "type": "stateChange",
+                                          "stateKey": "showSettingsModal",
+                                          "newValue": true
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "icon",
+                                        "name": "SettingsIcon",
+                                        "key": "settings-icon",
+                                        "style": {
+                                          "position": "relative",
+                                          "top": "2px",
+                                          "width": "16px",
+                                          "height": "16px",
+                                          "color": "#6b7280"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "hasOpenAIAPIKey"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": true
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "button",
+                                  "name": "AddAPIKeyButton",
+                                  "key": "add-api-key-button",
+                                  "style": {
+                                    "width": "32px",
+                                    "height": "32px",
+                                    "padding": "8px",
+                                    "backgroundColor": "#fef3c7",
+                                    "border": "1px solid #f59e0b",
+                                    "borderRadius": "6px",
+                                    "cursor": "pointer"
+                                  },
+                                  "attrs": {
+                                    "data-testid": "voice-assistant-settings-icon-without-openai"
+                                  },
+                                  "events": {
+                                    "click": {
+                                      "type": "stateChange",
+                                      "transitions": [
+                                        {
+                                          "type": "stateChange",
+                                          "stateKey": "showSettingsModal",
+                                          "newValue": true
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "icon",
+                                        "name": "KeyIcon",
+                                        "key": "key-icon",
+                                        "style": {
+                                          "width": "16px",
+                                          "height": "16px",
+                                          "color": "#d97706"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "hasOpenAIAPIKey"
+                                }
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": false
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "SettingsModalOverlay",
+                                  "key": "settings-modal-overlay",
+                                  "style": {
+                                    "position": "absolute",
+                                    "top": "calc(100% + 18px)",
+                                    "right": "0",
+                                    "width": "324px",
+                                    "backgroundColor": "white",
+                                    "borderRadius": "12px",
+                                    "boxShadow": "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                                    "zIndex": "50",
+                                    "border": "1px solid #e5e7eb"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "SettingsModalContent",
+                                        "key": "settings-modal-content",
+                                        "style": {
+                                          "borderRadius": "24px"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "SettingsModalHeader",
+                                              "key": "settings-modal-header",
+                                              "style": {
+                                                "padding": "16px",
+                                                "borderBottom": "1px solid #e5e7eb"
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "SettingsModalTitle",
+                                                    "key": "settings-modal-title",
+                                                    "style": {
+                                                      "fontSize": "18px",
+                                                      "fontWeight": "600",
+                                                      "color": "#111827"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "SettingsModalBody",
+                                              "key": "settings-modal-body",
+                                              "style": {
+                                                "width": "100%",
+                                                "display": "flex",
+                                                "flexDirection": "column",
+                                                "gap": "16px",
+                                                "padding": "16px"
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "OpenAIAPIKeySection",
+                                                    "key": "openai-api-key-section",
+                                                    "style": {
+                                                      "display": "grid",
+                                                      "width": "100%",
+                                                      "alignItems": "center",
+                                                      "gap": "8px"
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "container",
+                                                          "name": "OpenAIKeyLabelContainer",
+                                                          "key": "openai-key-label-container",
+                                                          "style": {
+                                                            "display": "flex",
+                                                            "alignItems": "center",
+                                                            "fontSize": "14px"
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "text",
+                                                                "name": "OpenAIKeyLabel",
+                                                                "key": "openai-key-label"
+                                                              }
+                                                            },
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "text",
+                                                                "name": "RequiredAsterisk",
+                                                                "key": "required-asterisk",
+                                                                "style": {
+                                                                  "marginLeft": "4px",
+                                                                  "color": "#ef4444"
+                                                                }
+                                                              }
+                                                            },
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "container",
+                                                                "name": "InfoTooltipContainer",
+                                                                "key": "info-tooltip-container",
+                                                                "style": {
+                                                                  "marginLeft": "4px"
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "type": "element",
+                                                                    "content": {
+                                                                      "elementType": "icon",
+                                                                      "name": "InfoIcon",
+                                                                      "key": "info-icon",
+                                                                      "style": {
+                                                                        "position": "relative",
+                                                                        "top": "-3px",
+                                                                        "left": "4px",
+                                                                        "width": "14px",
+                                                                        "height": "14px",
+                                                                        "color": "#9ca3af"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "conditional",
+                                                        "content": {
+                                                          "node": {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "input",
+                                                              "name": "OpenAIAPIKeyInput",
+                                                              "key": "openai-api-key-input",
+                                                              "style": {
+                                                                "width": "100%",
+                                                                "padding": "8px 12px",
+                                                                "border": "1px solid #d1d5db",
+                                                                "borderRadius": "6px",
+                                                                "fontSize": "14px",
+                                                                "outline": "none"
+                                                              },
+                                                              "attrs": {
+                                                                "type": "password",
+                                                                "id": "openai-api-key",
+                                                                "placeholder": "Enter your OpenAI API key",
+                                                                "value": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "state",
+                                                                    "id": "openaiApiKey"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "events": {
+                                                                "change": {
+                                                                  "type": "stateChange",
+                                                                  "transitions": [
+                                                                    {
+                                                                      "type": "stateChange",
+                                                                      "stateKey": "openaiApiKey",
+                                                                      "newValue": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "local",
+                                                                          "id": "event.target.value"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "reference": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "comp",
+                                                              "id": "!hasOpenAIAPIKey || isEditingOpenAIKey"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "conditional",
+                                                        "content": {
+                                                          "node": {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "button",
+                                                              "name": "EditOpenAIKeyButton",
+                                                              "key": "edit-openai-key-button",
+                                                              "style": {
+                                                                "width": "100%",
+                                                                "padding": "8px 16px",
+                                                                "backgroundColor": "#6366f1",
+                                                                "color": "white",
+                                                                "border": "none",
+                                                                "borderRadius": "6px",
+                                                                "cursor": "pointer",
+                                                                "fontSize": "14px",
+                                                                "fontWeight": "500"
+                                                              },
+                                                              "events": {
+                                                                "click": {
+                                                                  "type": "stateChange",
+                                                                  "transitions": [
+                                                                    {
+                                                                      "type": "stateChange",
+                                                                      "stateKey": "isEditingOpenAIKey",
+                                                                      "newValue": true
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "EditButtonText",
+                                                                    "key": "edit-button-text"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          "reference": {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "comp",
+                                                              "id": "hasOpenAIAPIKey && !isEditingOpenAIKey"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "ButtonActionsContainer",
+                                                        "key": "button-actions-container",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "gap": "8px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "button",
+                                                              "name": "CancelButton",
+                                                              "key": "cancel-button",
+                                                              "style": {
+                                                                "width": "100%",
+                                                                "padding": "8px 16px",
+                                                                "backgroundColor": "#6366f1",
+                                                                "color": "white",
+                                                                "border": "none",
+                                                                "borderRadius": "6px",
+                                                                "cursor": "pointer",
+                                                                "fontSize": "14px",
+                                                                "fontWeight": "500"
+                                                              },
+                                                              "attrs": {
+                                                                "data-testid": "voice-assistant-settings-modal-cancel-button"
+                                                              },
+                                                              "events": {
+                                                                "click": {
+                                                                  "type": "stateChange",
+                                                                  "transitions": [
+                                                                    {
+                                                                      "type": "stateChange",
+                                                                      "stateKey": "isEditingOpenAIKey",
+                                                                      "newValue": false
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "CancelButtonText",
+                                                                    "key": "cancel-button-text"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "button",
+                                                              "name": "SaveButton",
+                                                              "key": "save-button",
+                                                              "style": {
+                                                                "width": "100%",
+                                                                "padding": "8px 16px",
+                                                                "backgroundColor": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "openaiApiKey ? '#10b981' : '#9ca3af'"
+                                                                  }
+                                                                },
+                                                                "color": "white",
+                                                                "border": "none",
+                                                                "borderRadius": "6px",
+                                                                "cursor": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "openaiApiKey ? 'pointer' : 'not-allowed'"
+                                                                  }
+                                                                },
+                                                                "fontSize": "14px",
+                                                                "fontWeight": "500"
+                                                              },
+                                                              "attrs": {
+                                                                "data-testid": "voice-assistant-settings-modal-save-button",
+                                                                "disabled": {
+                                                                  "type": "dynamic",
+                                                                  "content": {
+                                                                    "referenceType": "comp",
+                                                                    "id": "!openaiApiKey"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "events": {
+                                                                "click": {
+                                                                  "type": "propCall",
+                                                                  "calls": "handleClickSaveApiKey"
+                                                                }
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "SaveButtonText",
+                                                                    "key": "save-button-text"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "comp",
+                                                        "id": "!hasOpenAIAPIKey || isEditingOpenAIKey"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "AdvancedSettingsContainer",
+                                                        "key": "advanced-settings-container",
+                                                        "style": {
+                                                          "display": "flex",
+                                                          "flexDirection": "column",
+                                                          "gap": "16px"
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "ElevenLabsAPIKeySection",
+                                                              "key": "elevenlabs-api-key-section",
+                                                              "style": {
+                                                                "display": "grid",
+                                                                "width": "100%",
+                                                                "alignItems": "center",
+                                                                "gap": "8px"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "container",
+                                                                    "name": "ElevenLabsKeyLabelContainer",
+                                                                    "key": "elevenlabs-key-label-container",
+                                                                    "style": {
+                                                                      "display": "flex",
+                                                                      "alignItems": "center",
+                                                                      "fontSize": "14px"
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "text",
+                                                                          "name": "ElevenLabsKeyLabel",
+                                                                          "key": "elevenlabs-key-label"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "type": "element",
+                                                                        "content": {
+                                                                          "elementType": "icon",
+                                                                          "name": "ElevenLabsInfoIcon",
+                                                                          "key": "elevenlabs-info-icon",
+                                                                          "style": {
+                                                                            "marginLeft": "4px",
+                                                                            "width": "14px",
+                                                                            "height": "14px",
+                                                                            "color": "#9ca3af"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "input",
+                                                                    "name": "ElevenLabsAPIKeyInput",
+                                                                    "key": "elevenlabs-api-key-input",
+                                                                    "style": {
+                                                                      "width": "100%",
+                                                                      "padding": "8px 12px",
+                                                                      "border": "1px solid #d1d5db",
+                                                                      "borderRadius": "6px",
+                                                                      "fontSize": "14px",
+                                                                      "outline": "none"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "type": "password",
+                                                                      "id": "eleven-labs-api-key",
+                                                                      "placeholder": "Enter your ElevenLabs API key",
+                                                                      "value": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "elevenLabsApiKey"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "events": {
+                                                                      "change": {
+                                                                        "type": "stateChange",
+                                                                        "transitions": [
+                                                                          {
+                                                                            "type": "stateChange",
+                                                                            "stateKey": "elevenLabsApiKey",
+                                                                            "newValue": {
+                                                                              "type": "dynamic",
+                                                                              "content": {
+                                                                                "referenceType": "local",
+                                                                                "id": "event.target.value"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "VoiceSelectionSection",
+                                                              "key": "voice-selection-section",
+                                                              "style": {
+                                                                "display": "grid",
+                                                                "width": "100%",
+                                                                "alignItems": "center",
+                                                                "gap": "8px"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "VoiceSelectionLabel",
+                                                                    "key": "voice-selection-label",
+                                                                    "style": {
+                                                                      "fontSize": "14px",
+                                                                      "fontWeight": "500"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "select",
+                                                                    "name": "VoiceSelectionDropdown",
+                                                                    "key": "voice-selection-dropdown",
+                                                                    "style": {
+                                                                      "width": "100%",
+                                                                      "padding": "8px 12px",
+                                                                      "border": "1px solid #d1d5db",
+                                                                      "borderRadius": "6px",
+                                                                      "fontSize": "14px",
+                                                                      "outline": "none"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "value": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "selectedVoice"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "events": {
+                                                                      "change": {
+                                                                        "type": "stateChange",
+                                                                        "transitions": [
+                                                                          {
+                                                                            "type": "stateChange",
+                                                                            "stateKey": "selectedVoice",
+                                                                            "newValue": {
+                                                                              "type": "dynamic",
+                                                                              "content": {
+                                                                                "referenceType": "local",
+                                                                                "id": "event.target.value"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    "children": [
+                                                                      {
+                                                                        "type": "repeat",
+                                                                        "content": {
+                                                                          "node": {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "option",
+                                                                              "name": "VoiceOption",
+                                                                              "key": "voice-option",
+                                                                              "attrs": {
+                                                                                "value": {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "local",
+                                                                                    "id": "voice.value"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "dataSource": {
+                                                                            "type": "dynamic",
+                                                                            "content": {
+                                                                              "referenceType": "state",
+                                                                              "id": "allVoices"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          },
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "container",
+                                                              "name": "LanguageSelectionSection",
+                                                              "key": "language-selection-section",
+                                                              "style": {
+                                                                "display": "grid",
+                                                                "width": "100%",
+                                                                "alignItems": "center",
+                                                                "gap": "8px"
+                                                              },
+                                                              "children": [
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "text",
+                                                                    "name": "LanguageSelectionLabel",
+                                                                    "key": "language-selection-label",
+                                                                    "style": {
+                                                                      "fontSize": "14px",
+                                                                      "fontWeight": "500"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "element",
+                                                                  "content": {
+                                                                    "elementType": "select",
+                                                                    "name": "LanguageSelectionDropdown",
+                                                                    "key": "language-selection-dropdown",
+                                                                    "style": {
+                                                                      "width": "100%",
+                                                                      "padding": "8px 12px",
+                                                                      "border": "1px solid #d1d5db",
+                                                                      "borderRadius": "6px",
+                                                                      "fontSize": "14px",
+                                                                      "outline": "none"
+                                                                    },
+                                                                    "attrs": {
+                                                                      "value": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "state",
+                                                                          "id": "preferredLanguage"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "events": {
+                                                                      "change": {
+                                                                        "type": "stateChange",
+                                                                        "transitions": [
+                                                                          {
+                                                                            "type": "stateChange",
+                                                                            "stateKey": "preferredLanguage",
+                                                                            "newValue": {
+                                                                              "type": "dynamic",
+                                                                              "content": {
+                                                                                "referenceType": "local",
+                                                                                "id": "event.target.value"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "comp",
+                                                        "id": "hasOpenAIAPIKey && !isEditingOpenAIKey"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "showSettingsModal"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "button",
+                  "name": "CloseVoiceAssistantButton",
+                  "key": "close-voice-assistant-button",
+                  "style": {
+                    "padding": "8px",
+                    "backgroundColor": "transparent",
+                    "border": "none",
+                    "cursor": "pointer",
+                    "borderRadius": "4px"
+                  },
+                  "attrs": {
+                    "data-testid": "voice-assistant-close-button"
+                  },
+                  "events": {
+                    "click": {
+                      "type": "propCall",
+                      "calls": "handleCloseAudioInput"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "icon",
+                        "name": "CloseIcon",
+                        "key": "close-icon",
+                        "style": {
+                          "width": "16px",
+                          "height": "16px",
+                          "color": "#6b7280"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stateDefinitions": {
+    "recordingTime": {
+      "type": "number",
+      "defaultValue": 0
+    },
+    "isRecording": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "status": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "message": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "showSettingsModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "addKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "barHeights": {
+      "type": "array",
+      "defaultValue": [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+    },
+    "preferredLanguage": {
+      "type": "string",
+      "defaultValue": "en-US"
+    },
+    "isEditingOpenAIKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "soundDetected": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasOpenAIAPIKey": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "openaiApiKey": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "elevenLabsApiKey": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "selectedVoice": {
+      "type": "string",
+      "defaultValue": "alloy"
+    },
+    "allVoices": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "selectedMicrophone": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "propDefinitions": {
+    "flowId": {
+      "type": "string",
+      "isRequired": true
+    },
+    "setShowAudioInput": {
+      "type": "function",
+      "isRequired": true
+    },
+    "handleToggleRecording": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleCloseAudioInput": {
+      "type": "function",
+      "isRequired": false
+    },
+    "handleClickSaveApiKey": {
+      "type": "function",
+      "isRequired": false
+    },
+    "initializeAudio": {
+      "type": "function",
+      "isRequired": false
+    },
+    "startRecording": {
+      "type": "function",
+      "isRequired": false
+    },
+    "stopRecording": {
+      "type": "function",
+      "isRequired": false
+    },
+    "startConversation": {
+      "type": "function",
+      "isRequired": false
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "primary": "#6366f1",
+        "background": "#ffffff",
+        "muted": "#f8f9fa",
+        "border": "#e0e0e0",
+        "text": "#374151",
+        "textMuted": "#6b7280",
+        "error": "#ef4444",
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "warningBg": "#fef3c7",
+        "warningBorder": "#f59e0b",
+        "warningText": "#d97706",
+        "recording": "#ef4444"
+      },
+      "spacing": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "12px",
+        "lg": "16px",
+        "xl": "24px",
+        "2xl": "32px"
+      },
+      "borderRadius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px",
+        "xl": "12px",
+        "2xl": "24px",
+        "full": "50%"
+      },
+      "fontSize": {
+        "xs": "12px",
+        "sm": "14px",
+        "base": "16px",
+        "lg": "18px",
+        "xl": "20px"
+      },
+      "fontWeight": {
+        "normal": "400",
+        "medium": "500",
+        "semibold": "600"
+      },
+      "shadows": {
+        "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        "xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+      },
+      "transitions": {
+        "fast": "0.2s ease",
+        "medium": "0.3s ease"
+      }
+    }
+  }
+}

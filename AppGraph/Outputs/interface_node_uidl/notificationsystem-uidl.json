@@ -1,0 +1,1656 @@
+{
+  "name": "NotificationSystem",
+  "globals": {
+    "settings": {
+      "title": "Notification System",
+      "language": "en"
+    },
+    "customCode": {
+      "head": "",
+      "body": ""
+    },
+    "meta": [],
+    "assets": [],
+    "manifest": {},
+    "variables": {}
+  },
+  "root": {
+    "name": "NotificationSystem",
+    "node": {
+      "type": "element",
+      "content": {
+        "elementType": "container",
+        "name": "notification-system-wrapper",
+        "children": [
+          {
+            "type": "element",
+            "content": {
+              "elementType": "container",
+              "name": "alert-display-area",
+              "children": [
+                {
+                  "type": "repeat",
+                  "content": {
+                    "node": {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "alert-item-wrapper",
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "error-alert",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "error-alert-content",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "error-icon-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "icon",
+                                                    "name": "error-alert-icon",
+                                                    "attrs": [
+                                                      {
+                                                        "type": "static",
+                                                        "name": "aria-hidden",
+                                                        "content": "true"
+                                                      }
+                                                    ],
+                                                    "style": {
+                                                      "width": "20px",
+                                                      "height": "20px",
+                                                      "color": "$token-color-error"
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "flexShrink": "0"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "error-message-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "error-alert-title",
+                                                    "style": {
+                                                      "fontSize": "$token-font-size-sm",
+                                                      "color": "$token-color-error-text",
+                                                      "fontWeight": "500",
+                                                      "lineHeight": "1.25",
+                                                      "display": "-webkit-box",
+                                                      "WebkitLineClamp": "2",
+                                                      "WebkitBoxOrient": "vertical",
+                                                      "overflow": "hidden"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "title"
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "container",
+                                                        "name": "error-details-list",
+                                                        "children": [
+                                                          {
+                                                            "type": "element",
+                                                            "content": {
+                                                              "elementType": "list",
+                                                              "name": "error-list-items",
+                                                              "children": [
+                                                                {
+                                                                  "type": "repeat",
+                                                                  "content": {
+                                                                    "node": {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "list-item",
+                                                                        "name": "error-list-item",
+                                                                        "children": [
+                                                                          {
+                                                                            "type": "element",
+                                                                            "content": {
+                                                                              "elementType": "container",
+                                                                              "name": "error-item-content",
+                                                                              "children": [
+                                                                                {
+                                                                                  "type": "dynamic",
+                                                                                  "content": {
+                                                                                    "referenceType": "local",
+                                                                                    "id": "listItem"
+                                                                                  }
+                                                                                }
+                                                                              ],
+                                                                              "style": {
+                                                                                "wordBreak": "break-word"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        ],
+                                                                        "style": {
+                                                                          "wordBreak": "break-word"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "dataSource": {
+                                                                      "type": "dynamic",
+                                                                      "content": {
+                                                                        "referenceType": "local",
+                                                                        "id": "list"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ],
+                                                              "style": {
+                                                                "listStyleType": "disc",
+                                                                "paddingLeft": "20px",
+                                                                "alignItems": "flex-start",
+                                                                "gap": "4px"
+                                                              }
+                                                            }
+                                                          }
+                                                        ],
+                                                        "style": {
+                                                          "marginTop": "8px",
+                                                          "fontSize": "$token-font-size-sm",
+                                                          "color": "$token-color-error-text"
+                                                        }
+                                                      }
+                                                    },
+                                                    "reference": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "computed",
+                                                        "id": "hasErrorList"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "marginLeft": "12px"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "style": {
+                                    "width": "384px",
+                                    "marginTop": "24px",
+                                    "borderRadius": "$token-border-radius-md",
+                                    "backgroundColor": "$token-color-error-background",
+                                    "padding": "16px",
+                                    "boxShadow": "$token-shadow-xl",
+                                    "cursor": "pointer",
+                                    "transform": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "slideAnimation",
+                                        "conditions": [
+                                          {
+                                            "operand": "enter",
+                                            "operation": "===",
+                                            "value": "translateX(0)"
+                                          },
+                                          {
+                                            "operand": "exit",
+                                            "operation": "===",
+                                            "value": "translateX(-100%)"
+                                          }
+                                        ],
+                                        "fallback": "translateX(-100%)"
+                                      }
+                                    },
+                                    "transition": "transform 0.5s ease-out"
+                                  }
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "local",
+                                  "id": "type",
+                                  "conditions": [
+                                    {
+                                      "operand": "error",
+                                      "operation": "===",
+                                      "value": true
+                                    }
+                                  ],
+                                  "fallback": false
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "success-alert",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "success-alert-content",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "success-icon-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "icon",
+                                                    "name": "success-alert-icon",
+                                                    "attrs": [
+                                                      {
+                                                        "type": "static",
+                                                        "name": "aria-hidden",
+                                                        "content": "true"
+                                                      }
+                                                    ],
+                                                    "style": {
+                                                      "width": "20px",
+                                                      "height": "20px",
+                                                      "color": "$token-color-success"
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "flexShrink": "0"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "success-message-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "success-alert-message",
+                                                    "style": {
+                                                      "fontSize": "$token-font-size-sm",
+                                                      "color": "$token-color-success-text",
+                                                      "display": "-webkit-box",
+                                                      "WebkitLineClamp": "2",
+                                                      "WebkitBoxOrient": "vertical",
+                                                      "overflow": "hidden"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "title"
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              ],
+                                              "style": {
+                                                "marginLeft": "12px"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "style": {
+                                    "width": "384px",
+                                    "marginTop": "24px",
+                                    "borderRadius": "$token-border-radius-md",
+                                    "backgroundColor": "$token-color-success-background",
+                                    "padding": "16px",
+                                    "boxShadow": "$token-shadow-xl",
+                                    "cursor": "pointer",
+                                    "transform": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "slideAnimation",
+                                        "conditions": [
+                                          {
+                                            "operand": "enter",
+                                            "operation": "===",
+                                            "value": "translateX(0)"
+                                          },
+                                          {
+                                            "operand": "exit",
+                                            "operation": "===",
+                                            "value": "translateX(-100%)"
+                                          }
+                                        ],
+                                        "fallback": "translateX(-100%)"
+                                      }
+                                    },
+                                    "transition": "transform 0.5s ease-out"
+                                  }
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "local",
+                                  "id": "type",
+                                  "conditions": [
+                                    {
+                                      "operand": "success",
+                                      "operation": "===",
+                                      "value": true
+                                    }
+                                  ],
+                                  "fallback": false
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "container",
+                                  "name": "notice-alert",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "notice-alert-content",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "notice-icon-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "icon",
+                                                    "name": "info-alert-icon",
+                                                    "attrs": [
+                                                      {
+                                                        "type": "static",
+                                                        "name": "aria-hidden",
+                                                        "content": "true"
+                                                      }
+                                                    ],
+                                                    "style": {
+                                                      "width": "20px",
+                                                      "height": "20px",
+                                                      "color": "$token-color-info",
+                                                      "cursor": "help"
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "flexShrink": "0",
+                                                "cursor": "help"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "notice-content-container",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "notice-alert-message",
+                                                    "style": {
+                                                      "fontSize": "$token-font-size-sm",
+                                                      "color": "$token-color-info-text",
+                                                      "wordBreak": "break-word"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "local",
+                                                        "id": "title"
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "conditional",
+                                                  "content": {
+                                                    "node": {
+                                                      "type": "element",
+                                                      "content": {
+                                                        "elementType": "link",
+                                                        "name": "notice-details-link",
+                                                        "attrs": [
+                                                          {
+                                                            "type": "dynamic",
+                                                            "name": "href",
+                                                            "content": {
+                                                              "referenceType": "local",
+                                                              "id": "link"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "style": {
+                                                          "whiteSpace": "nowrap",
+                                                          "fontWeight": "500",
+                                                          "color": "$token-color-info-text",
+                                                          "textDecoration": "none",
+                                                          "fontSize": "$token-font-size-sm",
+                                                          "marginTop": "12px",
+                                                          "hover": {
+                                                            "color": "$token-color-accent"
+                                                          }
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": "Details"
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  "reference": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "computed",
+                                                      "id": "hasNoticeLink"
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "style": {
+                                                "marginLeft": "12px",
+                                                "flex": "1",
+                                                "display": "flex",
+                                                "flexDirection": "column",
+                                                "justifyContent": "space-between"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "style": {
+                                    "width": "384px",
+                                    "marginTop": "24px",
+                                    "borderRadius": "$token-border-radius-md",
+                                    "backgroundColor": "$token-color-info-background",
+                                    "padding": "16px",
+                                    "boxShadow": "$token-shadow-xl",
+                                    "cursor": "pointer",
+                                    "transform": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "slideAnimation",
+                                        "conditions": [
+                                          {
+                                            "operand": "enter",
+                                            "operation": "===",
+                                            "value": "translateX(0)"
+                                          },
+                                          {
+                                            "operand": "exit",
+                                            "operation": "===",
+                                            "value": "translateX(-100%)"
+                                          }
+                                        ],
+                                        "fallback": "translateX(-100%)"
+                                      }
+                                    },
+                                    "transition": "transform 0.5s ease-out"
+                                  }
+                                }
+                              },
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "local",
+                                  "id": "type",
+                                  "conditions": [
+                                    {
+                                      "operand": "notice",
+                                      "operation": "===",
+                                      "value": true
+                                    }
+                                  ],
+                                  "fallback": false
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "dataSource": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "tempNotificationList"
+                      }
+                    }
+                  }
+                }
+              ],
+              "style": {
+                "display": "flex",
+                "flexDirection": "column-reverse",
+                "position": "fixed",
+                "top": "0",
+                "left": "0",
+                "zIndex": "999",
+                "pointerEvents": "none"
+              }
+            }
+          },
+          {
+            "type": "element",
+            "content": {
+              "elementType": "container",
+              "name": "notification-dropdown-system",
+              "children": [
+                {
+                  "type": "element",
+                  "content": {
+                    "elementType": "container",
+                    "name": "notification-popover-trigger",
+                    "children": [
+                      {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "children"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "conditional",
+                  "content": {
+                    "node": {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "notification-dropdown-content",
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "dropdown-header",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "text",
+                                    "name": "notifications-title",
+                                    "style": {
+                                      "fontSize": "$token-font-size-md",
+                                      "fontWeight": "500",
+                                      "color": "$token-color-text-primary",
+                                      "paddingLeft": "12px"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "static",
+                                      "content": "Notifications"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "container",
+                                    "name": "dropdown-header-actions",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "button",
+                                          "name": "clear-all-notifications-button",
+                                          "style": {
+                                            "color": "$token-color-text-secondary",
+                                            "background": "transparent",
+                                            "border": "none",
+                                            "cursor": "pointer",
+                                            "padding": "4px",
+                                            "borderRadius": "$token-border-radius-sm",
+                                            "hover": {
+                                              "color": "$token-color-destructive"
+                                            }
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "icon",
+                                              "name": "clear-notifications-icon",
+                                              "style": {
+                                                "width": "16px",
+                                                "height": "16px"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "button",
+                                          "name": "close-dropdown-button",
+                                          "style": {
+                                            "color": "$token-color-text-primary",
+                                            "opacity": "0.7",
+                                            "background": "transparent",
+                                            "border": "none",
+                                            "cursor": "pointer",
+                                            "padding": "4px",
+                                            "borderRadius": "$token-border-radius-sm",
+                                            "hover": {
+                                              "opacity": "1"
+                                            }
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "icon",
+                                              "name": "close-dropdown-icon",
+                                              "style": {
+                                                "width": "16px",
+                                                "height": "16px"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ],
+                                    "style": {
+                                      "display": "flex",
+                                      "gap": "12px",
+                                      "paddingRight": "12px"
+                                    }
+                                  }
+                                }
+                              ],
+                              "style": {
+                                "display": "flex",
+                                "flexDirection": "row",
+                                "justifyContent": "space-between"
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "notifications-list-container",
+                              "children": [
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "notifications-list",
+                                        "children": [
+                                          {
+                                            "type": "repeat",
+                                            "content": {
+                                              "node": {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "container",
+                                                  "name": "single-notification-item",
+                                                  "children": [
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "container",
+                                                            "name": "error-notification-item",
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "error-item-icon-container",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "icon",
+                                                                        "name": "error-notification-icon",
+                                                                        "style": {
+                                                                          "width": "20px",
+                                                                          "height": "20px",
+                                                                          "color": "$token-color-error"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "flexShrink": "0"
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "error-item-content",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "text",
+                                                                        "name": "error-notification-title",
+                                                                        "style": {
+                                                                          "fontSize": "$token-font-size-sm",
+                                                                          "fontWeight": "500",
+                                                                          "color": "$token-color-error-text",
+                                                                          "wordBreak": "break-word"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "local",
+                                                                            "id": "title"
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "type": "conditional",
+                                                                      "content": {
+                                                                        "node": {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "container",
+                                                                            "name": "error-notification-details",
+                                                                            "children": [
+                                                                              {
+                                                                                "type": "element",
+                                                                                "content": {
+                                                                                  "elementType": "list",
+                                                                                  "name": "error-notification-list",
+                                                                                  "children": [
+                                                                                    {
+                                                                                      "type": "repeat",
+                                                                                      "content": {
+                                                                                        "node": {
+                                                                                          "type": "element",
+                                                                                          "content": {
+                                                                                            "elementType": "list-item",
+                                                                                            "name": "error-notification-list-item",
+                                                                                            "children": [
+                                                                                              {
+                                                                                                "type": "dynamic",
+                                                                                                "content": {
+                                                                                                  "referenceType": "local",
+                                                                                                  "id": "listItem"
+                                                                                                }
+                                                                                              }
+                                                                                            ],
+                                                                                            "style": {
+                                                                                              "wordBreak": "break-word"
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "dataSource": {
+                                                                                          "type": "dynamic",
+                                                                                          "content": {
+                                                                                            "referenceType": "local",
+                                                                                            "id": "list"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  ],
+                                                                                  "style": {
+                                                                                    "listStyleType": "disc",
+                                                                                    "paddingLeft": "20px",
+                                                                                    "gap": "4px",
+                                                                                    "alignItems": "flex-start"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ],
+                                                                            "style": {
+                                                                              "marginTop": "8px",
+                                                                              "fontSize": "$token-font-size-sm",
+                                                                              "color": "$token-color-error-text"
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "reference": {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "computed",
+                                                                            "id": "hasErrorList"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "marginLeft": "12px"
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "error-item-dismiss-container",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "button",
+                                                                        "name": "dismiss-error-notification-button",
+                                                                        "style": {
+                                                                          "display": "inline-flex",
+                                                                          "borderRadius": "$token-border-radius-md",
+                                                                          "padding": "6px",
+                                                                          "color": "$token-color-error",
+                                                                          "background": "transparent",
+                                                                          "border": "none",
+                                                                          "cursor": "pointer"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "text",
+                                                                            "name": "dismiss-screen-reader-text",
+                                                                            "style": {
+                                                                              "position": "absolute",
+                                                                              "width": "1px",
+                                                                              "height": "1px",
+                                                                              "padding": "0",
+                                                                              "margin": "-1px",
+                                                                              "overflow": "hidden",
+                                                                              "clip": "rect(0, 0, 0, 0)",
+                                                                              "whiteSpace": "nowrap",
+                                                                              "border": "0"
+                                                                            }
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "static",
+                                                                              "content": "Dismiss"
+                                                                            }
+                                                                          ]
+                                                                        },
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "icon",
+                                                                            "name": "dismiss-error-icon",
+                                                                            "style": {
+                                                                              "width": "16px",
+                                                                              "height": "16px",
+                                                                              "color": "$token-color-error-text"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "marginLeft": "auto",
+                                                                    "paddingLeft": "12px"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ],
+                                                            "style": {
+                                                              "margin": "8px",
+                                                              "marginBottom": "8px",
+                                                              "display": "flex",
+                                                              "borderRadius": "$token-border-radius-md",
+                                                              "backgroundColor": "$token-color-error-background",
+                                                              "padding": "12px"
+                                                            }
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "type",
+                                                            "conditions": [
+                                                              {
+                                                                "operand": "error",
+                                                                "operation": "===",
+                                                                "value": true
+                                                              }
+                                                            ],
+                                                            "fallback": false
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "container",
+                                                            "name": "success-notification-item",
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "success-item-icon-container",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "icon",
+                                                                        "name": "success-notification-icon",
+                                                                        "style": {
+                                                                          "width": "20px",
+                                                                          "height": "20px",
+                                                                          "color": "$token-color-success"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "flexShrink": "0"
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "success-item-content",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "text",
+                                                                        "name": "success-notification-title",
+                                                                        "style": {
+                                                                          "fontSize": "$token-font-size-sm",
+                                                                          "fontWeight": "500",
+                                                                          "color": "$token-color-success-text"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "local",
+                                                                            "id": "title"
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "marginLeft": "12px"
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "success-item-dismiss-container",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "button",
+                                                                        "name": "dismiss-success-notification-button",
+                                                                        "style": {
+                                                                          "display": "inline-flex",
+                                                                          "borderRadius": "$token-border-radius-md",
+                                                                          "padding": "6px",
+                                                                          "color": "$token-color-success",
+                                                                          "background": "transparent",
+                                                                          "border": "none",
+                                                                          "cursor": "pointer"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "text",
+                                                                            "name": "dismiss-success-screen-reader-text",
+                                                                            "style": {
+                                                                              "position": "absolute",
+                                                                              "width": "1px",
+                                                                              "height": "1px",
+                                                                              "padding": "0",
+                                                                              "margin": "-1px",
+                                                                              "overflow": "hidden",
+                                                                              "clip": "rect(0, 0, 0, 0)",
+                                                                              "whiteSpace": "nowrap",
+                                                                              "border": "0"
+                                                                            }
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "static",
+                                                                              "content": "Dismiss"
+                                                                            }
+                                                                          ]
+                                                                        },
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "icon",
+                                                                            "name": "dismiss-success-icon",
+                                                                            "style": {
+                                                                              "width": "16px",
+                                                                              "height": "16px",
+                                                                              "color": "$token-color-success-text"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "marginLeft": "auto",
+                                                                    "paddingLeft": "12px"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ],
+                                                            "style": {
+                                                              "margin": "8px",
+                                                              "marginBottom": "8px",
+                                                              "display": "flex",
+                                                              "borderRadius": "$token-border-radius-md",
+                                                              "backgroundColor": "$token-color-success-background",
+                                                              "padding": "12px"
+                                                            }
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "type",
+                                                            "conditions": [
+                                                              {
+                                                                "operand": "success",
+                                                                "operation": "===",
+                                                                "value": true
+                                                              }
+                                                            ],
+                                                            "fallback": false
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "type": "conditional",
+                                                      "content": {
+                                                        "node": {
+                                                          "type": "element",
+                                                          "content": {
+                                                            "elementType": "container",
+                                                            "name": "notice-notification-item",
+                                                            "children": [
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "notice-item-icon-container",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "icon",
+                                                                        "name": "info-notification-icon",
+                                                                        "style": {
+                                                                          "width": "20px",
+                                                                          "height": "20px",
+                                                                          "color": "$token-color-info",
+                                                                          "cursor": "help"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "flexShrink": "0",
+                                                                    "cursor": "help"
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "notice-item-content-wrapper",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "text",
+                                                                        "name": "notice-notification-title",
+                                                                        "style": {
+                                                                          "fontSize": "$token-font-size-sm",
+                                                                          "fontWeight": "500",
+                                                                          "color": "$token-color-info-text"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "dynamic",
+                                                                          "content": {
+                                                                            "referenceType": "local",
+                                                                            "id": "title"
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "type": "conditional",
+                                                                      "content": {
+                                                                        "node": {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "link",
+                                                                            "name": "notice-notification-details-link",
+                                                                            "attrs": [
+                                                                              {
+                                                                                "type": "dynamic",
+                                                                                "name": "href",
+                                                                                "content": {
+                                                                                  "referenceType": "local",
+                                                                                  "id": "link"
+                                                                                }
+                                                                              }
+                                                                            ],
+                                                                            "style": {
+                                                                              "whiteSpace": "nowrap",
+                                                                              "fontWeight": "500",
+                                                                              "color": "$token-color-info-text",
+                                                                              "textDecoration": "none",
+                                                                              "fontSize": "$token-font-size-sm",
+                                                                              "marginTop": "12px",
+                                                                              "hover": {
+                                                                                "color": "$token-color-accent"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "static",
+                                                                              "content": "Details"
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      },
+                                                                      "reference": {
+                                                                        "type": "dynamic",
+                                                                        "content": {
+                                                                          "referenceType": "computed",
+                                                                          "id": "hasNoticeLink"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "marginLeft": "12px",
+                                                                    "flex": "1",
+                                                                    "display": "flex",
+                                                                    "flexDirection": "column",
+                                                                    "justifyContent": "space-between"
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "type": "element",
+                                                                "content": {
+                                                                  "elementType": "container",
+                                                                  "name": "notice-item-dismiss-container",
+                                                                  "children": [
+                                                                    {
+                                                                      "type": "element",
+                                                                      "content": {
+                                                                        "elementType": "button",
+                                                                        "name": "dismiss-notice-notification-button",
+                                                                        "style": {
+                                                                          "display": "inline-flex",
+                                                                          "borderRadius": "$token-border-radius-md",
+                                                                          "padding": "6px",
+                                                                          "color": "$token-color-info-text",
+                                                                          "background": "transparent",
+                                                                          "border": "none",
+                                                                          "cursor": "pointer"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "text",
+                                                                            "name": "dismiss-notice-screen-reader-text",
+                                                                            "style": {
+                                                                              "position": "absolute",
+                                                                              "width": "1px",
+                                                                              "height": "1px",
+                                                                              "padding": "0",
+                                                                              "margin": "-1px",
+                                                                              "overflow": "hidden",
+                                                                              "clip": "rect(0, 0, 0, 0)",
+                                                                              "whiteSpace": "nowrap",
+                                                                              "border": "0"
+                                                                            }
+                                                                          },
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "static",
+                                                                              "content": "Dismiss"
+                                                                            }
+                                                                          ]
+                                                                        },
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "icon",
+                                                                            "name": "dismiss-notice-icon",
+                                                                            "style": {
+                                                                              "width": "16px",
+                                                                              "height": "16px",
+                                                                              "color": "$token-color-info-text"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ],
+                                                                  "style": {
+                                                                    "marginLeft": "auto",
+                                                                    "paddingLeft": "12px"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ],
+                                                            "style": {
+                                                              "margin": "8px",
+                                                              "marginBottom": "8px",
+                                                              "display": "flex",
+                                                              "borderRadius": "$token-border-radius-md",
+                                                              "backgroundColor": "$token-color-info-background",
+                                                              "padding": "12px"
+                                                            }
+                                                          }
+                                                        },
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "type",
+                                                            "conditions": [
+                                                              {
+                                                                "operand": "notice",
+                                                                "operation": "===",
+                                                                "value": true
+                                                              }
+                                                            ],
+                                                            "fallback": false
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "dataSource": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "notificationList"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "computed",
+                                        "id": "hasNotifications"
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "container",
+                                        "name": "no-notifications-message",
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "text",
+                                              "name": "zero-notifications-text",
+                                              "style": {
+                                                "color": "$token-color-text-disabled",
+                                                "textAlign": "center"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "static",
+                                                "content": "No notifications"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                        "style": {
+                                          "display": "flex",
+                                          "height": "100%",
+                                          "width": "100%",
+                                          "alignItems": "center",
+                                          "justifyContent": "center",
+                                          "paddingBottom": "64px"
+                                        }
+                                      }
+                                    },
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "computed",
+                                        "id": "hasNoNotifications"
+                                      }
+                                    }
+                                  }
+                                }
+                              ],
+                              "style": {
+                                "marginTop": "12px",
+                                "display": "flex",
+                                "height": "100%",
+                                "width": "100%",
+                                "flexDirection": "column",
+                                "overflowY": "scroll",
+                                "scrollbarWidth": "none",
+                                "msOverflowStyle": "none"
+                              }
+                            }
+                          }
+                        ],
+                        "style": {
+                          "zIndex": "50",
+                          "display": "flex",
+                          "height": "500px",
+                          "width": "500px",
+                          "flexDirection": "column",
+                          "backgroundColor": "$token-color-surface",
+                          "border": "1px solid $token-color-border",
+                          "borderRadius": "$token-border-radius-lg",
+                          "boxShadow": "$token-shadow-xl",
+                          "padding": "16px"
+                        }
+                      }
+                    },
+                    "reference": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "dropdownOpen"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "stateDefinitions": {
+      "tempNotificationList": {
+        "type": "array",
+        "defaultValue": []
+      },
+      "notificationList": {
+        "type": "array",
+        "defaultValue": []
+      },
+      "dropdownOpen": {
+        "type": "boolean",
+        "defaultValue": false
+      },
+      "slideAnimation": {
+        "type": "string",
+        "defaultValue": "enter"
+      },
+      "notificationCenter": {
+        "type": "boolean",
+        "defaultValue": false
+      }
+    },
+    "propDefinitions": {
+      "children": {
+        "type": "element",
+        "defaultValue": null
+      },
+      "notificationRef": {
+        "type": "object",
+        "defaultValue": null
+      },
+      "onClose": {
+        "type": "function",
+        "defaultValue": null
+      }
+    },
+    "compDefinitions": {
+      "hasErrorList": {
+        "type": "boolean",
+        "content": "$local.list && $local.list.length !== 0 && $local.list.some(item => item !== null && item !== undefined)"
+      },
+      "hasNoticeLink": {
+        "type": "boolean",
+        "content": "$local.link && $local.link !== ''"
+      },
+      "hasNotifications": {
+        "type": "boolean",
+        "content": "$state.notificationList.length !== 0"
+      },
+      "hasNoNotifications": {
+        "type": "boolean",
+        "content": "$state.notificationList.length === 0"
+      }
+    }
+  },
+  "styleSetDefinitions": {
+    "alertContainer": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "384px",
+        "marginTop": "24px",
+        "borderRadius": "$token-border-radius-md",
+        "padding": "16px",
+        "boxShadow": "$token-shadow-xl",
+        "cursor": "pointer",
+        "transition": "transform 0.5s ease-out"
+      }
+    },
+    "alertContent": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "flex"
+      }
+    },
+    "alertIcon": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "width": "20px",
+        "height": "20px",
+        "flexShrink": "0"
+      }
+    },
+    "alertMessage": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "marginLeft": "12px",
+        "fontSize": "$token-font-size-sm"
+      }
+    },
+    "dropdownButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "background": "transparent",
+        "border": "none",
+        "cursor": "pointer",
+        "padding": "4px",
+        "borderRadius": "$token-border-radius-sm"
+      }
+    },
+    "dismissButton": {
+      "type": "reusable-component-style-map",
+      "content": {
+        "display": "inline-flex",
+        "borderRadius": "$token-border-radius-md",
+        "padding": "6px",
+        "background": "transparent",
+        "border": "none",
+        "cursor": "pointer"
+      }
+    }
+  },
+  "designLanguage": {
+    "tokens": {
+      "colors": {
+        "token-color-primary": "#0066FF",
+        "token-color-secondary": "#6B7280",
+        "token-color-background": "#FFFFFF",
+        "token-color-surface": "#F9FAFB",
+        "token-color-border": "#E5E7EB",
+        "token-color-text-primary": "#111827",
+        "token-color-text-secondary": "#6B7280",
+        "token-color-text-disabled": "#9CA3AF",
+        "token-color-error": "#EF4444",
+        "token-color-error-background": "#FEF2F2",
+        "token-color-error-text": "#7F1D1D",
+        "token-color-success": "#22C55E",
+        "token-color-success-background": "#F0FDF4",
+        "token-color-success-text": "#15803D",
+        "token-color-info": "#3B82F6",
+        "token-color-info-background": "#EFF6FF",
+        "token-color-info-text": "#1E40AF",
+        "token-color-destructive": "#EF4444",
+        "token-color-accent": "#8B5CF6"
+      },
+      "spacing": {
+        "token-spacing-xs": "4px",
+        "token-spacing-sm": "8px",
+        "token-spacing-md": "16px",
+        "token-spacing-lg": "24px",
+        "token-spacing-xl": "32px"
+      },
+      "borderRadius": {
+        "token-border-radius-sm": "4px",
+        "token-border-radius-md": "6px",
+        "token-border-radius-lg": "8px"
+      },
+      "typography": {
+        "token-font-size-sm": "14px",
+        "token-font-size-md": "16px",
+        "token-font-size-lg": "18px"
+      },
+      "shadows": {
+        "token-shadow-md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "token-shadow-xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+      }
+    }
+  }
+}

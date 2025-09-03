@@ -1,0 +1,1929 @@
+{
+  "root": {
+    "type": "element",
+    "name": "data-table-container",
+    "elementType": "div",
+    "children": [
+      {
+        "type": "element",
+        "name": "search-and-table-container",
+        "elementType": "main",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex h-full w-full flex-1 flex-col gap-2 overflow-hidden py-4"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "search-container",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex-none px-4"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "search-tools-input",
+                "elementType": "input",
+                "attrs": {
+                  "type": {
+                    "type": "static",
+                    "content": "text"
+                  },
+                  "placeholder": {
+                    "type": "static",
+                    "content": "Search tools..."
+                  },
+                  "className": {
+                    "type": "static",
+                    "content": "h-8 border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10"
+                  },
+                  "value": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "searchQuery"
+                    }
+                  }
+                },
+                "events": {
+                  "onChange": [
+                    {
+                      "type": "propCall",
+                      "id": "handleSearchChange"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "name": "search-icon",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "absolute left-3 top-1/2 transform -translate-y-1/2"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "search-icon-svg",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "text-muted-foreground"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "search-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "table-container",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex-1 overflow-auto"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "comp",
+                    "id": "hasNoData"
+                  }
+                },
+                "value": true,
+                "node": {
+                  "type": "element",
+                  "name": "empty-state-alert",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex h-full w-full items-center justify-center rounded-md border"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "empty-alert",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground w-fit"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "alert-icon",
+                          "elementType": "svg",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "h-5 w-5 text-primary"
+                            },
+                            "viewBox": {
+                              "type": "static",
+                              "content": "0 0 24 24"
+                            },
+                            "fill": {
+                              "type": "static",
+                              "content": "none"
+                            },
+                            "stroke": {
+                              "type": "static",
+                              "content": "currentColor"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "alert-circle-path",
+                              "elementType": "path",
+                              "attrs": {
+                                "d": {
+                                  "type": "static",
+                                  "content": "m21 16-4-4-4 4"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "element",
+                          "name": "alert-title",
+                          "elementType": "h5",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "mb-1 font-medium leading-none tracking-tight"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "static",
+                              "content": "No Data Available"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "element",
+                          "name": "alert-description",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "text-sm [&_p]:leading-relaxed"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "static",
+                              "content": "There are no items to display in the table."
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "fallback": {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "hasNoColumns"
+                    }
+                  },
+                  "value": true,
+                  "node": {
+                    "type": "element",
+                    "name": "no-columns-alert",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex h-full w-full items-center justify-center rounded-md border"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "no-columns-alert-inner",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground w-fit"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "no-columns-icon",
+                            "elementType": "svg",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "h-5 w-5 text-primary"
+                              },
+                              "viewBox": {
+                                "type": "static",
+                                "content": "0 0 24 24"
+                              },
+                              "fill": {
+                                "type": "static",
+                                "content": "none"
+                              },
+                              "stroke": {
+                                "type": "static",
+                                "content": "currentColor"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "no-columns-circle-path",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "m21 16-4-4-4 4"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "no-columns-title",
+                            "elementType": "h5",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "mb-1 font-medium leading-none tracking-tight"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "No Column Definitions"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "no-columns-description",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-sm [&_p]:leading-relaxed"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Column definitions are required to display the table."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "fallback": {
+                    "type": "element",
+                    "name": "ag-grid-table",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "gridThemeClass"
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "ag-grid-react",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "ag-tool-mode h-full w-full overflow-visible"
+                          },
+                          "role": {
+                            "type": "static",
+                            "content": "grid"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "table-header",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "ag-header ag-pivot-off"
+                              },
+                              "role": {
+                                "type": "static",
+                                "content": "rowgroup"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "header-row",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "ag-header-row"
+                                  },
+                                  "role": {
+                                    "type": "static",
+                                    "content": "row"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "repeat",
+                                    "dataSource": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "columnDefs"
+                                      }
+                                    },
+                                    "node": {
+                                      "type": "element",
+                                      "name": "header-cell",
+                                      "elementType": "div",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "ag-header-cell ag-focus-managed"
+                                        },
+                                        "role": {
+                                          "type": "static",
+                                          "content": "columnheader"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "name": "header-cell-content",
+                                          "elementType": "div",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "ag-header-cell-label"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "conditional",
+                                              "reference": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "local",
+                                                  "id": "checkboxSelection"
+                                                }
+                                              },
+                                              "value": true,
+                                              "node": {
+                                                "type": "element",
+                                                "name": "header-checkbox",
+                                                "elementType": "input",
+                                                "attrs": {
+                                                  "type": {
+                                                    "type": "static",
+                                                    "content": "checkbox"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "ag-header-select-all"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "name": "header-text",
+                                              "elementType": "span",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "ag-header-cell-text"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "local",
+                                                    "id": "headerName"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "table-body",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "ag-body-viewport ag-layout-normal ag-row-no-animation"
+                              },
+                              "role": {
+                                "type": "static",
+                                "content": "rowgroup"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "table-body-container",
+                                "elementType": "div",
+                                "attrs": {
+                                  "className": {
+                                    "type": "static",
+                                    "content": "ag-center-cols-clipper"
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "name": "table-body-container-inner",
+                                    "elementType": "div",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "ag-center-cols-viewport"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "table-body-container-canvas",
+                                        "elementType": "div",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "ag-center-cols-container"
+                                          },
+                                          "role": {
+                                            "type": "static",
+                                            "content": "rowgroup"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "repeat",
+                                            "dataSource": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "prop",
+                                                "id": "rowData"
+                                              }
+                                            },
+                                            "node": {
+                                              "type": "element",
+                                              "name": "table-row",
+                                              "elementType": "div",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "ag-row ag-row-even ag-row-level-0 ag-row-position-absolute ag-row-no-focus"
+                                                },
+                                                "role": {
+                                                  "type": "static",
+                                                  "content": "row"
+                                                }
+                                              },
+                                              "events": {
+                                                "onClick": [
+                                                  {
+                                                    "type": "propCall",
+                                                    "id": "handleRowClicked"
+                                                  }
+                                                ]
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "repeat",
+                                                  "dataSource": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "prop",
+                                                      "id": "columnDefs"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "type": "element",
+                                                    "name": "table-cell",
+                                                    "elementType": "div",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "comp",
+                                                          "id": "cellClass"
+                                                        }
+                                                      },
+                                                      "role": {
+                                                        "type": "static",
+                                                        "content": "gridcell"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "conditional",
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "local",
+                                                            "id": "checkboxSelection"
+                                                          }
+                                                        },
+                                                        "value": true,
+                                                        "node": {
+                                                          "type": "element",
+                                                          "name": "row-checkbox",
+                                                          "elementType": "input",
+                                                          "attrs": {
+                                                            "type": {
+                                                              "type": "static",
+                                                              "content": "checkbox"
+                                                            },
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "ag-selection-checkbox"
+                                                            }
+                                                          },
+                                                          "events": {
+                                                            "onChange": [
+                                                              {
+                                                                "type": "propCall",
+                                                                "id": "handleSelectionChanged"
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "element",
+                                                        "name": "cell-content",
+                                                        "elementType": "div",
+                                                        "attrs": {
+                                                          "className": {
+                                                            "type": "static",
+                                                            "content": "ag-cell-wrapper"
+                                                          }
+                                                        },
+                                                        "children": [
+                                                          {
+                                                            "type": "dynamic",
+                                                            "content": {
+                                                              "referenceType": "comp",
+                                                              "id": "cellValue"
+                                                            }
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "element",
+        "name": "sidebar",
+        "elementType": "aside",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex h-full flex-col overflow-auto border-l border-border"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "sidebar-header",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex-none px-4 py-4"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "focusedRow"
+                  }
+                },
+                "value": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "comp",
+                    "id": "hasFocusedRow"
+                  }
+                },
+                "node": {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "isEditable"
+                    }
+                  },
+                  "value": true,
+                  "node": {
+                    "type": "element",
+                    "name": "editable-form",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex flex-col gap-4"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "name-field-group",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex flex-col gap-2"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "name-field-label",
+                            "elementType": "label",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-mmd font-medium"
+                              },
+                              "for": {
+                                "type": "static",
+                                "content": "sidebar-name-input"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "nameFieldLabel"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "name-input-field",
+                            "elementType": "input",
+                            "attrs": {
+                              "id": {
+                                "type": "static",
+                                "content": "sidebar-name-input"
+                              },
+                              "type": {
+                                "type": "static",
+                                "content": "text"
+                              },
+                              "className": {
+                                "type": "static",
+                                "content": "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                              },
+                              "value": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "sidebarName"
+                                }
+                              },
+                              "maxLength": {
+                                "type": "static",
+                                "content": "46"
+                              },
+                              "placeholder": {
+                                "type": "static",
+                                "content": "Edit name..."
+                              }
+                            },
+                            "events": {
+                              "onChange": [
+                                {
+                                  "type": "propCall",
+                                  "id": "handleNameChange"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "name": "name-field-help-text",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-xs text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "nameFieldHelpText"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "description-field-group",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex flex-col gap-2"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "description-field-label",
+                            "elementType": "label",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-mmd font-medium"
+                              },
+                              "for": {
+                                "type": "static",
+                                "content": "sidebar-desc-input"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "descriptionFieldLabel"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "name": "description-textarea-field",
+                            "elementType": "textarea",
+                            "attrs": {
+                              "id": {
+                                "type": "static",
+                                "content": "sidebar-desc-input"
+                              },
+                              "className": {
+                                "type": "static",
+                                "content": "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-24"
+                              },
+                              "value": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "sidebarDescription"
+                                }
+                              },
+                              "placeholder": {
+                                "type": "static",
+                                "content": "Edit description..."
+                              }
+                            },
+                            "events": {
+                              "onChange": [
+                                {
+                                  "type": "propCall",
+                                  "id": "handleDescriptionChange"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "name": "description-field-help-text",
+                            "elementType": "div",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-xs text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "descriptionFieldHelpText"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "fallback": {
+                    "type": "element",
+                    "name": "readonly-header",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex flex-col gap-1"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "readonly-header-name",
+                        "elementType": "h3",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-base font-medium"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "rowName"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "readonly-header-description",
+                        "elementType": "p",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-mmd text-muted-foreground"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "rowDescription"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "conditional",
+            "reference": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "comp",
+                "id": "showSeparator"
+              }
+            },
+            "value": true,
+            "node": {
+              "type": "element",
+              "name": "sidebar-separator",
+              "elementType": "div",
+              "attrs": {
+                "className": {
+                  "type": "static",
+                  "content": "shrink-0 bg-border h-[1px] w-full"
+                }
+              }
+            }
+          },
+          {
+            "type": "element",
+            "name": "sidebar-content",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex flex-1 flex-col gap-0 overflow-visible px-2"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "focusedRow"
+                  }
+                },
+                "value": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "comp",
+                    "id": "hasFocusedRow"
+                  }
+                },
+                "node": {
+                  "type": "element",
+                  "name": "parameters-section",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex h-full flex-col gap-4"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "parameters-group",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "flex-1"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "parameters-content",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "h-full pb-4"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "parameters-container",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "flex h-full flex-col gap-4"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "conditional",
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "comp",
+                                      "id": "hasParameters"
+                                    }
+                                  },
+                                  "value": true,
+                                  "node": {
+                                    "type": "element",
+                                    "name": "parameters-header",
+                                    "elementType": "div",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex flex-col gap-1.5"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "parameters-title",
+                                        "elementType": "h3",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "mt-2 text-base font-medium"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Parameters"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "name": "parameters-subtitle",
+                                        "elementType": "p",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "text-mmd text-muted-foreground"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Manage inputs for this tool"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "repeat",
+                                  "dataSource": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "actionArgs"
+                                    }
+                                  },
+                                  "node": {
+                                    "type": "element",
+                                    "name": "parameter-field",
+                                    "elementType": "div",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex flex-col gap-2"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "parameter-label",
+                                        "elementType": "label",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "static",
+                                            "content": "flex text-sm font-medium"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "display_name"
+                                            }
+                                          },
+                                          {
+                                            "type": "conditional",
+                                            "reference": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "local",
+                                                "id": "description"
+                                              }
+                                            },
+                                            "value": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "comp",
+                                                "id": "hasDescription"
+                                              }
+                                            },
+                                            "node": {
+                                              "type": "element",
+                                              "name": "parameter-info-tooltip",
+                                              "elementType": "div",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "flex items-center text-sm font-medium hover:cursor-help"
+                                                },
+                                                "title": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "local",
+                                                    "id": "description"
+                                                  }
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "name": "info-icon",
+                                                  "elementType": "svg",
+                                                  "attrs": {
+                                                    "className": {
+                                                      "type": "static",
+                                                      "content": "ml-1.5 h-4 w-4 text-muted-foreground"
+                                                    },
+                                                    "viewBox": {
+                                                      "type": "static",
+                                                      "content": "0 0 24 24"
+                                                    },
+                                                    "fill": {
+                                                      "type": "static",
+                                                      "content": "none"
+                                                    },
+                                                    "stroke": {
+                                                      "type": "static",
+                                                      "content": "currentColor"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "element",
+                                                      "name": "info-path",
+                                                      "elementType": "path",
+                                                      "attrs": {
+                                                        "d": {
+                                                          "type": "static",
+                                                          "content": "m9 12 2 2 4-4"
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "element",
+                                        "name": "parameter-input",
+                                        "elementType": "input",
+                                        "attrs": {
+                                          "type": {
+                                            "type": "static",
+                                            "content": "text"
+                                          },
+                                          "className": {
+                                            "type": "static",
+                                            "content": "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                          },
+                                          "disabled": {
+                                            "type": "static",
+                                            "content": true
+                                          },
+                                          "placeholder": {
+                                            "type": "static",
+                                            "content": "Input controlled by the agent"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "conditional",
+        "reference": {
+          "type": "dynamic",
+          "content": {
+            "referenceType": "prop",
+            "id": "pagination"
+          }
+        },
+        "value": true,
+        "node": {
+          "type": "element",
+          "name": "table-options",
+          "elementType": "div",
+          "attrs": {
+            "className": {
+              "type": "static",
+              "content": "absolute bottom-3 left-6"
+            }
+          },
+          "children": [
+            {
+              "type": "element",
+              "name": "table-options-container",
+              "elementType": "div",
+              "attrs": {
+                "className": {
+                  "type": "static",
+                  "content": "flex items-center gap-3"
+                }
+              },
+              "children": [
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "canAddRows"
+                    }
+                  },
+                  "value": true,
+                  "node": {
+                    "type": "element",
+                    "name": "add-row-button-container",
+                    "elementType": "div",
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "add-row-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                          },
+                          "title": {
+                            "type": "static",
+                            "content": "Add a new row"
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "addRow"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "add-icon",
+                            "elementType": "svg",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "h-5 w-5 text-primary transition-all"
+                              },
+                              "viewBox": {
+                                "type": "static",
+                                "content": "0 0 24 24"
+                              },
+                              "fill": {
+                                "type": "static",
+                                "content": "none"
+                              },
+                              "stroke": {
+                                "type": "static",
+                                "content": "currentColor"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "add-path",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "M5 12h14m-7-7v14"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "onDuplicate"
+                    }
+                  },
+                  "value": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "hasDuplicateFunction"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "name": "duplicate-row-button-container",
+                    "elementType": "div",
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "duplicate-row-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                          },
+                          "title": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "duplicateTooltip"
+                            }
+                          },
+                          "disabled": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "isDisabledDuplicate"
+                            }
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "onDuplicate"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "duplicate-icon",
+                            "elementType": "svg",
+                            "attrs": {
+                              "className": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "duplicateIconClass"
+                                }
+                              },
+                              "viewBox": {
+                                "type": "static",
+                                "content": "0 0 24 24"
+                              },
+                              "fill": {
+                                "type": "static",
+                                "content": "none"
+                              },
+                              "stroke": {
+                                "type": "static",
+                                "content": "currentColor"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "duplicate-path",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4z"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "onDelete"
+                    }
+                  },
+                  "value": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "hasDeleteFunction"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "name": "delete-row-button-container",
+                    "elementType": "div",
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "delete-row-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                          },
+                          "title": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "deleteTooltip"
+                            }
+                          },
+                          "disabled": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "comp",
+                              "id": "isDisabledDelete"
+                            }
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "onDelete"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "delete-icon",
+                            "elementType": "svg",
+                            "attrs": {
+                              "className": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "comp",
+                                  "id": "deleteIconClass"
+                                }
+                              },
+                              "viewBox": {
+                                "type": "static",
+                                "content": "0 0 24 24"
+                              },
+                              "fill": {
+                                "type": "static",
+                                "content": "none"
+                              },
+                              "stroke": {
+                                "type": "static",
+                                "content": "currentColor"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "delete-path",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "m3 6 3 0m0 0 18 0M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6m-6 0V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v2"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "element",
+                  "name": "reset-columns-button-container",
+                  "elementType": "div",
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "reset-columns-button",
+                      "elementType": "button",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                        },
+                        "title": {
+                          "type": "static",
+                          "content": "Reset Columns"
+                        },
+                        "disabled": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "comp",
+                            "id": "isResetDisabled"
+                          }
+                        }
+                      },
+                      "events": {
+                        "onClick": [
+                          {
+                            "type": "propCall",
+                            "id": "resetGrid"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "reset-icon",
+                          "elementType": "svg",
+                          "attrs": {
+                            "className": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "comp",
+                                "id": "resetIconClass"
+                              }
+                            },
+                            "viewBox": {
+                              "type": "static",
+                              "content": "0 0 24 24"
+                            },
+                            "fill": {
+                              "type": "static",
+                              "content": "none"
+                            },
+                            "stroke": {
+                              "type": "static",
+                              "content": "currentColor"
+                            },
+                            "strokeWidth": {
+                              "type": "static",
+                              "content": "2"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "reset-path",
+                              "elementType": "path",
+                              "attrs": {
+                                "d": {
+                                  "type": "static",
+                                  "content": "m3 7 5 5 5-5"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "paginationInfo"
+                    }
+                  },
+                  "value": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "hasPaginationInfo"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "name": "pagination-info",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "ml-2 text-xs text-muted-foreground"
+                      },
+                      "title": {
+                        "type": "static",
+                        "content": "Pagination Info"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "pagination-text",
+                        "elementType": "span",
+                        "children": [
+                          {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "paginationInfo"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "stateDefinitions": {
+    "searchQuery": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "selectedRows": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "focusedRow": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "sidebarName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "sidebarDescription": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "columnStateChange": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "data": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "isAction": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "open": {
+      "type": "boolean",
+      "defaultValue": true
+    },
+    "placeholder": {
+      "type": "string",
+      "defaultValue": "Search tools..."
+    },
+    "pagination": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "paginationInfo": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "darkMode": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "propDefinitions": {
+    "rows": {
+      "type": "array"
+    },
+    "data": {
+      "type": "array"
+    },
+    "setData": {
+      "type": "func"
+    },
+    "isAction": {
+      "type": "boolean"
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "open": {
+      "type": "boolean"
+    },
+    "handleOnNewValue": {
+      "type": "func"
+    },
+    "columnDefs": {
+      "type": "array"
+    },
+    "rowData": {
+      "type": "array"
+    },
+    "quickFilterText": {
+      "type": "string"
+    },
+    "rowSelection": {
+      "type": "string"
+    },
+    "suppressRowClickSelection": {
+      "type": "boolean"
+    },
+    "headerHeight": {
+      "type": "number"
+    },
+    "rowHeight": {
+      "type": "number"
+    },
+    "onSelectionChanged": {
+      "type": "func"
+    },
+    "tableOptions": {
+      "type": "object"
+    },
+    "onRowClicked": {
+      "type": "func"
+    },
+    "getRowId": {
+      "type": "func"
+    },
+    "searchQuery": {
+      "type": "string"
+    },
+    "handleSearchChange": {
+      "type": "func"
+    },
+    "selectedRows": {
+      "type": "array"
+    },
+    "focusedRow": {
+      "type": "object"
+    },
+    "sidebarName": {
+      "type": "string"
+    },
+    "sidebarDescription": {
+      "type": "string"
+    },
+    "handleNameChange": {
+      "type": "func"
+    },
+    "handleDescriptionChange": {
+      "type": "func"
+    },
+    "actionArgs": {
+      "type": "array"
+    },
+    "addRow": {
+      "type": "func"
+    },
+    "onDuplicate": {
+      "type": "func"
+    },
+    "onDelete": {
+      "type": "func"
+    },
+    "resetGrid": {
+      "type": "func"
+    },
+    "pagination": {
+      "type": "boolean"
+    },
+    "paginationInfo": {
+      "type": "string"
+    }
+  },
+  "mappings": {
+    "components": {
+      "hasNoData": "props.rowData.length === 0",
+      "hasNoColumns": "props.columnDefs.length === 0",
+      "gridThemeClass": "state.darkMode ? 'ag-theme-quartz-dark ag-theme-shadcn flex h-full flex-col relative' : 'ag-theme-quartz ag-theme-shadcn flex h-full flex-col relative'",
+      "hasFocusedRow": "props.focusedRow !== null",
+      "isEditable": "props.isAction || (!props.focusedRow?.readonly)",
+      "nameFieldLabel": "props.isAction ? 'Tool name' : 'Name'",
+      "nameFieldHelpText": "props.isAction ? 'Used as the function name when this flow is exposed to clients.' : 'Used as the function name when this tool is exposed to the agent.'",
+      "descriptionFieldLabel": "props.isAction ? 'Tool description' : 'Description'",
+      "descriptionFieldHelpText": "props.isAction ? 'This is the description for the tool exposed to a client.' : 'This is the description for the tool exposed to the agents.'",
+      "rowName": "props.focusedRow?.display_name || props.focusedRow?.name || ''",
+      "rowDescription": "props.focusedRow?.display_description || props.focusedRow?.description",
+      "showSeparator": "!props.isAction",
+      "hasParameters": "props.actionArgs.length > 0",
+      "canAddRows": "props.addRow && !props.tableOptions?.block_add",
+      "hasDuplicateFunction": "props.onDuplicate !== undefined",
+      "hasDeleteFunction": "props.onDelete !== undefined",
+      "duplicateTooltip": "props.selectedRows.length === 0 ? 'Select items to duplicate' : 'Duplicate selected items'",
+      "deleteTooltip": "props.selectedRows.length === 0 ? 'Select items to delete' : 'Delete selected items'",
+      "isDisabledDuplicate": "props.selectedRows.length === 0",
+      "isDisabledDelete": "props.selectedRows.length === 0",
+      "duplicateIconClass": "props.selectedRows.length > 0 ? 'h-5 w-5 transition-all text-primary' : 'h-5 w-5 transition-all cursor-not-allowed text-placeholder-foreground'",
+      "deleteIconClass": "props.selectedRows.length === 0 ? 'h-5 w-5 transition-all cursor-not-allowed text-placeholder-foreground' : 'h-5 w-5 transition-all text-primary hover:text-status-red'",
+      "isResetDisabled": "!state.columnStateChange",
+      "resetIconClass": "state.columnStateChange ? 'h-5 w-5 transition-all text-primary' : 'h-5 w-5 transition-all cursor-not-allowed text-placeholder-foreground'",
+      "hasPaginationInfo": "props.paginationInfo !== undefined && props.paginationInfo !== ''",
+      "cellClass": "local.cellClass || 'ag-cell ag-cell-not-inline-editing ag-cell-with-height ag-cell-value'",
+      "cellValue": "local.cellValue",
+      "hasDescription": "local.description !== undefined && local.description !== ''"
+    }
+  }
+}

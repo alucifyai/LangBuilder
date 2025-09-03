@@ -1,0 +1,1112 @@
+{
+  "name": "FlowToolbarComponent",
+  "stateDefinitions": {
+    "open": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "openCodeModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "openShareModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "hasIO": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "currentFlow": {
+      "type": "object",
+      "defaultValue": null
+    },
+    "isPublished": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "openApiModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "openExportModal": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "openEmbedModal": {
+      "type": "boolean",
+      "defaultValue": false
+    }
+  },
+  "node": {
+    "type": "element",
+    "content": {
+      "elementType": "component",
+      "name": "flowToolbarPanel",
+      "semanticType": "Panel",
+      "attrs": {
+        "className": {
+          "type": "static",
+          "content": "!top-auto !m-2"
+        },
+        "position": {
+          "type": "static",
+          "content": "top-right"
+        }
+      },
+      "children": [
+        {
+          "type": "element",
+          "content": {
+            "elementType": "container",
+            "name": "toolbarContainer",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "hover:shadow-round-btn-shadow flex h-11 items-center justify-center gap-7 rounded-md border bg-background px-1.5 shadow transition-all"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "component",
+                  "name": "flowToolbarOptions",
+                  "semanticType": "FlowToolbarOptions",
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "container",
+                        "name": "toolbarOptionsContainer",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex items-center gap-1.5"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "container",
+                              "name": "playgroundButtonContainer",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "flex h-full w-full gap-1.5 rounded-sm transition-all"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "conditional",
+                                  "content": {
+                                    "reference": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "hasIO"
+                                      }
+                                    },
+                                    "value": true,
+                                    "node": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "component",
+                                        "name": "playgroundModal",
+                                        "semanticType": "CustomIOModal",
+                                        "attrs": {
+                                          "open": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "open"
+                                            }
+                                          },
+                                          "disable": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "hasIO",
+                                              "operator": "!"
+                                            }
+                                          },
+                                          "canvasOpen": {
+                                            "type": "static",
+                                            "content": true
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "activePlaygroundButton",
+                                              "attrs": {
+                                                "data-testid": {
+                                                  "type": "static",
+                                                  "content": "playground-btn-flow-io"
+                                                },
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "playground-btn-flow-toolbar hover:bg-accent"
+                                                }
+                                              },
+                                              "events": {
+                                                "onClick": [
+                                                  {
+                                                    "type": "stateChange",
+                                                    "modifies": "open",
+                                                    "newState": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "state",
+                                                        "id": "open",
+                                                        "operator": "!"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "component",
+                                                    "name": "playIcon",
+                                                    "semanticType": "IconComponent",
+                                                    "attrs": {
+                                                      "name": {
+                                                        "type": "static",
+                                                        "content": "Play"
+                                                      },
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "h-4 w-4 transition-all"
+                                                      },
+                                                      "strokeWidth": {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "computed",
+                                                          "id": "ENABLE_PUBLISH ? 2 : 1.5"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "playgroundButtonLabel",
+                                                    "semanticType": "span",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "hidden md:block"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "constant",
+                                                          "id": "PLAYGROUND_BUTTON_NAME"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "fallbackNode": {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "component",
+                                        "name": "disabledPlaygroundTooltip",
+                                        "semanticType": "ShadTooltip",
+                                        "attrs": {
+                                          "content": {
+                                            "type": "static",
+                                            "content": "Add a Chat Input or Chat Output to use the playground"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "container",
+                                              "name": "disabledPlaygroundWrapper",
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "disabledPlaygroundButton",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "playground-btn-flow-toolbar cursor-not-allowed text-muted-foreground duration-150"
+                                                      },
+                                                      "data-testid": {
+                                                        "type": "static",
+                                                        "content": "playground-btn-flow"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "component",
+                                                          "name": "disabledPlayIcon",
+                                                          "semanticType": "IconComponent",
+                                                          "attrs": {
+                                                            "name": {
+                                                              "type": "static",
+                                                              "content": "Play"
+                                                            },
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "h-4 w-4 transition-all"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "text",
+                                                          "name": "disabledPlaygroundLabel",
+                                                          "semanticType": "span",
+                                                          "attrs": {
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "hidden md:block"
+                                                            }
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "constant",
+                                                                "id": "PLAYGROUND_BUTTON_NAME"
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "component",
+                              "name": "publishDropdown",
+                              "semanticType": "DropdownMenu",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "component",
+                                    "name": "publishDropdownTrigger",
+                                    "semanticType": "DropdownMenuTrigger",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "button",
+                                          "name": "shareButton",
+                                          "attrs": {
+                                            "variant": {
+                                              "type": "static",
+                                              "content": "ghost"
+                                            },
+                                            "size": {
+                                              "type": "static",
+                                              "content": "md"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "!px-2.5 font-normal"
+                                            },
+                                            "data-testid": {
+                                              "type": "static",
+                                              "content": "publish-button"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Share"
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "chevronDownIcon",
+                                                "semanticType": "IconComponent",
+                                                "attrs": {
+                                                  "name": {
+                                                    "type": "static",
+                                                    "content": "ChevronDown"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "!h-5 !w-5"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "component",
+                                    "name": "publishDropdownContent",
+                                    "semanticType": "DropdownMenuContent",
+                                    "attrs": {
+                                      "forceMount": {
+                                        "type": "static",
+                                        "content": true
+                                      },
+                                      "sideOffset": {
+                                        "type": "static",
+                                        "content": 7
+                                      },
+                                      "alignOffset": {
+                                        "type": "static",
+                                        "content": -2
+                                      },
+                                      "align": {
+                                        "type": "static",
+                                        "content": "end"
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "w-full min-w-[275px]"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "apiAccessMenuItem",
+                                          "semanticType": "DropdownMenuItem",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "deploy-dropdown-item group"
+                                            },
+                                            "data-testid": {
+                                              "type": "static",
+                                              "content": "api-access-item"
+                                            }
+                                          },
+                                          "events": {
+                                            "onClick": [
+                                              {
+                                                "type": "stateChange",
+                                                "modifies": "openApiModal",
+                                                "newState": {
+                                                  "type": "static",
+                                                  "content": true
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "apiAccessIcon",
+                                                "semanticType": "IconComponent",
+                                                "attrs": {
+                                                  "name": {
+                                                    "type": "static",
+                                                    "content": "Code2"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "icon-size mr-2"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "text",
+                                                "name": "apiAccessLabel",
+                                                "semanticType": "span",
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "API access"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "exportMenuItem",
+                                          "semanticType": "DropdownMenuItem",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "deploy-dropdown-item group"
+                                            }
+                                          },
+                                          "events": {
+                                            "onClick": [
+                                              {
+                                                "type": "stateChange",
+                                                "modifies": "openExportModal",
+                                                "newState": {
+                                                  "type": "static",
+                                                  "content": true
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "exportIcon",
+                                                "semanticType": "IconComponent",
+                                                "attrs": {
+                                                  "name": {
+                                                    "type": "static",
+                                                    "content": "Download"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "icon-size mr-2"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "text",
+                                                "name": "exportLabel",
+                                                "semanticType": "span",
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Export"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "component",
+                                          "name": "mcpServerLink",
+                                          "semanticType": "CustomLink",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "flex-1"
+                                            },
+                                            "to": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "computed",
+                                                "id": "`/mcp/folder/${folderId}`"
+                                              }
+                                            },
+                                            "target": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "function",
+                                                "id": "customMcpOpen"
+                                              }
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "component",
+                                                "name": "mcpServerMenuItem",
+                                                "semanticType": "DropdownMenuItem",
+                                                "attrs": {
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "deploy-dropdown-item group"
+                                                  },
+                                                  "data-testid": {
+                                                    "type": "static",
+                                                    "content": "mcp-server-item"
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "component",
+                                                      "name": "mcpServerIcon",
+                                                      "semanticType": "IconComponent",
+                                                      "attrs": {
+                                                        "name": {
+                                                          "type": "static",
+                                                          "content": "Mcp"
+                                                        },
+                                                        "className": {
+                                                          "type": "static",
+                                                          "content": "icon-size mr-2"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "text",
+                                                      "name": "mcpServerLabel",
+                                                      "semanticType": "span",
+                                                      "children": [
+                                                        {
+                                                          "type": "static",
+                                                          "content": "MCP Server"
+                                                        }
+                                                      ]
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "component",
+                                                      "name": "externalLinkIcon",
+                                                      "semanticType": "IconComponent",
+                                                      "attrs": {
+                                                        "name": {
+                                                          "type": "static",
+                                                          "content": "ExternalLink"
+                                                        },
+                                                        "className": {
+                                                          "type": "static",
+                                                          "content": "icon-size ml-auto hidden group-hover:block"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "constant",
+                                              "id": "ENABLE_WIDGET"
+                                            }
+                                          },
+                                          "value": true,
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "component",
+                                              "name": "embedMenuItem",
+                                              "semanticType": "DropdownMenuItem",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "deploy-dropdown-item group"
+                                                }
+                                              },
+                                              "events": {
+                                                "onClick": [
+                                                  {
+                                                    "type": "stateChange",
+                                                    "modifies": "openEmbedModal",
+                                                    "newState": {
+                                                      "type": "static",
+                                                      "content": true
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "component",
+                                                    "name": "embedIcon",
+                                                    "semanticType": "IconComponent",
+                                                    "attrs": {
+                                                      "name": {
+                                                        "type": "static",
+                                                        "content": "Columns2"
+                                                      },
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "icon-size mr-2"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "text",
+                                                    "name": "embedLabel",
+                                                    "semanticType": "span",
+                                                    "children": [
+                                                      {
+                                                        "type": "static",
+                                                        "content": "Embed into site"
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "content": {
+                                          "reference": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "constant",
+                                              "id": "ENABLE_PUBLISH"
+                                            }
+                                          },
+                                          "value": true,
+                                          "node": {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "component",
+                                              "name": "shareablePlaygroundMenuItem",
+                                              "semanticType": "DropdownMenuItem",
+                                              "attrs": {
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "deploy-dropdown-item group"
+                                                },
+                                                "disabled": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "hasIO",
+                                                    "operator": "!"
+                                                  }
+                                                },
+                                                "data-testid": {
+                                                  "type": "static",
+                                                  "content": "shareable-playground"
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "element",
+                                                  "content": {
+                                                    "elementType": "container",
+                                                    "name": "shareablePlaygroundContent",
+                                                    "attrs": {
+                                                      "className": {
+                                                        "type": "static",
+                                                        "content": "flex w-full items-center justify-between"
+                                                      }
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "container",
+                                                          "name": "shareablePlaygroundInfo",
+                                                          "attrs": {
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "flex items-center"
+                                                            }
+                                                          },
+                                                          "children": [
+                                                            {
+                                                              "type": "element",
+                                                              "content": {
+                                                                "elementType": "component",
+                                                                "name": "shareablePlaygroundTooltip",
+                                                                "semanticType": "ShadTooltipComponent",
+                                                                "attrs": {
+                                                                  "styleClasses": {
+                                                                    "type": "static",
+                                                                    "content": "truncate"
+                                                                  },
+                                                                  "side": {
+                                                                    "type": "static",
+                                                                    "content": "left"
+                                                                  },
+                                                                  "content": {
+                                                                    "type": "dynamic",
+                                                                    "content": {
+                                                                      "referenceType": "computed",
+                                                                      "id": "hasIO ? (isPublished ? encodeURI(`${domain}/playground/${flowId}`) : 'Activate to share a public version of this Playground') : 'Add a Chat Input or Chat Output to access your flow'"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "children": [
+                                                                  {
+                                                                    "type": "element",
+                                                                    "content": {
+                                                                      "elementType": "container",
+                                                                      "name": "shareablePlaygroundIconContainer",
+                                                                      "attrs": {
+                                                                        "className": {
+                                                                          "type": "static",
+                                                                          "content": "flex items-center"
+                                                                        }
+                                                                      },
+                                                                      "children": [
+                                                                        {
+                                                                          "type": "element",
+                                                                          "content": {
+                                                                            "elementType": "component",
+                                                                            "name": "globeIcon",
+                                                                            "semanticType": "IconComponent",
+                                                                            "attrs": {
+                                                                              "name": {
+                                                                                "type": "static",
+                                                                                "content": "Globe"
+                                                                              },
+                                                                              "className": {
+                                                                                "type": "dynamic",
+                                                                                "content": {
+                                                                                  "referenceType": "computed",
+                                                                                  "id": "`icon-size mr-2${!isPublished ? ' opacity-50' : ''}`"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        {
+                                                                          "type": "conditional",
+                                                                          "content": {
+                                                                            "reference": {
+                                                                              "type": "dynamic",
+                                                                              "content": {
+                                                                                "referenceType": "state",
+                                                                                "id": "isPublished"
+                                                                              }
+                                                                            },
+                                                                            "value": true,
+                                                                            "node": {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "component",
+                                                                                "name": "shareablePlaygroundActiveLink",
+                                                                                "semanticType": "CustomLink",
+                                                                                "attrs": {
+                                                                                  "className": {
+                                                                                    "type": "static",
+                                                                                    "content": "flex-1"
+                                                                                  },
+                                                                                  "to": {
+                                                                                    "type": "dynamic",
+                                                                                    "content": {
+                                                                                      "referenceType": "computed",
+                                                                                      "id": "`/playground/${flowId}`"
+                                                                                    }
+                                                                                  },
+                                                                                  "target": {
+                                                                                    "type": "static",
+                                                                                    "content": "_blank"
+                                                                                  }
+                                                                                },
+                                                                                "children": [
+                                                                                  {
+                                                                                    "type": "element",
+                                                                                    "content": {
+                                                                                      "elementType": "text",
+                                                                                      "name": "shareablePlaygroundActiveLabel",
+                                                                                      "semanticType": "span",
+                                                                                      "children": [
+                                                                                        {
+                                                                                          "type": "static",
+                                                                                          "content": "Shareable Playground"
+                                                                                        }
+                                                                                      ]
+                                                                                    }
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            },
+                                                                            "fallbackNode": {
+                                                                              "type": "element",
+                                                                              "content": {
+                                                                                "elementType": "text",
+                                                                                "name": "shareablePlaygroundDisabledLabel",
+                                                                                "semanticType": "span",
+                                                                                "attrs": {
+                                                                                  "className": {
+                                                                                    "type": "dynamic",
+                                                                                    "content": {
+                                                                                      "referenceType": "computed",
+                                                                                      "id": "!isPublished ? 'opacity-50' : ''"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "children": [
+                                                                                  {
+                                                                                    "type": "static",
+                                                                                    "content": "Shareable Playground"
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      {
+                                                        "type": "element",
+                                                        "content": {
+                                                          "elementType": "component",
+                                                          "name": "publishSwitch",
+                                                          "semanticType": "Switch",
+                                                          "attrs": {
+                                                            "data-testid": {
+                                                              "type": "static",
+                                                              "content": "publish-switch"
+                                                            },
+                                                            "className": {
+                                                              "type": "static",
+                                                              "content": "scale-[85%]"
+                                                            },
+                                                            "checked": {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "state",
+                                                                "id": "isPublished"
+                                                              }
+                                                            },
+                                                            "disabled": {
+                                                              "type": "dynamic",
+                                                              "content": {
+                                                                "referenceType": "state",
+                                                                "id": "hasIO",
+                                                                "operator": "!"
+                                                              }
+                                                            }
+                                                          },
+                                                          "events": {
+                                                            "onClick": [
+                                                              {
+                                                                "type": "action",
+                                                                "calls": "handlePublishedSwitch",
+                                                                "params": {
+                                                                  "checked": {
+                                                                    "type": "dynamic",
+                                                                    "content": {
+                                                                      "referenceType": "state",
+                                                                      "id": "isPublished"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "component",
+            "name": "apiModal",
+            "semanticType": "ApiModal",
+            "attrs": {
+              "open": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "openApiModal"
+                }
+              }
+            },
+            "events": {
+              "setOpen": [
+                {
+                  "type": "stateChange",
+                  "modifies": "openApiModal",
+                  "newState": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "value"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "component",
+            "name": "embedModal",
+            "semanticType": "EmbedModal",
+            "attrs": {
+              "open": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "openEmbedModal"
+                }
+              },
+              "flowId": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "currentFlow.id"
+                }
+              },
+              "flowName": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "currentFlow.name"
+                }
+              },
+              "isAuth": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "isAuth"
+                }
+              },
+              "tweaksBuildedObject": {
+                "type": "static",
+                "content": {}
+              },
+              "activeTweaks": {
+                "type": "static",
+                "content": false
+              }
+            },
+            "events": {
+              "setOpen": [
+                {
+                  "type": "stateChange",
+                  "modifies": "openEmbedModal",
+                  "newState": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "value"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "element",
+          "content": {
+            "elementType": "component",
+            "name": "exportModal",
+            "semanticType": "ExportModal",
+            "attrs": {
+              "open": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "openExportModal"
+                }
+              }
+            },
+            "events": {
+              "setOpen": [
+                {
+                  "type": "stateChange",
+                  "modifies": "openExportModal",
+                  "newState": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "value"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

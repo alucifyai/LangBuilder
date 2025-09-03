@@ -1,0 +1,1192 @@
+{
+  "root": {
+    "type": "element",
+    "name": "template-gallery-container",
+    "elementType": "div",
+    "attrs": {
+      "className": {
+        "type": "static",
+        "content": "h-full w-full flex flex-col bg-background"
+      }
+    },
+    "children": [
+      {
+        "type": "element",
+        "name": "template-gallery-header",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex items-center justify-between p-6 border-b border-border bg-card"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "header-title-section",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-3"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "template-gallery-icon",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "p-2 bg-primary/10 rounded-md"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "gallery-icon-svg",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "24"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "24"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "text-primary"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "gallery-icon-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "gallery-icon-path-2",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2H3V5z"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "header-title",
+                "elementType": "div",
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "page-title",
+                    "elementType": "h1",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-2xl font-bold text-foreground"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Template Gallery"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "page-subtitle",
+                    "elementType": "p",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-sm text-muted-foreground mt-1"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Browse and use pre-built flow templates to get started quickly"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "header-actions",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex items-center gap-3"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "search-templates-input",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "relative"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "search-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "search-path",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "element",
+                    "name": "template-search-input",
+                    "elementType": "input",
+                    "attrs": {
+                      "type": {
+                        "type": "static",
+                        "content": "text"
+                      },
+                      "placeholder": {
+                        "type": "static",
+                        "content": "Search templates..."
+                      },
+                      "className": {
+                        "type": "static",
+                        "content": "flex h-10 w-80 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      },
+                      "value": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "searchQuery"
+                        }
+                      }
+                    },
+                    "events": {
+                      "onChange": [
+                        {
+                          "type": "propCall",
+                          "id": "handleSearchChange"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "refresh-templates-button",
+                "elementType": "button",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
+                  },
+                  "title": {
+                    "type": "static",
+                    "content": "Refresh Templates"
+                  }
+                },
+                "events": {
+                  "onClick": [
+                    {
+                      "type": "propCall",
+                      "id": "handleRefresh"
+                    }
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "refresh-icon",
+                    "elementType": "svg",
+                    "attrs": {
+                      "width": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "height": {
+                        "type": "static",
+                        "content": "16"
+                      },
+                      "viewBox": {
+                        "type": "static",
+                        "content": "0 0 24 24"
+                      },
+                      "fill": {
+                        "type": "static",
+                        "content": "none"
+                      },
+                      "stroke": {
+                        "type": "static",
+                        "content": "currentColor"
+                      },
+                      "strokeWidth": {
+                        "type": "static",
+                        "content": "2"
+                      },
+                      "className": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "comp",
+                          "id": "refreshIconClass"
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "refresh-path-1",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-2",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-3",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m21 8-3-3-3 3"
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "name": "refresh-path-4",
+                        "elementType": "path",
+                        "attrs": {
+                          "d": {
+                            "type": "static",
+                            "content": "m3 16 3 3 3-3"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "element",
+        "name": "template-gallery-main-content",
+        "elementType": "div",
+        "attrs": {
+          "className": {
+            "type": "static",
+            "content": "flex flex-1 overflow-hidden"
+          }
+        },
+        "children": [
+          {
+            "type": "element",
+            "name": "template-categories-sidebar",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "w-64 bg-card border-r border-border p-4 overflow-y-auto"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "name": "categories-header",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "mb-4"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "name": "categories-title",
+                    "elementType": "h3",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "text-sm font-semibold text-foreground mb-3"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "static",
+                        "content": "Categories"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "name": "categories-list",
+                "elementType": "div",
+                "attrs": {
+                  "className": {
+                    "type": "static",
+                    "content": "space-y-1"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "repeat",
+                    "dataSource": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "comp",
+                        "id": "templateCategories"
+                      }
+                    },
+                    "node": {
+                      "type": "element",
+                      "name": "category-item",
+                      "elementType": "button",
+                      "attrs": {
+                        "className": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "comp",
+                            "id": "categoryButtonClass"
+                          }
+                        },
+                        "type": {
+                          "type": "static",
+                          "content": "button"
+                        }
+                      },
+                      "events": {
+                        "onClick": [
+                          {
+                            "type": "propCall",
+                            "id": "handleCategorySelect"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "name": "category-icon",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "w-4 h-4"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "local",
+                                "id": "icon"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "element",
+                          "name": "category-name",
+                          "elementType": "span",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "text-sm font-medium"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "local",
+                                "id": "name"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "element",
+                          "name": "category-count",
+                          "elementType": "span",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "local",
+                                "id": "count"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "name": "templates-grid-container",
+            "elementType": "div",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex-1 p-6 overflow-y-auto bg-muted/30"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "isLoading"
+                  }
+                },
+                "value": true,
+                "node": {
+                  "type": "element",
+                  "name": "loading-state",
+                  "elementType": "div",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex items-center justify-center h-64"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "name": "loading-spinner",
+                      "elementType": "div",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+                        }
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "name": "loading-text",
+                      "elementType": "span",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "ml-3 text-muted-foreground"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Loading templates..."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "fallback": {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "comp",
+                      "id": "hasTemplates"
+                    }
+                  },
+                  "value": false,
+                  "node": {
+                    "type": "element",
+                    "name": "empty-templates-state",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "flex flex-col items-center justify-center h-96 text-center"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "name": "empty-state-icon",
+                        "elementType": "div",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "mb-4 p-4 bg-muted rounded-full"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "name": "empty-templates-icon",
+                            "elementType": "svg",
+                            "attrs": {
+                              "width": {
+                                "type": "static",
+                                "content": "48"
+                              },
+                              "height": {
+                                "type": "static",
+                                "content": "48"
+                              },
+                              "viewBox": {
+                                "type": "static",
+                                "content": "0 0 24 24"
+                              },
+                              "fill": {
+                                "type": "static",
+                                "content": "none"
+                              },
+                              "stroke": {
+                                "type": "static",
+                                "content": "currentColor"
+                              },
+                              "strokeWidth": {
+                                "type": "static",
+                                "content": "1.5"
+                              },
+                              "className": {
+                                "type": "static",
+                                "content": "text-muted-foreground"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "name": "empty-path",
+                                "elementType": "path",
+                                "attrs": {
+                                  "d": {
+                                    "type": "static",
+                                    "content": "M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "empty-state-title",
+                        "elementType": "h3",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-lg font-semibold text-foreground mb-2"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "No Templates Found"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "empty-state-description",
+                        "elementType": "p",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "text-muted-foreground max-w-sm mb-4"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "No templates match your current search or category selection. Try adjusting your filters."
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "name": "clear-filters-button",
+                        "elementType": "button",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                          }
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "id": "handleClearFilters"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Clear Filters"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "fallback": {
+                    "type": "element",
+                    "name": "templates-grid",
+                    "elementType": "div",
+                    "attrs": {
+                      "className": {
+                        "type": "static",
+                        "content": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "repeat",
+                        "dataSource": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "filteredTemplates"
+                          }
+                        },
+                        "node": {
+                          "type": "element",
+                          "name": "template-card",
+                          "elementType": "div",
+                          "attrs": {
+                            "className": {
+                              "type": "static",
+                              "content": "group bg-background border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer"
+                            }
+                          },
+                          "events": {
+                            "onClick": [
+                              {
+                                "type": "propCall",
+                                "id": "handleTemplateSelect"
+                              }
+                            ]
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "name": "template-card-preview",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "conditional",
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "local",
+                                      "id": "thumbnail"
+                                    }
+                                  },
+                                  "value": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "comp",
+                                      "id": "hasThumbnail"
+                                    }
+                                  },
+                                  "node": {
+                                    "type": "element",
+                                    "name": "template-thumbnail-image",
+                                    "elementType": "img",
+                                    "attrs": {
+                                      "src": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "local",
+                                          "id": "thumbnail"
+                                        }
+                                      },
+                                      "alt": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "local",
+                                          "id": "name"
+                                        }
+                                      },
+                                      "className": {
+                                        "type": "static",
+                                        "content": "w-full h-full object-cover"
+                                      }
+                                    }
+                                  },
+                                  "fallback": {
+                                    "type": "element",
+                                    "name": "template-placeholder-icon",
+                                    "elementType": "div",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex items-center justify-center w-full h-full"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "name": "template-icon",
+                                        "elementType": "svg",
+                                        "attrs": {
+                                          "width": {
+                                            "type": "static",
+                                            "content": "48"
+                                          },
+                                          "height": {
+                                            "type": "static",
+                                            "content": "48"
+                                          },
+                                          "viewBox": {
+                                            "type": "static",
+                                            "content": "0 0 24 24"
+                                          },
+                                          "fill": {
+                                            "type": "static",
+                                            "content": "none"
+                                          },
+                                          "stroke": {
+                                            "type": "static",
+                                            "content": "currentColor"
+                                          },
+                                          "strokeWidth": {
+                                            "type": "static",
+                                            "content": "1.5"
+                                          },
+                                          "className": {
+                                            "type": "static",
+                                            "content": "text-muted-foreground"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "name": "template-path",
+                                            "elementType": "path",
+                                            "attrs": {
+                                              "d": {
+                                                "type": "static",
+                                                "content": "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "element",
+                                            "name": "template-path-2",
+                                            "elementType": "polyline",
+                                            "attrs": {
+                                              "points": {
+                                                "type": "static",
+                                                "content": "14,2 14,8 20,8"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "template-card-overlay",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "preview-template-button",
+                                      "elementType": "button",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "bg-background text-foreground px-4 py-2 rounded-md text-sm font-medium shadow-sm hover:bg-accent transition-colors"
+                                        }
+                                      },
+                                      "events": {
+                                        "onClick": [
+                                          {
+                                            "type": "propCall",
+                                            "id": "handleTemplatePreview"
+                                          }
+                                        ]
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Preview"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "name": "template-card-content",
+                              "elementType": "div",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "p-4"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "name": "template-card-header",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex items-start justify-between mb-2"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "template-title",
+                                      "elementType": "h3",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "font-semibold text-foreground text-sm line-clamp-2"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "name"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "template-category-badge",
+                                      "elementType": "span",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "local",
+                                            "id": "category"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "template-description",
+                                  "elementType": "p",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "text-muted-foreground text-xs mb-3 line-clamp-2"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "description"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "element",
+                                  "name": "template-card-footer",
+                                  "elementType": "div",
+                                  "attrs": {
+                                    "className": {
+                                      "type": "static",
+                                      "content": "flex items-center justify-between"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "name": "template-tags",
+                                      "elementType": "div",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "flex gap-1 flex-wrap"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "repeat",
+                                          "dataSource": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "tags"
+                                            }
+                                          },
+                                          "node": {
+                                            "type": "element",
+                                            "name": "template-tag",
+                                            "elementType": "span",
+                                            "attrs": {
+                                              "className": {
+                                                "type": "static",
+                                                "content": "bg-muted text-muted-foreground px-2 py-1 rounded text-xs"
+                                              }
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "local",
+                                                  "id": "tag"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "name": "use-template-button",
+                                      "elementType": "button",
+                                      "attrs": {
+                                        "className": {
+                                          "type": "static",
+                                          "content": "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3"
+                                        }
+                                      },
+                                      "events": {
+                                        "onClick": [
+                                          {
+                                            "type": "propCall",
+                                            "id": "handleUseTemplate"
+                                          }
+                                        ]
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Use Template"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "stateDefinitions": {
+    "isLoading": {
+      "type": "boolean",
+      "defaultValue": false
+    },
+    "searchQuery": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "selectedCategory": {
+      "type": "string",
+      "defaultValue": "all"
+    },
+    "templates": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "filteredTemplates": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "propDefinitions": {
+    "isLoading": {
+      "type": "boolean"
+    },
+    "searchQuery": {
+      "type": "string"
+    },
+    "selectedCategory": {
+      "type": "string"
+    },
+    "templates": {
+      "type": "array"
+    },
+    "filteredTemplates": {
+      "type": "array"
+    },
+    "handleRefresh": {
+      "type": "func"
+    },
+    "handleSearchChange": {
+      "type": "func"
+    },
+    "handleCategorySelect": {
+      "type": "func"
+    },
+    "handleClearFilters": {
+      "type": "func"
+    },
+    "handleTemplateSelect": {
+      "type": "func"
+    },
+    "handleTemplatePreview": {
+      "type": "func"
+    },
+    "handleUseTemplate": {
+      "type": "func"
+    }
+  },
+  "mappings": {
+    "components": {
+      "refreshIconClass": "props.isLoading ? 'animate-spin' : ''",
+      "templateCategories": "[{name: 'All Templates', id: 'all', icon: 'Grid3X3', count: props.templates.length, isSelected: props.selectedCategory === 'all'}, {name: 'AI & ML', id: 'ai-ml', icon: 'Bot', count: 15, isSelected: props.selectedCategory === 'ai-ml'}, {name: 'Data Processing', id: 'data', icon: 'Database', count: 8, isSelected: props.selectedCategory === 'data'}, {name: 'Web Scraping', id: 'scraping', icon: 'Globe', count: 12, isSelected: props.selectedCategory === 'scraping'}, {name: 'Automation', id: 'automation', icon: 'Zap', count: 10, isSelected: props.selectedCategory === 'automation'}, {name: 'Integrations', id: 'integrations', icon: 'Link', count: 18, isSelected: props.selectedCategory === 'integrations'}, {name: 'Utilities', id: 'utilities', icon: 'Tool', count: 6, isSelected: props.selectedCategory === 'utilities'}]",
+      "categoryButtonClass": "local.isSelected ? 'w-full flex items-center gap-3 px-3 py-2 text-left rounded-md bg-primary text-primary-foreground transition-colors' : 'w-full flex items-center gap-3 px-3 py-2 text-left rounded-md hover:bg-accent hover:text-accent-foreground transition-colors'",
+      "hasTemplates": "props.filteredTemplates.length > 0",
+      "hasThumbnail": "local.thumbnail !== undefined && local.thumbnail !== null && local.thumbnail !== ''"
+    }
+  }
+}
