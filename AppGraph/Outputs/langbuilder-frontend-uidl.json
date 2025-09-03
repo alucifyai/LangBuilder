@@ -1,0 +1,3698 @@
+{
+  "name": "LangBuilderFrontendUIDS",
+  "globals": {
+    "designTokens": {
+      "colors": {
+        "primary": "#6366f1",
+        "secondary": "#64748b",
+        "accent": "#f59e0b",
+        "destructive": "#ef4444",
+        "muted": "#f8fafc",
+        "border": "#e2e8f0",
+        "background": "#ffffff",
+        "foreground": "#0f172a"
+      }
+    },
+    "assets": []
+  },
+  "components": {
+    "pages": {
+      "LoginPage": {
+        "name": "LoginPage",
+        "stateDefinitions": {
+          "inputState": {
+            "type": "object",
+            "defaultValue": {
+              "username": "",
+              "password": ""
+            }
+          }
+        },
+        "propDefinitions": {},
+        "importDefinitions": {
+          "Form": {
+            "type": "library",
+            "path": "@radix-ui/react-form"
+          },
+          "Button": {
+            "type": "local",
+            "path": "../../components/ui/button"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "Form.Root",
+          "name": "loginForm",
+          "events": {
+            "onSubmit": [
+              {
+                "type": "propCall",
+                "calls": "signIn"
+              }
+            ]
+          },
+          "attrs": {
+            "className": "h-screen w-full"
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "div",
+              "name": "container",
+              "attrs": {
+                "className": "flex h-full w-full flex-col items-center justify-center bg-muted"
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "formWrapper",
+                  "attrs": {
+                    "className": "flex w-72 flex-col items-center justify-center gap-2"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "LangflowLogo",
+                      "name": "logo",
+                      "attrs": {
+                        "title": "Langflow logo",
+                        "className": "mb-4 h-10 w-10 scale-[1.5]"
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "span",
+                      "name": "title",
+                      "attrs": {
+                        "className": "mb-6 text-2xl font-semibold text-primary"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Sign in to Langflow"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "usernameField",
+                      "attrs": {
+                        "className": "mb-3 w-full"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "Form.Field",
+                          "name": "usernameFormField",
+                          "attrs": {
+                            "name": "username"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "elementType": "Form.Label",
+                              "name": "usernameLabel",
+                              "attrs": {
+                                "className": "data-[invalid]:label-invalid"
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Username "
+                                },
+                                {
+                                  "type": "element",
+                                  "elementType": "span",
+                                  "attrs": {
+                                    "className": "font-medium text-destructive"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "static",
+                                      "content": "*"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "elementType": "Form.Control",
+                              "name": "usernameControl",
+                              "attrs": {
+                                "asChild": true
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "elementType": "Input",
+                                  "name": "usernameInput",
+                                  "attrs": {
+                                    "type": "username",
+                                    "className": "w-full",
+                                    "required": true,
+                                    "placeholder": "Username",
+                                    "value": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "inputState.username"
+                                      }
+                                    }
+                                  },
+                                  "events": {
+                                    "onChange": [
+                                      {
+                                        "type": "stateChange",
+                                        "modifies": "inputState",
+                                        "newState": "handleInput"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "passwordField",
+                      "attrs": {
+                        "className": "mb-3 w-full"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "Form.Field",
+                          "name": "passwordFormField",
+                          "attrs": {
+                            "name": "password"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "elementType": "Form.Label",
+                              "name": "passwordLabel",
+                              "attrs": {
+                                "className": "data-[invalid]:label-invalid"
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Password "
+                                },
+                                {
+                                  "type": "element",
+                                  "elementType": "span",
+                                  "attrs": {
+                                    "className": "font-medium text-destructive"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "static",
+                                      "content": "*"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "elementType": "InputComponent",
+                              "name": "passwordInput",
+                              "attrs": {
+                                "password": true,
+                                "isForm": true,
+                                "required": true,
+                                "placeholder": "Password",
+                                "className": "w-full",
+                                "value": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "inputState.password"
+                                  }
+                                }
+                              },
+                              "events": {
+                                "onChange": [
+                                  {
+                                    "type": "stateChange",
+                                    "modifies": "inputState",
+                                    "newState": "handleInput"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "submitButtonContainer",
+                      "attrs": {
+                        "className": "w-full"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "Form.Submit",
+                          "name": "submitWrapper",
+                          "attrs": {
+                            "asChild": true
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "elementType": "Button",
+                              "name": "signInButton",
+                              "attrs": {
+                                "className": "mr-3 mt-6 w-full",
+                                "type": "submit"
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Sign in"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "signUpLinkContainer",
+                      "attrs": {
+                        "className": "w-full"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "CustomLink",
+                          "name": "signUpLink",
+                          "attrs": {
+                            "to": "/signup"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "elementType": "Button",
+                              "name": "signUpButton",
+                              "attrs": {
+                                "className": "w-full",
+                                "variant": "outline",
+                                "type": "button"
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Don't have an account?"
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "&nbsp;"
+                                },
+                                {
+                                  "type": "element",
+                                  "elementType": "b",
+                                  "children": [
+                                    {
+                                      "type": "static",
+                                      "content": "Sign Up"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "FlowPage": {
+        "name": "FlowPage",
+        "stateDefinitions": {
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "blocker": {
+            "type": "object",
+            "defaultValue": null
+          },
+          "changesNotSaved": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "isBuilding": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "currentFlow": {
+            "type": "object",
+            "defaultValue": null
+          },
+          "sidebarOpen": {
+            "type": "boolean",
+            "defaultValue": true
+          }
+        },
+        "propDefinitions": {
+          "view": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          }
+        },
+        "importDefinitions": {
+          "SidebarProvider": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SaveChangesModal": {
+            "type": "local",
+            "path": "@/modals/saveChangesModal"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "div",
+          "name": "flowPageContainer",
+          "children": [
+            {
+              "type": "element",
+              "elementType": "div",
+              "name": "flowPagePositioning",
+              "attrs": {
+                "className": "flow-page-positioning"
+              },
+              "children": [
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "currentFlow"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "flowContentWrapper",
+                    "attrs": {
+                      "className": "flex h-full overflow-hidden"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "elementType": "SidebarProvider",
+                        "name": "sidebarProvider",
+                        "attrs": {
+                          "width": "17.5rem",
+                          "defaultOpen": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "sidebarOpen"
+                            }
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "view"
+                              }
+                            },
+                            "conditions": {
+                              "false": {
+                                "type": "element",
+                                "elementType": "FlowSidebarComponent",
+                                "name": "flowSidebar",
+                                "attrs": {
+                                  "isLoading": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "isLoading"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "elementType": "main",
+                            "name": "mainContent",
+                            "attrs": {
+                              "className": "flex w-full overflow-hidden"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "elementType": "div",
+                                "name": "pageContainer",
+                                "attrs": {
+                                  "className": "h-full w-full"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "elementType": "Page",
+                                    "name": "flowPage",
+                                    "attrs": {
+                                      "setIsLoading": "setIsLoading"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "conditional",
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "blocker.state"
+                }
+              },
+              "conditions": {
+                "blocked": {
+                  "type": "element",
+                  "elementType": "div",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "isBuilding"
+                        }
+                      },
+                      "conditions": {
+                        "false": {
+                          "type": "element",
+                          "elementType": "SaveChangesModal",
+                          "name": "saveChangesModal",
+                          "attrs": {
+                            "onSave": "handleSave",
+                            "onCancel": "blocker.reset",
+                            "onProceed": "handleExit",
+                            "flowName": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "currentSavedFlow.name"
+                              }
+                            },
+                            "autoSave": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "autoSaving"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "MainPage": {
+        "name": "MainPage",
+        "stateDefinitions": {
+          "openModal": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "openDeleteFolderModal": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "flows": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "examples": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "folders": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "folderToEdit": {
+            "type": "object",
+            "defaultValue": null
+          }
+        },
+        "propDefinitions": {},
+        "importDefinitions": {
+          "SidebarProvider": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SideBarFoldersButtonsComponent": {
+            "type": "local",
+            "path": "@/components/core/folderSidebarComponent/components/sideBarFolderButtons"
+          },
+          "CustomEmptyPageCommunity": {
+            "type": "local",
+            "path": "@/customization/components/custom-empty-page"
+          },
+          "CustomLoader": {
+            "type": "local",
+            "path": "@/customization/components/custom-loader"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "SidebarProvider",
+          "name": "sidebarProvider",
+          "attrs": {
+            "width": "280px"
+          },
+          "children": [
+            {
+              "type": "conditional",
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "flows"
+                }
+              },
+              "node": {
+                "type": "conditional",
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "flows.length !== examples.length || folders.length > 1"
+                  }
+                },
+                "node": {
+                  "type": "element",
+                  "elementType": "SideBarFoldersButtonsComponent",
+                  "name": "sidebarFolders",
+                  "attrs": {
+                    "handleChangeFolder": "handleChangeFolder",
+                    "handleDeleteFolder": "handleDeleteFolder",
+                    "handleFilesClick": "handleFilesClick"
+                  }
+                }
+              }
+            },
+            {
+              "type": "element",
+              "elementType": "main",
+              "name": "mainContent",
+              "attrs": {
+                "className": "flex h-full w-full overflow-hidden"
+              },
+              "children": [
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "flows && examples && folders"
+                    }
+                  },
+                  "conditions": {
+                    "true": {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "contentWrapper",
+                      "attrs": {
+                        "className": "relative mx-auto flex h-full w-full flex-col overflow-hidden"
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "flows.length !== examples.length || folders.length > 1"
+                            }
+                          },
+                          "conditions": {
+                            "true": {
+                              "type": "element",
+                              "elementType": "Outlet",
+                              "name": "outlet"
+                            },
+                            "false": {
+                              "type": "element",
+                              "elementType": "CustomEmptyPageCommunity",
+                              "name": "emptyPage",
+                              "attrs": {
+                                "setOpenModal": "setOpenModal"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "false": {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "loadingWrapper",
+                      "attrs": {
+                        "className": "flex h-full w-full items-center justify-center"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "CustomLoader",
+                          "name": "loader",
+                          "attrs": {
+                            "remSize": 30
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "ModalsComponent",
+              "name": "modals",
+              "attrs": {
+                "openModal": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "openModal"
+                  }
+                },
+                "setOpenModal": "setOpenModal",
+                "openDeleteFolderModal": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "openDeleteFolderModal"
+                  }
+                },
+                "setOpenDeleteFolderModal": "setOpenDeleteFolderModal",
+                "handleDeleteFolder": "handleDeleteFolder"
+              }
+            }
+          ]
+        }
+      },
+      "SettingsPage": {
+        "name": "SettingsPage",
+        "stateDefinitions": {
+          "autoLogin": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "hasStore": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "showGeneralSettings": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "sidebarNavItems": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "propDefinitions": {},
+        "importDefinitions": {
+          "SidebarProvider": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "PageLayout": {
+            "type": "local",
+            "path": "../../components/common/pageLayout"
+          },
+          "SideBarButtonsComponent": {
+            "type": "local",
+            "path": "@/components/core/sidebarComponent"
+          },
+          "ForwardedIconComponent": {
+            "type": "local",
+            "path": "../../components/common/genericIconComponent"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "PageLayout",
+          "name": "pageLayout",
+          "attrs": {
+            "backTo": -1,
+            "title": "Settings",
+            "description": "Manage the general settings for Langflow."
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "SidebarProvider",
+              "name": "sidebarProvider",
+              "attrs": {
+                "width": "15rem",
+                "defaultOpen": false
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "SideBarButtonsComponent",
+                  "name": "sidebarButtons",
+                  "attrs": {
+                    "items": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "sidebarNavItems"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "element",
+                  "elementType": "main",
+                  "name": "mainContent",
+                  "attrs": {
+                    "className": "flex flex-1 overflow-hidden"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "contentWrapper",
+                      "attrs": {
+                        "className": "flex flex-1 flex-col overflow-x-hidden pt-1"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "Outlet",
+                          "name": "outlet"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "PlaygroundPage": {
+        "name": "PlaygroundPage",
+        "stateDefinitions": {
+          "currentFlowId": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "isLoading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "currentSavedFlow": {
+            "type": "object",
+            "defaultValue": null
+          },
+          "clientId": {
+            "type": "string",
+            "defaultValue": ""
+          }
+        },
+        "propDefinitions": {},
+        "importDefinitions": {
+          "CustomIOModal": {
+            "type": "local",
+            "path": "@/customization/components/custom-new-modal"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "div",
+          "name": "playgroundContainer",
+          "attrs": {
+            "className": "flex h-full w-full flex-col items-center justify-center align-middle"
+          },
+          "children": [
+            {
+              "type": "conditional",
+              "reference": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "currentSavedFlow"
+                }
+              },
+              "node": {
+                "type": "element",
+                "elementType": "CustomIOModal",
+                "name": "playgroundModal",
+                "attrs": {
+                  "open": true,
+                  "setOpen": "() => {}",
+                  "isPlayground": true,
+                  "playgroundPage": true
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "emptyContent"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "StorePage": {
+        "name": "StorePage",
+        "stateDefinitions": {
+          "hasApiKey": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "validApiKey": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "loadingApiKey": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "loading": {
+            "type": "boolean",
+            "defaultValue": true
+          },
+          "filteredCategories": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "inputText": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "searchData": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "totalRowsCount": {
+            "type": "number",
+            "defaultValue": 0
+          },
+          "pageSize": {
+            "type": "number",
+            "defaultValue": 12
+          },
+          "pageIndex": {
+            "type": "number",
+            "defaultValue": 0
+          },
+          "pageOrder": {
+            "type": "string",
+            "defaultValue": "Popular"
+          },
+          "tabActive": {
+            "type": "string",
+            "defaultValue": "All"
+          },
+          "selectFilter": {
+            "type": "string",
+            "defaultValue": "all"
+          },
+          "tags": {
+            "type": "array",
+            "defaultValue": []
+          }
+        },
+        "propDefinitions": {},
+        "importDefinitions": {
+          "PageLayout": {
+            "type": "local",
+            "path": "../../components/common/pageLayout"
+          },
+          "InputSearchComponent": {
+            "type": "local",
+            "path": "../MainPage/components/inputSearchComponent"
+          },
+          "TagsSelector": {
+            "type": "local",
+            "path": "../../components/common/tagsSelectorComponent"
+          },
+          "StoreCardComponent": {
+            "type": "local",
+            "path": "../../components/common/storeCardComponent"
+          },
+          "SkeletonCardComponent": {
+            "type": "local",
+            "path": "../../components/common/skeletonCardComponent"
+          },
+          "PaginatorComponent": {
+            "type": "local",
+            "path": "../../components/common/paginatorComponent"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "PageLayout",
+          "name": "storePageLayout",
+          "attrs": {
+            "betaIcon": true,
+            "title": "Store",
+            "description": "Discover and share components and workflows"
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "div",
+              "name": "storeContent",
+              "attrs": {
+                "className": "flex h-full w-full flex-col justify-between"
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "storeBody",
+                  "attrs": {
+                    "className": "flex w-full flex-col gap-4 p-0"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "searchAndTabs",
+                      "attrs": {
+                        "className": "flex items-end gap-4"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "InputSearchComponent",
+                          "name": "searchInput",
+                          "attrs": {
+                            "loading": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "loading"
+                              }
+                            },
+                            "divClasses": "relative h-12 w-[40%]",
+                            "value": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "inputText"
+                              }
+                            }
+                          },
+                          "events": {
+                            "onChange": [
+                              {
+                                "type": "stateChange",
+                                "modifies": "inputText",
+                                "newState": "e.target.value"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "elementType": "div",
+                          "name": "tabsContainer",
+                          "attrs": {
+                            "className": "ml-4 flex w-full gap-2 border-b border-border"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "elementType": "button",
+                              "name": "allTab",
+                              "attrs": {
+                                "disabled": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "loading"
+                                  }
+                                },
+                                "className": {
+                                  "type": "dynamic",
+                                  "content": "tabActive === 'All' ? 'border-b-2 border-primary p-3' : 'border-b-2 border-transparent p-3 text-muted-foreground hover:text-primary'"
+                                }
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "stateChange",
+                                    "modifies": "tabActive",
+                                    "newState": "All"
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "All"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "elementType": "button",
+                              "name": "flowsTab",
+                              "attrs": {
+                                "disabled": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "loading"
+                                  }
+                                },
+                                "className": {
+                                  "type": "dynamic",
+                                  "content": "tabActive === 'Flows' ? 'border-b-2 border-primary p-3' : 'border-b-2 border-transparent p-3 text-muted-foreground hover:text-primary'"
+                                }
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "stateChange",
+                                    "modifies": "tabActive",
+                                    "newState": "Flows"
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Flows"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "element",
+                              "elementType": "button",
+                              "name": "componentsTab",
+                              "attrs": {
+                                "disabled": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "loading"
+                                  }
+                                },
+                                "className": {
+                                  "type": "dynamic",
+                                  "content": "tabActive === 'Components' ? 'border-b-2 border-primary p-3' : 'border-b-2 border-transparent p-3 text-muted-foreground hover:text-primary'"
+                                }
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "stateChange",
+                                    "modifies": "tabActive",
+                                    "newState": "Components"
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Components"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "filtersContainer",
+                      "attrs": {
+                        "className": "flex items-center gap-2"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "Select",
+                          "name": "filterSelect",
+                          "attrs": {
+                            "disabled": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "loading"
+                              }
+                            },
+                            "value": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "selectFilter"
+                              }
+                            }
+                          },
+                          "events": {
+                            "onValueChange": [
+                              {
+                                "type": "stateChange",
+                                "modifies": "selectFilter",
+                                "newState": "value"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "elementType": "TagsSelector",
+                          "name": "tagsSelector",
+                          "attrs": {
+                            "tags": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "tags"
+                              }
+                            },
+                            "loadingTags": false,
+                            "disabled": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "loading"
+                              }
+                            },
+                            "selectedTags": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "filteredCategories"
+                              }
+                            }
+                          },
+                          "events": {
+                            "setSelectedTags": [
+                              {
+                                "type": "stateChange",
+                                "modifies": "filteredCategories",
+                                "newState": "tags"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "resultsGrid",
+                      "attrs": {
+                        "className": "grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3"
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "!loading || searchData.length !== 0"
+                            }
+                          },
+                          "conditions": {
+                            "true": {
+                              "type": "repeat",
+                              "dataSource": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "searchData"
+                                }
+                              },
+                              "node": {
+                                "type": "element",
+                                "elementType": "StoreCardComponent",
+                                "name": "storeCard",
+                                "key": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "local",
+                                    "id": "item.id"
+                                  }
+                                },
+                                "attrs": {
+                                  "data": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "local",
+                                      "id": "item"
+                                    }
+                                  },
+                                  "authorized": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "validApiKey"
+                                    }
+                                  },
+                                  "disabled": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "loading"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "false": {
+                              "type": "element",
+                              "elementType": "div",
+                              "name": "skeletonContainer",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "elementType": "SkeletonCardComponent",
+                                  "name": "skeleton1"
+                                },
+                                {
+                                  "type": "element",
+                                  "elementType": "SkeletonCardComponent",
+                                  "name": "skeleton2"
+                                },
+                                {
+                                  "type": "element",
+                                  "elementType": "SkeletonCardComponent",
+                                  "name": "skeleton3"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "!loading && searchData.length > 0"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "paginationContainer",
+                    "attrs": {
+                      "className": "relative py-6"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "elementType": "PaginatorComponent",
+                        "name": "paginator",
+                        "attrs": {
+                          "pageIndex": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "pageIndex"
+                            }
+                          },
+                          "pageSize": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "pageSize"
+                            }
+                          },
+                          "rowsCount": 20,
+                          "totalRowsCount": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "totalRowsCount"
+                            }
+                          }
+                        },
+                        "events": {
+                          "paginate": [
+                            {
+                              "type": "stateChange",
+                              "modifies": "pageIndex",
+                              "newState": "pageIndex"
+                            },
+                            {
+                              "type": "stateChange",
+                              "modifies": "pageSize",
+                              "newState": "pageSize"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "AppHeader": {
+        "name": "AppHeader",
+        "stateDefinitions": {
+          "activeState": {
+            "type": "string",
+            "defaultValue": null
+          },
+          "notificationCenter": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "propDefinitions": {},
+        "importDefinitions": {
+          "AlertDropdown": {
+            "type": "local",
+            "path": "@/alerts/alertDropDown"
+          },
+          "Button": {
+            "type": "local",
+            "path": "@/components/ui/button"
+          },
+          "CustomAccountMenu": {
+            "type": "local",
+            "path": "@/customization/components/custom-AccountMenu"
+          },
+          "ForwardedIconComponent": {
+            "type": "local",
+            "path": "@/components/common/genericIconComponent"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "div",
+          "name": "headerContainer",
+          "attrs": {
+            "className": "z-10 flex h-[48px] w-full items-center justify-between border-b px-6 dark:bg-background",
+            "data-testid": "app-header"
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "div",
+              "name": "leftSection",
+              "attrs": {
+                "className": "z-30 flex shrink-0 items-center gap-2",
+                "data-testid": "header_left_section_wrapper"
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "Button",
+                  "name": "homeButton",
+                  "attrs": {
+                    "unstyled": true,
+                    "className": "mr-1 flex h-8 w-8 items-center",
+                    "data-testid": "icon-ChevronLeft"
+                  },
+                  "events": {
+                    "onClick": [
+                      {
+                        "type": "propCall",
+                        "calls": "navigate",
+                        "args": ["/"]
+                      }
+                    ]
+                  },
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "reference": {
+                        "type": "static",
+                        "content": "ENABLE_DATASTAX_LANGFLOW"
+                      },
+                      "conditions": {
+                        "true": {
+                          "type": "element",
+                          "elementType": "DataStaxLogo",
+                          "name": "dataStaxLogo",
+                          "attrs": {
+                            "className": "fill-black dark:fill-[white]"
+                          }
+                        },
+                        "false": {
+                          "type": "element",
+                          "elementType": "LangflowLogo",
+                          "name": "langflowLogo",
+                          "attrs": {
+                            "className": "h-6 w-6"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "div",
+              "name": "middleSection",
+              "attrs": {
+                "className": "absolute left-1/2 -translate-x-1/2"
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "FlowMenu",
+                  "name": "flowMenu"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "div",
+              "name": "rightSection",
+              "attrs": {
+                "className": "relative left-3 z-30 flex shrink-0 items-center gap-3",
+                "data-testid": "header_right_section_wrapper"
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "Button",
+                  "name": "countsButton",
+                  "attrs": {
+                    "unstyled": true,
+                    "className": "hidden items-center whitespace-nowrap pr-2 lg:inline"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "CustomLangflowCounts",
+                      "name": "langflowCounts"
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "AlertDropdown",
+                  "name": "alertDropdown",
+                  "attrs": {
+                    "notificationRef": "notificationContentRef",
+                    "onClose": "() => setActiveState(null)"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "Button",
+                      "name": "notificationButton",
+                      "attrs": {
+                        "unstyled": true,
+                        "data-testid": "notification_button"
+                      },
+                      "events": {
+                        "onClick": [
+                          {
+                            "type": "stateChange",
+                            "modifies": "activeState",
+                            "newState": "prev === 'notifications' ? null : 'notifications'"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "div",
+                          "name": "notificationIconWrapper",
+                          "attrs": {
+                            "className": "hit-area-hover group relative items-center rounded-md px-2 py-2 text-muted-foreground"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "elementType": "span",
+                              "name": "notificationBadge",
+                              "attrs": {
+                                "className": {
+                                  "type": "dynamic",
+                                  "content": "notificationCenter ? 'absolute h-1 w-1 rounded-full bg-destructive right-[0.3rem] top-[5px]' : 'hidden'"
+                                }
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "elementType": "ForwardedIconComponent",
+                              "name": "bellIcon",
+                              "attrs": {
+                                "name": "Bell",
+                                "className": {
+                                  "type": "dynamic",
+                                  "content": "activeState === 'notifications' ? 'side-bar-button-size h-4 w-4 text-primary' : 'side-bar-button-size h-4 w-4 text-muted-foreground group-hover:text-primary'"
+                                },
+                                "strokeWidth": 2
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "Separator",
+                  "name": "separator",
+                  "attrs": {
+                    "orientation": "vertical",
+                    "className": "my-auto h-7 dark:border-zinc-700"
+                  }
+                },
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "accountMenuWrapper",
+                  "attrs": {
+                    "className": "flex"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "CustomAccountMenu",
+                      "name": "accountMenu"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "SideBarFoldersButtonsComponent": {
+        "name": "SideBarFoldersButtonsComponent",
+        "stateDefinitions": {
+          "folders": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "loading": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "foldersNames": {
+            "type": "object",
+            "defaultValue": {}
+          },
+          "editFolders": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "folderIdDragging": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "myCollectionId": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "hoveredFolderId": {
+            "type": "string",
+            "defaultValue": null
+          },
+          "isDismissedMcpDialog": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "propDefinitions": {
+          "handleChangeFolder": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": false
+          },
+          "handleDeleteFolder": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": false
+          },
+          "handleFilesClick": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": false
+          }
+        },
+        "importDefinitions": {
+          "Sidebar": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SidebarContent": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SidebarHeader": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SidebarFooter": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SidebarMenu": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SidebarMenuItem": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          },
+          "SidebarMenuButton": {
+            "type": "local",
+            "path": "@/components/ui/sidebar"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "Sidebar",
+          "name": "sidebar",
+          "attrs": {
+            "collapsible": "isMobile ? 'offcanvas' : 'none'",
+            "data-testid": "project-sidebar"
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "SidebarHeader",
+              "name": "sidebarHeader",
+              "attrs": {
+                "className": "px-4 py-1"
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "HeaderButtons",
+                  "name": "headerButtons",
+                  "attrs": {
+                    "handleUploadFlowsToFolder": "handleUploadFlowsToFolder",
+                    "isUpdatingFolder": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "isUpdatingFolder"
+                      }
+                    },
+                    "isPending": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "isPending"
+                      }
+                    },
+                    "addNewFolder": "addNewFolder"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "SidebarContent",
+              "name": "sidebarContent",
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "SidebarGroup",
+                  "name": "sidebarGroup",
+                  "attrs": {
+                    "className": "p-4 py-2"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "SidebarGroupContent",
+                      "name": "sidebarGroupContent",
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "SidebarMenu",
+                          "name": "sidebarMenu",
+                          "children": [
+                            {
+                              "type": "conditional",
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "!loading"
+                                }
+                              },
+                              "conditions": {
+                                "true": {
+                                  "type": "repeat",
+                                  "dataSource": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "folders"
+                                    }
+                                  },
+                                  "node": {
+                                    "type": "element",
+                                    "elementType": "SidebarMenuItem",
+                                    "name": "folderMenuItem",
+                                    "key": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "index"
+                                      }
+                                    },
+                                    "attrs": {
+                                      "className": "group/menu-button"
+                                    },
+                                    "events": {
+                                      "onMouseEnter": [
+                                        {
+                                          "type": "stateChange",
+                                          "modifies": "hoveredFolderId",
+                                          "newState": "item.id"
+                                        }
+                                      ],
+                                      "onMouseLeave": [
+                                        {
+                                          "type": "stateChange",
+                                          "modifies": "hoveredFolderId",
+                                          "newState": null
+                                        }
+                                      ]
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "elementType": "div",
+                                        "name": "folderMenuItemWrapper",
+                                        "attrs": {
+                                          "className": "relative flex w-full"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "elementType": "SidebarMenuButton",
+                                            "name": "folderButton",
+                                            "attrs": {
+                                              "size": "md",
+                                              "data-testid": {
+                                                "type": "dynamic",
+                                                "content": "`sidebar-nav-${item.name}`"
+                                              },
+                                              "id": {
+                                                "type": "dynamic",
+                                                "content": "`sidebar-nav-${item.name}`"
+                                              },
+                                              "isActive": "checkPathName(item.id)",
+                                              "className": "flex-grow pr-8"
+                                            },
+                                            "events": {
+                                              "onClick": [
+                                                {
+                                                  "type": "propCall",
+                                                  "calls": "handleChangeFolder",
+                                                  "args": ["item.id"]
+                                                }
+                                              ],
+                                              "onDragOver": [
+                                                {
+                                                  "type": "propCall",
+                                                  "calls": "dragOver",
+                                                  "args": ["e", "item.id"]
+                                                }
+                                              ],
+                                              "onDragEnter": [
+                                                {
+                                                  "type": "propCall",
+                                                  "calls": "dragEnter",
+                                                  "args": ["e", "item.id"]
+                                                }
+                                              ],
+                                              "onDragLeave": [
+                                                {
+                                                  "type": "propCall",
+                                                  "calls": "dragLeave"
+                                                }
+                                              ],
+                                              "onDrop": [
+                                                {
+                                                  "type": "propCall",
+                                                  "calls": "onDrop",
+                                                  "args": ["e", "item.id"]
+                                                }
+                                              ]
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "elementType": "div",
+                                                "name": "folderContentWrapper",
+                                                "attrs": {
+                                                  "className": "flex w-full items-center justify-between gap-2"
+                                                },
+                                                "events": {
+                                                  "onDoubleClick": [
+                                                    {
+                                                      "type": "propCall",
+                                                      "calls": "handleDoubleClick",
+                                                      "args": ["event", "item"]
+                                                    }
+                                                  ]
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "elementType": "div",
+                                                    "name": "folderLabelWrapper",
+                                                    "attrs": {
+                                                      "className": "flex flex-1 items-center gap-2"
+                                                    },
+                                                    "children": [
+                                                      {
+                                                        "type": "conditional",
+                                                        "reference": {
+                                                          "type": "dynamic",
+                                                          "content": {
+                                                            "referenceType": "state",
+                                                            "id": "editFolderName?.edit && !isUpdatingFolder"
+                                                          }
+                                                        },
+                                                        "conditions": {
+                                                          "true": {
+                                                            "type": "element",
+                                                            "elementType": "InputEditFolderName",
+                                                            "name": "folderNameInput",
+                                                            "attrs": {
+                                                              "handleEditFolderName": "handleEditFolderName",
+                                                              "item": "item",
+                                                              "refInput": "refInput",
+                                                              "handleKeyDownFn": "handleKeyDownFn",
+                                                              "handleEditNameFolder": "handleEditNameFolder",
+                                                              "editFolderName": "editFolderName",
+                                                              "foldersNames": "foldersNames",
+                                                              "handleKeyDown": "handleKeyDown"
+                                                            }
+                                                          },
+                                                          "false": {
+                                                            "type": "element",
+                                                            "elementType": "span",
+                                                            "name": "folderNameLabel",
+                                                            "attrs": {
+                                                              "className": "block w-0 grow truncate text-sm opacity-100"
+                                                            },
+                                                            "children": [
+                                                              {
+                                                                "type": "dynamic",
+                                                                "content": {
+                                                                  "referenceType": "local",
+                                                                  "id": "item.name"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "element",
+                                            "elementType": "div",
+                                            "name": "folderOptionsWrapper",
+                                            "attrs": {
+                                              "className": "absolute right-2 top-[0.45rem] flex items-center hover:text-foreground"
+                                            },
+                                            "events": {
+                                              "onClick": [
+                                                {
+                                                  "type": "propCall",
+                                                  "calls": "e.stopPropagation()"
+                                                }
+                                              ]
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "elementType": "SelectOptions",
+                                                "name": "selectOptions",
+                                                "attrs": {
+                                                  "item": "item",
+                                                  "index": "index",
+                                                  "handleDeleteFolder": "handleDeleteFolder",
+                                                  "handleDownloadFolder": "() => handleDownloadFolder(item.id, item.name)",
+                                                  "handleSelectFolderToRename": "handleSelectFolderToRename",
+                                                  "checkPathName": "checkPathName"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "false": {
+                                  "type": "element",
+                                  "elementType": "div",
+                                  "name": "skeletonContainer",
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "elementType": "SidebarFolderSkeleton",
+                                      "name": "skeleton1"
+                                    },
+                                    {
+                                      "type": "element",
+                                      "elementType": "SidebarFolderSkeleton",
+                                      "name": "skeleton2"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "spacer",
+                  "attrs": {
+                    "className": "flex-1"
+                  }
+                },
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "ENABLE_MCP_NOTICE && !isDismissedMcpDialog"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "mcpNoticeWrapper",
+                    "attrs": {
+                      "className": "p-2"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "elementType": "MCPServerNotice",
+                        "name": "mcpNotice",
+                        "attrs": {
+                          "handleDismissDialog": "handleDismissMcpDialog"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "conditional",
+              "reference": {
+                "type": "static",
+                "content": "ENABLE_FILE_MANAGEMENT"
+              },
+              "node": {
+                "type": "element",
+                "elementType": "SidebarFooter",
+                "name": "sidebarFooter",
+                "attrs": {
+                  "className": "border-t"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "footerContent",
+                    "attrs": {
+                      "className": "grid w-full items-center gap-2 p-2"
+                    },
+                    "children": [
+                      {
+                        "type": "conditional",
+                        "reference": {
+                          "type": "static",
+                          "content": "ENABLE_DATASTAX_LANGFLOW"
+                        },
+                        "node": {
+                          "type": "element",
+                          "elementType": "CustomStoreButton",
+                          "name": "storeButton"
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "elementType": "SidebarMenuButton",
+                        "name": "filesButton",
+                        "attrs": {
+                          "isActive": "checkPathFiles",
+                          "size": "md",
+                          "className": "text-sm"
+                        },
+                        "events": {
+                          "onClick": [
+                            {
+                              "type": "propCall",
+                              "calls": "handleFilesClick"
+                            }
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "elementType": "ForwardedIconComponent",
+                            "name": "fileIcon",
+                            "attrs": {
+                              "name": "File",
+                              "className": "h-4 w-4"
+                            }
+                          },
+                          {
+                            "type": "static",
+                            "content": "My Files"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "modals": {
+      "IOModal": {
+        "name": "IOModal",
+        "stateDefinitions": {
+          "sidebarOpen": {
+            "type": "boolean",
+            "defaultValue": true
+          },
+          "visibleSession": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "selectedViewField": {
+            "type": "object",
+            "defaultValue": null
+          },
+          "sessions": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "sessionId": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "hasInitialized": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "messages": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "chatValue": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "isBuilding": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "propDefinitions": {
+          "open": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": true
+          },
+          "setOpen": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": true
+          },
+          "disable": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          },
+          "isPlayground": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          },
+          "canvasOpen": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          },
+          "playgroundPage": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          }
+        },
+        "importDefinitions": {
+          "BaseModal": {
+            "type": "local",
+            "path": "../baseModal"
+          },
+          "ChatViewWrapper": {
+            "type": "local",
+            "path": "./components/chat-view-wrapper"
+          },
+          "SidebarOpenView": {
+            "type": "local",
+            "path": "./components/sidebar-open-view"
+          },
+          "SelectedViewField": {
+            "type": "local",
+            "path": "./components/selected-view-field"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "BaseModal",
+          "name": "ioModal",
+          "attrs": {
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "open"
+              }
+            },
+            "setOpen": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "setOpen"
+              }
+            },
+            "disable": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "disable"
+              }
+            },
+            "type": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "isPlayground ? 'full-screen' : undefined"
+              }
+            },
+            "size": "x-large",
+            "className": "!rounded-[12px] p-0"
+          },
+          "events": {
+            "onSubmit": [
+              {
+                "type": "propCall",
+                "calls": "sendMessage",
+                "args": [{"repeat": 1}]
+              }
+            ]
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "BaseModal.Trigger",
+              "name": "modalTrigger",
+              "children": [
+                {
+                  "type": "slot",
+                  "fallback": {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "emptyTrigger"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "BaseModal.Content",
+              "name": "modalContent",
+              "attrs": {
+                "overflowHidden": true,
+                "className": "h-full"
+              },
+              "children": [
+                {
+                  "type": "conditional",
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "open"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "elementType": "div",
+                    "name": "modalContentWrapper",
+                    "attrs": {
+                      "className": "flex-max-width h-full"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "elementType": "div",
+                        "name": "sidebarContainer",
+                        "attrs": {
+                          "className": {
+                            "type": "dynamic",
+                            "content": "sidebarOpen ? 'flex h-full flex-shrink-0 flex-col justify-start overflow-hidden transition-all duration-300 absolute z-50 lg:relative lg:w-1/5 lg:max-w-[280px]' : 'w-0'"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "elementType": "div",
+                            "name": "sidebarContent",
+                            "attrs": {
+                              "className": {
+                                "type": "dynamic",
+                                "content": "playgroundPage ? 'relative flex h-full flex-col overflow-y-auto border-r border-border bg-muted p-4 text-center custom-scroll dark:bg-canvas pt-[15px]' : 'relative flex h-full flex-col overflow-y-auto border-r border-border bg-muted p-4 text-center custom-scroll dark:bg-canvas pt-3.5'"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "elementType": "div",
+                                "name": "sidebarHeader",
+                                "attrs": {
+                                  "className": "flex items-center justify-between gap-2 pb-8 align-middle"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "elementType": "div",
+                                    "name": "flowInfo",
+                                    "attrs": {
+                                      "className": "flex items-center gap-2"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "elementType": "div",
+                                        "name": "flowIcon",
+                                        "attrs": {
+                                          "className": {
+                                            "type": "dynamic",
+                                            "content": "`flex rounded p-1 ${swatchColors[swatchIndex]}`"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "elementType": "IconComponent",
+                                            "name": "workflowIcon",
+                                            "attrs": {
+                                              "name": {
+                                                "type": "dynamic",
+                                                "content": {
+                                                  "referenceType": "state",
+                                                  "id": "flowIcon ?? 'Workflow'"
+                                                }
+                                              },
+                                              "className": "h-3.5 w-3.5"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "conditional",
+                                        "reference": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "sidebarOpen"
+                                          }
+                                        },
+                                        "node": {
+                                          "type": "element",
+                                          "elementType": "div",
+                                          "name": "playgroundTitle",
+                                          "attrs": {
+                                            "className": "truncate font-semibold"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "state",
+                                                "id": "PlaygroundTitle"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "element",
+                                    "elementType": "Button",
+                                    "name": "toggleSidebarButton",
+                                    "attrs": {
+                                      "variant": "ghost",
+                                      "className": "flex h-8 w-8 items-center justify-center !p-0"
+                                    },
+                                    "events": {
+                                      "onClick": [
+                                        {
+                                          "type": "stateChange",
+                                          "modifies": "sidebarOpen",
+                                          "newState": "!sidebarOpen"
+                                        }
+                                      ]
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "elementType": "IconComponent",
+                                        "name": "toggleIcon",
+                                        "attrs": {
+                                          "name": {
+                                            "type": "dynamic",
+                                            "content": "sidebarOpen ? 'PanelLeftClose' : 'PanelLeftOpen'"
+                                          },
+                                          "className": "h-[18px] w-[18px] text-ring"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "conditional",
+                                "reference": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "sidebarOpen && !sessionsLoading"
+                                  }
+                                },
+                                "node": {
+                                  "type": "element",
+                                  "elementType": "SidebarOpenView",
+                                  "name": "sidebarOpenView",
+                                  "attrs": {
+                                    "sessions": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "sessions"
+                                      }
+                                    },
+                                    "setSelectedViewField": "setSelectedViewField",
+                                    "setvisibleSession": "setvisibleSession",
+                                    "handleDeleteSession": "handleDeleteSession",
+                                    "visibleSession": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "visibleSession"
+                                      }
+                                    },
+                                    "selectedViewField": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "selectedViewField"
+                                      }
+                                    },
+                                    "playgroundPage": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "playgroundPage"
+                                      }
+                                    },
+                                    "setActiveSession": "setActiveSession"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "element",
+                        "elementType": "div",
+                        "name": "mainContentArea",
+                        "attrs": {
+                          "className": "flex h-full min-w-96 flex-grow bg-background"
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "selectedViewField && !sessionsLoading"
+                              }
+                            },
+                            "node": {
+                              "type": "element",
+                              "elementType": "SelectedViewField",
+                              "name": "selectedViewField",
+                              "attrs": {
+                                "selectedViewField": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "selectedViewField"
+                                  }
+                                },
+                                "setSelectedViewField": "setSelectedViewField",
+                                "haveChat": "haveChat",
+                                "inputs": "filteredInputs",
+                                "outputs": "filteredOutputs",
+                                "sessions": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "sessions"
+                                  }
+                                },
+                                "currentFlowId": "currentFlowId",
+                                "nodes": "filteredNodes"
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "elementType": "ChatViewWrapper",
+                            "name": "chatViewWrapper",
+                            "attrs": {
+                              "playgroundPage": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "playgroundPage"
+                                }
+                              },
+                              "selectedViewField": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "selectedViewField"
+                                }
+                              },
+                              "visibleSession": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "visibleSession"
+                                }
+                              },
+                              "sessions": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "sessions"
+                                }
+                              },
+                              "sidebarOpen": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "sidebarOpen"
+                                }
+                              },
+                              "currentFlowId": "currentFlowId",
+                              "setSidebarOpen": "setSidebarOpen",
+                              "isPlayground": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "isPlayground"
+                                }
+                              },
+                              "setvisibleSession": "setvisibleSession",
+                              "setSelectedViewField": "setSelectedViewField",
+                              "haveChat": "haveChat",
+                              "messagesFetched": "messagesFetched",
+                              "sessionId": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "sessionId"
+                                }
+                              },
+                              "sendMessage": "sendMessage",
+                              "canvasOpen": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "canvasOpen"
+                                }
+                              },
+                              "setOpen": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "setOpen"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "ShareModal": {
+        "name": "ShareModal",
+        "stateDefinitions": {
+          "internalOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "openConfirmationModal": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "sharePublic": {
+            "type": "boolean",
+            "defaultValue": true
+          },
+          "selectedTags": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "unavaliableNames": {
+            "type": "array",
+            "defaultValue": []
+          },
+          "loadingNames": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "version": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "hasStore": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "hasApiKey": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "propDefinitions": {
+          "component": {
+            "type": "object",
+            "defaultValue": null,
+            "isRequired": true
+          },
+          "is_component": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": true
+          },
+          "open": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          },
+          "setOpen": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": false
+          },
+          "disabled": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          }
+        },
+        "importDefinitions": {
+          "BaseModal": {
+            "type": "local",
+            "path": "../baseModal"
+          },
+          "ConfirmationModal": {
+            "type": "local",
+            "path": "../confirmationModal"
+          },
+          "EditFlowSettings": {
+            "type": "local",
+            "path": "../../components/core/editFlowSettingsComponent"
+          },
+          "TagsSelector": {
+            "type": "local",
+            "path": "../../components/common/tagsSelectorComponent"
+          },
+          "Checkbox": {
+            "type": "local",
+            "path": "../../components/ui/checkbox"
+          },
+          "Button": {
+            "type": "local",
+            "path": "../../components/ui/button"
+          },
+          "ExportModal": {
+            "type": "local",
+            "path": "../exportModal"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "div",
+          "name": "shareModalWrapper",
+          "children": [
+            {
+              "type": "element",
+              "elementType": "BaseModal",
+              "name": "shareModal",
+              "attrs": {
+                "size": "smaller-h-full",
+                "open": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "!disabled && internalOpen"
+                  }
+                },
+                "setOpen": "internalSetOpen"
+              },
+              "events": {
+                "onSubmit": [
+                  {
+                    "type": "propCall",
+                    "calls": "handleSubmit"
+                  }
+                ]
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "BaseModal.Trigger",
+                  "name": "shareModalTrigger",
+                  "attrs": {
+                    "asChild": true
+                  },
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "reference": {
+                        "type": "slot",
+                        "fallback": {
+                          "type": "element",
+                          "elementType": "div",
+                          "name": "emptyTrigger"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "BaseModal.Header",
+                  "name": "shareModalHeader",
+                  "attrs": {
+                    "description": {
+                      "type": "dynamic",
+                      "content": "`Publish ${is_component ? 'your component' : 'workflow'} to the Langflow Store.`"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "span",
+                      "name": "shareTitle",
+                      "attrs": {
+                        "className": "pr-2"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Share"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "IconComponent",
+                      "name": "shareIcon",
+                      "attrs": {
+                        "name": "Share3",
+                        "className": "-m-0.5 h-6 w-6 text-foreground",
+                        "aria-hidden": "true"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "BaseModal.Content",
+                  "name": "shareModalContent",
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "open"
+                        }
+                      },
+                      "node": {
+                        "type": "element",
+                        "elementType": "div",
+                        "name": "shareFormContent",
+                        "children": [
+                          {
+                            "type": "element",
+                            "elementType": "div",
+                            "name": "settingsWrapper",
+                            "attrs": {
+                              "className": "w-full rounded-lg border border-border p-4"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "elementType": "EditFlowSettings",
+                                "name": "editFlowSettings",
+                                "attrs": {
+                                  "name": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "component.name"
+                                    }
+                                  },
+                                  "description": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "component.description"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "elementType": "div",
+                            "name": "tagsWrapper",
+                            "attrs": {
+                              "className": "mt-3 flex h-8 w-full"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "elementType": "TagsSelector",
+                                "name": "tagsSelector",
+                                "attrs": {
+                                  "tags": "tags ?? []",
+                                  "loadingTags": false,
+                                  "disabled": false,
+                                  "selectedTags": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "selectedTags"
+                                    }
+                                  }
+                                },
+                                "events": {
+                                  "setSelectedTags": [
+                                    {
+                                      "type": "stateChange",
+                                      "modifies": "selectedTags",
+                                      "newState": "tags"
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "elementType": "div",
+                            "name": "publicCheckboxWrapper",
+                            "attrs": {
+                              "className": "mb-2 mt-5 flex items-center space-x-2"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "elementType": "Checkbox",
+                                "name": "publicCheckbox",
+                                "attrs": {
+                                  "id": "public",
+                                  "checked": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "sharePublic"
+                                    }
+                                  },
+                                  "data-testid": "public-checkbox"
+                                },
+                                "events": {
+                                  "onCheckedChange": [
+                                    {
+                                      "type": "stateChange",
+                                      "modifies": "sharePublic",
+                                      "newState": "event"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "element",
+                                "elementType": "label",
+                                "name": "publicLabel",
+                                "attrs": {
+                                  "htmlFor": "public",
+                                  "className": "export-modal-save-api text-sm"
+                                },
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Set "
+                                  },
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "is_component ? 'component' : 'workflow'"
+                                    }
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": " status to public"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "element",
+                            "elementType": "span",
+                            "name": "warningText",
+                            "attrs": {
+                              "className": "text-xs text-destructive"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "elementType": "b",
+                                "children": [
+                                  {
+                                    "type": "static",
+                                    "content": "Attention:"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "static",
+                                "content": " API keys in specified fields are automatically removed upon sharing."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "BaseModal.Footer",
+                  "name": "shareModalFooter",
+                  "attrs": {
+                    "submit": {
+                      "label": {
+                        "type": "dynamic",
+                        "content": "`Share ${is_component ? 'Component' : 'Flow'}`"
+                      },
+                      "loading": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "loadingNames"
+                        }
+                      },
+                      "dataTestId": "share-modal-button-flow"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "footerActions",
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "!is_component"
+                            }
+                          },
+                          "conditions": {
+                            "true": {
+                              "type": "element",
+                              "elementType": "ExportModal",
+                              "name": "exportModalWrapper",
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "elementType": "Button",
+                                  "name": "exportButton",
+                                  "attrs": {
+                                    "type": "button",
+                                    "variant": "outline",
+                                    "className": "gap-2"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "elementType": "IconComponent",
+                                      "name": "downloadIcon",
+                                      "attrs": {
+                                        "name": "Download",
+                                        "className": "h-4 w-4"
+                                      }
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "Export"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            "false": {
+                              "type": "element",
+                              "elementType": "Button",
+                              "name": "exportComponentButton",
+                              "attrs": {
+                                "type": "button",
+                                "variant": "outline",
+                                "className": "gap-2"
+                              },
+                              "events": {
+                                "onClick": [
+                                  {
+                                    "type": "propCall",
+                                    "calls": "handleExportComponent"
+                                  },
+                                  {
+                                    "type": "stateChange",
+                                    "modifies": "internalOpen",
+                                    "newState": false
+                                  }
+                                ]
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "elementType": "IconComponent",
+                                  "name": "downloadIcon",
+                                  "attrs": {
+                                    "name": "Download",
+                                    "className": "h-4 w-4"
+                                  }
+                                },
+                                {
+                                  "type": "static",
+                                  "content": "Export"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "ConfirmationModal",
+              "name": "confirmationModal",
+              "attrs": {
+                "open": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "openConfirmationModal"
+                  }
+                },
+                "title": "Replace",
+                "cancelText": "Cancel",
+                "confirmationText": "Replace",
+                "size": "x-small",
+                "icon": "SaveAll",
+                "index": 6
+              },
+              "events": {
+                "onConfirm": [
+                  {
+                    "type": "propCall",
+                    "calls": "handleUpdateComponent"
+                  },
+                  {
+                    "type": "stateChange",
+                    "modifies": "openConfirmationModal",
+                    "newState": false
+                  }
+                ],
+                "onCancel": [
+                  {
+                    "type": "stateChange",
+                    "modifies": "openConfirmationModal",
+                    "newState": false
+                  }
+                ]
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "ConfirmationModal.Content",
+                  "name": "confirmationContent",
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "span",
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "It seems "
+                        },
+                        {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "component.name"
+                          }
+                        },
+                        {
+                          "type": "static",
+                          "content": " already exists. Do you want to replace it with the current?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "br"
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "span",
+                      "attrs": {
+                        "className": "text-xs text-destructive"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Note: This action is irreversible."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "DeleteConfirmationModal": {
+        "name": "DeleteConfirmationModal",
+        "stateDefinitions": {
+          "isOpen": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "propDefinitions": {
+          "onConfirm": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": true
+          },
+          "onCancel": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": true
+          },
+          "title": {
+            "type": "string",
+            "defaultValue": "Delete Confirmation",
+            "isRequired": false
+          },
+          "description": {
+            "type": "string",
+            "defaultValue": "",
+            "isRequired": false
+          },
+          "itemName": {
+            "type": "string",
+            "defaultValue": "",
+            "isRequired": false
+          }
+        },
+        "importDefinitions": {
+          "BaseModal": {
+            "type": "local",
+            "path": "../baseModal"
+          },
+          "Button": {
+            "type": "local",
+            "path": "../../components/ui/button"
+          },
+          "ForwardedIconComponent": {
+            "type": "local",
+            "path": "../../components/common/genericIconComponent"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "BaseModal",
+          "name": "deleteConfirmationModal",
+          "attrs": {
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "isOpen"
+              }
+            },
+            "setOpen": "setIsOpen",
+            "size": "small"
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "BaseModal.Header",
+              "name": "deleteModalHeader",
+              "attrs": {
+                "description": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "description"
+                  }
+                }
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "span",
+                  "name": "deleteTitle",
+                  "attrs": {
+                    "className": "pr-2"
+                  },
+                  "children": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "title"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "ForwardedIconComponent",
+                  "name": "deleteIcon",
+                  "attrs": {
+                    "name": "Trash2",
+                    "className": "-m-0.5 h-6 w-6 text-destructive",
+                    "aria-hidden": "true"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "BaseModal.Content",
+              "name": "deleteModalContent",
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "deleteConfirmationText",
+                  "attrs": {
+                    "className": "text-center"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "p",
+                      "name": "confirmationMessage",
+                      "attrs": {
+                        "className": "mb-4"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Are you sure you want to delete"
+                        },
+                        {
+                          "type": "conditional",
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "itemName"
+                            }
+                          },
+                          "node": {
+                            "type": "element",
+                            "elementType": "span",
+                            "name": "itemNameSpan",
+                            "attrs": {
+                              "className": "font-semibold"
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": " \""
+                              },
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "itemName"
+                                }
+                              },
+                              {
+                                "type": "static",
+                                "content": "\""
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "static",
+                          "content": "?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "p",
+                      "name": "warningMessage",
+                      "attrs": {
+                        "className": "text-sm text-muted-foreground"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "This action cannot be undone."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "BaseModal.Footer",
+              "name": "deleteModalFooter",
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "deleteModalActions",
+                  "attrs": {
+                    "className": "flex gap-2"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "Button",
+                      "name": "cancelButton",
+                      "attrs": {
+                        "variant": "outline"
+                      },
+                      "events": {
+                        "onClick": [
+                          {
+                            "type": "propCall",
+                            "calls": "onCancel"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Cancel"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "Button",
+                      "name": "deleteButton",
+                      "attrs": {
+                        "variant": "destructive"
+                      },
+                      "events": {
+                        "onClick": [
+                          {
+                            "type": "propCall",
+                            "calls": "onConfirm"
+                          }
+                        ]
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Delete"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "ExportModal": {
+        "name": "ExportModal",
+        "stateDefinitions": {
+          "exportOptions": {
+            "type": "object",
+            "defaultValue": {
+              "includeApiKeys": false,
+              "format": "json"
+            }
+          }
+        },
+        "propDefinitions": {
+          "component": {
+            "type": "object",
+            "defaultValue": null,
+            "isRequired": true
+          },
+          "open": {
+            "type": "boolean",
+            "defaultValue": false,
+            "isRequired": false
+          },
+          "setOpen": {
+            "type": "function",
+            "defaultValue": null,
+            "isRequired": false
+          }
+        },
+        "importDefinitions": {
+          "BaseModal": {
+            "type": "local",
+            "path": "../baseModal"
+          },
+          "Checkbox": {
+            "type": "local",
+            "path": "../../components/ui/checkbox"
+          },
+          "Button": {
+            "type": "local",
+            "path": "../../components/ui/button"
+          },
+          "ForwardedIconComponent": {
+            "type": "local",
+            "path": "../../components/common/genericIconComponent"
+          }
+        },
+        "node": {
+          "type": "element",
+          "elementType": "BaseModal",
+          "name": "exportModal",
+          "attrs": {
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "open"
+              }
+            },
+            "setOpen": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "setOpen"
+              }
+            },
+            "size": "medium"
+          },
+          "events": {
+            "onSubmit": [
+              {
+                "type": "propCall",
+                "calls": "handleExport"
+              }
+            ]
+          },
+          "children": [
+            {
+              "type": "element",
+              "elementType": "BaseModal.Header",
+              "name": "exportModalHeader",
+              "attrs": {
+                "description": "Export your flow or component to share or backup."
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "span",
+                  "name": "exportTitle",
+                  "attrs": {
+                    "className": "pr-2"
+                  },
+                  "children": [
+                    {
+                      "type": "static",
+                      "content": "Export"
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "elementType": "ForwardedIconComponent",
+                  "name": "exportIcon",
+                  "attrs": {
+                    "name": "Download",
+                    "className": "-m-0.5 h-6 w-6 text-foreground",
+                    "aria-hidden": "true"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "BaseModal.Content",
+              "name": "exportModalContent",
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "div",
+                  "name": "exportOptions",
+                  "attrs": {
+                    "className": "space-y-4"
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "elementType": "div",
+                      "name": "apiKeysOption",
+                      "attrs": {
+                        "className": "flex items-center space-x-2"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "elementType": "Checkbox",
+                          "name": "includeApiKeysCheckbox",
+                          "attrs": {
+                            "id": "includeApiKeys",
+                            "checked": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "exportOptions.includeApiKeys"
+                              }
+                            }
+                          },
+                          "events": {
+                            "onCheckedChange": [
+                              {
+                                "type": "stateChange",
+                                "modifies": "exportOptions.includeApiKeys",
+                                "newState": "checked"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "elementType": "label",
+                          "name": "apiKeysLabel",
+                          "attrs": {
+                            "htmlFor": "includeApiKeys",
+                            "className": "text-sm font-medium"
+                          },
+                          "children": [
+                            {
+                              "type": "static",
+                              "content": "Include API keys"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "elementType": "p",
+                      "name": "apiKeysWarning",
+                      "attrs": {
+                        "className": "text-xs text-muted-foreground"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Warning: Including API keys may expose sensitive information. Only enable this if you trust the recipients."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "elementType": "BaseModal.Footer",
+              "name": "exportModalFooter",
+              "attrs": {
+                "submit": {
+                  "label": "Export",
+                  "loading": false,
+                  "dataTestId": "export-button"
+                }
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "elementType": "Button",
+                  "name": "cancelExportButton",
+                  "attrs": {
+                    "variant": "outline"
+                  },
+                  "events": {
+                    "onClick": [
+                      {
+                        "type": "propCall",
+                        "calls": "setOpen",
+                        "args": [false]
+                      }
+                    ]
+                  },
+                  "children": [
+                    {
+                      "type": "static",
+                      "content": "Cancel"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

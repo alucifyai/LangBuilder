@@ -1,0 +1,3551 @@
+{
+  "metadata": {
+    "totalComponents": 548,
+    "generatedDate": "2025-09-03",
+    "version": "1.0.0",
+    "framework": "React",
+    "description": "Comprehensive UIDL definitions for all LangBuilder frontend components following TeleportHQ format",
+    "baseDirectory": "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src",
+    "format": "TeleportHQ UIDL v4.0"
+  },
+  "components": {
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/App.tsx": {
+      "name": "App",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "div",
+          "name": "AppRoot",
+          "attrs": {
+            "className": "app-root h-full w-full"
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "suspense",
+                "name": "SuspenseWrapper",
+                "attrs": {
+                  "fallback": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "LoadingFallback",
+                      "attrs": {
+                        "className": "flex h-full w-full items-center justify-center"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "loadingPage",
+                            "name": "LoadingPageComponent",
+                            "attrs": {}
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "RouterProvider",
+                      "name": "MainRouter",
+                      "attrs": {
+                        "router": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "import",
+                            "id": "router"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {},
+      "stateDefinitions": {
+        "dark": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "actions": {
+        "handleThemeChange": {
+          "type": "multi-action",
+          "actions": [
+            {
+              "type": "conditional-action",
+              "condition": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "dark"
+                }
+              },
+              "trueAction": {
+                "type": "dom-manipulation",
+                "target": "body",
+                "action": "addClass",
+                "value": "dark"
+              },
+              "falseAction": {
+                "type": "dom-manipulation",
+                "target": "body",
+                "action": "removeClass",
+                "value": "dark"
+              }
+            }
+          ]
+        }
+      },
+      "importDefinitions": {
+        "RouterProvider": {
+          "type": "external",
+          "path": "react-router-dom"
+        },
+        "LoadingPage": {
+          "type": "local",
+          "path": "./pages/LoadingPage"
+        },
+        "router": {
+          "type": "local",
+          "path": "./routes"
+        },
+        "useDarkStore": {
+          "type": "local",
+          "path": "./stores/darkStore"
+        }
+      }
+    },
+    
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/modals/baseModal/index.tsx": {
+      "name": "BaseModal",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "modal",
+          "name": "BaseModalWrapper",
+          "attrs": {
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "open"
+              }
+            },
+            "onOpenChange": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "event",
+                "id": "handleOpenChange"
+              }
+            },
+            "className": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "modalClasses"
+              }
+            }
+          },
+          "children": [
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "div",
+                    "name": "DialogTrigger",
+                    "attrs": {
+                      "className": "w-full"
+                    },
+                    "children": [
+                      {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "triggerChildren"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "hasTrigger"
+                  }
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "DialogContent",
+                "attrs": {
+                  "className": "flex flex-col flex-1 gap-6 overflow-hidden"
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "DialogHeader",
+                          "attrs": {},
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "h2",
+                                "name": "DialogTitle",
+                                "attrs": {
+                                  "className": "line-clamp-1 flex items-center pb-0.5 text-base"
+                                },
+                                "children": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "title"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "conditional",
+                              "content": {
+                                "node": {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "p",
+                                    "name": "DialogDescription",
+                                    "attrs": {
+                                      "className": "text-sm text-muted-foreground"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "prop",
+                                          "id": "description"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "reference": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "prop",
+                                    "id": "hasDescription"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "hasHeader"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "ModalContent",
+                      "attrs": {
+                        "className": "flex flex-1 flex-col rounded-md transition-all duration-300 overflow-auto"
+                      },
+                      "children": [
+                        {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "contentChildren"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "ModalFooter",
+                          "attrs": {
+                            "className": "flex flex-shrink-0 flex-row-reverse"
+                          },
+                          "children": [
+                            {
+                              "type": "conditional",
+                              "content": {
+                                "node": {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "name": "FooterButtonGroup",
+                                    "attrs": {
+                                      "className": "flex w-full items-center justify-between"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "div",
+                                          "name": "FooterLeftSection",
+                                          "attrs": {},
+                                          "children": [
+                                            {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "prop",
+                                                "id": "footerLeftContent"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "div",
+                                          "name": "FooterRightSection",
+                                          "attrs": {
+                                            "className": "flex items-center gap-3"
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "button",
+                                                "name": "CancelButton",
+                                                "attrs": {
+                                                  "variant": "outline",
+                                                  "type": "button",
+                                                  "onClick": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "event",
+                                                      "id": "handleCancel"
+                                                    }
+                                                  },
+                                                  "data-testid": "btn-cancel-modal"
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Cancel"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "button",
+                                                "name": "SubmitButton",
+                                                "attrs": {
+                                                  "type": {
+                                                    "type": "conditional",
+                                                    "content": {
+                                                      "trueValue": "button",
+                                                      "falseValue": "submit",
+                                                      "condition": {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "prop",
+                                                          "id": "hasOnClick"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "onClick": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "event",
+                                                      "id": "handleSubmit"
+                                                    }
+                                                  },
+                                                  "loading": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "prop",
+                                                      "id": "submitLoading"
+                                                    }
+                                                  },
+                                                  "disabled": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "prop",
+                                                      "id": "submitDisabled"
+                                                    }
+                                                  },
+                                                  "data-testid": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "prop",
+                                                      "id": "submitDataTestId"
+                                                    }
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "conditional",
+                                                    "content": {
+                                                      "node": {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "prop",
+                                                          "id": "submitIcon"
+                                                        }
+                                                      },
+                                                      "reference": {
+                                                        "type": "dynamic",
+                                                        "content": {
+                                                          "referenceType": "prop",
+                                                          "id": "hasSubmitIcon"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "prop",
+                                                      "id": "submitLabel"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "reference": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "prop",
+                                    "id": "hasSubmit"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "hasFooter"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "children": {
+          "type": "element",
+          "defaultValue": null
+        },
+        "open": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "setOpen": {
+          "type": "func",
+          "defaultValue": null
+        },
+        "size": {
+          "type": "string",
+          "defaultValue": "large"
+        },
+        "className": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "disable": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "onChangeOpenModal": {
+          "type": "func",
+          "defaultValue": null
+        },
+        "type": {
+          "type": "string",
+          "defaultValue": "dialog"
+        },
+        "onSubmit": {
+          "type": "func",
+          "defaultValue": null
+        },
+        "title": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "description": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "submitLabel": {
+          "type": "string",
+          "defaultValue": "Submit"
+        },
+        "submitLoading": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "submitDisabled": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "stateDefinitions": {
+        "modalClasses": {
+          "type": "string",
+          "defaultValue": "flex flex-col flex-1 overflow-hidden max-h-[98dvh]"
+        },
+        "hasHeader": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "hasFooter": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "hasSubmit": {
+          "type": "boolean",
+          "defaultValue": true
+        }
+      },
+      "actions": {
+        "handleOpenChange": {
+          "type": "set-state",
+          "modifies": "open",
+          "newState": "$event"
+        },
+        "handleCancel": {
+          "type": "set-state",
+          "modifies": "open",
+          "newState": false
+        },
+        "handleSubmit": {
+          "type": "func-call",
+          "function": "onSubmit"
+        }
+      },
+      "importDefinitions": {
+        "Dialog": {
+          "type": "local",
+          "path": "../../components/ui/dialog"
+        },
+        "Button": {
+          "type": "local",
+          "path": "../../components/ui/button"
+        },
+        "Form": {
+          "type": "external",
+          "path": "@radix-ui/react-form"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/components/core/GlobalVariableModal/GlobalVariableModal.tsx": {
+      "name": "GlobalVariableModal",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "modal",
+          "name": "GlobalVariableConfigurationModal",
+          "attrs": {
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "open"
+              }
+            },
+            "setOpen": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "setOpen"
+              }
+            },
+            "size": "x-small",
+            "onSubmit": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "event",
+                "id": "submitForm"
+              }
+            },
+            "disable": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "disabled"
+              }
+            }
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "ModalHeader",
+                "attrs": {
+                  "className": "flex items-center gap-2",
+                  "description": "This variable will be available for use across your flows."
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "icon",
+                      "name": "GlobalIcon",
+                      "attrs": {
+                        "name": "Globe",
+                        "className": "h-6 w-6 pr-1 text-primary",
+                        "aria-hidden": "true"
+                      }
+                    }
+                  },
+                  {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "modalTitle"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "ModalContent",
+                "attrs": {
+                  "className": "flex h-full w-full flex-col gap-4"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "TypeSection",
+                      "attrs": {
+                        "className": "space-y-2"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "label",
+                            "name": "TypeLabel",
+                            "attrs": {},
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Type*"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "tabs",
+                            "name": "VariableTypeTabs",
+                            "attrs": {
+                              "defaultValue": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "type"
+                                }
+                              },
+                              "onValueChange": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "event",
+                                  "id": "handleTypeChange"
+                                }
+                              },
+                              "className": "w-full"
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "tabsList",
+                                  "name": "TabsList",
+                                  "attrs": {
+                                    "className": "grid w-full grid-cols-2"
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "tabsTrigger",
+                                        "name": "CredentialTab",
+                                        "attrs": {
+                                          "disabled": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "isTypeDisabled"
+                                            }
+                                          },
+                                          "data-testid": "credential-tab",
+                                          "value": "Credential"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Credential"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "tabsTrigger",
+                                        "name": "GenericTab",
+                                        "attrs": {
+                                          "disabled": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "isTypeDisabled"
+                                            }
+                                          },
+                                          "data-testid": "generic-tab",
+                                          "value": "Generic"
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "static",
+                                            "content": "Generic"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "NameSection",
+                      "attrs": {
+                        "className": "space-y-2",
+                        "id": "global-variable-modal-inputs"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "label",
+                            "name": "NameLabel",
+                            "attrs": {},
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Name*"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "input",
+                            "name": "VariableNameInput",
+                            "attrs": {
+                              "value": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "key"
+                                }
+                              },
+                              "onChange": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "event",
+                                  "id": "handleNameChange"
+                                }
+                              },
+                              "placeholder": "Enter a name for the variable..."
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "ValueSection",
+                      "attrs": {
+                        "className": "space-y-2"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "label",
+                            "name": "ValueLabel",
+                            "attrs": {},
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Value*"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "input",
+                                "name": "CredentialValueInput",
+                                "attrs": {
+                                  "password": true,
+                                  "value": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "value"
+                                    }
+                                  },
+                                  "onChange": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "event",
+                                      "id": "handleValueChange"
+                                    }
+                                  },
+                                  "placeholder": "Enter a value for the variable...",
+                                  "nodeStyle": true
+                                }
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "isCredentialType"
+                              }
+                            },
+                            "alternate": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "input",
+                                "name": "GenericValueInput",
+                                "attrs": {
+                                  "value": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "value"
+                                    }
+                                  },
+                                  "onChange": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "event",
+                                      "id": "handleValueChange"
+                                    }
+                                  },
+                                  "placeholder": "Enter a value for the variable..."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "FieldsSection",
+                      "attrs": {
+                        "className": "space-y-2"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "label",
+                            "name": "FieldsLabel",
+                            "attrs": {},
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Apply to fields"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "multiSelect",
+                            "name": "ApplyToFieldsInput",
+                            "attrs": {
+                              "setSelectedOptions": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "event",
+                                  "id": "handleFieldsChange"
+                                }
+                              },
+                              "selectedOptions": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "fields"
+                                }
+                              },
+                              "options": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "availableFields"
+                                }
+                              },
+                              "password": false,
+                              "placeholder": "Choose a field for the variable...",
+                              "id": "apply-to-fields",
+                              "popoverWidth": "29rem",
+                              "optionsPlaceholder": "Fields"
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "div",
+                            "name": "FieldsHelpText",
+                            "attrs": {
+                              "className": "text-xs text-muted-foreground"
+                            },
+                            "children": [
+                              {
+                                "type": "static",
+                                "content": "Selected fields will auto-apply the variable as a default value."
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "ModalFooter",
+                "attrs": {},
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "button",
+                      "name": "SaveVariableButton",
+                      "attrs": {
+                        "label": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "submitButtonText"
+                          }
+                        },
+                        "dataTestId": "save-variable-btn"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "children": {
+          "type": "element",
+          "defaultValue": null
+        },
+        "asChild": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "initialData": {
+          "type": "object",
+          "defaultValue": null
+        },
+        "referenceField": {
+          "type": "string",
+          "defaultValue": null
+        },
+        "open": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "setOpen": {
+          "type": "func",
+          "defaultValue": null
+        },
+        "disabled": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "stateDefinitions": {
+        "key": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "value": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "type": {
+          "type": "string",
+          "defaultValue": "Credential"
+        },
+        "fields": {
+          "type": "array",
+          "defaultValue": []
+        },
+        "availableFields": {
+          "type": "array",
+          "defaultValue": []
+        },
+        "modalTitle": {
+          "type": "string",
+          "defaultValue": "Create Variable"
+        },
+        "submitButtonText": {
+          "type": "string",
+          "defaultValue": "Save Variable"
+        },
+        "isCredentialType": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "isTypeDisabled": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "actions": {
+        "handleTypeChange": {
+          "type": "set-state",
+          "modifies": "type",
+          "newState": "$event"
+        },
+        "handleNameChange": {
+          "type": "set-state",
+          "modifies": "key",
+          "newState": "$event.target.value"
+        },
+        "handleValueChange": {
+          "type": "set-state",
+          "modifies": "value",
+          "newState": "$event"
+        },
+        "handleFieldsChange": {
+          "type": "set-state",
+          "modifies": "fields",
+          "newState": "$event"
+        },
+        "submitForm": {
+          "type": "async-action",
+          "actions": [
+            {
+              "type": "api-call",
+              "endpoint": "/api/global-variables",
+              "method": "POST",
+              "data": {
+                "name": "$state.key",
+                "value": "$state.value",
+                "type": "$state.type",
+                "default_fields": "$state.fields"
+              }
+            }
+          ]
+        }
+      },
+      "importDefinitions": {
+        "ForwardedIconComponent": {
+          "type": "local",
+          "path": "@/components/common/genericIconComponent"
+        },
+        "Input": {
+          "type": "local",
+          "path": "@/components/ui/input"
+        },
+        "Label": {
+          "type": "local",
+          "path": "@/components/ui/label"
+        },
+        "Tabs": {
+          "type": "local",
+          "path": "@/components/ui/tabs-button"
+        },
+        "BaseModal": {
+          "type": "local",
+          "path": "@/modals/baseModal"
+        },
+        "InputComponent": {
+          "type": "local",
+          "path": "../parameterRenderComponent/components/inputComponent"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/modals/shareModal/index.tsx": {
+      "name": "ShareModal",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "modal",
+          "name": "ShareComponentModal",
+          "attrs": {
+            "size": "smaller-h-full",
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "internalOpen"
+              }
+            },
+            "setOpen": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "event",
+                "id": "handleSetOpen"
+              }
+            },
+            "onSubmit": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "event",
+                "id": "handleShare"
+              }
+            }
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "ShareModalHeader",
+                "attrs": {
+                  "className": "flex items-center gap-2",
+                  "description": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "modalDescription"
+                    }
+                  }
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "span",
+                      "name": "ShareTitle",
+                      "attrs": {
+                        "className": "pr-2"
+                      },
+                      "children": [
+                        {
+                          "type": "static",
+                          "content": "Share"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "icon",
+                      "name": "ShareIcon",
+                      "attrs": {
+                        "name": "Share3",
+                        "className": "-m-0.5 h-6 w-6 text-foreground",
+                        "aria-hidden": "true"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "ShareModalContent",
+                "attrs": {
+                  "className": "space-y-4"
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "ShareFormContent",
+                          "attrs": {},
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "div",
+                                "name": "FlowSettingsSection",
+                                "attrs": {
+                                  "className": "w-full rounded-lg border border-border p-4"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "flowSettings",
+                                      "name": "EditFlowSettings",
+                                      "attrs": {
+                                        "name": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "componentName"
+                                          }
+                                        },
+                                        "description": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "componentDescription"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "div",
+                                "name": "TagsSection",
+                                "attrs": {
+                                  "className": "mt-3 flex h-8 w-full"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "tagsSelector",
+                                      "name": "TagsSelector",
+                                      "attrs": {
+                                        "tags": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "tags"
+                                          }
+                                        },
+                                        "loadingTags": false,
+                                        "disabled": false,
+                                        "selectedTags": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "selectedTags"
+                                          }
+                                        },
+                                        "setSelectedTags": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "event",
+                                            "id": "handleTagsChange"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "div",
+                                "name": "PublicSection",
+                                "attrs": {
+                                  "className": "mb-2 mt-5 flex items-center space-x-2"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "checkbox",
+                                      "name": "PublicCheckbox",
+                                      "attrs": {
+                                        "id": "public",
+                                        "checked": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "sharePublic"
+                                          }
+                                        },
+                                        "onCheckedChange": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "event",
+                                            "id": "handlePublicChange"
+                                          }
+                                        },
+                                        "data-testid": "public-checkbox"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "label",
+                                      "name": "PublicLabel",
+                                      "attrs": {
+                                        "htmlFor": "public",
+                                        "className": "export-modal-save-api text-sm"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Set "
+                                        },
+                                        {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "nameComponent"
+                                          }
+                                        },
+                                        {
+                                          "type": "static",
+                                          "content": " status to public"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "span",
+                                "name": "ApiKeyWarning",
+                                "attrs": {
+                                  "className": "text-xs text-destructive"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "strong",
+                                      "name": "AttentionText",
+                                      "attrs": {},
+                                      "children": [
+                                        {
+                                          "type": "static",
+                                          "content": "Attention:"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": " API keys in specified fields are automatically removed upon sharing."
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "open"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "ShareModalFooter",
+                "attrs": {},
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "FooterButtons",
+                      "attrs": {
+                        "className": "flex items-center gap-3"
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "exportModal",
+                                "name": "ExportModal",
+                                "attrs": {},
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "button",
+                                      "name": "ExportFlowButton",
+                                      "attrs": {
+                                        "type": "button",
+                                        "variant": "outline",
+                                        "className": "gap-2"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "icon",
+                                            "name": "DownloadIcon",
+                                            "attrs": {
+                                              "name": "Download",
+                                              "className": "h-4 w-4"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "static",
+                                          "content": "Export"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "isNotComponent"
+                              }
+                            },
+                            "alternate": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "button",
+                                "name": "ExportComponentButton",
+                                "attrs": {
+                                  "type": "button",
+                                  "variant": "outline",
+                                  "className": "gap-2",
+                                  "onClick": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "event",
+                                      "id": "handleExportComponent"
+                                    }
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "icon",
+                                      "name": "DownloadIcon",
+                                      "attrs": {
+                                        "name": "Download",
+                                        "className": "h-4 w-4"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "static",
+                                    "content": "Export"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "button",
+                            "name": "ShareSubmitButton",
+                            "attrs": {
+                              "label": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "shareButtonText"
+                                }
+                              },
+                              "loading": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "loadingNames"
+                                }
+                              },
+                              "dataTestId": "share-modal-button-flow"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "children": {
+          "type": "element",
+          "defaultValue": null
+        },
+        "is_component": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "component": {
+          "type": "object",
+          "defaultValue": null
+        },
+        "open": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "setOpen": {
+          "type": "func",
+          "defaultValue": null
+        },
+        "disabled": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "stateDefinitions": {
+        "internalOpen": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "sharePublic": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "selectedTags": {
+          "type": "array",
+          "defaultValue": []
+        },
+        "nameComponent": {
+          "type": "string",
+          "defaultValue": "component"
+        },
+        "loadingNames": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "tags": {
+          "type": "array",
+          "defaultValue": []
+        },
+        "shareButtonText": {
+          "type": "string",
+          "defaultValue": "Share Component"
+        },
+        "isNotComponent": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "componentName": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "componentDescription": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "modalDescription": {
+          "type": "string",
+          "defaultValue": "Publish your component to the Langflow Store."
+        }
+      },
+      "actions": {
+        "handleSetOpen": {
+          "type": "set-state",
+          "modifies": "internalOpen",
+          "newState": "$event"
+        },
+        "handleShare": {
+          "type": "async-action",
+          "actions": [
+            {
+              "type": "api-call",
+              "endpoint": "/api/store/flows",
+              "method": "POST"
+            }
+          ]
+        },
+        "handlePublicChange": {
+          "type": "set-state",
+          "modifies": "sharePublic",
+          "newState": "$event"
+        },
+        "handleTagsChange": {
+          "type": "set-state",
+          "modifies": "selectedTags",
+          "newState": "$event"
+        },
+        "handleExportComponent": {
+          "type": "func-call",
+          "function": "downloadComponent"
+        }
+      },
+      "importDefinitions": {
+        "IconComponent": {
+          "type": "local",
+          "path": "../../components/common/genericIconComponent"
+        },
+        "TagsSelector": {
+          "type": "local",
+          "path": "../../components/common/tagsSelectorComponent"
+        },
+        "EditFlowSettings": {
+          "type": "local",
+          "path": "../../components/core/editFlowSettingsComponent"
+        },
+        "Button": {
+          "type": "local",
+          "path": "../../components/ui/button"
+        },
+        "Checkbox": {
+          "type": "local",
+          "path": "../../components/ui/checkbox"
+        },
+        "BaseModal": {
+          "type": "local",
+          "path": "../baseModal"
+        },
+        "ExportModal": {
+          "type": "local",
+          "path": "../exportModal"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/pages/FlowPage/index.tsx": {
+      "name": "FlowPage",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "fragment",
+          "name": "FlowPageWrapper",
+          "attrs": {},
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "FlowPageContainer",
+                "attrs": {
+                  "className": "flow-page-positioning"
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "FlowPageLayout",
+                          "attrs": {
+                            "className": "flex h-full overflow-hidden"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "sidebarProvider",
+                                "name": "MainSidebarProvider",
+                                "attrs": {
+                                  "width": "17.5rem",
+                                  "defaultOpen": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "state",
+                                      "id": "sidebarOpen"
+                                    }
+                                  }
+                                },
+                                "children": [
+                                  {
+                                    "type": "conditional",
+                                    "content": {
+                                      "node": {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "flowSidebar",
+                                          "name": "FlowSidebarComponent",
+                                          "attrs": {
+                                            "isLoading": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "state",
+                                                "id": "isLoading"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "reference": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "state",
+                                          "id": "shouldShowSidebar"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "main",
+                                      "name": "MainFlowArea",
+                                      "attrs": {
+                                        "className": "flex w-full overflow-hidden"
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "element",
+                                          "content": {
+                                            "elementType": "div",
+                                            "name": "FlowCanvasContainer",
+                                            "attrs": {
+                                              "className": "h-full w-full"
+                                            },
+                                            "children": [
+                                              {
+                                                "type": "element",
+                                                "content": {
+                                                  "elementType": "flowPage",
+                                                  "name": "FlowPageComponent",
+                                                  "attrs": {
+                                                    "setIsLoading": {
+                                                      "type": "dynamic",
+                                                      "content": {
+                                                        "referenceType": "event",
+                                                        "id": "handleSetLoading"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "hasCurrentFlow"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "div",
+                    "name": "SaveChangesModalContainer",
+                    "attrs": {},
+                    "children": [
+                      {
+                        "type": "conditional",
+                        "content": {
+                          "node": {
+                            "type": "element",
+                            "content": {
+                              "elementType": "saveChangesModal",
+                              "name": "SaveChangesModal",
+                              "attrs": {
+                                "onSave": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "event",
+                                    "id": "handleSave"
+                                  }
+                                },
+                                "onCancel": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "event",
+                                    "id": "handleCancel"
+                                  }
+                                },
+                                "onProceed": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "event",
+                                    "id": "handleExit"
+                                  }
+                                },
+                                "flowName": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "flowName"
+                                  }
+                                },
+                                "lastSaved": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "formattedLastSaved"
+                                  }
+                                },
+                                "autoSave": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "autoSaving"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "shouldShowSaveModal"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "isBlocked"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "view": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "stateDefinitions": {
+        "isLoading": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "hasCurrentFlow": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "sidebarOpen": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "shouldShowSidebar": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "isBlocked": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "shouldShowSaveModal": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "flowName": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "formattedLastSaved": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "autoSaving": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "changesNotSaved": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "isBuilding": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "actions": {
+        "handleSetLoading": {
+          "type": "set-state",
+          "modifies": "isLoading",
+          "newState": "$event"
+        },
+        "handleSave": {
+          "type": "async-action",
+          "actions": [
+            {
+              "type": "set-state",
+              "modifies": "isLoading",
+              "newState": true
+            },
+            {
+              "type": "api-call",
+              "endpoint": "/api/flows/:id",
+              "method": "PATCH"
+            },
+            {
+              "type": "set-state",
+              "modifies": "changesNotSaved",
+              "newState": false
+            },
+            {
+              "type": "set-state",
+              "modifies": "isLoading",
+              "newState": false
+            }
+          ]
+        },
+        "handleCancel": {
+          "type": "set-state",
+          "modifies": "isBlocked",
+          "newState": false
+        },
+        "handleExit": {
+          "type": "navigation",
+          "destination": "/all"
+        }
+      },
+      "importDefinitions": {
+        "useBlocker": {
+          "type": "external",
+          "path": "react-router-dom"
+        },
+        "useParams": {
+          "type": "external",
+          "path": "react-router-dom"
+        },
+        "SidebarProvider": {
+          "type": "local",
+          "path": "@/components/ui/sidebar"
+        },
+        "SaveChangesModal": {
+          "type": "local",
+          "path": "@/modals/saveChangesModal"
+        },
+        "FlowSidebarComponent": {
+          "type": "local",
+          "path": "./components/flowSidebarComponent"
+        },
+        "Page": {
+          "type": "local",
+          "path": "./components/PageComponent"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/components/ui/input.tsx": {
+      "name": "Input",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "label",
+          "name": "InputWrapper",
+          "attrs": {
+            "className": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "wrapperClasses"
+              }
+            }
+          },
+          "children": [
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "icon",
+                    "name": "InputIcon",
+                    "attrs": {
+                      "name": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "icon"
+                        }
+                      },
+                      "className": "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground"
+                    }
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "hasIcon"
+                  }
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "input",
+                "name": "InputField",
+                "attrs": {
+                  "autoComplete": "off",
+                  "type": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "type"
+                    }
+                  },
+                  "placeholder": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "placeholder"
+                    }
+                  },
+                  "className": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "inputClasses"
+                    }
+                  },
+                  "value": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "value"
+                    }
+                  },
+                  "onChange": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "handleChange"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "span",
+                "name": "PlaceholderText",
+                "attrs": {
+                  "className": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "placeholderClasses"
+                    }
+                  }
+                },
+                "children": [
+                  {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "placeholder"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "icon": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "inputClassName": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "placeholder": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "type": {
+          "type": "string",
+          "defaultValue": "text"
+        },
+        "className": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "value": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "onChange": {
+          "type": "func",
+          "defaultValue": null
+        }
+      },
+      "stateDefinitions": {
+        "hasIcon": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "wrapperClasses": {
+          "type": "string",
+          "defaultValue": "relative block h-fit w-full text-sm"
+        },
+        "inputClasses": {
+          "type": "string",
+          "defaultValue": "nopan nodelete nodrag noflow primary-input !placeholder-transparent"
+        },
+        "placeholderClasses": {
+          "type": "string",
+          "defaultValue": "pointer-events-none absolute top-1/2 -translate-y-1/2 pl-px text-placeholder-foreground left-3"
+        }
+      },
+      "actions": {
+        "handleChange": {
+          "type": "event-forward",
+          "eventTarget": "onChange"
+        }
+      },
+      "importDefinitions": {
+        "cn": {
+          "type": "local",
+          "path": "../../utils/utils"
+        },
+        "ForwardedIconComponent": {
+          "type": "local",
+          "path": "../common/genericIconComponent"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/components/ui/button.tsx": {
+      "name": "Button",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "button",
+          "name": "ButtonElement",
+          "attrs": {
+            "className": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "buttonClasses"
+              }
+            },
+            "disabled": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "isDisabled"
+              }
+            },
+            "type": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "type"
+              }
+            },
+            "onClick": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "event",
+                "id": "handleClick"
+              }
+            }
+          },
+          "children": [
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "span",
+                    "name": "LoadingContainer",
+                    "attrs": {
+                      "className": "relative flex items-center justify-center"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "span",
+                          "name": "InvisibleContent",
+                          "attrs": {
+                            "className": "invisible flex items-center justify-center gap-2 !p-0"
+                          },
+                          "children": [
+                            {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "processedChildren"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "span",
+                          "name": "LoadingSpinner",
+                          "attrs": {
+                            "className": "absolute inset-0 flex items-center justify-center"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "icon",
+                                "name": "LoaderIcon",
+                                "attrs": {
+                                  "name": "Loader2",
+                                  "className": "h-full w-full animate-spin"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "loading"
+                  }
+                },
+                "alternate": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "processedChildren"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "variant": {
+          "type": "string",
+          "defaultValue": "default"
+        },
+        "size": {
+          "type": "string",
+          "defaultValue": "default"
+        },
+        "asChild": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "loading": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "unstyled": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "ignoreTitleCase": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "type": {
+          "type": "string",
+          "defaultValue": "button"
+        },
+        "disabled": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "className": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "onClick": {
+          "type": "func",
+          "defaultValue": null
+        },
+        "children": {
+          "type": "element",
+          "defaultValue": null
+        }
+      },
+      "stateDefinitions": {
+        "isDisabled": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "buttonClasses": {
+          "type": "string",
+          "defaultValue": "noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none"
+        },
+        "processedChildren": {
+          "type": "element",
+          "defaultValue": null
+        }
+      },
+      "actions": {
+        "handleClick": {
+          "type": "event-forward",
+          "eventTarget": "onClick"
+        }
+      },
+      "importDefinitions": {
+        "Slot": {
+          "type": "external",
+          "path": "@radix-ui/react-slot"
+        },
+        "cva": {
+          "type": "external",
+          "path": "class-variance-authority"
+        },
+        "cn": {
+          "type": "local",
+          "path": "../../utils/utils"
+        },
+        "ForwardedIconComponent": {
+          "type": "local",
+          "path": "../common/genericIconComponent"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/CustomNodes/GenericNode/index.tsx": {
+      "name": "GenericNode",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "div",
+          "name": "GenericNodeContainer",
+          "attrs": {
+            "className": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "state",
+                "id": "nodeClasses"
+              }
+            }
+          },
+          "children": [
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "NodeHeader",
+                "attrs": {
+                  "className": "flex items-center justify-between p-2 border-b border-border"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "NodeHeaderLeft",
+                      "attrs": {
+                        "className": "flex items-center gap-2"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "nodeIcon",
+                            "name": "NodeIcon",
+                            "attrs": {
+                              "dataType": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "nodeType"
+                                }
+                              },
+                              "showNode": true,
+                              "icon": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "nodeIcon"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "nodeName",
+                            "name": "NodeName",
+                            "attrs": {
+                              "display_name": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "displayName"
+                                }
+                              },
+                              "selected": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "selected"
+                                }
+                              },
+                              "nodeId": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "nodeId"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "name": "NodeHeaderRight",
+                      "attrs": {
+                        "className": "flex items-center gap-1"
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "nodeStatus",
+                            "name": "NodeStatus",
+                            "attrs": {
+                              "data": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "data"
+                                }
+                              },
+                              "buildStatus": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "state",
+                                  "id": "buildStatus"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "button",
+                                "name": "UpdateButton",
+                                "attrs": {
+                                  "onClick": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "event",
+                                      "id": "handleOpenUpdate"
+                                    }
+                                  },
+                                  "className": "h-5 w-5 rounded border bg-muted hover:bg-muted/80",
+                                  "size": "iconSm"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "icon",
+                                      "name": "UpdateIcon",
+                                      "attrs": {
+                                        "name": "RotateCcw",
+                                        "className": "h-3 w-3"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "showUpdateButton"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "div",
+                    "name": "NodeDescription",
+                    "attrs": {
+                      "className": "px-2 pb-1 text-xs text-muted-foreground"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "nodeDescription",
+                          "name": "NodeDescriptionComponent",
+                          "attrs": {
+                            "description": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "nodeDescription"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "hasDescription"
+                  }
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "div",
+                "name": "NodeBody",
+                "attrs": {
+                  "className": "flex flex-col gap-2 p-2"
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "content": {
+                      "elementType": "renderInputParameters",
+                      "name": "InputParameters",
+                      "attrs": {
+                        "data": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "data"
+                          }
+                        },
+                        "title": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "displayName"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "div",
+                    "name": "NodeOutputsSection",
+                    "attrs": {
+                      "className": "relative border-t border-border"
+                    },
+                    "children": [
+                      {
+                        "type": "conditional",
+                        "content": {
+                          "node": {
+                            "type": "element",
+                            "content": {
+                              "elementType": "button",
+                              "name": "HiddenOutputsToggleButton",
+                              "attrs": {
+                                "unstyled": true,
+                                "className": "group absolute right-2 top-2 flex h-[1.25rem] w-[1.25rem] items-center justify-center rounded-full border bg-muted hover:text-foreground",
+                                "onClick": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "event",
+                                    "id": "toggleHiddenOutputs"
+                                  }
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "icon",
+                                    "name": "ToggleIcon",
+                                    "attrs": {
+                                      "name": {
+                                        "type": "conditional",
+                                        "content": {
+                                          "trueValue": "ChevronsDownUp",
+                                          "falseValue": "ChevronsUpDown",
+                                          "condition": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "showHiddenOutputs"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "className": "h-3 w-3 text-placeholder-foreground group-hover:text-foreground"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "reference": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "state",
+                              "id": "hasHiddenOutputs"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "nodeOutputs",
+                          "name": "NodeOutputs",
+                          "attrs": {
+                            "nodeId": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "nodeId"
+                              }
+                            },
+                            "data": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "data"
+                              }
+                            },
+                            "showHiddenOutputs": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "state",
+                                "id": "showHiddenOutputs"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "hasOutputs"
+                  }
+                }
+              }
+            },
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "nodeToolbar",
+                    "name": "NodeToolbar",
+                    "attrs": {
+                      "nodeId": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "nodeId"
+                        }
+                      },
+                      "data": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "data"
+                        }
+                      }
+                    }
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "prop",
+                    "id": "selected"
+                  }
+                }
+              }
+            },
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "updateComponentModal",
+                    "name": "UpdateComponentModal",
+                    "attrs": {
+                      "open": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "openUpdateModal"
+                        }
+                      },
+                      "setOpen": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "event",
+                          "id": "handleSetOpenUpdate"
+                        }
+                      }
+                    }
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "openUpdateModal"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {
+        "data": {
+          "type": "object",
+          "defaultValue": null
+        },
+        "selected": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "xPos": {
+          "type": "number",
+          "defaultValue": 0
+        },
+        "yPos": {
+          "type": "number",
+          "defaultValue": 0
+        }
+      },
+      "stateDefinitions": {
+        "borderColor": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "loadingUpdate": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "showHiddenOutputs": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "openUpdateModal": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "buildStatus": {
+          "type": "object",
+          "defaultValue": null
+        },
+        "nodeClasses": {
+          "type": "string",
+          "defaultValue": "generic-node-div rounded-lg border border-border bg-background shadow-sm"
+        },
+        "showUpdateButton": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "hasDescription": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "hasOutputs": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "hasHiddenOutputs": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "actions": {
+        "handleOpenUpdate": {
+          "type": "set-state",
+          "modifies": "openUpdateModal",
+          "newState": true
+        },
+        "handleSetOpenUpdate": {
+          "type": "set-state",
+          "modifies": "openUpdateModal",
+          "newState": "$event"
+        },
+        "toggleHiddenOutputs": {
+          "type": "set-state",
+          "modifies": "showHiddenOutputs",
+          "newState": "!$currentState"
+        }
+      },
+      "importDefinitions": {
+        "useUpdateNodeInternals": {
+          "type": "external",
+          "path": "@xyflow/react"
+        },
+        "ForwardedIconComponent": {
+          "type": "local",
+          "path": "@/components/common/genericIconComponent"
+        },
+        "ShadTooltip": {
+          "type": "local",
+          "path": "@/components/common/shadTooltipComponent"
+        },
+        "Button": {
+          "type": "local",
+          "path": "../../components/ui/button"
+        },
+        "NodeToolbarComponent": {
+          "type": "local",
+          "path": "../../pages/FlowPage/components/nodeToolbarComponent"
+        },
+        "UpdateComponentModal": {
+          "type": "local",
+          "path": "@/modals/updateComponentModal"
+        },
+        "NodeDescription": {
+          "type": "local",
+          "path": "./components/NodeDescription"
+        },
+        "NodeName": {
+          "type": "local",
+          "path": "./components/NodeName"
+        },
+        "NodeOutputs": {
+          "type": "local",
+          "path": "./components/NodeOutputParameter/NodeOutputs"
+        },
+        "NodeIcon": {
+          "type": "local",
+          "path": "./components/nodeIcon"
+        },
+        "RenderInputParameters": {
+          "type": "local",
+          "path": "./components/RenderInputParameters"
+        }
+      }
+    },
+
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/pages/MainPage/pages/main-page.tsx": {
+      "name": "CollectionPage",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "sidebarProvider",
+          "name": "MainPageSidebarProvider",
+          "attrs": {
+            "width": "280px"
+          },
+          "children": [
+            {
+              "type": "conditional",
+              "content": {
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "sideBarFoldersButtons",
+                    "name": "SideBarFoldersButtons",
+                    "attrs": {
+                      "handleChangeFolder": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "event",
+                          "id": "handleChangeFolder"
+                        }
+                      },
+                      "handleDeleteFolder": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "event",
+                          "id": "handleDeleteFolder"
+                        }
+                      },
+                      "handleFilesClick": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "event",
+                          "id": "handleFilesClick"
+                        }
+                      }
+                    }
+                  }
+                },
+                "reference": {
+                  "type": "dynamic",
+                  "content": {
+                    "referenceType": "state",
+                    "id": "shouldShowSidebar"
+                  }
+                }
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "main",
+                "name": "MainContent",
+                "attrs": {
+                  "className": "flex h-full w-full overflow-hidden"
+                },
+                "children": [
+                  {
+                    "type": "conditional",
+                    "content": {
+                      "node": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "ContentArea",
+                          "attrs": {
+                            "className": "relative mx-auto flex h-full w-full flex-col overflow-hidden"
+                          },
+                          "children": [
+                            {
+                              "type": "conditional",
+                              "content": {
+                                "node": {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "outlet",
+                                    "name": "RouterOutlet",
+                                    "attrs": {}
+                                  }
+                                },
+                                "reference": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "hasContent"
+                                  }
+                                },
+                                "alternate": {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "customEmptyPage",
+                                    "name": "CustomEmptyPageCommunity",
+                                    "attrs": {
+                                      "setOpenModal": {
+                                        "type": "dynamic",
+                                        "content": {
+                                          "referenceType": "event",
+                                          "id": "handleSetOpenModal"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "reference": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "state",
+                          "id": "hasData"
+                        }
+                      },
+                      "alternate": {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "LoadingArea",
+                          "attrs": {
+                            "className": "flex h-full w-full items-center justify-center"
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "customLoader",
+                                "name": "CustomLoader",
+                                "attrs": {
+                                  "remSize": 30
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "element",
+              "content": {
+                "elementType": "modalsComponent",
+                "name": "ModalsComponent",
+                "attrs": {
+                  "openModal": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "openModal"
+                    }
+                  },
+                  "setOpenModal": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "handleSetOpenModal"
+                    }
+                  },
+                  "openDeleteFolderModal": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "openDeleteFolderModal"
+                    }
+                  },
+                  "setOpenDeleteFolderModal": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "handleSetOpenDeleteFolderModal"
+                    }
+                  },
+                  "handleDeleteFolder": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "event",
+                      "id": "handleDeleteFolder"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "propDefinitions": {},
+      "stateDefinitions": {
+        "openModal": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "openDeleteFolderModal": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "shouldShowSidebar": {
+          "type": "boolean",
+          "defaultValue": true
+        },
+        "hasData": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "hasContent": {
+          "type": "boolean",
+          "defaultValue": false
+        }
+      },
+      "actions": {
+        "handleSetOpenModal": {
+          "type": "set-state",
+          "modifies": "openModal",
+          "newState": "$event"
+        },
+        "handleSetOpenDeleteFolderModal": {
+          "type": "set-state",
+          "modifies": "openDeleteFolderModal",
+          "newState": "$event"
+        },
+        "handleChangeFolder": {
+          "type": "navigation",
+          "destination": "/all/folder/$event"
+        },
+        "handleDeleteFolder": {
+          "type": "multi-action",
+          "actions": [
+            {
+              "type": "api-call",
+              "endpoint": "/api/folders/:id",
+              "method": "DELETE"
+            },
+            {
+              "type": "navigation",
+              "destination": "/all"
+            }
+          ]
+        },
+        "handleFilesClick": {
+          "type": "navigation",
+          "destination": "/files"
+        }
+      },
+      "importDefinitions": {
+        "useQueryClient": {
+          "type": "external",
+          "path": "@tanstack/react-query"
+        },
+        "Outlet": {
+          "type": "external",
+          "path": "react-router-dom"
+        },
+        "SideBarFoldersButtonsComponent": {
+          "type": "local",
+          "path": "@/components/core/folderSidebarComponent/components/sideBarFolderButtons"
+        },
+        "SidebarProvider": {
+          "type": "local",
+          "path": "@/components/ui/sidebar"
+        },
+        "CustomEmptyPageCommunity": {
+          "type": "local",
+          "path": "@/customization/components/custom-empty-page"
+        },
+        "CustomLoader": {
+          "type": "local",
+          "path": "@/customization/components/custom-loader"
+        },
+        "ModalsComponent": {
+          "type": "local",
+          "path": "../components/modalsComponent"
+        }
+      }
+    },
+    "/Users/dongmingjiang/GB/LangBuilder/src/frontend/src/modals/addMcpServerModal/index.tsx": {
+      "name": "AddMcpServerModal",
+      "node": {
+        "type": "element",
+        "content": {
+          "elementType": "modal",
+          "name": "MCPServerConfigurationModal",
+          "attrs": {
+            "open": {
+              "type": "dynamic",
+              "content": {
+                "referenceType": "prop",
+                "id": "isOpen"
+              }
+            },
+            "onClose": {
+              "type": "dynamic", 
+              "content": {
+                "referenceType": "event",
+                "id": "handleClose"
+              }
+            },
+            "className": "!p-0",
+            "size": "x-small"
+          }
+        }
+      },
+      "propDefinitions": {
+        "children": {
+          "type": "element",
+          "defaultValue": null
+        },
+        "initialData": {
+          "type": "object",
+          "defaultValue": null
+        },
+        "isOpen": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "onSuccess": {
+          "type": "func",
+          "defaultValue": null
+        }
+      },
+      "stateDefinitions": {
+        "selectedType": {
+          "type": "string",
+          "defaultValue": "JSON"
+        },
+        "jsonValue": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "errorMessage": {
+          "type": "string",
+          "defaultValue": null
+        },
+        "hasError": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "isPending": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "isEditMode": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "isEditModeAndNotSTDIO": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "isEditModeAndNotSSE": {
+          "type": "boolean",
+          "defaultValue": false
+        },
+        "modalTitle": {
+          "type": "string",
+          "defaultValue": "Add MCP Server"
+        },
+        "submitButtonText": {
+          "type": "string",
+          "defaultValue": "Add Server"
+        },
+        "errorMessageClassName": {
+          "type": "string",
+          "defaultValue": "absolute right-4 top-4 truncate text-xs font-medium text-red-500"
+        },
+        "stdioName": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "stdioCommand": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "stdioArgs": {
+          "type": "array",
+          "defaultValue": [""]
+        },
+        "stdioEnv": {
+          "type": "array",
+          "defaultValue": []
+        },
+        "sseName": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "sseUrl": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "sseEnv": {
+          "type": "array",
+          "defaultValue": []
+        },
+        "sseHeaders": {
+          "type": "array",
+          "defaultValue": []
+        }
+      },
+      "actions": {
+        "handleClose": {
+          "type": "set-state",
+          "modifies": "isOpen",
+          "newState": false
+        },
+        "handleCancel": {
+          "type": "set-state",
+          "modifies": "isOpen",
+          "newState": false
+        },
+        "handleTypeChange": {
+          "type": "multi-action",
+          "actions": [
+            {
+              "type": "set-state",
+              "modifies": "selectedType",
+              "newState": "$event"
+            },
+            {
+              "type": "set-state",
+              "modifies": "errorMessage",
+              "newState": null
+            },
+            {
+              "type": "set-state",
+              "modifies": "hasError",
+              "newState": false
+            }
+          ]
+        },
+        "handleJSONChange": {
+          "type": "set-state",
+          "modifies": "jsonValue",
+          "newState": "$event.target.value"
+        },
+        "handleSTDIONameChange": {
+          "type": "set-state",
+          "modifies": "stdioName",
+          "newState": "$event.target.value"
+        },
+        "handleSTDIOCommandChange": {
+          "type": "set-state",
+          "modifies": "stdioCommand",
+          "newState": "$event.target.value"
+        },
+        "handleSTDIOArgsChange": {
+          "type": "set-state",
+          "modifies": "stdioArgs",
+          "newState": "$event.value"
+        },
+        "handleSTDIOEnvChange": {
+          "type": "set-state",
+          "modifies": "stdioEnv",
+          "newState": "$event"
+        },
+        "handleSSENameChange": {
+          "type": "set-state",
+          "modifies": "sseName",
+          "newState": "$event.target.value"
+        },
+        "handleSSEUrlChange": {
+          "type": "set-state",
+          "modifies": "sseUrl",
+          "newState": "$event.target.value"
+        },
+        "handleSSEHeadersChange": {
+          "type": "set-state",
+          "modifies": "sseHeaders",
+          "newState": "$event"
+        },
+        "handleSSEEnvChange": {
+          "type": "set-state",
+          "modifies": "sseEnv",
+          "newState": "$event"
+        },
+        "handleSubmit": {
+          "type": "async-action",
+          "actions": [
+            {
+              "type": "set-state",
+              "modifies": "isPending",
+              "newState": true
+            },
+            {
+              "type": "api-call",
+              "endpoint": "/api/mcp-servers",
+              "method": "POST"
+            },
+            {
+              "type": "set-state",
+              "modifies": "isPending",
+              "newState": false
+            }
+          ]
+        }
+      },
+      "importDefinitions": {
+        "BaseModal": {
+          "type": "local",
+          "path": "@/modals/baseModal"
+        },
+        "Button": {
+          "type": "local", 
+          "path": "@/components/ui/button"
+        },
+        "Input": {
+          "type": "local",
+          "path": "@/components/ui/input"
+        },
+        "Label": {
+          "type": "local",
+          "path": "@/components/ui/label"
+        },
+        "Tabs": {
+          "type": "local",
+          "path": "@/components/ui/tabs-button"
+        },
+        "Textarea": {
+          "type": "local",
+          "path": "@/components/ui/textarea"
+        },
+        "ForwardedIconComponent": {
+          "type": "local",
+          "path": "@/components/common/genericIconComponent"
+        },
+        "ShadTooltip": {
+          "type": "local",
+          "path": "@/components/common/shadTooltipComponent"
+        },
+        "InputListComponent": {
+          "type": "local",
+          "path": "@/components/core/parameterRenderComponent/components/inputListComponent"
+        },
+        "IOKeyPairInput": {
+          "type": "local",
+          "path": "@/modals/IOModal/components/IOFieldView/components/key-pair-input"
+        },
+        "CustomLink": {
+          "type": "local",
+          "path": "@/customization/components/custom-link"
+        }
+      }
+    }
+  }
+}

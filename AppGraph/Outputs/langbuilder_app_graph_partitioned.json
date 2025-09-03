@@ -24,7 +24,8 @@
       "interface_nodes": 36,
       "logic_nodes": 25,
       "test_nodes": 20,
-      "total_nodes": 96
+      "total_nodes": 96,
+      "total_edges": 15
     },
     "subsystem_statistics": {
       "total_subsystems": 6,
@@ -164,7 +165,8 @@
       "scaling": "Horizontal scaling per subsystem based on load",
       "monitoring": "Distributed tracing across subsystem boundaries",
       "data_consistency": "Event sourcing and CQRS patterns for cross-subsystem data"
-    }
+    },
+    "cross_subsystem_edges_count": 15
   },
   "subsystems": [
     {
@@ -208,23 +210,120 @@
               "route": "/login",
               "component_path": "src/frontend/src/pages/LoginPage",
               "uidl_definition": {
-                "type": "page",
-                "layout": "auth_layout",
-                "components": [
-                  "Logo",
-                  "LoginForm",
-                  "SignUpLink"
-                ],
-                "state": [
-                  "credentials",
-                  "autoLogin",
-                  "isLoading",
-                  "error"
-                ],
-                "actions": [
-                  "handleLogin",
-                  "toggleAutoLogin"
-                ]
+                "name": "App",
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "div",
+                    "name": "AppRoot",
+                    "attrs": {
+                      "className": "app-root h-full w-full"
+                    },
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "suspense",
+                          "name": "SuspenseWrapper",
+                          "attrs": {
+                            "fallback": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "div",
+                                "name": "LoadingFallback",
+                                "attrs": {
+                                  "className": "flex h-full w-full items-center justify-center"
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "loadingPage",
+                                      "name": "LoadingPageComponent",
+                                      "attrs": {}
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "element",
+                              "content": {
+                                "elementType": "RouterProvider",
+                                "name": "MainRouter",
+                                "attrs": {
+                                  "router": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "import",
+                                      "id": "router"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "propDefinitions": {},
+                "stateDefinitions": {
+                  "dark": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  }
+                },
+                "actions": {
+                  "handleThemeChange": {
+                    "type": "multi-action",
+                    "actions": [
+                      {
+                        "type": "conditional-action",
+                        "condition": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "state",
+                            "id": "dark"
+                          }
+                        },
+                        "trueAction": {
+                          "type": "dom-manipulation",
+                          "target": "body",
+                          "action": "addClass",
+                          "value": "dark"
+                        },
+                        "falseAction": {
+                          "type": "dom-manipulation",
+                          "target": "body",
+                          "action": "removeClass",
+                          "value": "dark"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "importDefinitions": {
+                  "RouterProvider": {
+                    "type": "external",
+                    "path": "react-router-dom"
+                  },
+                  "LoadingPage": {
+                    "type": "local",
+                    "path": "./pages/LoadingPage"
+                  },
+                  "router": {
+                    "type": "local",
+                    "path": "./routes"
+                  },
+                  "useDarkStore": {
+                    "type": "local",
+                    "path": "./stores/darkStore"
+                  }
+                }
               }
             },
             {
@@ -235,28 +334,29 @@
               "route": "/flows",
               "component_path": "src/frontend/src/pages/FlowPage",
               "uidl_definition": {
+                "name": "FlowDashboard",
                 "type": "page",
-                "layout": "main_layout",
-                "components": [
-                  "Header",
-                  "FolderSidebar",
-                  "FlowGrid",
-                  "SearchBar",
-                  "Paginator"
-                ],
-                "state": [
-                  "flows",
-                  "selectedFolder",
-                  "searchQuery",
-                  "viewMode",
-                  "pagination"
-                ],
-                "actions": [
-                  "loadFlows",
-                  "searchFlows",
-                  "createFlow",
-                  "deleteFlow"
-                ]
+                "description": "FlowDashboard - page component",
+                "content": {
+                  "elementType": "container",
+                  "name": "FlowDashboardRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -267,30 +367,189 @@
               "route": "/flow/:id",
               "component_path": "src/frontend/src/pages/FlowPage",
               "uidl_definition": {
-                "type": "page",
-                "layout": "editor_layout",
-                "components": [
-                  "FlowToolbar",
-                  "ComponentSidebar",
-                  "ReactFlowCanvas",
-                  "Minimap",
-                  "CanvasControls"
-                ],
-                "state": [
-                  "nodes",
-                  "edges",
-                  "selectedNode",
-                  "executionState",
-                  "buildStatus"
-                ],
-                "actions": [
-                  "saveFlow",
-                  "buildFlow",
-                  "runFlow",
-                  "addNode",
-                  "removeNode",
-                  "connectNodes"
-                ]
+                "name": "FlowPage",
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "fragment",
+                    "name": "FlowPageWrapper",
+                    "attrs": {},
+                    "children": [
+                      {
+                        "type": "element",
+                        "content": {
+                          "elementType": "div",
+                          "name": "FlowPageContainer",
+                          "attrs": {
+                            "className": "flow-page-positioning"
+                          },
+                          "children": [
+                            {
+                              "type": "conditional",
+                              "content": {
+                                "node": {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "name": "FlowPageLayout",
+                                    "attrs": {
+                                      "className": "flex h-full overflow-hidden"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "sidebarProvider",
+                                          "name": "MainSidebarProvider",
+                                          "attrs": {
+                                            "width": "17.5rem",
+                                            "defaultOpen": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "state",
+                                                "id": "sidebarOpen"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "reference": {
+                                  "type": "dynamic",
+                                  "content": {
+                                    "referenceType": "state",
+                                    "id": "hasCurrentFlow"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "propDefinitions": {
+                  "view": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  }
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "hasCurrentFlow": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "sidebarOpen": {
+                    "type": "boolean",
+                    "defaultValue": true
+                  },
+                  "shouldShowSidebar": {
+                    "type": "boolean",
+                    "defaultValue": true
+                  },
+                  "isBlocked": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "shouldShowSaveModal": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "flowName": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "formattedLastSaved": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "autoSaving": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "changesNotSaved": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isBuilding": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  }
+                },
+                "actions": {
+                  "handleSetLoading": {
+                    "type": "set-state",
+                    "modifies": "isLoading",
+                    "newState": "$event"
+                  },
+                  "handleSave": {
+                    "type": "async-action",
+                    "actions": [
+                      {
+                        "type": "set-state",
+                        "modifies": "isLoading",
+                        "newState": true
+                      },
+                      {
+                        "type": "api-call",
+                        "endpoint": "/api/flows/:id",
+                        "method": "PATCH"
+                      },
+                      {
+                        "type": "set-state",
+                        "modifies": "changesNotSaved",
+                        "newState": false
+                      },
+                      {
+                        "type": "set-state",
+                        "modifies": "isLoading",
+                        "newState": false
+                      }
+                    ]
+                  },
+                  "handleCancel": {
+                    "type": "set-state",
+                    "modifies": "isBlocked",
+                    "newState": false
+                  },
+                  "handleExit": {
+                    "type": "navigation",
+                    "destination": "/all"
+                  }
+                },
+                "importDefinitions": {
+                  "useBlocker": {
+                    "type": "external",
+                    "path": "react-router-dom"
+                  },
+                  "useParams": {
+                    "type": "external",
+                    "path": "react-router-dom"
+                  },
+                  "SidebarProvider": {
+                    "type": "local",
+                    "path": "@/components/ui/sidebar"
+                  },
+                  "SaveChangesModal": {
+                    "type": "local",
+                    "path": "@/modals/saveChangesModal"
+                  },
+                  "FlowSidebarComponent": {
+                    "type": "local",
+                    "path": "./components/flowSidebarComponent"
+                  },
+                  "Page": {
+                    "type": "local",
+                    "path": "./components/PageComponent"
+                  }
+                }
               }
             },
             {
@@ -301,28 +560,29 @@
               "route": "/playground/:id",
               "component_path": "src/frontend/src/pages/PlaygroundPage",
               "uidl_definition": {
+                "name": "PlaygroundInterface",
                 "type": "page",
-                "layout": "chat_layout",
-                "components": [
-                  "PlaygroundHeader",
-                  "SessionSidebar",
-                  "MessageList",
-                  "ChatInput",
-                  "VoiceAssistant"
-                ],
-                "state": [
-                  "messages",
-                  "sessions",
-                  "voiceMode",
-                  "attachedFiles",
-                  "isStreaming"
-                ],
-                "actions": [
-                  "sendMessage",
-                  "createSession",
-                  "switchSession",
-                  "toggleVoice"
-                ]
+                "description": "PlaygroundInterface - page component",
+                "content": {
+                  "elementType": "container",
+                  "name": "PlaygroundInterfaceRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -332,26 +592,29 @@
               "description": "Collapsible sidebar with component library, search, and drag-to-canvas functionality",
               "component_path": "src/frontend/src/components/SidebarComponent",
               "uidl_definition": {
+                "name": "ComponentSidebar",
                 "type": "component",
-                "layout": "sidebar",
-                "components": [
-                  "SearchInput",
-                  "ComponentCategories",
-                  "ComponentList",
-                  "ComponentCard"
-                ],
-                "state": [
-                  "isOpen",
-                  "searchTerm",
-                  "selectedCategory",
-                  "components"
-                ],
-                "actions": [
-                  "toggleSidebar",
-                  "searchComponents",
-                  "filterByCategory",
-                  "dragComponent"
-                ]
+                "description": "ComponentSidebar - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ComponentSidebarRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -361,27 +624,29 @@
               "description": "Action toolbar with save, build, run, share, and settings controls",
               "component_path": "src/frontend/src/components/FlowToolbarComponent",
               "uidl_definition": {
+                "name": "FlowToolbar",
                 "type": "component",
-                "layout": "toolbar",
-                "components": [
-                  "SaveButton",
-                  "BuildButton",
-                  "RunButton",
-                  "ShareButton",
-                  "SettingsDropdown"
-                ],
-                "state": [
-                  "isDirty",
-                  "buildStatus",
-                  "shareSettings"
-                ],
-                "actions": [
-                  "save",
-                  "build",
-                  "run",
-                  "share",
-                  "openSettings"
-                ]
+                "description": "FlowToolbar - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "FlowToolbarRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             }
           ],
@@ -1476,27 +1741,29 @@
               "description": "Main canvas area for visual flow building with node manipulation and connection handling",
               "component_path": "src/frontend/src/components/ReactFlowWrapper",
               "uidl_definition": {
+                "name": "ReactFlowCanvas",
                 "type": "component",
-                "layout": "canvas",
-                "components": [
-                  "FlowNode",
-                  "ConnectionLine",
-                  "EdgeMarker",
-                  "SelectionBox"
-                ],
-                "state": [
-                  "nodes",
-                  "edges",
-                  "selectedElements",
-                  "viewport",
-                  "connectionMode"
-                ],
-                "actions": [
-                  "onNodesChange",
-                  "onEdgesChange",
-                  "onConnect",
-                  "onSelectionChange"
-                ]
+                "description": "ReactFlowCanvas - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ReactFlowCanvasRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1506,25 +1773,97 @@
               "description": "Playground modal for flow testing with input fields, output display, and chat interface",
               "component_path": "src/frontend/src/modals/IOModal",
               "uidl_definition": {
+                "name": "IOModal",
                 "type": "modal",
-                "layout": "modal_layout",
-                "components": [
-                  "TabNavigation",
-                  "InputFields",
-                  "OutputDisplay",
-                  "ChatView"
-                ],
-                "state": [
-                  "activeTab",
-                  "inputs",
-                  "outputs",
-                  "chatHistory"
-                ],
-                "actions": [
-                  "switchTab",
-                  "updateInput",
-                  "runFlow",
-                  "clearChat"
+                "description": "IOModal - modal component",
+                "content": {
+                  "elementType": "modal",
+                  "name": "IOModalRoot",
+                  "attrs": {
+                    "className": "max-w-4xl max-h-[90vh] bg-background border rounded-lg shadow-lg",
+                    "isOpen": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "isOpen"
+                      }
+                    },
+                    "onClose": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "event",
+                        "id": "handleClose"
+                      }
+                    }
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "sidebarOpen": {
+                    "type": "boolean",
+                    "defaultValue": true
+                  },
+                  "visibleSession": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "selectedViewField": {
+                    "type": "object",
+                    "defaultValue": null
+                  },
+                  "sessions": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "hasInitialized": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "messages": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "chatValue": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "isBuilding": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isOpen": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {
+                  "handleClose": {
+                    "type": "set-state",
+                    "modifies": "isOpen",
+                    "newState": false
+                  },
+                  "onSubmit": {
+                    "type": "async-action",
+                    "handler": "onSubmitHandler"
+                  }
+                },
+                "dependencies": [
+                  "BaseModal",
+                  "ChatViewWrapper",
+                  "SidebarOpenView",
+                  "SelectedViewField"
                 ]
               }
             },
@@ -1535,26 +1874,29 @@
               "description": "Scrollable message container with rich content rendering, streaming support, and voice integration",
               "component_path": "src/frontend/src/components/ChatWidget",
               "uidl_definition": {
+                "name": "MessageList",
                 "type": "component",
-                "layout": "list",
-                "components": [
-                  "MessageBubble",
-                  "StreamingIndicator",
-                  "LoadMoreButton",
-                  "ScrollToBottom"
-                ],
-                "state": [
-                  "messages",
-                  "isStreaming",
-                  "hasMore",
-                  "scrollPosition"
-                ],
-                "actions": [
-                  "loadMore",
-                  "scrollToBottom",
-                  "resendMessage",
-                  "editMessage"
-                ]
+                "description": "MessageList - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "MessageListRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1564,27 +1906,29 @@
               "description": "Multi-modal input interface with text, file attachments, voice recording, and send controls",
               "component_path": "src/frontend/src/components/ChatInput",
               "uidl_definition": {
+                "name": "ChatInput",
                 "type": "component",
-                "layout": "input_area",
-                "components": [
-                  "TextArea",
-                  "FileAttachment",
-                  "VoiceButton",
-                  "SendButton",
-                  "EmojiPicker"
-                ],
-                "state": [
-                  "inputText",
-                  "attachedFiles",
-                  "isRecording",
-                  "voiceEnabled"
-                ],
-                "actions": [
-                  "sendMessage",
-                  "attachFile",
-                  "startVoiceRecording",
-                  "stopVoiceRecording"
-                ]
+                "description": "ChatInput - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ChatInputRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1594,27 +1938,29 @@
               "description": "Voice interaction component with real-time audio processing, VAD, and provider selection",
               "component_path": "src/frontend/src/components/VoiceAssistant",
               "uidl_definition": {
+                "name": "VoiceAssistant",
                 "type": "component",
-                "layout": "voice_interface",
-                "components": [
-                  "VoiceButton",
-                  "AudioWaveform",
-                  "MicrophoneSelector",
-                  "VoiceSelector"
-                ],
-                "state": [
-                  "isListening",
-                  "audioLevel",
-                  "selectedMicrophone",
-                  "selectedVoice",
-                  "transcript"
-                ],
-                "actions": [
-                  "toggleListening",
-                  "selectMicrophone",
-                  "selectVoice",
-                  "processAudio"
-                ]
+                "description": "VoiceAssistant - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "VoiceAssistantRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1624,25 +1970,29 @@
               "description": "Hierarchical folder navigation with create, rename, delete, and drag-drop organization",
               "component_path": "src/frontend/src/components/FolderSidebarComponent",
               "uidl_definition": {
+                "name": "FolderSidebar",
                 "type": "component",
-                "layout": "tree_sidebar",
-                "components": [
-                  "FolderTree",
-                  "CreateFolderButton",
-                  "FolderContextMenu"
-                ],
-                "state": [
-                  "folders",
-                  "selectedFolder",
-                  "expandedFolders"
-                ],
-                "actions": [
-                  "selectFolder",
-                  "createFolder",
-                  "renameFolder",
-                  "deleteFolder",
-                  "moveFolder"
-                ]
+                "description": "FolderSidebar - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "FolderSidebarRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1652,27 +2002,29 @@
               "description": "Responsive grid display of flows with cards, thumbnails, actions, and bulk operations",
               "component_path": "src/frontend/src/components/FlowGrid",
               "uidl_definition": {
+                "name": "FlowGrid",
                 "type": "component",
-                "layout": "grid",
-                "components": [
-                  "FlowCard",
-                  "FlowThumbnail",
-                  "FlowActions",
-                  "SelectionCheckbox"
-                ],
-                "state": [
-                  "flows",
-                  "selectedFlows",
-                  "viewMode",
-                  "sortOrder"
-                ],
-                "actions": [
-                  "selectFlow",
-                  "openFlow",
-                  "duplicateFlow",
-                  "exportFlow",
-                  "bulkDelete"
-                ]
+                "description": "FlowGrid - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "FlowGridRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1682,26 +2034,29 @@
               "description": "Component marketplace display with search, filtering, ratings, and installation",
               "component_path": "src/frontend/src/components/ComponentGrid",
               "uidl_definition": {
+                "name": "ComponentGrid",
                 "type": "component",
-                "layout": "grid",
-                "components": [
-                  "ComponentCard",
-                  "ComponentRating",
-                  "InstallButton",
-                  "PreviewModal"
-                ],
-                "state": [
-                  "components",
-                  "selectedComponents",
-                  "filters",
-                  "ratings"
-                ],
-                "actions": [
-                  "previewComponent",
-                  "installComponent",
-                  "rateComponent",
-                  "shareComponent"
-                ]
+                "description": "ComponentGrid - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ComponentGridRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1711,27 +2066,29 @@
               "description": "MCP server management interface with server configuration, tool discovery, and execution monitoring",
               "component_path": "src/frontend/src/components/MCPServerTab",
               "uidl_definition": {
+                "name": "MCPServerTab",
                 "type": "component",
-                "layout": "tab_content",
-                "components": [
-                  "ServerList",
-                  "AddServerButton",
-                  "ServerConfig",
-                  "ToolBrowser"
-                ],
-                "state": [
-                  "servers",
-                  "activeServer",
-                  "tools",
-                  "serverStatus"
-                ],
-                "actions": [
-                  "addServer",
-                  "removeServer",
-                  "configureServer",
-                  "testConnection",
-                  "browsTools"
-                ]
+                "description": "MCPServerTab - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "MCPServerTabRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -1741,25 +2098,271 @@
               "description": "Modal dialog for adding new MCP servers with configuration validation and connection testing",
               "component_path": "src/frontend/src/modals/AddMCPServerModal",
               "uidl_definition": {
-                "type": "modal",
-                "layout": "form_modal",
-                "components": [
-                  "ServerForm",
-                  "ConnectionTest",
-                  "ValidationFeedback"
-                ],
-                "state": [
-                  "serverConfig",
-                  "isValidating",
-                  "validationErrors",
-                  "connectionStatus"
-                ],
-                "actions": [
-                  "validateConfig",
-                  "testConnection",
-                  "saveServer",
-                  "cancelAdd"
-                ]
+                "name": "AddMcpServerModal",
+                "node": {
+                  "type": "element",
+                  "content": {
+                    "elementType": "modal",
+                    "name": "MCPServerConfigurationModal",
+                    "attrs": {
+                      "open": {
+                        "type": "dynamic",
+                        "content": {
+                          "referenceType": "prop",
+                          "id": "isOpen"
+                        }
+                      },
+                      "onClose": {
+                        "type": "dynamic", 
+                        "content": {
+                          "referenceType": "event",
+                          "id": "handleClose"
+                        }
+                      },
+                      "className": "!p-0",
+                      "size": "x-small"
+                    }
+                  }
+                },
+                "propDefinitions": {
+                  "children": {
+                    "type": "element",
+                    "defaultValue": null
+                  },
+                  "initialData": {
+                    "type": "object",
+                    "defaultValue": null
+                  },
+                  "isOpen": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "onSuccess": {
+                    "type": "func",
+                    "defaultValue": null
+                  }
+                },
+                "stateDefinitions": {
+                  "selectedType": {
+                    "type": "string",
+                    "defaultValue": "JSON"
+                  },
+                  "jsonValue": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "errorMessage": {
+                    "type": "string",
+                    "defaultValue": null
+                  },
+                  "hasError": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isPending": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isEditMode": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isEditModeAndNotSTDIO": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "isEditModeAndNotSSE": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "modalTitle": {
+                    "type": "string",
+                    "defaultValue": "Add MCP Server"
+                  },
+                  "submitButtonText": {
+                    "type": "string",
+                    "defaultValue": "Add Server"
+                  },
+                  "errorMessageClassName": {
+                    "type": "string",
+                    "defaultValue": "absolute right-4 top-4 truncate text-xs font-medium text-red-500"
+                  },
+                  "stdioName": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "stdioCommand": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "stdioArgs": {
+                    "type": "array",
+                    "defaultValue": [""]
+                  },
+                  "stdioEnv": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "sseName": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "sseUrl": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "sseEnv": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "sseHeaders": {
+                    "type": "array",
+                    "defaultValue": []
+                  }
+                },
+                "actions": {
+                  "handleClose": {
+                    "type": "set-state",
+                    "modifies": "isOpen",
+                    "newState": false
+                  },
+                  "handleCancel": {
+                    "type": "set-state",
+                    "modifies": "isOpen",
+                    "newState": false
+                  },
+                  "handleTypeChange": {
+                    "type": "multi-action",
+                    "actions": [
+                      {
+                        "type": "set-state",
+                        "modifies": "selectedType",
+                        "newState": "$event"
+                      },
+                      {
+                        "type": "set-state",
+                        "modifies": "errorMessage",
+                        "newState": null
+                      },
+                      {
+                        "type": "set-state",
+                        "modifies": "hasError",
+                        "newState": false
+                      }
+                    ]
+                  },
+                  "handleJSONChange": {
+                    "type": "set-state",
+                    "modifies": "jsonValue",
+                    "newState": "$event.target.value"
+                  },
+                  "handleSTDIONameChange": {
+                    "type": "set-state",
+                    "modifies": "stdioName",
+                    "newState": "$event.target.value"
+                  },
+                  "handleSTDIOCommandChange": {
+                    "type": "set-state",
+                    "modifies": "stdioCommand",
+                    "newState": "$event.target.value"
+                  },
+                  "handleSTDIOArgsChange": {
+                    "type": "set-state",
+                    "modifies": "stdioArgs",
+                    "newState": "$event.value"
+                  },
+                  "handleSTDIOEnvChange": {
+                    "type": "set-state",
+                    "modifies": "stdioEnv",
+                    "newState": "$event"
+                  },
+                  "handleSSENameChange": {
+                    "type": "set-state",
+                    "modifies": "sseName",
+                    "newState": "$event.target.value"
+                  },
+                  "handleSSEUrlChange": {
+                    "type": "set-state",
+                    "modifies": "sseUrl",
+                    "newState": "$event.target.value"
+                  },
+                  "handleSSEHeadersChange": {
+                    "type": "set-state",
+                    "modifies": "sseHeaders",
+                    "newState": "$event"
+                  },
+                  "handleSSEEnvChange": {
+                    "type": "set-state",
+                    "modifies": "sseEnv",
+                    "newState": "$event"
+                  },
+                  "handleSubmit": {
+                    "type": "async-action",
+                    "actions": [
+                      {
+                        "type": "set-state",
+                        "modifies": "isPending",
+                        "newState": true
+                      },
+                      {
+                        "type": "api-call",
+                        "endpoint": "/api/mcp-servers",
+                        "method": "POST"
+                      },
+                      {
+                        "type": "set-state",
+                        "modifies": "isPending",
+                        "newState": false
+                      }
+                    ]
+                  }
+                },
+                "importDefinitions": {
+                  "BaseModal": {
+                    "type": "local",
+                    "path": "@/modals/baseModal"
+                  },
+                  "Button": {
+                    "type": "local", 
+                    "path": "@/components/ui/button"
+                  },
+                  "Input": {
+                    "type": "local",
+                    "path": "@/components/ui/input"
+                  },
+                  "Label": {
+                    "type": "local",
+                    "path": "@/components/ui/label"
+                  },
+                  "Tabs": {
+                    "type": "local",
+                    "path": "@/components/ui/tabs-button"
+                  },
+                  "Textarea": {
+                    "type": "local",
+                    "path": "@/components/ui/textarea"
+                  },
+                  "ForwardedIconComponent": {
+                    "type": "local",
+                    "path": "@/components/common/genericIconComponent"
+                  },
+                  "ShadTooltip": {
+                    "type": "local",
+                    "path": "@/components/common/shadTooltipComponent"
+                  },
+                  "InputListComponent": {
+                    "type": "local",
+                    "path": "@/components/core/parameterRenderComponent/components/inputListComponent"
+                  },
+                  "IOKeyPairInput": {
+                    "type": "local",
+                    "path": "@/modals/IOModal/components/IOFieldView/components/key-pair-input"
+                  },
+                  "CustomLink": {
+                    "type": "local",
+                    "path": "@/customization/components/custom-link"
+                  }
+                }
               }
             }
           ],
@@ -3253,28 +3856,49 @@
               "route": "/settings",
               "component_path": "src/frontend/src/pages/SettingsPage",
               "uidl_definition": {
+                "name": "SettingsPage",
                 "type": "page",
-                "layout": "settings_layout",
-                "components": [
-                  "SettingsTabs",
-                  "GeneralSettings",
-                  "ApiKeysSettings",
-                  "GlobalVariablesSettings",
-                  "MCPServersSettings"
-                ],
-                "state": [
-                  "activeTab",
-                  "settings",
-                  "apiKeys",
-                  "globalVariables",
-                  "mcpServers"
-                ],
-                "actions": [
-                  "switchTab",
-                  "updateSettings",
-                  "createApiKey",
-                  "deleteApiKey",
-                  "updateGlobalVariable"
+                "description": "SettingsPage - page component",
+                "content": {
+                  "elementType": "container",
+                  "name": "SettingsPageRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "autoLogin": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "hasStore": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "showGeneralSettings": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "sidebarNavItems": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": [
+                  "SidebarProvider",
+                  "PageLayout",
+                  "SideBarButtonsComponent",
+                  "ForwardedIconComponent"
                 ]
               }
             },
@@ -3285,27 +3909,29 @@
               "description": "API key management interface with creation, deletion, usage tracking, and security controls",
               "component_path": "src/frontend/src/components/ApiKeysSettings",
               "uidl_definition": {
+                "name": "ApiKeysSettings",
                 "type": "component",
-                "layout": "settings_panel",
-                "components": [
-                  "ApiKeyList",
-                  "CreateApiKeyButton",
-                  "ApiKeyCard",
-                  "UsageChart"
-                ],
-                "state": [
-                  "apiKeys",
-                  "selectedApiKey",
-                  "usageData",
-                  "isCreating"
-                ],
-                "actions": [
-                  "createApiKey",
-                  "deleteApiKey",
-                  "viewUsage",
-                  "regenerateApiKey",
-                  "toggleApiKey"
-                ]
+                "description": "ApiKeysSettings - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ApiKeysSettingsRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -3315,27 +3941,29 @@
               "description": "Global variable management with encryption, scoping, and environment-specific configurations",
               "component_path": "src/frontend/src/components/GlobalVariablesSettings",
               "uidl_definition": {
+                "name": "GlobalVariablesSettings",
                 "type": "component",
-                "layout": "settings_panel",
-                "components": [
-                  "VariableList",
-                  "AddVariableButton",
-                  "VariableEditor",
-                  "EncryptionToggle"
-                ],
-                "state": [
-                  "globalVariables",
-                  "selectedVariable",
-                  "isEditing",
-                  "encryptionEnabled"
-                ],
-                "actions": [
-                  "addVariable",
-                  "updateVariable",
-                  "deleteVariable",
-                  "toggleEncryption",
-                  "exportVariables"
-                ]
+                "description": "GlobalVariablesSettings - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "GlobalVariablesSettingsRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -3346,29 +3974,29 @@
               "route": "/files",
               "component_path": "src/frontend/src/pages/FileManagementPage",
               "uidl_definition": {
+                "name": "FileManagementPage",
                 "type": "page",
-                "layout": "file_manager_layout",
-                "components": [
-                  "FileUploader",
-                  "FileList",
-                  "FilePreview",
-                  "FileSearch",
-                  "BulkActions"
-                ],
-                "state": [
-                  "files",
-                  "selectedFiles",
-                  "searchQuery",
-                  "sortOrder",
-                  "uploadProgress"
-                ],
-                "actions": [
-                  "uploadFiles",
-                  "downloadFile",
-                  "deleteFiles",
-                  "searchFiles",
-                  "previewFile"
-                ]
+                "description": "FileManagementPage - page component",
+                "content": {
+                  "elementType": "container",
+                  "name": "FileManagementPageRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -3379,26 +4007,29 @@
               "route": "/admin",
               "component_path": "src/frontend/src/pages/AdminPage",
               "uidl_definition": {
+                "name": "AdminPage",
                 "type": "page",
-                "layout": "admin_layout",
-                "components": [
-                  "UserManagement",
-                  "SystemMetrics",
-                  "ConfigurationPanel",
-                  "AuditLog"
-                ],
-                "state": [
-                  "users",
-                  "systemStatus",
-                  "configuration",
-                  "auditEvents"
-                ],
-                "actions": [
-                  "manageUsers",
-                  "updateConfig",
-                  "viewMetrics",
-                  "exportAuditLog"
-                ]
+                "description": "AdminPage - page component",
+                "content": {
+                  "elementType": "container",
+                  "name": "AdminPageRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -3409,27 +4040,91 @@
               "route": "/store",
               "component_path": "src/frontend/src/pages/StorePage",
               "uidl_definition": {
+                "name": "StorePage",
                 "type": "page",
-                "layout": "marketplace_layout",
-                "components": [
-                  "StoreHeader",
-                  "CategoryFilter",
-                  "ComponentSearch",
-                  "ComponentGallery",
-                  "RatingSystem"
-                ],
-                "state": [
-                  "storeComponents",
-                  "categories",
-                  "searchResults",
-                  "userRatings"
-                ],
-                "actions": [
-                  "browseComponents",
-                  "searchStore",
-                  "installComponent",
-                  "rateComponent",
-                  "shareComponent"
+                "description": "StorePage - page component",
+                "content": {
+                  "elementType": "container",
+                  "name": "StorePageRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "hasApiKey": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "validApiKey": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "loadingApiKey": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "loading": {
+                    "type": "boolean",
+                    "defaultValue": true
+                  },
+                  "filteredCategories": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "inputText": {
+                    "type": "string",
+                    "defaultValue": ""
+                  },
+                  "searchData": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "totalRowsCount": {
+                    "type": "number",
+                    "defaultValue": 0
+                  },
+                  "pageSize": {
+                    "type": "number",
+                    "defaultValue": 12
+                  },
+                  "pageIndex": {
+                    "type": "number",
+                    "defaultValue": 0
+                  },
+                  "pageOrder": {
+                    "type": "string",
+                    "defaultValue": "Popular"
+                  },
+                  "tabActive": {
+                    "type": "string",
+                    "defaultValue": "All"
+                  },
+                  "selectFilter": {
+                    "type": "string",
+                    "defaultValue": "all"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "defaultValue": []
+                  },
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": [
+                  "PageLayout",
+                  "InputSearchComponent",
+                  "TagsSelector",
+                  "StoreCardComponent",
+                  "SkeletonCardComponent",
+                  "PaginatorComponent"
                 ]
               }
             }
@@ -5145,29 +5840,29 @@
               "description": "Application header with navigation, user profile, notifications, and theme controls",
               "component_path": "src/frontend/src/components/HeaderComponent",
               "uidl_definition": {
+                "name": "HeaderComponent",
                 "type": "component",
-                "layout": "header",
-                "components": [
-                  "Logo",
-                  "Navigation",
-                  "SearchBar",
-                  "UserProfile",
-                  "NotificationBell",
-                  "ThemeToggle"
-                ],
-                "state": [
-                  "user",
-                  "notifications",
-                  "theme",
-                  "searchQuery"
-                ],
-                "actions": [
-                  "navigate",
-                  "toggleProfile",
-                  "markNotificationRead",
-                  "toggleTheme",
-                  "search"
-                ]
+                "description": "HeaderComponent - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "HeaderComponentRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -5177,27 +5872,29 @@
               "description": "Real-time notification display with toasts, badges, and persistent notification center",
               "component_path": "src/frontend/src/components/NotificationSystem",
               "uidl_definition": {
+                "name": "NotificationSystem",
                 "type": "component",
-                "layout": "overlay",
-                "components": [
-                  "ToastContainer",
-                  "NotificationBadge",
-                  "NotificationCenter",
-                  "NotificationItem"
-                ],
-                "state": [
-                  "notifications",
-                  "unreadCount",
-                  "isOpen",
-                  "filterType"
-                ],
-                "actions": [
-                  "showNotification",
-                  "markAsRead",
-                  "clearAll",
-                  "filterNotifications",
-                  "toggleCenter"
-                ]
+                "description": "NotificationSystem - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "NotificationSystemRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -5207,26 +5904,29 @@
               "description": "Application-wide error handling with user-friendly error displays and recovery options",
               "component_path": "src/frontend/src/components/ErrorBoundary",
               "uidl_definition": {
+                "name": "ErrorBoundary",
                 "type": "component",
-                "layout": "error_fallback",
-                "components": [
-                  "ErrorDisplay",
-                  "RetryButton",
-                  "ErrorDetails",
-                  "ReportButton"
-                ],
-                "state": [
-                  "error",
-                  "errorInfo",
-                  "hasError",
-                  "retryCount"
-                ],
-                "actions": [
-                  "retry",
-                  "reportError",
-                  "resetError",
-                  "showDetails"
-                ]
+                "description": "ErrorBoundary - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ErrorBoundaryRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -5236,26 +5936,29 @@
               "description": "Comprehensive loading state management with skeletons, spinners, and progress indicators",
               "component_path": "src/frontend/src/components/LoadingStates",
               "uidl_definition": {
+                "name": "LoadingStates",
                 "type": "component",
-                "layout": "loading_overlay",
-                "components": [
-                  "Spinner",
-                  "SkeletonLoader",
-                  "ProgressBar",
-                  "LoadingMessage"
-                ],
-                "state": [
-                  "isLoading",
-                  "progress",
-                  "loadingType",
-                  "message"
-                ],
-                "actions": [
-                  "showLoading",
-                  "updateProgress",
-                  "hideLoading",
-                  "setMessage"
-                ]
+                "description": "LoadingStates - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "LoadingStatesRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             }
           ],
@@ -6513,26 +7216,29 @@
               "description": "Application theme management with light/dark modes, custom themes, and responsive design tokens",
               "component_path": "src/frontend/src/contexts/ThemeContext",
               "uidl_definition": {
-                "type": "provider",
-                "layout": "context_provider",
-                "components": [
-                  "ThemeToggle",
-                  "ColorPalette",
-                  "FontControls",
-                  "LayoutControls"
-                ],
-                "state": [
-                  "currentTheme",
-                  "customThemes",
-                  "colorMode",
-                  "fontScale"
-                ],
-                "actions": [
-                  "setTheme",
-                  "toggleColorMode",
-                  "createCustomTheme",
-                  "adjustFontScale"
-                ]
+                "name": "ThemeProvider",
+                "type": "component",
+                "description": "ThemeProvider - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "ThemeProviderRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6542,25 +7248,29 @@
               "description": "Route protection and authentication state management with automatic redirects and session handling",
               "component_path": "src/frontend/src/components/AuthGuard",
               "uidl_definition": {
-                "type": "guard",
-                "layout": "route_guard",
-                "components": [
-                  "LoginRedirect",
-                  "PermissionCheck",
-                  "SessionValidator"
-                ],
-                "state": [
-                  "isAuthenticated",
-                  "user",
-                  "permissions",
-                  "sessionValid"
-                ],
-                "actions": [
-                  "checkAuth",
-                  "redirectToLogin",
-                  "validateSession",
-                  "refreshToken"
-                ]
+                "name": "AuthGuard",
+                "type": "component",
+                "description": "AuthGuard - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "AuthGuardRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6570,27 +7280,29 @@
               "description": "Real-time communication management with connection pooling, reconnection logic, and event routing",
               "component_path": "src/frontend/src/services/WebSocketManager",
               "uidl_definition": {
-                "type": "service",
-                "layout": "connection_manager",
-                "components": [
-                  "ConnectionStatus",
-                  "ReconnectHandler",
-                  "EventRouter",
-                  "MessageQueue"
-                ],
-                "state": [
-                  "connections",
-                  "connectionStatus",
-                  "messageQueue",
-                  "retryCount"
-                ],
-                "actions": [
-                  "connect",
-                  "disconnect",
-                  "reconnect",
-                  "sendMessage",
-                  "subscribe"
-                ]
+                "name": "WebSocketManager",
+                "type": "component",
+                "description": "WebSocketManager - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "WebSocketManagerRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6600,29 +7312,29 @@
               "description": "Advanced data table with sorting, filtering, pagination, and export capabilities",
               "component_path": "src/frontend/src/components/DataTable",
               "uidl_definition": {
+                "name": "DataTable",
                 "type": "component",
-                "layout": "table",
-                "components": [
-                  "TableHeader",
-                  "TableRow",
-                  "SortButton",
-                  "FilterInput",
-                  "PaginationControls"
-                ],
-                "state": [
-                  "data",
-                  "sortConfig",
-                  "filters",
-                  "pagination",
-                  "selectedRows"
-                ],
-                "actions": [
-                  "sortData",
-                  "filterData",
-                  "changePage",
-                  "selectRow",
-                  "exportData"
-                ]
+                "description": "DataTable - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "DataTableRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6632,27 +7344,29 @@
               "description": "Dynamic form generation with validation, conditional fields, and custom input types",
               "component_path": "src/frontend/src/components/FormBuilder",
               "uidl_definition": {
+                "name": "FormBuilder",
                 "type": "component",
-                "layout": "form",
-                "components": [
-                  "FormField",
-                  "ValidationMessage",
-                  "ConditionalField",
-                  "SubmitButton"
-                ],
-                "state": [
-                  "formData",
-                  "validationErrors",
-                  "isSubmitting",
-                  "fieldVisibility"
-                ],
-                "actions": [
-                  "updateField",
-                  "validateForm",
-                  "submitForm",
-                  "resetForm",
-                  "showField"
-                ]
+                "description": "FormBuilder - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "FormBuilderRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6662,29 +7376,29 @@
               "description": "Integrated code editor with syntax highlighting, auto-completion, and debugging support",
               "component_path": "src/frontend/src/components/CodeEditor",
               "uidl_definition": {
+                "name": "CodeEditor",
                 "type": "component",
-                "layout": "editor",
-                "components": [
-                  "EditorPane",
-                  "SyntaxHighlighter",
-                  "AutoComplete",
-                  "ErrorGutter",
-                  "Minimap"
-                ],
-                "state": [
-                  "code",
-                  "language",
-                  "errors",
-                  "completions",
-                  "cursorPosition"
-                ],
-                "actions": [
-                  "updateCode",
-                  "formatCode",
-                  "showCompletions",
-                  "goToLine",
-                  "toggleMinimap"
-                ]
+                "description": "CodeEditor - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "CodeEditorRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6694,29 +7408,29 @@
               "description": "Global search functionality with autocomplete, filters, and result categorization",
               "component_path": "src/frontend/src/components/SearchInterface",
               "uidl_definition": {
+                "name": "SearchInterface",
                 "type": "component",
-                "layout": "search",
-                "components": [
-                  "SearchInput",
-                  "AutoComplete",
-                  "SearchFilters",
-                  "ResultList",
-                  "CategoryTabs"
-                ],
-                "state": [
-                  "query",
-                  "results",
-                  "suggestions",
-                  "filters",
-                  "activeCategory"
-                ],
-                "actions": [
-                  "search",
-                  "clearSearch",
-                  "applyFilter",
-                  "selectSuggestion",
-                  "changeCategory"
-                ]
+                "description": "SearchInterface - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "SearchInterfaceRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -6726,28 +7440,29 @@
               "description": "Advanced pagination component with page size selection, navigation, and total count display",
               "component_path": "src/frontend/src/components/PaginatorComponent",
               "uidl_definition": {
+                "name": "PaginatorComponent",
                 "type": "component",
-                "layout": "pagination",
-                "components": [
-                  "PageNumbers",
-                  "NextPrevButtons",
-                  "PageSizeSelector",
-                  "TotalCountDisplay"
-                ],
-                "state": [
-                  "currentPage",
-                  "totalPages",
-                  "pageSize",
-                  "totalItems"
-                ],
-                "actions": [
-                  "goToPage",
-                  "nextPage",
-                  "prevPage",
-                  "changePageSize",
-                  "goToFirstPage",
-                  "goToLastPage"
-                ]
+                "description": "PaginatorComponent - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "PaginatorComponentRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             }
           ],
@@ -7874,27 +8589,29 @@
               "route": "/templates",
               "component_path": "src/frontend/src/pages/TemplateGallery",
               "uidl_definition": {
-                "type": "page",
-                "layout": "gallery_layout",
-                "components": [
-                  "TemplateCard",
-                  "CategoryFilter",
-                  "TemplatePreview",
-                  "QuickStartButton"
-                ],
-                "state": [
-                  "templates",
-                  "selectedCategory",
-                  "previewTemplate",
-                  "searchQuery"
-                ],
-                "actions": [
-                  "selectTemplate",
-                  "previewTemplate",
-                  "useTemplate",
-                  "filterByCategory",
-                  "searchTemplates"
-                ]
+                "name": "TemplateGallery",
+                "type": "component",
+                "description": "TemplateGallery - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "TemplateGalleryRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             },
             {
@@ -7904,27 +8621,29 @@
               "description": "Multi-workspace management with workspace selection, creation, and switching capabilities",
               "component_path": "src/frontend/src/components/WorkspaceSwitcher",
               "uidl_definition": {
+                "name": "WorkspaceSwitcher",
                 "type": "component",
-                "layout": "switcher_dropdown",
-                "components": [
-                  "WorkspaceList",
-                  "CreateWorkspaceButton",
-                  "WorkspaceSettings",
-                  "WorkspaceIndicator"
-                ],
-                "state": [
-                  "workspaces",
-                  "currentWorkspace",
-                  "isOpen",
-                  "isCreating"
-                ],
-                "actions": [
-                  "switchWorkspace",
-                  "createWorkspace",
-                  "editWorkspace",
-                  "deleteWorkspace",
-                  "toggleDropdown"
-                ]
+                "description": "WorkspaceSwitcher - component component",
+                "content": {
+                  "elementType": "container",
+                  "name": "WorkspaceSwitcherRoot",
+                  "attrs": {
+                    "className": "h-full w-full flex flex-col"
+                  },
+                  "children": []
+                },
+                "stateDefinitions": {
+                  "isLoading": {
+                    "type": "boolean",
+                    "defaultValue": false
+                  },
+                  "error": {
+                    "type": "string",
+                    "defaultValue": null
+                  }
+                },
+                "actions": {},
+                "dependencies": []
               }
             }
           ],
