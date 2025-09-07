@@ -1,0 +1,1540 @@
+{
+  "id": "component_management_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "selectedComponent": null,
+    "components": [],
+    "searchQuery": "",
+    "filters": {},
+    "errors": [],
+    "isLoading": false,
+    "uploadData": null,
+    "validationResults": null,
+    "editingComponent": null,
+    "sharingSettings": null,
+    "exportData": null,
+    "backupData": null
+  },
+  "states": {
+    "idle": {
+      "description": "System ready for component operations",
+      "on": {
+        "BROWSE_COMPONENTS": "browsing",
+        "CREATE_COMPONENT": "creating",
+        "UPLOAD_COMPONENT": "uploading",
+        "IMPORT_COMPONENTS": "importing",
+        "SEARCH_COMPONENTS": "searching"
+      }
+    },
+    "browsing": {
+      "description": "User browsing available components",
+      "initial": "loading_list",
+      "states": {
+        "loading_list": {
+          "description": "Loading component list from API",
+          "invoke": {
+            "src": "loadComponents",
+            "onDone": {
+              "target": "displaying_list",
+              "actions": "setComponents"
+            },
+            "onError": {
+              "target": "error_loading",
+              "actions": "setError"
+            }
+          }
+        },
+        "displaying_list": {
+          "description": "Showing paginated component list with filters",
+          "on": {
+            "SELECT_COMPONENT": {
+              "target": "#component_management_workflow.viewing_component",
+              "actions": "setSelectedComponent"
+            },
+            "APPLY_FILTERS": "filtering",
+            "REFRESH_LIST": "loading_list",
+            "LOAD_MORE": "loading_more"
+          }
+        },
+        "filtering": {
+          "description": "Applying search and category filters",
+          "invoke": {
+            "src": "filterComponents",
+            "onDone": {
+              "target": "displaying_list",
+              "actions": "updateComponentList"
+            },
+            "onError": {
+              "target": "error_filtering",
+              "actions": "setError"
+            }
+          }
+        },
+        "loading_more": {
+          "description": "Loading additional component pages",
+          "invoke": {
+            "src": "loadMoreComponents",
+            "onDone": {
+              "target": "displaying_list",
+              "actions": "appendComponents"
+            },
+            "onError": {
+              "target": "error_loading",
+              "actions": "setError"
+            }
+          }
+        },
+        "error_loading": {
+          "description": "Error occurred while loading components",
+          "on": {
+            "RETRY": "loading_list",
+            "CANCEL": "#component_management_workflow.idle"
+          }
+        },
+        "error_filtering": {
+          "description": "Error occurred during filtering",
+          "on": {
+            "RETRY": "filtering",
+            "RESET_FILTERS": "loading_list"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "searching": {
+      "description": "Searching components by various criteria",
+      "initial": "input_query",
+      "states": {
+        "input_query": {
+          "description": "User entering search parameters",
+          "on": {
+            "EXECUTE_SEARCH": "performing_search",
+            "APPLY_ADVANCED_FILTERS": "advanced_filtering"
+          }
+        },
+        "performing_search": {
+          "description": "Executing search with current query",
+          "invoke": {
+            "src": "searchComponents",
+            "onDone": {
+              "target": "displaying_results",
+              "actions": "setSearchResults"
+            },
+            "onError": {
+              "target": "search_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "advanced_filtering": {
+          "description": "Applying advanced search filters",
+          "invoke": {
+            "src": "advancedSearch",
+            "onDone": {
+              "target": "displaying_results",
+              "actions": "setFilteredResults"
+            },
+            "onError": {
+              "target": "search_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "displaying_results": {
+          "description": "Showing search results with pagination",
+          "on": {
+            "SELECT_RESULT": {
+              "target": "#component_management_workflow.viewing_component",
+              "actions": "setSelectedComponent"
+            },
+            "REFINE_SEARCH": "input_query",
+            "CLEAR_SEARCH": "#component_management_workflow.browsing"
+          }
+        },
+        "search_error": {
+          "description": "Error occurred during search",
+          "on": {
+            "RETRY_SEARCH": "performing_search",
+            "MODIFY_QUERY": "input_query",
+            "CANCEL_SEARCH": "#component_management_workflow.browsing"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "viewing_component": {
+      "description": "Displaying detailed component information",
+      "initial": "loading_details",
+      "states": {
+        "loading_details": {
+          "description": "Loading component metadata and structure",
+          "invoke": {
+            "src": "loadComponentDetails",
+            "onDone": {
+              "target": "displaying_details",
+              "actions": "setComponentDetails"
+            },
+            "onError": {
+              "target": "details_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "displaying_details": {
+          "description": "Showing component details, inputs, outputs, documentation",
+          "on": {
+            "EDIT_COMPONENT": {
+              "target": "#component_management_workflow.editing",
+              "cond": "canEditComponent"
+            },
+            "CLONE_COMPONENT": "#component_management_workflow.cloning",
+            "DELETE_COMPONENT": "#component_management_workflow.deleting",
+            "SHARE_COMPONENT": "#component_management_workflow.sharing",
+            "TEST_COMPONENT": "#component_management_workflow.testing",
+            "DOWNLOAD_COMPONENT": "#component_management_workflow.downloading",
+            "VIEW_USAGE": "viewing_usage"
+          }
+        },
+        "viewing_usage": {
+          "description": "Showing component usage examples and documentation",
+          "on": {
+            "BACK_TO_DETAILS": "displaying_details",
+            "TRY_EXAMPLE": "#component_management_workflow.testing"
+          }
+        },
+        "details_error": {
+          "description": "Error loading component details",
+          "on": {
+            "RETRY": "loading_details",
+            "GO_BACK": "#component_management_workflow.browsing"
+          }
+        }
+      },
+      "on": {
+        "BACK": "browsing"
+      }
+    },
+    "creating": {
+      "description": "Creating new component from scratch",
+      "initial": "component_setup",
+      "states": {
+        "component_setup": {
+          "description": "Setting component basic information",
+          "on": {
+            "CONFIGURE_INPUTS": "configuring_inputs",
+            "CONFIGURE_OUTPUTS": "configuring_outputs",
+            "SET_METADATA": "setting_metadata"
+          }
+        },
+        "configuring_inputs": {
+          "description": "Defining component input parameters",
+          "on": {
+            "ADD_INPUT": {
+              "actions": "addInputParameter"
+            },
+            "REMOVE_INPUT": {
+              "actions": "removeInputParameter"
+            },
+            "VALIDATE_INPUTS": "validating_inputs",
+            "CONTINUE_TO_OUTPUTS": "configuring_outputs"
+          }
+        },
+        "configuring_outputs": {
+          "description": "Defining component output parameters",
+          "on": {
+            "ADD_OUTPUT": {
+              "actions": "addOutputParameter"
+            },
+            "REMOVE_OUTPUT": {
+              "actions": "removeOutputParameter"
+            },
+            "VALIDATE_OUTPUTS": "validating_outputs",
+            "CONTINUE_TO_IMPLEMENTATION": "implementing"
+          }
+        },
+        "validating_inputs": {
+          "description": "Validating input parameter definitions",
+          "invoke": {
+            "src": "validateInputs",
+            "onDone": {
+              "target": "configuring_inputs",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "input_validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "validating_outputs": {
+          "description": "Validating output parameter definitions",
+          "invoke": {
+            "src": "validateOutputs",
+            "onDone": {
+              "target": "configuring_outputs",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "output_validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "setting_metadata": {
+          "description": "Setting component metadata, tags, description",
+          "on": {
+            "SET_NAME": {
+              "actions": "setComponentName"
+            },
+            "SET_DESCRIPTION": {
+              "actions": "setComponentDescription"
+            },
+            "ADD_TAG": {
+              "actions": "addTag"
+            },
+            "REMOVE_TAG": {
+              "actions": "removeTag"
+            },
+            "SET_CATEGORY": {
+              "actions": "setCategory"
+            },
+            "CONTINUE_TO_IMPLEMENTATION": "implementing"
+          }
+        },
+        "implementing": {
+          "description": "Implementing component logic",
+          "on": {
+            "WRITE_CODE": {
+              "actions": "updateComponentCode"
+            },
+            "VALIDATE_IMPLEMENTATION": "validating_implementation",
+            "TEST_IMPLEMENTATION": "testing_implementation",
+            "SAVE_DRAFT": "saving_draft"
+          }
+        },
+        "validating_implementation": {
+          "description": "Validating component implementation",
+          "invoke": {
+            "src": "validateImplementation",
+            "onDone": {
+              "target": "implementing",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "implementation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "testing_implementation": {
+          "description": "Testing component with sample data",
+          "invoke": {
+            "src": "testComponent",
+            "onDone": {
+              "target": "implementing",
+              "actions": "setTestResults"
+            },
+            "onError": {
+              "target": "test_error",
+              "actions": "setTestError"
+            }
+          }
+        },
+        "saving_draft": {
+          "description": "Saving component as draft",
+          "invoke": {
+            "src": "saveDraft",
+            "onDone": {
+              "target": "implementing",
+              "actions": "confirmDraftSaved"
+            },
+            "onError": {
+              "target": "save_error",
+              "actions": "setSaveError"
+            }
+          }
+        },
+        "input_validation_error": {
+          "description": "Input validation failed",
+          "on": {
+            "FIX_INPUTS": "configuring_inputs",
+            "CANCEL_CREATION": "#component_management_workflow.idle"
+          }
+        },
+        "output_validation_error": {
+          "description": "Output validation failed",
+          "on": {
+            "FIX_OUTPUTS": "configuring_outputs",
+            "CANCEL_CREATION": "#component_management_workflow.idle"
+          }
+        },
+        "implementation_error": {
+          "description": "Implementation validation failed",
+          "on": {
+            "FIX_IMPLEMENTATION": "implementing",
+            "CANCEL_CREATION": "#component_management_workflow.idle"
+          }
+        },
+        "test_error": {
+          "description": "Component testing failed",
+          "on": {
+            "FIX_AND_RETRY": "implementing",
+            "SKIP_TESTING": "implementing"
+          }
+        },
+        "save_error": {
+          "description": "Failed to save draft",
+          "on": {
+            "RETRY_SAVE": "saving_draft",
+            "CONTINUE_WITHOUT_SAVE": "implementing"
+          }
+        }
+      },
+      "on": {
+        "PUBLISH_COMPONENT": {
+          "target": "publishing",
+          "cond": "isComponentValid"
+        },
+        "CANCEL": "idle"
+      }
+    },
+    "editing": {
+      "description": "Editing existing component",
+      "initial": "loading_for_edit",
+      "states": {
+        "loading_for_edit": {
+          "description": "Loading component data for editing",
+          "invoke": {
+            "src": "loadComponentForEdit",
+            "onDone": {
+              "target": "editing_form",
+              "actions": "setEditingComponent"
+            },
+            "onError": {
+              "target": "load_edit_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "editing_form": {
+          "description": "Component editing interface",
+          "on": {
+            "UPDATE_METADATA": {
+              "actions": "updateMetadata"
+            },
+            "UPDATE_INPUTS": {
+              "actions": "updateInputs"
+            },
+            "UPDATE_OUTPUTS": {
+              "actions": "updateOutputs"
+            },
+            "UPDATE_IMPLEMENTATION": {
+              "actions": "updateImplementation"
+            },
+            "VALIDATE_CHANGES": "validating_changes",
+            "PREVIEW_CHANGES": "previewing_changes",
+            "SAVE_CHANGES": "saving_changes"
+          }
+        },
+        "validating_changes": {
+          "description": "Validating component modifications",
+          "invoke": {
+            "src": "validateChanges",
+            "onDone": {
+              "target": "editing_form",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "previewing_changes": {
+          "description": "Previewing component changes",
+          "invoke": {
+            "src": "previewComponent",
+            "onDone": {
+              "target": "editing_form",
+              "actions": "setPreviewResults"
+            },
+            "onError": {
+              "target": "preview_error",
+              "actions": "setPreviewError"
+            }
+          }
+        },
+        "saving_changes": {
+          "description": "Saving component modifications",
+          "invoke": {
+            "src": "saveComponentChanges",
+            "onDone": {
+              "target": "#component_management_workflow.viewing_component",
+              "actions": "confirmChangesSaved"
+            },
+            "onError": {
+              "target": "save_changes_error",
+              "actions": "setSaveError"
+            }
+          }
+        },
+        "load_edit_error": {
+          "description": "Error loading component for editing",
+          "on": {
+            "RETRY": "loading_for_edit",
+            "CANCEL": "#component_management_workflow.viewing_component"
+          }
+        },
+        "validation_error": {
+          "description": "Validation error during editing",
+          "on": {
+            "FIX_ERRORS": "editing_form",
+            "CANCEL_EDIT": "#component_management_workflow.viewing_component"
+          }
+        },
+        "preview_error": {
+          "description": "Error during preview",
+          "on": {
+            "RETRY_PREVIEW": "previewing_changes",
+            "CONTINUE_EDITING": "editing_form"
+          }
+        },
+        "save_changes_error": {
+          "description": "Error saving changes",
+          "on": {
+            "RETRY_SAVE": "saving_changes",
+            "CONTINUE_EDITING": "editing_form"
+          }
+        }
+      },
+      "on": {
+        "CANCEL_EDIT": "viewing_component"
+      }
+    },
+    "cloning": {
+      "description": "Cloning existing component for modification",
+      "initial": "preparing_clone",
+      "states": {
+        "preparing_clone": {
+          "description": "Preparing component data for cloning",
+          "invoke": {
+            "src": "prepareClone",
+            "onDone": {
+              "target": "customizing_clone",
+              "actions": "setCloneData"
+            },
+            "onError": {
+              "target": "clone_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "customizing_clone": {
+          "description": "Customizing cloned component",
+          "on": {
+            "SET_NEW_NAME": {
+              "actions": "setCloneName"
+            },
+            "MODIFY_METADATA": {
+              "actions": "modifyCloneMetadata"
+            },
+            "CUSTOMIZE_IMPLEMENTATION": {
+              "actions": "customizeImplementation"
+            },
+            "CREATE_CLONE": "creating_clone"
+          }
+        },
+        "creating_clone": {
+          "description": "Creating the cloned component",
+          "invoke": {
+            "src": "createClone",
+            "onDone": {
+              "target": "#component_management_workflow.viewing_component",
+              "actions": "setClonedComponent"
+            },
+            "onError": {
+              "target": "create_clone_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "clone_error": {
+          "description": "Error during clone preparation",
+          "on": {
+            "RETRY": "preparing_clone",
+            "CANCEL": "#component_management_workflow.viewing_component"
+          }
+        },
+        "create_clone_error": {
+          "description": "Error creating clone",
+          "on": {
+            "RETRY": "creating_clone",
+            "MODIFY": "customizing_clone"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "viewing_component"
+      }
+    },
+    "testing": {
+      "description": "Testing component functionality",
+      "initial": "setup_test",
+      "states": {
+        "setup_test": {
+          "description": "Setting up test parameters",
+          "on": {
+            "SET_TEST_INPUTS": {
+              "actions": "setTestInputs"
+            },
+            "USE_SAMPLE_DATA": {
+              "actions": "loadSampleData"
+            },
+            "RUN_TEST": "executing_test"
+          }
+        },
+        "executing_test": {
+          "description": "Running component test",
+          "invoke": {
+            "src": "executeComponentTest",
+            "onDone": {
+              "target": "viewing_results",
+              "actions": "setTestResults"
+            },
+            "onError": {
+              "target": "test_failed",
+              "actions": "setTestError"
+            }
+          }
+        },
+        "viewing_results": {
+          "description": "Displaying test results and outputs",
+          "on": {
+            "RUN_ANOTHER_TEST": "setup_test",
+            "SAVE_TEST_CASE": "saving_test_case",
+            "EXPORT_RESULTS": "exporting_results"
+          }
+        },
+        "test_failed": {
+          "description": "Test execution failed",
+          "on": {
+            "RETRY_TEST": "executing_test",
+            "MODIFY_INPUTS": "setup_test",
+            "REPORT_BUG": "reporting_issue"
+          }
+        },
+        "saving_test_case": {
+          "description": "Saving test case for future use",
+          "invoke": {
+            "src": "saveTestCase",
+            "onDone": {
+              "target": "viewing_results",
+              "actions": "confirmTestCaseSaved"
+            },
+            "onError": {
+              "target": "save_test_error",
+              "actions": "setSaveError"
+            }
+          }
+        },
+        "exporting_results": {
+          "description": "Exporting test results",
+          "invoke": {
+            "src": "exportTestResults",
+            "onDone": {
+              "target": "viewing_results",
+              "actions": "confirmExported"
+            },
+            "onError": {
+              "target": "export_error",
+              "actions": "setExportError"
+            }
+          }
+        },
+        "reporting_issue": {
+          "description": "Reporting component issue",
+          "invoke": {
+            "src": "reportComponentIssue",
+            "onDone": {
+              "target": "viewing_results",
+              "actions": "confirmIssueReported"
+            },
+            "onError": {
+              "target": "report_error",
+              "actions": "setReportError"
+            }
+          }
+        },
+        "save_test_error": {
+          "description": "Error saving test case",
+          "on": {
+            "RETRY": "saving_test_case",
+            "SKIP": "viewing_results"
+          }
+        },
+        "export_error": {
+          "description": "Error exporting results",
+          "on": {
+            "RETRY": "exporting_results",
+            "SKIP": "viewing_results"
+          }
+        },
+        "report_error": {
+          "description": "Error reporting issue",
+          "on": {
+            "RETRY": "reporting_issue",
+            "SKIP": "viewing_results"
+          }
+        }
+      },
+      "on": {
+        "CLOSE_TEST": "viewing_component"
+      }
+    },
+    "uploading": {
+      "description": "Uploading component from file",
+      "initial": "selecting_file",
+      "states": {
+        "selecting_file": {
+          "description": "User selecting component file to upload",
+          "on": {
+            "FILE_SELECTED": "validating_file",
+            "DRAG_DROP_FILE": "validating_file"
+          }
+        },
+        "validating_file": {
+          "description": "Validating uploaded component file",
+          "invoke": {
+            "src": "validateComponentFile",
+            "onDone": {
+              "target": "parsing_component",
+              "actions": "setUploadData"
+            },
+            "onError": {
+              "target": "file_validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "parsing_component": {
+          "description": "Parsing component structure and metadata",
+          "invoke": {
+            "src": "parseComponent",
+            "onDone": {
+              "target": "reviewing_upload",
+              "actions": "setParsedComponent"
+            },
+            "onError": {
+              "target": "parsing_error",
+              "actions": "setParsingError"
+            }
+          }
+        },
+        "reviewing_upload": {
+          "description": "User reviewing parsed component before upload",
+          "on": {
+            "CONFIRM_UPLOAD": "processing_upload",
+            "MODIFY_METADATA": "editing_metadata",
+            "REPLACE_EXISTING": "checking_conflicts"
+          }
+        },
+        "editing_metadata": {
+          "description": "Editing component metadata before upload",
+          "on": {
+            "SAVE_METADATA": "reviewing_upload",
+            "CANCEL_EDIT": "reviewing_upload"
+          }
+        },
+        "checking_conflicts": {
+          "description": "Checking for existing component conflicts",
+          "invoke": {
+            "src": "checkComponentConflicts",
+            "onDone": {
+              "target": "resolving_conflicts",
+              "actions": "setConflicts"
+            },
+            "onError": {
+              "target": "conflict_check_error",
+              "actions": "setError"
+            }
+          }
+        },
+        "resolving_conflicts": {
+          "description": "Resolving component name/version conflicts",
+          "on": {
+            "RESOLVE_CONFLICT": "processing_upload",
+            "RENAME_COMPONENT": "editing_metadata",
+            "CANCEL_UPLOAD": "#component_management_workflow.idle"
+          }
+        },
+        "processing_upload": {
+          "description": "Processing and storing component",
+          "invoke": {
+            "src": "processComponentUpload",
+            "onDone": {
+              "target": "#component_management_workflow.viewing_component",
+              "actions": "setUploadedComponent"
+            },
+            "onError": {
+              "target": "upload_error",
+              "actions": "setUploadError"
+            }
+          }
+        },
+        "file_validation_error": {
+          "description": "File validation failed",
+          "on": {
+            "SELECT_DIFFERENT_FILE": "selecting_file",
+            "CANCEL": "#component_management_workflow.idle"
+          }
+        },
+        "parsing_error": {
+          "description": "Component parsing failed",
+          "on": {
+            "RETRY_PARSING": "parsing_component",
+            "SELECT_DIFFERENT_FILE": "selecting_file"
+          }
+        },
+        "conflict_check_error": {
+          "description": "Error checking conflicts",
+          "on": {
+            "RETRY": "checking_conflicts",
+            "FORCE_UPLOAD": "processing_upload"
+          }
+        },
+        "upload_error": {
+          "description": "Upload processing failed",
+          "on": {
+            "RETRY_UPLOAD": "processing_upload",
+            "CANCEL": "#component_management_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "importing": {
+      "description": "Importing multiple components from various sources",
+      "initial": "selecting_source",
+      "states": {
+        "selecting_source": {
+          "description": "Selecting import source (file, URL, repository)",
+          "on": {
+            "IMPORT_FROM_FILE": "importing_from_file",
+            "IMPORT_FROM_URL": "importing_from_url",
+            "IMPORT_FROM_REPO": "importing_from_repo",
+            "IMPORT_FROM_MARKETPLACE": "importing_from_marketplace"
+          }
+        },
+        "importing_from_file": {
+          "description": "Importing from uploaded file archive",
+          "invoke": {
+            "src": "importFromFile",
+            "onDone": {
+              "target": "processing_batch_import",
+              "actions": "setBatchImportData"
+            },
+            "onError": {
+              "target": "import_error",
+              "actions": "setImportError"
+            }
+          }
+        },
+        "importing_from_url": {
+          "description": "Importing from remote URL",
+          "invoke": {
+            "src": "importFromUrl",
+            "onDone": {
+              "target": "processing_batch_import",
+              "actions": "setBatchImportData"
+            },
+            "onError": {
+              "target": "import_error",
+              "actions": "setImportError"
+            }
+          }
+        },
+        "importing_from_repo": {
+          "description": "Importing from git repository",
+          "invoke": {
+            "src": "importFromRepository",
+            "onDone": {
+              "target": "processing_batch_import",
+              "actions": "setBatchImportData"
+            },
+            "onError": {
+              "target": "import_error",
+              "actions": "setImportError"
+            }
+          }
+        },
+        "importing_from_marketplace": {
+          "description": "Importing from component marketplace",
+          "invoke": {
+            "src": "importFromMarketplace",
+            "onDone": {
+              "target": "processing_batch_import",
+              "actions": "setBatchImportData"
+            },
+            "onError": {
+              "target": "import_error",
+              "actions": "setImportError"
+            }
+          }
+        },
+        "processing_batch_import": {
+          "description": "Processing multiple components for import",
+          "invoke": {
+            "src": "processBatchImport",
+            "onDone": {
+              "target": "reviewing_imports",
+              "actions": "setImportResults"
+            },
+            "onError": {
+              "target": "batch_import_error",
+              "actions": "setBatchImportError"
+            }
+          }
+        },
+        "reviewing_imports": {
+          "description": "Reviewing imported components before confirmation",
+          "on": {
+            "CONFIRM_IMPORTS": "finalizing_imports",
+            "SELECT_COMPONENTS": "selecting_components",
+            "RESOLVE_CONFLICTS": "resolving_import_conflicts"
+          }
+        },
+        "selecting_components": {
+          "description": "Selecting which components to import",
+          "on": {
+            "FINALIZE_SELECTION": "finalizing_imports",
+            "CANCEL_SELECTION": "reviewing_imports"
+          }
+        },
+        "resolving_import_conflicts": {
+          "description": "Resolving import conflicts and duplicates",
+          "on": {
+            "CONFLICTS_RESOLVED": "reviewing_imports",
+            "CANCEL_IMPORT": "#component_management_workflow.idle"
+          }
+        },
+        "finalizing_imports": {
+          "description": "Finalizing component imports",
+          "invoke": {
+            "src": "finalizeImports",
+            "onDone": {
+              "target": "#component_management_workflow.browsing",
+              "actions": "confirmImportsCompleted"
+            },
+            "onError": {
+              "target": "finalization_error",
+              "actions": "setFinalizationError"
+            }
+          }
+        },
+        "import_error": {
+          "description": "Error during import process",
+          "on": {
+            "RETRY_IMPORT": "selecting_source",
+            "CANCEL": "#component_management_workflow.idle"
+          }
+        },
+        "batch_import_error": {
+          "description": "Error processing batch import",
+          "on": {
+            "RETRY": "processing_batch_import",
+            "CANCEL": "#component_management_workflow.idle"
+          }
+        },
+        "finalization_error": {
+          "description": "Error finalizing imports",
+          "on": {
+            "RETRY": "finalizing_imports",
+            "CANCEL": "reviewing_imports"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "sharing": {
+      "description": "Managing component sharing and permissions",
+      "initial": "setting_permissions",
+      "states": {
+        "setting_permissions": {
+          "description": "Setting component sharing permissions",
+          "on": {
+            "SET_PUBLIC": {
+              "actions": "setPublicSharing"
+            },
+            "SET_PRIVATE": {
+              "actions": "setPrivateSharing"
+            },
+            "SET_RESTRICTED": "configuring_restrictions",
+            "GENERATE_SHARE_LINK": "generating_link",
+            "PUBLISH_TO_MARKETPLACE": "publishing_to_marketplace"
+          }
+        },
+        "configuring_restrictions": {
+          "description": "Configuring sharing restrictions and user access",
+          "on": {
+            "ADD_USER": {
+              "actions": "addAuthorizedUser"
+            },
+            "REMOVE_USER": {
+              "actions": "removeAuthorizedUser"
+            },
+            "SET_EXPIRY": {
+              "actions": "setShareExpiry"
+            },
+            "APPLY_RESTRICTIONS": "applying_sharing_settings"
+          }
+        },
+        "generating_link": {
+          "description": "Generating shareable component link",
+          "invoke": {
+            "src": "generateShareLink",
+            "onDone": {
+              "target": "link_generated",
+              "actions": "setShareLink"
+            },
+            "onError": {
+              "target": "link_generation_error",
+              "actions": "setLinkError"
+            }
+          }
+        },
+        "link_generated": {
+          "description": "Share link generated successfully",
+          "on": {
+            "COPY_LINK": {
+              "actions": "copyToClipboard"
+            },
+            "SHARE_VIA_EMAIL": "sharing_via_email",
+            "SHARE_VIA_SOCIAL": "sharing_via_social",
+            "MODIFY_PERMISSIONS": "setting_permissions"
+          }
+        },
+        "sharing_via_email": {
+          "description": "Sharing component via email",
+          "invoke": {
+            "src": "shareViaEmail",
+            "onDone": {
+              "target": "link_generated",
+              "actions": "confirmEmailSent"
+            },
+            "onError": {
+              "target": "email_share_error",
+              "actions": "setEmailError"
+            }
+          }
+        },
+        "sharing_via_social": {
+          "description": "Sharing component via social media",
+          "invoke": {
+            "src": "shareViaSocial",
+            "onDone": {
+              "target": "link_generated",
+              "actions": "confirmSocialShared"
+            },
+            "onError": {
+              "target": "social_share_error",
+              "actions": "setSocialError"
+            }
+          }
+        },
+        "publishing_to_marketplace": {
+          "description": "Publishing component to public marketplace",
+          "invoke": {
+            "src": "publishToMarketplace",
+            "onDone": {
+              "target": "published_to_marketplace",
+              "actions": "confirmMarketplacePublished"
+            },
+            "onError": {
+              "target": "marketplace_publish_error",
+              "actions": "setMarketplaceError"
+            }
+          }
+        },
+        "published_to_marketplace": {
+          "description": "Component published to marketplace",
+          "on": {
+            "VIEW_MARKETPLACE_LISTING": "viewing_marketplace_listing",
+            "MODIFY_LISTING": "editing_marketplace_listing",
+            "UNPUBLISH": "unpublishing_from_marketplace"
+          }
+        },
+        "applying_sharing_settings": {
+          "description": "Applying sharing configuration",
+          "invoke": {
+            "src": "applySharingSettings",
+            "onDone": {
+              "target": "#component_management_workflow.viewing_component",
+              "actions": "confirmSharingApplied"
+            },
+            "onError": {
+              "target": "sharing_settings_error",
+              "actions": "setSharingError"
+            }
+          }
+        },
+        "link_generation_error": {
+          "description": "Error generating share link",
+          "on": {
+            "RETRY": "generating_link",
+            "CANCEL": "setting_permissions"
+          }
+        },
+        "email_share_error": {
+          "description": "Error sharing via email",
+          "on": {
+            "RETRY": "sharing_via_email",
+            "CANCEL": "link_generated"
+          }
+        },
+        "social_share_error": {
+          "description": "Error sharing via social media",
+          "on": {
+            "RETRY": "sharing_via_social",
+            "CANCEL": "link_generated"
+          }
+        },
+        "marketplace_publish_error": {
+          "description": "Error publishing to marketplace",
+          "on": {
+            "RETRY": "publishing_to_marketplace",
+            "CANCEL": "setting_permissions"
+          }
+        },
+        "sharing_settings_error": {
+          "description": "Error applying sharing settings",
+          "on": {
+            "RETRY": "applying_sharing_settings",
+            "MODIFY": "setting_permissions"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "viewing_component"
+      }
+    },
+    "downloading": {
+      "description": "Downloading component files",
+      "initial": "preparing_download",
+      "states": {
+        "preparing_download": {
+          "description": "Preparing component for download",
+          "invoke": {
+            "src": "prepareComponentDownload",
+            "onDone": {
+              "target": "download_ready",
+              "actions": "setDownloadData"
+            },
+            "onError": {
+              "target": "download_preparation_error",
+              "actions": "setDownloadError"
+            }
+          }
+        },
+        "download_ready": {
+          "description": "Download package ready",
+          "on": {
+            "START_DOWNLOAD": "downloading_file",
+            "CUSTOMIZE_EXPORT": "customizing_export"
+          }
+        },
+        "customizing_export": {
+          "description": "Customizing export format and contents",
+          "on": {
+            "SELECT_FORMAT": {
+              "actions": "setExportFormat"
+            },
+            "INCLUDE_DEPENDENCIES": {
+              "actions": "includeDependencies"
+            },
+            "INCLUDE_DOCUMENTATION": {
+              "actions": "includeDocumentation"
+            },
+            "CONFIRM_EXPORT": "preparing_download"
+          }
+        },
+        "downloading_file": {
+          "description": "Downloading component file",
+          "invoke": {
+            "src": "downloadComponentFile",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "confirmDownloadCompleted"
+            },
+            "onError": {
+              "target": "download_error",
+              "actions": "setDownloadError"
+            }
+          }
+        },
+        "download_completed": {
+          "description": "Download completed successfully",
+          "on": {
+            "DOWNLOAD_ANOTHER": "preparing_download",
+            "CLOSE": "#component_management_workflow.viewing_component"
+          }
+        },
+        "download_preparation_error": {
+          "description": "Error preparing download",
+          "on": {
+            "RETRY": "preparing_download",
+            "CANCEL": "#component_management_workflow.viewing_component"
+          }
+        },
+        "download_error": {
+          "description": "Error during download",
+          "on": {
+            "RETRY": "downloading_file",
+            "CANCEL": "#component_management_workflow.viewing_component"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "viewing_component"
+      }
+    },
+    "deleting": {
+      "description": "Deleting component with confirmation",
+      "initial": "confirming_deletion",
+      "states": {
+        "confirming_deletion": {
+          "description": "Confirming component deletion",
+          "on": {
+            "CONFIRM_DELETE": "checking_dependencies",
+            "CANCEL_DELETE": "#component_management_workflow.viewing_component"
+          }
+        },
+        "checking_dependencies": {
+          "description": "Checking for component dependencies",
+          "invoke": {
+            "src": "checkComponentDependencies",
+            "onDone": [
+              {
+                "target": "resolving_dependencies",
+                "cond": "hasDependencies",
+                "actions": "setDependencies"
+              },
+              {
+                "target": "processing_deletion",
+                "actions": "confirmNoDependencies"
+              }
+            ],
+            "onError": {
+              "target": "dependency_check_error",
+              "actions": "setDependencyError"
+            }
+          }
+        },
+        "resolving_dependencies": {
+          "description": "Resolving component dependencies before deletion",
+          "on": {
+            "FORCE_DELETE": "processing_deletion",
+            "UPDATE_DEPENDENCIES": "updating_dependencies",
+            "CANCEL_DELETE": "#component_management_workflow.viewing_component"
+          }
+        },
+        "updating_dependencies": {
+          "description": "Updating dependent components",
+          "invoke": {
+            "src": "updateDependentComponents",
+            "onDone": {
+              "target": "processing_deletion",
+              "actions": "confirmDependenciesUpdated"
+            },
+            "onError": {
+              "target": "dependency_update_error",
+              "actions": "setUpdateError"
+            }
+          }
+        },
+        "processing_deletion": {
+          "description": "Processing component deletion",
+          "invoke": {
+            "src": "deleteComponent",
+            "onDone": {
+              "target": "#component_management_workflow.browsing",
+              "actions": "confirmComponentDeleted"
+            },
+            "onError": {
+              "target": "deletion_error",
+              "actions": "setDeletionError"
+            }
+          }
+        },
+        "dependency_check_error": {
+          "description": "Error checking dependencies",
+          "on": {
+            "RETRY": "checking_dependencies",
+            "FORCE_DELETE": "processing_deletion"
+          }
+        },
+        "dependency_update_error": {
+          "description": "Error updating dependencies",
+          "on": {
+            "RETRY": "updating_dependencies",
+            "FORCE_DELETE": "processing_deletion"
+          }
+        },
+        "deletion_error": {
+          "description": "Error during deletion process",
+          "on": {
+            "RETRY": "processing_deletion",
+            "CANCEL": "#component_management_workflow.viewing_component"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "viewing_component"
+      }
+    },
+    "publishing": {
+      "description": "Publishing component for sharing",
+      "initial": "preparing_publication",
+      "states": {
+        "preparing_publication": {
+          "description": "Preparing component for publication",
+          "invoke": {
+            "src": "preparePublication",
+            "onDone": {
+              "target": "reviewing_publication",
+              "actions": "setPublicationData"
+            },
+            "onError": {
+              "target": "publication_preparation_error",
+              "actions": "setPublicationError"
+            }
+          }
+        },
+        "reviewing_publication": {
+          "description": "Reviewing publication details",
+          "on": {
+            "SET_VERSION": {
+              "actions": "setComponentVersion"
+            },
+            "SET_CHANGELOG": {
+              "actions": "setChangelog"
+            },
+            "SET_LICENSE": {
+              "actions": "setLicense"
+            },
+            "CONFIRM_PUBLICATION": "validating_for_publication"
+          }
+        },
+        "validating_for_publication": {
+          "description": "Validating component for publication",
+          "invoke": {
+            "src": "validateForPublication",
+            "onDone": {
+              "target": "publishing_component",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "publication_validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "publishing_component": {
+          "description": "Publishing component to registry",
+          "invoke": {
+            "src": "publishComponent",
+            "onDone": {
+              "target": "publication_completed",
+              "actions": "confirmComponentPublished"
+            },
+            "onError": {
+              "target": "publication_error",
+              "actions": "setPublicationError"
+            }
+          }
+        },
+        "publication_completed": {
+          "description": "Component published successfully",
+          "on": {
+            "VIEW_PUBLISHED": "#component_management_workflow.viewing_component",
+            "PUBLISH_ANOTHER": "#component_management_workflow.browsing"
+          }
+        },
+        "publication_preparation_error": {
+          "description": "Error preparing publication",
+          "on": {
+            "RETRY": "preparing_publication",
+            "CANCEL": "#component_management_workflow.creating"
+          }
+        },
+        "publication_validation_error": {
+          "description": "Validation failed for publication",
+          "on": {
+            "FIX_ISSUES": "reviewing_publication",
+            "CANCEL": "#component_management_workflow.creating"
+          }
+        },
+        "publication_error": {
+          "description": "Error during publication process",
+          "on": {
+            "RETRY": "publishing_component",
+            "CANCEL": "reviewing_publication"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "creating"
+      }
+    }
+  },
+  "services": {
+    "loadComponents": "Service to load component list from API",
+    "filterComponents": "Service to filter components based on criteria",
+    "searchComponents": "Service to search components by query",
+    "loadComponentDetails": "Service to load detailed component information",
+    "validateInputs": "Service to validate component input parameters",
+    "validateOutputs": "Service to validate component output parameters",
+    "validateImplementation": "Service to validate component implementation",
+    "testComponent": "Service to test component functionality",
+    "saveDraft": "Service to save component as draft",
+    "saveComponentChanges": "Service to save component modifications",
+    "loadComponentForEdit": "Service to load component for editing",
+    "validateChanges": "Service to validate component changes",
+    "previewComponent": "Service to preview component changes",
+    "prepareClone": "Service to prepare component for cloning",
+    "createClone": "Service to create cloned component",
+    "executeComponentTest": "Service to execute component test",
+    "saveTestCase": "Service to save test case",
+    "exportTestResults": "Service to export test results",
+    "reportComponentIssue": "Service to report component issues",
+    "validateComponentFile": "Service to validate uploaded component file",
+    "parseComponent": "Service to parse component structure",
+    "checkComponentConflicts": "Service to check for component conflicts",
+    "processComponentUpload": "Service to process component upload",
+    "importFromFile": "Service to import components from file",
+    "importFromUrl": "Service to import components from URL",
+    "importFromRepository": "Service to import from git repository",
+    "importFromMarketplace": "Service to import from marketplace",
+    "processBatchImport": "Service to process batch component import",
+    "finalizeImports": "Service to finalize component imports",
+    "generateShareLink": "Service to generate component share link",
+    "shareViaEmail": "Service to share component via email",
+    "shareViaSocial": "Service to share via social media",
+    "publishToMarketplace": "Service to publish to marketplace",
+    "applySharingSettings": "Service to apply sharing settings",
+    "prepareComponentDownload": "Service to prepare component download",
+    "downloadComponentFile": "Service to download component file",
+    "checkComponentDependencies": "Service to check component dependencies",
+    "updateDependentComponents": "Service to update dependent components",
+    "deleteComponent": "Service to delete component",
+    "preparePublication": "Service to prepare component publication",
+    "validateForPublication": "Service to validate component for publication",
+    "publishComponent": "Service to publish component"
+  },
+  "guards": {
+    "canEditComponent": "Check if user can edit the component",
+    "isComponentValid": "Check if component is valid for publishing",
+    "hasDependencies": "Check if component has dependencies"
+  },
+  "actions": {
+    "setComponents": "Set loaded components in context",
+    "setSelectedComponent": "Set currently selected component",
+    "setError": "Set error message in context",
+    "updateComponentList": "Update component list with filtered results",
+    "appendComponents": "Append more components to existing list",
+    "setSearchResults": "Set search results in context",
+    "setFilteredResults": "Set filtered search results",
+    "setComponentDetails": "Set detailed component information",
+    "addInputParameter": "Add input parameter to component",
+    "removeInputParameter": "Remove input parameter from component",
+    "addOutputParameter": "Add output parameter to component",
+    "removeOutputParameter": "Remove output parameter from component",
+    "setValidationResults": "Set validation results in context",
+    "setValidationError": "Set validation error message",
+    "setComponentName": "Set component name",
+    "setComponentDescription": "Set component description",
+    "addTag": "Add tag to component",
+    "removeTag": "Remove tag from component",
+    "setCategory": "Set component category",
+    "updateComponentCode": "Update component implementation code",
+    "setTestResults": "Set component test results",
+    "setTestError": "Set test error message",
+    "confirmDraftSaved": "Confirm draft has been saved",
+    "setSaveError": "Set save error message",
+    "setEditingComponent": "Set component being edited",
+    "updateMetadata": "Update component metadata",
+    "updateInputs": "Update component inputs",
+    "updateOutputs": "Update component outputs",
+    "updateImplementation": "Update component implementation",
+    "setPreviewResults": "Set component preview results",
+    "setPreviewError": "Set preview error message",
+    "confirmChangesSaved": "Confirm changes have been saved",
+    "setCloneData": "Set component clone data",
+    "setCloneName": "Set cloned component name",
+    "modifyCloneMetadata": "Modify clone metadata",
+    "customizeImplementation": "Customize cloned implementation",
+    "setClonedComponent": "Set successfully cloned component",
+    "setTestInputs": "Set test input parameters",
+    "loadSampleData": "Load sample test data",
+    "confirmTestCaseSaved": "Confirm test case saved",
+    "confirmExported": "Confirm results exported",
+    "confirmIssueReported": "Confirm issue reported",
+    "setExportError": "Set export error message",
+    "setReportError": "Set report error message",
+    "setUploadData": "Set upload data in context",
+    "setParsedComponent": "Set parsed component data",
+    "setParsingError": "Set parsing error message",
+    "setConflicts": "Set component conflicts",
+    "setUploadError": "Set upload error message",
+    "setUploadedComponent": "Set successfully uploaded component",
+    "setImportError": "Set import error message",
+    "setBatchImportData": "Set batch import data",
+    "setBatchImportError": "Set batch import error",
+    "setImportResults": "Set import results",
+    "confirmImportsCompleted": "Confirm imports completed",
+    "setFinalizationError": "Set finalization error",
+    "setPublicSharing": "Set component to public sharing",
+    "setPrivateSharing": "Set component to private sharing",
+    "addAuthorizedUser": "Add authorized user to sharing",
+    "removeAuthorizedUser": "Remove user from sharing",
+    "setShareExpiry": "Set sharing expiry date",
+    "setShareLink": "Set generated share link",
+    "setLinkError": "Set link generation error",
+    "copyToClipboard": "Copy share link to clipboard",
+    "confirmEmailSent": "Confirm email share sent",
+    "confirmSocialShared": "Confirm social media share",
+    "confirmMarketplacePublished": "Confirm marketplace publication",
+    "setEmailError": "Set email sharing error",
+    "setSocialError": "Set social sharing error",
+    "setMarketplaceError": "Set marketplace error",
+    "confirmSharingApplied": "Confirm sharing settings applied",
+    "setSharingError": "Set sharing configuration error",
+    "setDownloadData": "Set download preparation data",
+    "setDownloadError": "Set download error message",
+    "setExportFormat": "Set export file format",
+    "includeDependencies": "Include dependencies in export",
+    "includeDocumentation": "Include documentation in export",
+    "confirmDownloadCompleted": "Confirm download completed",
+    "setDependencies": "Set component dependencies",
+    "confirmNoDependencies": "Confirm no dependencies found",
+    "setDependencyError": "Set dependency check error",
+    "confirmDependenciesUpdated": "Confirm dependencies updated",
+    "setUpdateError": "Set dependency update error",
+    "confirmComponentDeleted": "Confirm component deleted",
+    "setDeletionError": "Set deletion error message",
+    "setPublicationData": "Set publication preparation data",
+    "setPublicationError": "Set publication error",
+    "setComponentVersion": "Set component version",
+    "setChangelog": "Set component changelog",
+    "setLicense": "Set component license",
+    "confirmComponentPublished": "Confirm component published"
+  }
+}

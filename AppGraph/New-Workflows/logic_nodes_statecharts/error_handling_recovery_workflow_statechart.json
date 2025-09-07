@@ -1,0 +1,1189 @@
+{
+  "id": "errorHandlingRecoveryWorkflow",
+  "description": "Comprehensive error handling and recovery workflow for LangBuilder system",
+  "initial": "monitoring",
+  "context": {
+    "currentError": null,
+    "errorHistory": [],
+    "errorDetails": null,
+    "recoveryAttempts": 0,
+    "maxRecoveryAttempts": 3,
+    "errorSeverity": "low",
+    "errorCategory": null,
+    "affectedSystems": [],
+    "userNotified": false,
+    "recoveryStrategy": null,
+    "systemHealth": {
+      "frontend": "healthy",
+      "backend": "healthy",
+      "database": "healthy",
+      "websockets": "healthy",
+      "mcpServers": "healthy"
+    },
+    "fallbackMode": false,
+    "debugMode": false,
+    "errorReports": [],
+    "userFeedback": null,
+    "retryQueue": [],
+    "circuitBreakerStates": {}
+  },
+  "states": {
+    "monitoring": {
+      "description": "Continuous monitoring of system health and error detection",
+      "initial": "activeMonitoring",
+      "states": {
+        "activeMonitoring": {
+          "description": "Actively monitoring all system components",
+          "entry": ["startHealthMonitoring", "initializeErrorTracking"],
+          "on": {
+            "ERROR_DETECTED": {
+              "target": "#errorHandlingRecoveryWorkflow.errorDetection",
+              "actions": ["captureErrorDetails", "logErrorEvent"]
+            },
+            "HEALTH_CHECK_FAILED": {
+              "target": "healthCheckFailure",
+              "actions": ["recordHealthFailure"]
+            },
+            "PERFORMANCE_DEGRADATION": {
+              "target": "performanceDegradation",
+              "actions": ["recordPerformanceIssue"]
+            }
+          }
+        },
+        "healthCheckFailure": {
+          "description": "System component health check has failed",
+          "entry": ["analyzeHealthFailure", "updateSystemHealth"],
+          "on": {
+            "HEALTH_RESTORED": {
+              "target": "activeMonitoring",
+              "actions": ["updateHealthStatus", "logRecovery"]
+            },
+            "CRITICAL_FAILURE": {
+              "target": "#errorHandlingRecoveryWorkflow.criticalError",
+              "actions": ["escalateToEmergency"]
+            }
+          },
+          "after": {
+            "10000": {
+              "target": "#errorHandlingRecoveryWorkflow.errorDetection",
+              "actions": ["treatAsError"]
+            }
+          }
+        },
+        "performanceDegradation": {
+          "description": "System performance has degraded beyond acceptable thresholds",
+          "entry": ["analyzePerformanceMetrics", "identifyBottlenecks"],
+          "on": {
+            "PERFORMANCE_IMPROVED": {
+              "target": "activeMonitoring",
+              "actions": ["clearPerformanceWarnings"]
+            },
+            "DEGRADATION_WORSENED": {
+              "target": "#errorHandlingRecoveryWorkflow.errorDetection",
+              "actions": ["escalatePerformanceIssue"]
+            }
+          },
+          "after": {
+            "30000": {
+              "target": "activeMonitoring",
+              "actions": ["logPerformanceTimeout"]
+            }
+          }
+        }
+      }
+    },
+    "errorDetection": {
+      "description": "Error detection and initial analysis phase",
+      "initial": "analyzing",
+      "entry": ["incrementErrorCount", "timestampError"],
+      "states": {
+        "analyzing": {
+          "description": "Analyzing the detected error for classification",
+          "entry": ["analyzeError", "classifyError"],
+          "invoke": {
+            "id": "errorAnalyzer",
+            "src": "analyzeErrorService",
+            "onDone": {
+              "target": "classified",
+              "actions": ["storeErrorAnalysis"]
+            },
+            "onError": {
+              "target": "analysisError",
+              "actions": ["logAnalysisError"]
+            }
+          }
+        },
+        "classified": {
+          "description": "Error has been successfully classified",
+          "always": [
+            {
+              "cond": "isCriticalError",
+              "target": "#errorHandlingRecoveryWorkflow.criticalError"
+            },
+            {
+              "cond": "isUserError",
+              "target": "#errorHandlingRecoveryWorkflow.userErrorHandling"
+            },
+            {
+              "cond": "isSystemError",
+              "target": "#errorHandlingRecoveryWorkflow.systemErrorHandling"
+            },
+            {
+              "cond": "isNetworkError",
+              "target": "#errorHandlingRecoveryWorkflow.networkErrorHandling"
+            },
+            {
+              "target": "#errorHandlingRecoveryWorkflow.genericErrorHandling"
+            }
+          ]
+        },
+        "analysisError": {
+          "description": "Error occurred during error analysis",
+          "entry": ["logAnalysisFailure"],
+          "on": {
+            "RETRY_ANALYSIS": {
+              "target": "analyzing",
+              "cond": "canRetryAnalysis"
+            },
+            "SKIP_ANALYSIS": {
+              "target": "#errorHandlingRecoveryWorkflow.genericErrorHandling"
+            }
+          },
+          "after": {
+            "5000": {
+              "target": "#errorHandlingRecoveryWorkflow.genericErrorHandling"
+            }
+          }
+        }
+      }
+    },
+    "criticalError": {
+      "description": "Critical error requiring immediate attention and emergency procedures",
+      "initial": "emergencyProtocol",
+      "entry": ["activateEmergencyMode", "notifyAdministrators"],
+      "states": {
+        "emergencyProtocol": {
+          "description": "Executing emergency protocol for critical errors",
+          "entry": ["saveApplicationState", "initiateGracefulShutdown"],
+          "invoke": {
+            "id": "emergencyHandler",
+            "src": "executeEmergencyProtocolService",
+            "onDone": {
+              "target": "safeMode",
+              "actions": ["confirmEmergencyComplete"]
+            },
+            "onError": {
+              "target": "forceShutdown",
+              "actions": ["logEmergencyFailure"]
+            }
+          }
+        },
+        "safeMode": {
+          "description": "System running in safe mode with minimal functionality",
+          "entry": ["enableSafeMode", "disableNonEssentialFeatures"],
+          "on": {
+            "MANUAL_RECOVERY": {
+              "target": "#errorHandlingRecoveryWorkflow.manualRecovery",
+              "actions": ["logManualIntervention"]
+            },
+            "SYSTEM_RESTART": {
+              "target": "#errorHandlingRecoveryWorkflow.systemRecovery",
+              "actions": ["prepareForRestart"]
+            }
+          }
+        },
+        "forceShutdown": {
+          "description": "Forced system shutdown due to unrecoverable critical error",
+          "entry": ["forceShutdownSystem", "logCriticalFailure"],
+          "type": "final"
+        }
+      }
+    },
+    "userErrorHandling": {
+      "description": "Handling user-related errors with appropriate user feedback",
+      "initial": "userNotification",
+      "states": {
+        "userNotification": {
+          "description": "Notifying user about the error",
+          "entry": ["createUserFriendlyErrorMessage", "showErrorNotification"],
+          "on": {
+            "USER_ACKNOWLEDGED": {
+              "target": "providingGuidance",
+              "actions": ["recordUserAcknowledgment"]
+            },
+            "USER_DISMISSED": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["recordUserDismissal"]
+            }
+          },
+          "after": {
+            "30000": {
+              "target": "providingGuidance",
+              "actions": ["assumeUserAwareness"]
+            }
+          }
+        },
+        "providingGuidance": {
+          "description": "Providing guidance to help user resolve the error",
+          "entry": ["generateHelpContent", "showRecoveryOptions"],
+          "on": {
+            "USER_RETRY": {
+              "target": "#errorHandlingRecoveryWorkflow.retryOperation",
+              "actions": ["logUserRetry"]
+            },
+            "USER_CANCEL": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["cancelOperation"]
+            },
+            "REQUEST_HELP": {
+              "target": "detailedHelp",
+              "actions": ["showDetailedHelp"]
+            }
+          }
+        },
+        "detailedHelp": {
+          "description": "Providing detailed help and troubleshooting steps",
+          "entry": ["showTroubleshootingSteps", "offerContactSupport"],
+          "on": {
+            "TRY_SOLUTION": {
+              "target": "#errorHandlingRecoveryWorkflow.retryOperation",
+              "actions": ["applySuggestedSolution"]
+            },
+            "CONTACT_SUPPORT": {
+              "target": "supportContact",
+              "actions": ["initiateSupportContact"]
+            },
+            "BACK_TO_GUIDANCE": {
+              "target": "providingGuidance"
+            }
+          }
+        },
+        "supportContact": {
+          "description": "Facilitating contact with support team",
+          "entry": ["prepareSupportTicket", "collectDiagnosticInfo"],
+          "on": {
+            "SUPPORT_CONTACTED": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["confirmSupportTicket"]
+            }
+          }
+        }
+      }
+    },
+    "systemErrorHandling": {
+      "description": "Handling system-level errors with automatic recovery attempts",
+      "initial": "systemDiagnosis",
+      "states": {
+        "systemDiagnosis": {
+          "description": "Diagnosing system error to determine recovery strategy",
+          "entry": ["runSystemDiagnostics", "identifyFailedComponents"],
+          "invoke": {
+            "id": "systemDiagnostics",
+            "src": "runSystemDiagnosticsService",
+            "onDone": {
+              "target": "recoveryStrategy",
+              "actions": ["storeDiagnosticResults"]
+            },
+            "onError": {
+              "target": "diagnosticsFailure",
+              "actions": ["logDiagnosticsError"]
+            }
+          }
+        },
+        "recoveryStrategy": {
+          "description": "Determining and executing recovery strategy",
+          "always": [
+            {
+              "cond": "canRestartComponent",
+              "target": "componentRestart"
+            },
+            {
+              "cond": "canReinitializeSystem",
+              "target": "systemReinit"
+            },
+            {
+              "cond": "canFallbackToBackup",
+              "target": "fallbackMode"
+            },
+            {
+              "target": "manualInterventionRequired"
+            }
+          ]
+        },
+        "componentRestart": {
+          "description": "Restarting failed system components",
+          "entry": ["identifyComponentsToRestart", "prepareRestart"],
+          "invoke": {
+            "id": "componentRestarter",
+            "src": "restartComponentsService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.verifyRecovery",
+              "actions": ["confirmComponentRestart"]
+            },
+            "onError": {
+              "target": "restartFailure",
+              "actions": ["logRestartError"]
+            }
+          }
+        },
+        "systemReinit": {
+          "description": "Reinitializing entire system subsection",
+          "entry": ["prepareSystemReinit", "backupCurrentState"],
+          "invoke": {
+            "id": "systemReinitializer",
+            "src": "reinitializeSystemService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.verifyRecovery",
+              "actions": ["confirmSystemReinit"]
+            },
+            "onError": {
+              "target": "reinitFailure",
+              "actions": ["logReinitError"]
+            }
+          }
+        },
+        "fallbackMode": {
+          "description": "Switching to fallback/backup systems",
+          "entry": ["activateFallbackSystems", "disablePrimarySystem"],
+          "invoke": {
+            "id": "fallbackActivator",
+            "src": "activateFallbackService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.verifyRecovery",
+              "actions": ["confirmFallbackActivation"]
+            },
+            "onError": {
+              "target": "fallbackFailure",
+              "actions": ["logFallbackError"]
+            }
+          }
+        },
+        "manualInterventionRequired": {
+          "description": "Automatic recovery failed, manual intervention needed",
+          "entry": ["notifyAdministrators", "createIncidentReport"],
+          "on": {
+            "MANUAL_RECOVERY_INITIATED": {
+              "target": "#errorHandlingRecoveryWorkflow.manualRecovery",
+              "actions": ["logManualRecoveryStart"]
+            }
+          }
+        },
+        "diagnosticsFailure": {
+          "description": "System diagnostics failed to complete",
+          "entry": ["logDiagnosticsFailure"],
+          "on": {
+            "RETRY_DIAGNOSTICS": {
+              "target": "systemDiagnosis",
+              "cond": "canRetryDiagnostics"
+            },
+            "SKIP_DIAGNOSTICS": {
+              "target": "recoveryStrategy",
+              "actions": ["useDefaultRecoveryStrategy"]
+            }
+          }
+        },
+        "restartFailure": {
+          "description": "Component restart failed",
+          "on": {
+            "TRY_SYSTEM_REINIT": {
+              "target": "systemReinit"
+            },
+            "TRY_FALLBACK": {
+              "target": "fallbackMode"
+            },
+            "ESCALATE": {
+              "target": "manualInterventionRequired"
+            }
+          }
+        },
+        "reinitFailure": {
+          "description": "System reinitialization failed",
+          "on": {
+            "TRY_FALLBACK": {
+              "target": "fallbackMode"
+            },
+            "ESCALATE": {
+              "target": "manualInterventionRequired"
+            }
+          }
+        },
+        "fallbackFailure": {
+          "description": "Fallback system activation failed",
+          "on": {
+            "ESCALATE": {
+              "target": "manualInterventionRequired"
+            }
+          }
+        }
+      }
+    },
+    "networkErrorHandling": {
+      "description": "Handling network-related errors with connectivity recovery",
+      "initial": "connectivityCheck",
+      "states": {
+        "connectivityCheck": {
+          "description": "Checking network connectivity status",
+          "entry": ["checkInternetConnectivity", "testServerEndpoints"],
+          "invoke": {
+            "id": "connectivityChecker",
+            "src": "checkConnectivityService",
+            "onDone": [
+              {
+                "cond": "hasInternetConnection",
+                "target": "serverConnectivity",
+                "actions": ["confirmInternetAccess"]
+              },
+              {
+                "target": "offlineMode",
+                "actions": ["activateOfflineMode"]
+              }
+            ],
+            "onError": {
+              "target": "connectivityTestFailure",
+              "actions": ["logConnectivityTestError"]
+            }
+          }
+        },
+        "serverConnectivity": {
+          "description": "Testing connection to specific servers",
+          "entry": ["testBackendConnection", "testMCPServerConnections"],
+          "invoke": {
+            "id": "serverTester",
+            "src": "testServerConnectionsService",
+            "onDone": [
+              {
+                "cond": "allServersAccessible",
+                "target": "#errorHandlingRecoveryWorkflow.retryOperation",
+                "actions": ["confirmServerAccess"]
+              },
+              {
+                "target": "serverFailure",
+                "actions": ["identifyFailedServers"]
+              }
+            ],
+            "onError": {
+              "target": "serverTestFailure",
+              "actions": ["logServerTestError"]
+            }
+          }
+        },
+        "offlineMode": {
+          "description": "Operating in offline mode due to network issues",
+          "entry": ["enableOfflineMode", "cacheCurrentState", "notifyUserOffline"],
+          "on": {
+            "CONNECTIVITY_RESTORED": {
+              "target": "connectivityCheck",
+              "actions": ["disableOfflineMode", "syncCachedData"]
+            },
+            "USER_RETRY_CONNECTION": {
+              "target": "connectivityCheck",
+              "actions": ["userRequestedRetry"]
+            }
+          },
+          "after": {
+            "60000": {
+              "target": "connectivityCheck",
+              "actions": ["periodicConnectivityCheck"]
+            }
+          }
+        },
+        "serverFailure": {
+          "description": "Specific servers are not accessible",
+          "entry": ["analyzeServerFailures", "activateFailoverServers"],
+          "on": {
+            "FAILOVER_SUCCESSFUL": {
+              "target": "#errorHandlingRecoveryWorkflow.retryOperation",
+              "actions": ["confirmFailover"]
+            },
+            "FAILOVER_FAILED": {
+              "target": "degradedMode",
+              "actions": ["logFailoverFailure"]
+            }
+          }
+        },
+        "degradedMode": {
+          "description": "Operating with reduced functionality due to server issues",
+          "entry": ["enableDegradedMode", "disableAffectedFeatures"],
+          "on": {
+            "SERVERS_RESTORED": {
+              "target": "serverConnectivity",
+              "actions": ["restoreFullFunctionality"]
+            }
+          },
+          "after": {
+            "300000": {
+              "target": "serverConnectivity",
+              "actions": ["periodicServerCheck"]
+            }
+          }
+        },
+        "connectivityTestFailure": {
+          "description": "Failed to perform connectivity tests",
+          "on": {
+            "RETRY_TEST": {
+              "target": "connectivityCheck",
+              "cond": "canRetryConnectivityTest"
+            },
+            "ASSUME_OFFLINE": {
+              "target": "offlineMode",
+              "actions": ["assumeNetworkFailure"]
+            }
+          }
+        },
+        "serverTestFailure": {
+          "description": "Failed to test server connections",
+          "on": {
+            "RETRY_SERVER_TEST": {
+              "target": "serverConnectivity",
+              "cond": "canRetryServerTest"
+            },
+            "ASSUME_SERVER_FAILURE": {
+              "target": "serverFailure",
+              "actions": ["assumeServerProblems"]
+            }
+          }
+        }
+      }
+    },
+    "genericErrorHandling": {
+      "description": "Generic error handling for unclassified or unknown errors",
+      "initial": "basicRecovery",
+      "states": {
+        "basicRecovery": {
+          "description": "Attempting basic recovery procedures",
+          "entry": ["logGenericError", "attemptBasicRecovery"],
+          "invoke": {
+            "id": "basicRecovery",
+            "src": "executeBasicRecoveryService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.verifyRecovery",
+              "actions": ["confirmBasicRecovery"]
+            },
+            "onError": {
+              "target": "basicRecoveryFailure",
+              "actions": ["logBasicRecoveryError"]
+            }
+          }
+        },
+        "basicRecoveryFailure": {
+          "description": "Basic recovery procedures failed",
+          "on": {
+            "TRY_ADVANCED_RECOVERY": {
+              "target": "advancedRecovery",
+              "actions": ["prepareAdvancedRecovery"]
+            },
+            "ESCALATE_TO_MANUAL": {
+              "target": "#errorHandlingRecoveryWorkflow.manualRecovery",
+              "actions": ["escalateToManual"]
+            }
+          }
+        },
+        "advancedRecovery": {
+          "description": "Attempting advanced recovery procedures",
+          "entry": ["analyzeErrorContext", "executeAdvancedRecovery"],
+          "invoke": {
+            "id": "advancedRecovery",
+            "src": "executeAdvancedRecoveryService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.verifyRecovery",
+              "actions": ["confirmAdvancedRecovery"]
+            },
+            "onError": {
+              "target": "advancedRecoveryFailure",
+              "actions": ["logAdvancedRecoveryError"]
+            }
+          }
+        },
+        "advancedRecoveryFailure": {
+          "description": "Advanced recovery procedures failed",
+          "on": {
+            "ESCALATE_TO_MANUAL": {
+              "target": "#errorHandlingRecoveryWorkflow.manualRecovery",
+              "actions": ["escalateToManual"]
+            }
+          }
+        }
+      }
+    },
+    "retryOperation": {
+      "description": "Retrying the failed operation with exponential backoff",
+      "initial": "preparing",
+      "entry": ["incrementRetryCount"],
+      "states": {
+        "preparing": {
+          "description": "Preparing for operation retry",
+          "entry": ["calculateBackoffDelay", "prepareRetryContext"],
+          "always": [
+            {
+              "cond": "exceedsMaxRetries",
+              "target": "#errorHandlingRecoveryWorkflow.retryExhausted"
+            },
+            {
+              "target": "waiting"
+            }
+          ]
+        },
+        "waiting": {
+          "description": "Waiting for backoff period before retry",
+          "entry": ["startBackoffTimer"],
+          "after": {
+            "BACKOFF_DELAY": {
+              "target": "executing",
+              "actions": ["clearBackoffTimer"]
+            }
+          }
+        },
+        "executing": {
+          "description": "Executing the retry operation",
+          "entry": ["executeRetryOperation"],
+          "invoke": {
+            "id": "retryExecutor",
+            "src": "executeRetryService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.verifyRecovery",
+              "actions": ["logRetrySuccess"]
+            },
+            "onError": [
+              {
+                "cond": "isRetriableError",
+                "target": "preparing",
+                "actions": ["logRetryFailure"]
+              },
+              {
+                "target": "#errorHandlingRecoveryWorkflow.nonRetriableError",
+                "actions": ["logNonRetriableError"]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "retryExhausted": {
+      "description": "All retry attempts have been exhausted",
+      "entry": ["logRetryExhaustion", "notifyRetryFailure"],
+      "on": {
+        "MANUAL_RETRY": {
+          "target": "retryOperation",
+          "actions": ["resetRetryCount", "logManualRetry"]
+        },
+        "ESCALATE": {
+          "target": "manualRecovery",
+          "actions": ["escalateAfterRetries"]
+        }
+      }
+    },
+    "nonRetriableError": {
+      "description": "Error is not retriable and requires different handling",
+      "entry": ["logNonRetriableError", "analyzeNonRetriableError"],
+      "always": [
+        {
+          "cond": "requiresUserInput",
+          "target": "userErrorHandling"
+        },
+        {
+          "cond": "requiresSystemRecovery",
+          "target": "systemErrorHandling"
+        },
+        {
+          "target": "manualRecovery"
+        }
+      ]
+    },
+    "verifyRecovery": {
+      "description": "Verifying that recovery was successful",
+      "initial": "testing",
+      "states": {
+        "testing": {
+          "description": "Testing system functionality after recovery",
+          "entry": ["runRecoveryTests", "validateSystemState"],
+          "invoke": {
+            "id": "recoveryValidator",
+            "src": "validateRecoveryService",
+            "onDone": [
+              {
+                "cond": "recoverySuccessful",
+                "target": "#errorHandlingRecoveryWorkflow.resolved",
+                "actions": ["confirmRecoverySuccess"]
+              },
+              {
+                "target": "partialRecovery",
+                "actions": ["identifyRemainingIssues"]
+              }
+            ],
+            "onError": {
+              "target": "verificationFailure",
+              "actions": ["logVerificationError"]
+            }
+          }
+        },
+        "partialRecovery": {
+          "description": "Recovery was only partially successful",
+          "entry": ["analyzePartialRecovery", "identifyRemainingIssues"],
+          "on": {
+            "CONTINUE_RECOVERY": {
+              "target": "#errorHandlingRecoveryWorkflow.systemErrorHandling",
+              "actions": ["continueRecoveryProcess"]
+            },
+            "ACCEPT_PARTIAL": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["acceptPartialRecovery"]
+            }
+          }
+        },
+        "verificationFailure": {
+          "description": "Failed to verify recovery status",
+          "on": {
+            "RETRY_VERIFICATION": {
+              "target": "testing",
+              "cond": "canRetryVerification"
+            },
+            "ASSUME_RECOVERY": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["assumeRecoverySuccess"]
+            },
+            "CONTINUE_RECOVERY": {
+              "target": "#errorHandlingRecoveryWorkflow.systemErrorHandling",
+              "actions": ["continueRecoveryDespiteVerification"]
+            }
+          }
+        }
+      }
+    },
+    "manualRecovery": {
+      "description": "Manual intervention required for recovery",
+      "initial": "awaitingIntervention",
+      "entry": ["notifyAdministrators", "provideTechnicalDetails"],
+      "states": {
+        "awaitingIntervention": {
+          "description": "Waiting for manual intervention from administrators",
+          "entry": ["createIncidentTicket", "gatherDiagnosticData"],
+          "on": {
+            "MANUAL_ACTION_TAKEN": {
+              "target": "verifyingManualRecovery",
+              "actions": ["logManualAction"]
+            },
+            "ESCALATE_TO_EMERGENCY": {
+              "target": "#errorHandlingRecoveryWorkflow.criticalError",
+              "actions": ["escalateToEmergency"]
+            }
+          }
+        },
+        "verifyingManualRecovery": {
+          "description": "Verifying that manual recovery actions were effective",
+          "invoke": {
+            "id": "manualRecoveryValidator",
+            "src": "validateManualRecoveryService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["confirmManualRecovery"]
+            },
+            "onError": {
+              "target": "manualRecoveryFailure",
+              "actions": ["logManualRecoveryFailure"]
+            }
+          }
+        },
+        "manualRecoveryFailure": {
+          "description": "Manual recovery attempt was unsuccessful",
+          "on": {
+            "RETRY_MANUAL": {
+              "target": "awaitingIntervention",
+              "actions": ["prepareRetryManual"]
+            },
+            "ESCALATE": {
+              "target": "#errorHandlingRecoveryWorkflow.criticalError",
+              "actions": ["escalateToCritical"]
+            }
+          }
+        }
+      }
+    },
+    "systemRecovery": {
+      "description": "Full system recovery and restart procedures",
+      "initial": "preparingRestart",
+      "states": {
+        "preparingRestart": {
+          "description": "Preparing system for restart",
+          "entry": ["saveApplicationState", "cleanupResources", "notifyUsers"],
+          "invoke": {
+            "id": "restartPreparator",
+            "src": "prepareSystemRestartService",
+            "onDone": {
+              "target": "restarting",
+              "actions": ["confirmRestartReadiness"]
+            },
+            "onError": {
+              "target": "restartPreparationFailure",
+              "actions": ["logRestartPrepError"]
+            }
+          }
+        },
+        "restarting": {
+          "description": "Executing system restart",
+          "entry": ["initiateSystemRestart"],
+          "invoke": {
+            "id": "systemRestarter",
+            "src": "executeSystemRestartService",
+            "onDone": {
+              "target": "postRestartValidation",
+              "actions": ["logRestartComplete"]
+            },
+            "onError": {
+              "target": "restartFailure",
+              "actions": ["logRestartFailure"]
+            }
+          }
+        },
+        "postRestartValidation": {
+          "description": "Validating system health after restart",
+          "entry": ["validateSystemHealth", "restoreUserSessions"],
+          "invoke": {
+            "id": "postRestartValidator",
+            "src": "validatePostRestartService",
+            "onDone": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["confirmSystemHealthy"]
+            },
+            "onError": {
+              "target": "postRestartFailure",
+              "actions": ["logPostRestartIssues"]
+            }
+          }
+        },
+        "restartPreparationFailure": {
+          "description": "Failed to prepare for system restart",
+          "on": {
+            "RETRY_PREPARATION": {
+              "target": "preparingRestart",
+              "cond": "canRetryPreparation"
+            },
+            "FORCE_RESTART": {
+              "target": "restarting",
+              "actions": ["forceRestartDespitePrep"]
+            }
+          }
+        },
+        "restartFailure": {
+          "description": "System restart failed to complete",
+          "on": {
+            "RETRY_RESTART": {
+              "target": "restarting",
+              "cond": "canRetryRestart"
+            },
+            "ESCALATE": {
+              "target": "#errorHandlingRecoveryWorkflow.criticalError",
+              "actions": ["escalateRestartFailure"]
+            }
+          }
+        },
+        "postRestartFailure": {
+          "description": "System validation failed after restart",
+          "on": {
+            "RETRY_VALIDATION": {
+              "target": "postRestartValidation",
+              "cond": "canRetryValidation"
+            },
+            "ACCEPT_DEGRADED": {
+              "target": "#errorHandlingRecoveryWorkflow.resolved",
+              "actions": ["acceptDegradedState"]
+            }
+          }
+        }
+      }
+    },
+    "resolved": {
+      "description": "Error has been successfully resolved",
+      "entry": ["logResolution", "updateErrorHistory", "notifyStakeholders"],
+      "initial": "cleanup",
+      "states": {
+        "cleanup": {
+          "description": "Cleaning up resources and temporary states",
+          "entry": ["cleanupErrorHandling", "resetErrorCounters"],
+          "invoke": {
+            "id": "errorCleanup",
+            "src": "cleanupErrorHandlingService",
+            "onDone": {
+              "target": "generating_report",
+              "actions": ["confirmCleanup"]
+            },
+            "onError": {
+              "target": "cleanup_failure",
+              "actions": ["logCleanupError"]
+            }
+          }
+        },
+        "generating_report": {
+          "description": "Generating error resolution report",
+          "entry": ["generateErrorReport", "updateMetrics"],
+          "invoke": {
+            "id": "reportGenerator",
+            "src": "generateErrorReportService",
+            "onDone": {
+              "target": "completed",
+              "actions": ["storeErrorReport"]
+            },
+            "onError": {
+              "target": "report_failure",
+              "actions": ["logReportGenerationError"]
+            }
+          }
+        },
+        "completed": {
+          "description": "Error handling process completely finished",
+          "entry": ["finalizeResolution", "returnToNormalOperation"],
+          "always": {
+            "target": "#errorHandlingRecoveryWorkflow.monitoring",
+            "actions": ["resetToMonitoring"]
+          }
+        },
+        "cleanup_failure": {
+          "description": "Failed to cleanup after error resolution",
+          "on": {
+            "RETRY_CLEANUP": {
+              "target": "cleanup",
+              "cond": "canRetryCleanup"
+            },
+            "SKIP_CLEANUP": {
+              "target": "generating_report",
+              "actions": ["skipCleanupStep"]
+            }
+          }
+        },
+        "report_failure": {
+          "description": "Failed to generate error report",
+          "on": {
+            "RETRY_REPORT": {
+              "target": "generating_report",
+              "cond": "canRetryReport"
+            },
+            "SKIP_REPORT": {
+              "target": "completed",
+              "actions": ["skipReportGeneration"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "analyzeErrorService": "Analyzes detected errors for classification and severity assessment",
+    "executeEmergencyProtocolService": "Executes emergency protocols for critical system errors",
+    "runSystemDiagnosticsService": "Runs comprehensive system diagnostics to identify issues",
+    "restartComponentsService": "Restarts specific system components that have failed",
+    "reinitializeSystemService": "Reinitializes entire system subsections",
+    "activateFallbackService": "Activates backup/fallback systems when primary systems fail",
+    "checkConnectivityService": "Checks internet and network connectivity status",
+    "testServerConnectionsService": "Tests connections to backend and MCP servers",
+    "executeBasicRecoveryService": "Executes basic recovery procedures for generic errors",
+    "executeAdvancedRecoveryService": "Executes advanced recovery procedures when basic recovery fails",
+    "executeRetryService": "Executes retry operations with appropriate context",
+    "validateRecoveryService": "Validates that recovery operations were successful",
+    "validateManualRecoveryService": "Validates that manual recovery actions were effective",
+    "prepareSystemRestartService": "Prepares the system for a complete restart",
+    "executeSystemRestartService": "Executes a complete system restart",
+    "validatePostRestartService": "Validates system health after restart",
+    "cleanupErrorHandlingService": "Cleans up resources and temporary states after error resolution",
+    "generateErrorReportService": "Generates comprehensive error resolution reports"
+  },
+  "guards": {
+    "isCriticalError": "Check if the error is classified as critical requiring emergency handling",
+    "isUserError": "Check if the error is user-related and requires user feedback",
+    "isSystemError": "Check if the error is system-related requiring automatic recovery",
+    "isNetworkError": "Check if the error is network-related requiring connectivity handling",
+    "canRetryAnalysis": "Check if error analysis can be retried",
+    "canRestartComponent": "Check if failed components can be restarted",
+    "canReinitializeSystem": "Check if system subsection can be reinitialized",
+    "canFallbackToBackup": "Check if fallback systems are available and can be activated",
+    "canRetryDiagnostics": "Check if system diagnostics can be retried",
+    "hasInternetConnection": "Check if internet connectivity is available",
+    "allServersAccessible": "Check if all required servers are accessible",
+    "canRetryConnectivityTest": "Check if connectivity tests can be retried",
+    "canRetryServerTest": "Check if server connection tests can be retried",
+    "exceedsMaxRetries": "Check if the maximum number of retries has been exceeded",
+    "isRetriableError": "Check if an error can be retried",
+    "requiresUserInput": "Check if error resolution requires user input",
+    "requiresSystemRecovery": "Check if error requires system-level recovery",
+    "recoverySuccessful": "Check if recovery operation was completely successful",
+    "canRetryVerification": "Check if recovery verification can be retried",
+    "canRetryPreparation": "Check if restart preparation can be retried",
+    "canRetryRestart": "Check if system restart can be retried",
+    "canRetryValidation": "Check if post-restart validation can be retried",
+    "canRetryCleanup": "Check if cleanup operations can be retried",
+    "canRetryReport": "Check if report generation can be retried"
+  },
+  "actions": {
+    "captureErrorDetails": "Capture detailed information about the detected error",
+    "logErrorEvent": "Log the error event with timestamp and context",
+    "recordHealthFailure": "Record system health check failure",
+    "recordPerformanceIssue": "Record performance degradation details",
+    "analyzeHealthFailure": "Analyze the cause of health check failure",
+    "updateSystemHealth": "Update system health status indicators",
+    "updateHealthStatus": "Update health status after restoration",
+    "logRecovery": "Log successful health recovery",
+    "escalateToEmergency": "Escalate issue to emergency protocol",
+    "treatAsError": "Treat health check failure as system error",
+    "analyzePerformanceMetrics": "Analyze system performance metrics",
+    "identifyBottlenecks": "Identify performance bottlenecks",
+    "clearPerformanceWarnings": "Clear performance warning indicators",
+    "escalatePerformanceIssue": "Escalate performance issue to error handling",
+    "logPerformanceTimeout": "Log performance monitoring timeout",
+    "incrementErrorCount": "Increment the error counter",
+    "timestampError": "Add timestamp to error record",
+    "analyzeError": "Analyze error details and context",
+    "classifyError": "Classify error type and severity",
+    "storeErrorAnalysis": "Store the results of error analysis",
+    "logAnalysisError": "Log error analysis failure",
+    "logAnalysisFailure": "Log failure in error analysis process",
+    "activateEmergencyMode": "Activate emergency operation mode",
+    "notifyAdministrators": "Send notifications to system administrators",
+    "saveApplicationState": "Save current application state for recovery",
+    "initiateGracefulShutdown": "Initiate graceful system shutdown",
+    "confirmEmergencyComplete": "Confirm emergency protocol completion",
+    "logEmergencyFailure": "Log emergency protocol failure",
+    "enableSafeMode": "Enable system safe mode operation",
+    "disableNonEssentialFeatures": "Disable non-essential system features",
+    "logManualIntervention": "Log manual intervention event",
+    "prepareForRestart": "Prepare system for restart procedure",
+    "forceShutdownSystem": "Force immediate system shutdown",
+    "logCriticalFailure": "Log critical system failure",
+    "createUserFriendlyErrorMessage": "Create user-friendly error message",
+    "showErrorNotification": "Display error notification to user",
+    "recordUserAcknowledgment": "Record user acknowledgment of error",
+    "recordUserDismissal": "Record user dismissal of error",
+    "assumeUserAwareness": "Assume user is aware of error after timeout",
+    "generateHelpContent": "Generate contextual help content",
+    "showRecoveryOptions": "Show available recovery options to user",
+    "logUserRetry": "Log user-initiated retry attempt",
+    "cancelOperation": "Cancel the failed operation",
+    "showDetailedHelp": "Display detailed help and troubleshooting",
+    "showTroubleshootingSteps": "Show step-by-step troubleshooting guide",
+    "offerContactSupport": "Offer option to contact support",
+    "applySuggestedSolution": "Apply user-selected solution",
+    "initiateSupportContact": "Initiate contact with support team",
+    "prepareSupportTicket": "Prepare support ticket with error details",
+    "collectDiagnosticInfo": "Collect diagnostic information for support",
+    "confirmSupportTicket": "Confirm support ticket creation",
+    "runSystemDiagnostics": "Execute system diagnostic procedures",
+    "identifyFailedComponents": "Identify which system components have failed",
+    "storeDiagnosticResults": "Store results of diagnostic procedures",
+    "logDiagnosticsError": "Log diagnostic procedure errors",
+    "identifyComponentsToRestart": "Identify which components need restarting",
+    "prepareRestart": "Prepare components for restart procedure",
+    "confirmComponentRestart": "Confirm component restart completion",
+    "logRestartError": "Log component restart errors",
+    "prepareSystemReinit": "Prepare system for reinitialization",
+    "backupCurrentState": "Backup current system state",
+    "confirmSystemReinit": "Confirm system reinitialization completion",
+    "logReinitError": "Log system reinitialization errors",
+    "activateFallbackSystems": "Activate backup/fallback systems",
+    "disablePrimarySystem": "Disable primary system components",
+    "confirmFallbackActivation": "Confirm fallback system activation",
+    "logFallbackError": "Log fallback activation errors",
+    "createIncidentReport": "Create detailed incident report",
+    "logManualRecoveryStart": "Log start of manual recovery process",
+    "logDiagnosticsFailure": "Log diagnostic procedure failure",
+    "useDefaultRecoveryStrategy": "Use default recovery strategy when diagnostics fail",
+    "checkInternetConnectivity": "Check internet connection status",
+    "testServerEndpoints": "Test connectivity to server endpoints",
+    "confirmInternetAccess": "Confirm internet access is available",
+    "activateOfflineMode": "Activate offline operation mode",
+    "logConnectivityTestError": "Log connectivity test errors",
+    "testBackendConnection": "Test connection to backend servers",
+    "testMCPServerConnections": "Test connections to MCP servers",
+    "confirmServerAccess": "Confirm server access is available",
+    "identifyFailedServers": "Identify which servers are not accessible",
+    "logServerTestError": "Log server connectivity test errors",
+    "enableOfflineMode": "Enable offline operation mode",
+    "cacheCurrentState": "Cache current application state for offline use",
+    "notifyUserOffline": "Notify user that system is operating offline",
+    "disableOfflineMode": "Disable offline mode and restore online features",
+    "syncCachedData": "Synchronize cached data with servers",
+    "userRequestedRetry": "Process user-requested connection retry",
+    "periodicConnectivityCheck": "Perform periodic connectivity check",
+    "analyzeServerFailures": "Analyze which servers failed and why",
+    "activateFailoverServers": "Activate failover server instances",
+    "confirmFailover": "Confirm successful failover to backup servers",
+    "logFailoverFailure": "Log failover procedure failure",
+    "enableDegradedMode": "Enable degraded operation mode",
+    "disableAffectedFeatures": "Disable features affected by server failures",
+    "restoreFullFunctionality": "Restore full system functionality",
+    "periodicServerCheck": "Perform periodic server availability check",
+    "assumeNetworkFailure": "Assume network failure when tests inconclusive",
+    "assumeServerProblems": "Assume server problems when tests inconclusive",
+    "logGenericError": "Log generic/unclassified error",
+    "attemptBasicRecovery": "Attempt basic error recovery procedures",
+    "confirmBasicRecovery": "Confirm basic recovery completion",
+    "logBasicRecoveryError": "Log basic recovery procedure errors",
+    "prepareAdvancedRecovery": "Prepare for advanced recovery procedures",
+    "escalateToManual": "Escalate to manual recovery process",
+    "analyzeErrorContext": "Analyze error context for advanced recovery",
+    "executeAdvancedRecovery": "Execute advanced recovery procedures",
+    "confirmAdvancedRecovery": "Confirm advanced recovery completion",
+    "logAdvancedRecoveryError": "Log advanced recovery procedure errors",
+    "incrementRetryCount": "Increment operation retry counter",
+    "calculateBackoffDelay": "Calculate exponential backoff delay",
+    "prepareRetryContext": "Prepare context for retry operation",
+    "startBackoffTimer": "Start backoff delay timer",
+    "clearBackoffTimer": "Clear backoff delay timer",
+    "executeRetryOperation": "Execute the retry operation",
+    "logRetrySuccess": "Log successful retry operation",
+    "logRetryFailure": "Log failed retry attempt",
+    "logNonRetriableError": "Log non-retriable error details",
+    "logRetryExhaustion": "Log retry attempt exhaustion",
+    "notifyRetryFailure": "Notify about retry failure",
+    "resetRetryCount": "Reset retry counter for manual retry",
+    "logManualRetry": "Log manual retry initiation",
+    "escalateAfterRetries": "Escalate to manual recovery after retry exhaustion",
+    "analyzeNonRetriableError": "Analyze non-retriable error characteristics",
+    "runRecoveryTests": "Run tests to verify recovery success",
+    "validateSystemState": "Validate current system state",
+    "confirmRecoverySuccess": "Confirm successful recovery",
+    "identifyRemainingIssues": "Identify any remaining issues after recovery",
+    "logVerificationError": "Log recovery verification errors",
+    "analyzePartialRecovery": "Analyze partially successful recovery",
+    "continueRecoveryProcess": "Continue recovery process for remaining issues",
+    "acceptPartialRecovery": "Accept partial recovery as sufficient",
+    "assumeRecoverySuccess": "Assume recovery was successful despite verification issues",
+    "continueRecoveryDespiteVerification": "Continue recovery despite verification problems",
+    "provideTechnicalDetails": "Provide technical details for manual intervention",
+    "gatherDiagnosticData": "Gather comprehensive diagnostic data",
+    "logManualAction": "Log manual action taken by administrator",
+    "escalateToEmergency": "Escalate to emergency procedures",
+    "confirmManualRecovery": "Confirm manual recovery success",
+    "logManualRecoveryFailure": "Log manual recovery failure",
+    "prepareRetryManual": "Prepare for retry of manual recovery",
+    "escalateToCritical": "Escalate to critical error handling",
+    "cleanupResources": "Cleanup system resources before restart",
+    "notifyUsers": "Notify users about impending system restart",
+    "confirmRestartReadiness": "Confirm system is ready for restart",
+    "logRestartPrepError": "Log restart preparation errors",
+    "initiateSystemRestart": "Initiate complete system restart",
+    "logRestartComplete": "Log successful system restart",
+    "logRestartFailure": "Log system restart failure",
+    "validateSystemHealth": "Validate system health after restart",
+    "restoreUserSessions": "Restore user sessions after restart",
+    "confirmSystemHealthy": "Confirm system is healthy after restart",
+    "logPostRestartIssues": "Log issues found after restart",
+    "forceRestartDespitePrep": "Force restart despite preparation issues",
+    "escalateRestartFailure": "Escalate restart failure to critical error handling",
+    "acceptDegradedState": "Accept degraded system state as temporary solution",
+    "logResolution": "Log successful error resolution",
+    "updateErrorHistory": "Update error history with resolution details",
+    "notifyStakeholders": "Notify stakeholders about error resolution",
+    "cleanupErrorHandling": "Cleanup error handling resources and state",
+    "resetErrorCounters": "Reset error counters and metrics",
+    "confirmCleanup": "Confirm cleanup completion",
+    "logCleanupError": "Log cleanup procedure errors",
+    "generateErrorReport": "Generate comprehensive error resolution report",
+    "updateMetrics": "Update error handling metrics and statistics",
+    "storeErrorReport": "Store error report for future reference",
+    "logReportGenerationError": "Log report generation errors",
+    "finalizeResolution": "Finalize error resolution process",
+    "returnToNormalOperation": "Return system to normal operation mode",
+    "resetToMonitoring": "Reset system to monitoring state",
+    "skipCleanupStep": "Skip cleanup step due to failure",
+    "skipReportGeneration": "Skip report generation due to failure",
+    "startHealthMonitoring": "Start continuous health monitoring",
+    "initializeErrorTracking": "Initialize error tracking systems"
+  }
+}

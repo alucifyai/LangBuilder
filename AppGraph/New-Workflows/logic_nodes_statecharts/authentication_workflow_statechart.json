@@ -1,0 +1,636 @@
+{
+  "id": "authentication_workflow_statechart",
+  "name": "Authentication Workflow State Machine",
+  "description": "Complete user authentication flow including login, auto-login, token refresh, and session management",
+  "version": "1.0.0",
+  "type": "xstate",
+  "initial": "checking_auth_status",
+  "context": {
+    "user": null,
+    "accessToken": null,
+    "refreshToken": null,
+    "apiKey": null,
+    "authenticationErrorCount": 0,
+    "autoLoginEnabled": false,
+    "sessionTimeout": 86400000,
+    "tokenRefreshInterval": 1800000
+  },
+  "states": {
+    "checking_auth_status": {
+      "description": "Initial state to check if user is already authenticated",
+      "entry": ["checkStoredTokens", "validateSession"],
+      "on": {
+        "VALID_SESSION_FOUND": {
+          "target": "authenticated",
+          "actions": ["loadUserData", "initializeStores"]
+        },
+        "EXPIRED_TOKEN_FOUND": {
+          "target": "refreshing_token",
+          "actions": ["attemptTokenRefresh"]
+        },
+        "NO_SESSION_FOUND": [
+          {
+            "target": "checking_auto_login",
+            "cond": "autoLoginEnabled"
+          },
+          {
+            "target": "unauthenticated"
+          }
+        ],
+        "AUTH_ERROR": {
+          "target": "authentication_error",
+          "actions": ["logAuthError", "incrementErrorCount"]
+        }
+      }
+    },
+    "checking_auto_login": {
+      "description": "Check if auto-login is enabled and should be attempted",
+      "entry": ["checkAutoLoginSettings"],
+      "on": {
+        "AUTO_LOGIN_AVAILABLE": {
+          "target": "auto_login_process",
+          "actions": ["initiateAutoLogin"]
+        },
+        "AUTO_LOGIN_DISABLED": {
+          "target": "unauthenticated"
+        }
+      }
+    },
+    "auto_login_process": {
+      "description": "Performing automatic login",
+      "entry": ["createLongTermToken", "showAutoLoginProgress"],
+      "invoke": {
+        "src": "autoLoginService",
+        "onDone": {
+          "target": "authenticated",
+          "actions": ["setSessionCookies", "skipLoginPage", "loadUserData"]
+        },
+        "onError": {
+          "target": "unauthenticated",
+          "actions": ["handleAutoLoginError", "clearAutoLoginData"]
+        }
+      }
+    },
+    "unauthenticated": {
+      "description": "User is not authenticated and needs to log in",
+      "entry": ["clearAuthData", "redirectToLogin", "resetErrorCount"],
+      "on": {
+        "LOGIN_ATTEMPT": {
+          "target": "authenticating",
+          "actions": ["validateCredentials", "showLoginProgress"]
+        },
+        "SIGNUP_ATTEMPT": {
+          "target": "registering",
+          "actions": ["validateRegistrationData"]
+        },
+        "ADMIN_LOGIN_ATTEMPT": {
+          "target": "admin_authenticating",
+          "actions": ["validateAdminCredentials"]
+        }
+      }
+    },
+    "authenticating": {
+      "description": "Processing user login credentials",
+      "entry": ["showLoadingSpinner", "disableLoginForm"],
+      "invoke": {
+        "src": "loginService",
+        "onDone": {
+          "target": "post_login_setup",
+          "actions": ["storeTokens", "setSecureCookies", "loadUserProfile"]
+        },
+        "onError": [
+          {
+            "target": "authentication_error",
+            "cond": "maxAttemptsReached",
+            "actions": ["lockAccount", "logSecurityEvent"]
+          },
+          {
+            "target": "login_failed",
+            "actions": ["incrementErrorCount", "showLoginError"]
+          }
+        ]
+      }
+    },
+    "admin_authenticating": {
+      "description": "Processing admin login with additional security checks",
+      "entry": ["validateAdminPermissions", "logAdminLoginAttempt"],
+      "invoke": {
+        "src": "adminLoginService",
+        "onDone": {
+          "target": "admin_authenticated",
+          "actions": ["setAdminSession", "loadAdminPermissions", "logAdminLogin"]
+        },
+        "onError": {
+          "target": "admin_login_failed",
+          "actions": ["logFailedAdminAttempt", "alertSecurityTeam"]
+        }
+      }
+    },
+    "registering": {
+      "description": "Processing new user registration",
+      "entry": ["validateRegistrationForm", "checkUsernameAvailability"],
+      "invoke": {
+        "src": "registrationService",
+        "onDone": {
+          "target": "registration_success",
+          "actions": ["createUserAccount", "sendWelcomeEmail"]
+        },
+        "onError": {
+          "target": "registration_failed",
+          "actions": ["showRegistrationError", "highlightInvalidFields"]
+        }
+      }
+    },
+    "post_login_setup": {
+      "description": "Setting up user session and initializing application state",
+      "entry": ["initializeUserVariables", "createDefaultFolder", "loadUserPreferences"],
+      "invoke": {
+        "src": "sessionInitializationService",
+        "onDone": {
+          "target": "authenticated",
+          "actions": ["redirectToDashboard", "showWelcomeMessage"]
+        },
+        "onError": {
+          "target": "setup_error",
+          "actions": ["handleSetupError", "retrySetup"]
+        }
+      }
+    },
+    "authenticated": {
+      "description": "User is successfully authenticated and can access the application",
+      "entry": ["startTokenRefreshTimer", "initializeRealTimeConnections", "loadUserFlows"],
+      "type": "compound",
+      "initial": "active_session",
+      "states": {
+        "active_session": {
+          "description": "Normal authenticated state with active session",
+          "entry": ["enableApplicationFeatures", "startSessionHeartbeat"],
+          "on": {
+            "SESSION_ACTIVITY": {
+              "actions": ["updateLastActivity", "resetIdleTimer"]
+            },
+            "IDLE_TIMEOUT": {
+              "target": "session_warning"
+            }
+          }
+        },
+        "session_warning": {
+          "description": "Warning user about impending session timeout",
+          "entry": ["showSessionWarning", "startWarningTimer"],
+          "on": {
+            "USER_ACTIVITY": {
+              "target": "active_session",
+              "actions": ["dismissWarning", "refreshSession"]
+            },
+            "EXTEND_SESSION": {
+              "target": "active_session",
+              "actions": ["extendSessionTimeout", "refreshTokens"]
+            },
+            "WARNING_TIMEOUT": {
+              "target": "#authentication_workflow_statechart.session_expired"
+            }
+          }
+        }
+      },
+      "on": {
+        "LOGOUT": {
+          "target": "logging_out",
+          "actions": ["clearUserData", "invalidateTokens"]
+        },
+        "TOKEN_EXPIRED": {
+          "target": "refreshing_token",
+          "actions": ["attemptTokenRefresh"]
+        },
+        "SESSION_EXPIRED": {
+          "target": "session_expired",
+          "actions": ["clearSession", "showSessionExpiredMessage"]
+        },
+        "ACCOUNT_LOCKED": {
+          "target": "account_locked",
+          "actions": ["disableAccount", "logSecurityEvent"]
+        }
+      }
+    },
+    "admin_authenticated": {
+      "description": "Admin user with elevated privileges",
+      "entry": ["loadAdminInterface", "enableAdminFeatures", "logAdminSession"],
+      "on": {
+        "ADMIN_LOGOUT": {
+          "target": "logging_out",
+          "actions": ["clearAdminSession", "logAdminLogout"]
+        },
+        "PRIVILEGE_ESCALATION": {
+          "actions": ["validateAdminAction", "logPrivilegedAccess"]
+        }
+      }
+    },
+    "refreshing_token": {
+      "description": "Attempting to refresh expired authentication token",
+      "entry": ["showRefreshIndicator", "pauseAPIRequests"],
+      "invoke": {
+        "src": "tokenRefreshService",
+        "onDone": {
+          "target": "authenticated",
+          "actions": ["updateTokens", "resumeAPIRequests", "restoreUserSession"]
+        },
+        "onError": {
+          "target": "refresh_failed",
+          "actions": ["handleRefreshError", "clearInvalidTokens"]
+        }
+      }
+    },
+    "logging_out": {
+      "description": "Processing user logout",
+      "entry": ["clearAllCookies", "invalidateServerSession", "showLogoutProgress"],
+      "invoke": {
+        "src": "logoutService",
+        "onDone": {
+          "target": "unauthenticated",
+          "actions": ["clearAllLocalData", "redirectToLogin", "showLogoutMessage"]
+        },
+        "onError": {
+          "target": "logout_error",
+          "actions": ["forceLocalLogout", "logLogoutError"]
+        }
+      }
+    },
+    "login_failed": {
+      "description": "Login attempt failed with recoverable error",
+      "entry": ["showLoginError", "highlightInvalidFields", "enableRetry"],
+      "on": {
+        "RETRY_LOGIN": {
+          "target": "authenticating",
+          "actions": ["clearPreviousError", "validateNewCredentials"]
+        },
+        "FORGOT_PASSWORD": {
+          "target": "password_recovery",
+          "actions": ["initiatePasswordReset"]
+        },
+        "GO_TO_SIGNUP": {
+          "target": "unauthenticated",
+          "actions": ["redirectToSignup"]
+        }
+      }
+    },
+    "admin_login_failed": {
+      "description": "Admin login attempt failed",
+      "entry": ["showAdminLoginError", "logFailedAdminAttempt", "increaseSecurityLevel"],
+      "on": {
+        "RETRY_ADMIN_LOGIN": {
+          "target": "admin_authenticating",
+          "cond": "adminRetryAllowed",
+          "actions": ["validateAdminRetry"]
+        },
+        "BACK_TO_REGULAR_LOGIN": {
+          "target": "unauthenticated"
+        }
+      }
+    },
+    "registration_success": {
+      "description": "User registration completed successfully",
+      "entry": ["showSuccessMessage", "sendVerificationEmail", "logRegistration"],
+      "on": {
+        "CONTINUE_TO_LOGIN": {
+          "target": "unauthenticated",
+          "actions": ["prefillLoginForm", "showLoginPrompt"]
+        },
+        "AUTO_LOGIN_AFTER_REGISTRATION": {
+          "target": "authenticating",
+          "actions": ["useRegistrationCredentials"]
+        }
+      }
+    },
+    "registration_failed": {
+      "description": "User registration failed",
+      "entry": ["showRegistrationErrors", "highlightInvalidFields"],
+      "on": {
+        "RETRY_REGISTRATION": {
+          "target": "registering",
+          "actions": ["clearRegistrationErrors", "validateFormAgain"]
+        },
+        "GO_TO_LOGIN": {
+          "target": "unauthenticated",
+          "actions": ["redirectToLogin"]
+        }
+      }
+    },
+    "password_recovery": {
+      "description": "User requesting password reset",
+      "entry": ["showPasswordRecoveryForm", "validateEmailFormat"],
+      "invoke": {
+        "src": "passwordRecoveryService",
+        "onDone": {
+          "target": "recovery_email_sent",
+          "actions": ["showRecoveryConfirmation", "logPasswordReset"]
+        },
+        "onError": {
+          "target": "recovery_failed",
+          "actions": ["showRecoveryError"]
+        }
+      }
+    },
+    "recovery_email_sent": {
+      "description": "Password recovery email has been sent",
+      "entry": ["showEmailSentMessage", "startRecoveryTimeout"],
+      "on": {
+        "BACK_TO_LOGIN": {
+          "target": "unauthenticated"
+        },
+        "RESEND_RECOVERY_EMAIL": {
+          "target": "password_recovery",
+          "cond": "canResendEmail",
+          "actions": ["resetResendTimer"]
+        }
+      }
+    },
+    "recovery_failed": {
+      "description": "Password recovery failed",
+      "entry": ["showRecoveryError", "enableRetry"],
+      "on": {
+        "RETRY_RECOVERY": {
+          "target": "password_recovery"
+        },
+        "BACK_TO_LOGIN": {
+          "target": "unauthenticated"
+        }
+      }
+    },
+    "session_expired": {
+      "description": "User session has expired",
+      "entry": ["showSessionExpiredDialog", "clearSessionData", "logSessionExpiration"],
+      "on": {
+        "LOGIN_AGAIN": {
+          "target": "unauthenticated",
+          "actions": ["clearExpiredSession", "redirectToLogin"]
+        },
+        "EXTEND_SESSION": {
+          "target": "refreshing_token",
+          "cond": "canExtendSession",
+          "actions": ["attemptSessionExtension"]
+        }
+      }
+    },
+    "authentication_error": {
+      "description": "System authentication error occurred",
+      "entry": ["showSystemError", "logAuthenticationError", "disableLoginTemporarily"],
+      "on": {
+        "RETRY_AUTHENTICATION": {
+          "target": "checking_auth_status",
+          "cond": "systemErrorResolved",
+          "actions": ["clearSystemError", "resetErrorState"]
+        },
+        "CONTACT_SUPPORT": {
+          "actions": ["showContactSupport", "generateErrorReport"]
+        }
+      }
+    },
+    "account_locked": {
+      "description": "User account is temporarily locked due to security concerns",
+      "entry": ["showAccountLockedMessage", "logSecurityLock", "startLockTimer"],
+      "on": {
+        "UNLOCK_ATTEMPT": {
+          "target": "account_unlock_verification",
+          "actions": ["initiateUnlockProcess"]
+        },
+        "CONTACT_ADMIN": {
+          "actions": ["showAdminContact", "generateUnlockRequest"]
+        }
+      }
+    },
+    "account_unlock_verification": {
+      "description": "Verifying account unlock request",
+      "entry": ["showUnlockVerification", "sendUnlockCode"],
+      "invoke": {
+        "src": "accountUnlockService",
+        "onDone": {
+          "target": "unauthenticated",
+          "actions": ["unlockAccount", "resetSecurityCounters", "logAccountUnlock"]
+        },
+        "onError": {
+          "target": "account_locked",
+          "actions": ["maintainLock", "extendLockPeriod"]
+        }
+      }
+    },
+    "setup_error": {
+      "description": "Error occurred during post-login setup",
+      "entry": ["showSetupError", "logSetupFailure"],
+      "on": {
+        "RETRY_SETUP": {
+          "target": "post_login_setup",
+          "actions": ["clearSetupError", "retryInitialization"]
+        },
+        "SKIP_SETUP": {
+          "target": "authenticated",
+          "actions": ["useMinimalSetup", "logSkippedSetup"]
+        },
+        "LOGOUT_AND_RETRY": {
+          "target": "logging_out",
+          "actions": ["clearPartialSetup"]
+        }
+      }
+    },
+    "logout_error": {
+      "description": "Error occurred during logout process",
+      "entry": ["showLogoutError", "forceLocalClear"],
+      "on": {
+        "FORCE_LOGOUT": {
+          "target": "unauthenticated",
+          "actions": ["clearAllLocalData", "resetApplication"]
+        },
+        "RETRY_LOGOUT": {
+          "target": "logging_out",
+          "actions": ["retryServerLogout"]
+        }
+      }
+    },
+    "refresh_failed": {
+      "description": "Token refresh failed, user needs to re-authenticate",
+      "entry": ["clearInvalidTokens", "showReauthenticationMessage"],
+      "on": {
+        "RELOGIN": {
+          "target": "unauthenticated",
+          "actions": ["redirectToLogin", "preserveCurrentLocation"]
+        },
+        "RETRY_REFRESH": {
+          "target": "refreshing_token",
+          "cond": "canRetryRefresh",
+          "actions": ["attemptRefreshAgain"]
+        }
+      }
+    }
+  },
+  "guards": {
+    "autoLoginEnabled": "context.autoLoginEnabled === true",
+    "maxAttemptsReached": "context.authenticationErrorCount >= 5",
+    "adminRetryAllowed": "context.authenticationErrorCount < 3",
+    "canResendEmail": "context.lastEmailSent + 60000 < Date.now()",
+    "canExtendSession": "context.sessionExtensions < 3",
+    "systemErrorResolved": "context.systemStatus === 'operational'",
+    "canRetryRefresh": "context.refreshAttempts < 3"
+  },
+  "services": {
+    "autoLoginService": "API call to /api/v1/auto_login",
+    "loginService": "API call to /api/v1/login with credentials",
+    "adminLoginService": "API call to /api/v1/login/admin with admin credentials",
+    "registrationService": "API call to /api/v1/register with user data",
+    "sessionInitializationService": "Initialize user session and default data",
+    "tokenRefreshService": "API call to /api/v1/refresh with refresh token",
+    "logoutService": "API call to /api/v1/logout to invalidate session",
+    "passwordRecoveryService": "API call to /api/v1/password-reset",
+    "accountUnlockService": "API call to /api/v1/unlock-account"
+  },
+  "actions": {
+    "checkStoredTokens": "Check localStorage and cookies for existing tokens",
+    "validateSession": "Validate current session with server",
+    "loadUserData": "Load user profile and preferences",
+    "initializeStores": "Initialize all Zustand stores with user data",
+    "attemptTokenRefresh": "Start token refresh process",
+    "logAuthError": "Log authentication error for debugging",
+    "incrementErrorCount": "Increase error counter for security",
+    "checkAutoLoginSettings": "Check if auto-login is enabled",
+    "initiateAutoLogin": "Start auto-login process",
+    "createLongTermToken": "Generate long-term authentication token",
+    "showAutoLoginProgress": "Display auto-login progress indicator",
+    "setSessionCookies": "Set secure session cookies",
+    "skipLoginPage": "Bypass login page for auto-login",
+    "clearAuthData": "Clear all authentication data",
+    "redirectToLogin": "Navigate to login page",
+    "resetErrorCount": "Reset authentication error counter",
+    "validateCredentials": "Validate user login credentials",
+    "showLoginProgress": "Display login progress indicator",
+    "validateRegistrationData": "Validate new user registration data",
+    "validateAdminCredentials": "Validate admin login credentials",
+    "showLoadingSpinner": "Display loading animation",
+    "disableLoginForm": "Disable login form during processing",
+    "storeTokens": "Store authentication tokens securely",
+    "setSecureCookies": "Set secure HTTP-only cookies",
+    "loadUserProfile": "Load user profile information",
+    "lockAccount": "Temporarily lock user account",
+    "logSecurityEvent": "Log security-related event",
+    "showLoginError": "Display login error message",
+    "validateAdminPermissions": "Validate admin permission level",
+    "logAdminLoginAttempt": "Log admin login attempt",
+    "setAdminSession": "Set admin session with elevated privileges",
+    "loadAdminPermissions": "Load admin permission set",
+    "logAdminLogin": "Log successful admin login",
+    "logFailedAdminAttempt": "Log failed admin login attempt",
+    "alertSecurityTeam": "Alert security team of suspicious activity",
+    "validateRegistrationForm": "Validate registration form data",
+    "checkUsernameAvailability": "Check if username is available",
+    "createUserAccount": "Create new user account",
+    "sendWelcomeEmail": "Send welcome email to new user",
+    "showRegistrationError": "Display registration error messages",
+    "highlightInvalidFields": "Highlight form fields with errors",
+    "initializeUserVariables": "Initialize user-specific variables",
+    "createDefaultFolder": "Create default folder for user",
+    "loadUserPreferences": "Load user preferences and settings",
+    "redirectToDashboard": "Navigate to main dashboard",
+    "showWelcomeMessage": "Display welcome message",
+    "handleSetupError": "Handle post-login setup errors",
+    "retrySetup": "Retry setup process",
+    "startTokenRefreshTimer": "Start automatic token refresh timer",
+    "initializeRealTimeConnections": "Initialize WebSocket connections",
+    "loadUserFlows": "Load user's flows and projects",
+    "enableApplicationFeatures": "Enable all application features",
+    "startSessionHeartbeat": "Start session activity heartbeat",
+    "updateLastActivity": "Update user's last activity timestamp",
+    "resetIdleTimer": "Reset session idle timer",
+    "showSessionWarning": "Show session timeout warning",
+    "startWarningTimer": "Start session warning countdown",
+    "dismissWarning": "Dismiss session warning dialog",
+    "refreshSession": "Refresh user session",
+    "extendSessionTimeout": "Extend session timeout period",
+    "refreshTokens": "Refresh authentication tokens",
+    "clearUserData": "Clear all user data from stores",
+    "invalidateTokens": "Invalidate authentication tokens",
+    "clearSession": "Clear session data",
+    "showSessionExpiredMessage": "Show session expired message",
+    "disableAccount": "Disable user account",
+    "loadAdminInterface": "Load admin interface components",
+    "enableAdminFeatures": "Enable admin-only features",
+    "logAdminSession": "Log admin session activity",
+    "clearAdminSession": "Clear admin session data",
+    "logAdminLogout": "Log admin logout",
+    "validateAdminAction": "Validate admin action permission",
+    "logPrivilegedAccess": "Log privileged access attempt",
+    "showRefreshIndicator": "Show token refresh indicator",
+    "pauseAPIRequests": "Pause outgoing API requests",
+    "updateTokens": "Update stored authentication tokens",
+    "resumeAPIRequests": "Resume paused API requests",
+    "restoreUserSession": "Restore user session state",
+    "handleRefreshError": "Handle token refresh error",
+    "clearInvalidTokens": "Clear invalid authentication tokens",
+    "clearAllCookies": "Clear all authentication cookies",
+    "invalidateServerSession": "Invalidate session on server",
+    "showLogoutProgress": "Show logout progress indicator",
+    "clearAllLocalData": "Clear all local storage data",
+    "showLogoutMessage": "Show logout confirmation message",
+    "forceLocalLogout": "Force logout locally without server call",
+    "logLogoutError": "Log logout error",
+    "highlightInvalidFields": "Highlight form fields with validation errors",
+    "enableRetry": "Enable retry functionality",
+    "clearPreviousError": "Clear previous error messages",
+    "validateNewCredentials": "Validate new login credentials",
+    "initiatePasswordReset": "Start password reset process",
+    "redirectToSignup": "Navigate to signup page",
+    "increaseSecurityLevel": "Increase security monitoring level",
+    "validateAdminRetry": "Validate admin retry attempt",
+    "showSuccessMessage": "Show success message",
+    "sendVerificationEmail": "Send email verification",
+    "logRegistration": "Log new user registration",
+    "prefillLoginForm": "Pre-fill login form with registration data",
+    "showLoginPrompt": "Show login prompt message",
+    "useRegistrationCredentials": "Use registration credentials for auto-login",
+    "showRegistrationErrors": "Display registration error messages",
+    "clearRegistrationErrors": "Clear registration error messages",
+    "validateFormAgain": "Re-validate registration form",
+    "showPasswordRecoveryForm": "Display password recovery form",
+    "validateEmailFormat": "Validate email address format",
+    "showRecoveryConfirmation": "Show password recovery confirmation",
+    "logPasswordReset": "Log password reset request",
+    "showRecoveryError": "Show password recovery error",
+    "showEmailSentMessage": "Show recovery email sent message",
+    "startRecoveryTimeout": "Start recovery email timeout",
+    "resetResendTimer": "Reset email resend timer",
+    "showSessionExpiredDialog": "Show session expired dialog",
+    "clearSessionData": "Clear session data",
+    "logSessionExpiration": "Log session expiration event",
+    "clearExpiredSession": "Clear expired session data",
+    "attemptSessionExtension": "Attempt to extend session",
+    "showSystemError": "Show system error message",
+    "logAuthenticationError": "Log authentication system error",
+    "disableLoginTemporarily": "Temporarily disable login",
+    "clearSystemError": "Clear system error state",
+    "resetErrorState": "Reset error state",
+    "showContactSupport": "Show contact support information",
+    "generateErrorReport": "Generate error report for support",
+    "showAccountLockedMessage": "Show account locked message",
+    "logSecurityLock": "Log security lock event",
+    "startLockTimer": "Start account lock timer",
+    "initiateUnlockProcess": "Start account unlock process",
+    "showAdminContact": "Show admin contact information",
+    "generateUnlockRequest": "Generate account unlock request",
+    "showUnlockVerification": "Show unlock verification form",
+    "sendUnlockCode": "Send account unlock verification code",
+    "unlockAccount": "Unlock user account",
+    "resetSecurityCounters": "Reset security attempt counters",
+    "logAccountUnlock": "Log account unlock event",
+    "maintainLock": "Maintain account lock",
+    "extendLockPeriod": "Extend account lock period",
+    "showSetupError": "Show setup error message",
+    "logSetupFailure": "Log setup failure",
+    "clearSetupError": "Clear setup error",
+    "retryInitialization": "Retry initialization process",
+    "useMinimalSetup": "Use minimal setup configuration",
+    "logSkippedSetup": "Log skipped setup",
+    "clearPartialSetup": "Clear partial setup data",
+    "showLogoutError": "Show logout error message",
+    "forceLocalClear": "Force clear local data",
+    "resetApplication": "Reset application state",
+    "retryServerLogout": "Retry server logout call",
+    "showReauthenticationMessage": "Show re-authentication message",
+    "preserveCurrentLocation": "Preserve current page location",
+    "attemptRefreshAgain": "Attempt token refresh again"
+  }
+}

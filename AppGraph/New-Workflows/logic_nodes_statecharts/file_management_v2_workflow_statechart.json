@@ -1,0 +1,1544 @@
+{
+  "id": "file_management_v2_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "selectedFiles": [],
+    "uploadQueue": [],
+    "downloadQueue": [],
+    "currentOperation": null,
+    "operationProgress": 0,
+    "errors": [],
+    "warnings": [],
+    "maxFileSize": null,
+    "storageQuota": null,
+    "usedStorage": 0,
+    "mcpServersFile": null,
+    "batchOperationResults": null,
+    "compressionSettings": null,
+    "securityValidation": null
+  },
+  "states": {
+    "idle": {
+      "description": "File system ready for operations",
+      "on": {
+        "UPLOAD_FILES": "uploading",
+        "DOWNLOAD_FILES": "downloading",
+        "LIST_FILES": "listing",
+        "MANAGE_FILES": "managing",
+        "BATCH_OPERATIONS": "batch_processing",
+        "MANAGE_MCP_SERVERS": "mcp_management"
+      }
+    },
+    "uploading": {
+      "description": "File upload workflow with validation and processing",
+      "initial": "pre_upload_validation",
+      "states": {
+        "pre_upload_validation": {
+          "description": "Validating files before upload",
+          "invoke": {
+            "src": "validatePreUpload",
+            "onDone": {
+              "target": "security_validation",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "security_validation": {
+          "description": "Security validation - file existence and non-empty filename",
+          "invoke": {
+            "src": "validateFileSecurity",
+            "onDone": [
+              {
+                "target": "size_validation",
+                "cond": "passesSecurityCheck",
+                "actions": "confirmSecurityValidation"
+              },
+              {
+                "target": "security_error",
+                "actions": "setSecurityError"
+              }
+            ],
+            "onError": {
+              "target": "security_error",
+              "actions": "setSecurityError"
+            }
+          }
+        },
+        "size_validation": {
+          "description": "Checking file size against max_file_size_upload setting",
+          "invoke": {
+            "src": "validateFileSize",
+            "onDone": [
+              {
+                "target": "naming_resolution",
+                "cond": "withinSizeLimit",
+                "actions": "confirmSizeValidation"
+              },
+              {
+                "target": "size_limit_error",
+                "actions": "setSizeLimitError"
+              }
+            ],
+            "onError": {
+              "target": "size_validation_error",
+              "actions": "setSizeValidationError"
+            }
+          }
+        },
+        "naming_resolution": {
+          "description": "Handling unique naming for regular files vs MCP servers file",
+          "invoke": {
+            "src": "resolveFileNaming",
+            "onDone": {
+              "target": "storage_operation",
+              "actions": "setResolvedNames"
+            },
+            "onError": {
+              "target": "naming_error",
+              "actions": "setNamingError"
+            }
+          }
+        },
+        "storage_operation": {
+          "description": "Saving file via storage service with user-scoped path",
+          "invoke": {
+            "src": "saveToStorage",
+            "onDone": {
+              "target": "database_persistence",
+              "actions": "confirmStorageSaved"
+            },
+            "onError": {
+              "target": "storage_error",
+              "actions": "setStorageError"
+            }
+          }
+        },
+        "database_persistence": {
+          "description": "Creating UserFile record with metadata",
+          "invoke": {
+            "src": "createUserFileRecord",
+            "onDone": {
+              "target": "response_generation",
+              "actions": "confirmDatabaseSaved"
+            },
+            "onError": {
+              "target": "database_error",
+              "actions": "setDatabaseError"
+            }
+          }
+        },
+        "response_generation": {
+          "description": "Returning file metadata with download path",
+          "invoke": {
+            "src": "generateUploadResponse",
+            "onDone": {
+              "target": "upload_completed",
+              "actions": "setUploadResponse"
+            },
+            "onError": {
+              "target": "response_error",
+              "actions": "setResponseError"
+            }
+          }
+        },
+        "upload_completed": {
+          "description": "File upload completed successfully",
+          "on": {
+            "UPLOAD_MORE": "pre_upload_validation",
+            "MANAGE_UPLOADED": "#file_management_v2_workflow.managing",
+            "FINISH": "#file_management_v2_workflow.idle"
+          }
+        },
+        "validation_error": {
+          "description": "Pre-upload validation failed",
+          "on": {
+            "RETRY_VALIDATION": "pre_upload_validation",
+            "FIX_FILES": "pre_upload_validation",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "security_error": {
+          "description": "Security validation failed - invalid filename or missing file",
+          "on": {
+            "FIX_SECURITY_ISSUES": "pre_upload_validation",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "size_limit_error": {
+          "description": "File too large - HTTP 413 with size limit message",
+          "on": {
+            "COMPRESS_FILE": "compressing_file",
+            "SELECT_DIFFERENT_FILE": "pre_upload_validation",
+            "REQUEST_QUOTA_INCREASE": "requesting_quota_increase",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "size_validation_error": {
+          "description": "Error during size validation process",
+          "on": {
+            "RETRY": "size_validation",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "naming_error": {
+          "description": "Error resolving unique file naming",
+          "on": {
+            "RETRY_NAMING": "naming_resolution",
+            "MANUAL_RENAME": "manual_renaming",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "storage_error": {
+          "description": "Storage failure - HTTP 500 with cleanup attempt",
+          "invoke": {
+            "src": "cleanupFailedStorage",
+            "onDone": {
+              "target": "storage_cleanup_completed",
+              "actions": "confirmCleanupCompleted"
+            },
+            "onError": {
+              "target": "cleanup_failed",
+              "actions": "setCleanupError"
+            }
+          }
+        },
+        "database_error": {
+          "description": "Database failure - HTTP 500 with potential file orphaning",
+          "invoke": {
+            "src": "handleDatabaseFailure",
+            "onDone": {
+              "target": "database_recovery_completed",
+              "actions": "confirmDatabaseRecovery"
+            },
+            "onError": {
+              "target": "database_recovery_failed",
+              "actions": "setDatabaseRecoveryError"
+            }
+          }
+        },
+        "response_error": {
+          "description": "Error generating upload response",
+          "on": {
+            "RETRY": "response_generation",
+            "MANUAL_RESPONSE": "manual_response_generation"
+          }
+        },
+        "compressing_file": {
+          "description": "Compressing file to meet size requirements",
+          "invoke": {
+            "src": "compressFile",
+            "onDone": {
+              "target": "size_validation",
+              "actions": "setCompressedFile"
+            },
+            "onError": {
+              "target": "compression_error",
+              "actions": "setCompressionError"
+            }
+          }
+        },
+        "requesting_quota_increase": {
+          "description": "Requesting storage quota increase",
+          "invoke": {
+            "src": "requestQuotaIncrease",
+            "onDone": {
+              "target": "quota_response_pending",
+              "actions": "confirmQuotaRequested"
+            },
+            "onError": {
+              "target": "quota_request_error",
+              "actions": "setQuotaRequestError"
+            }
+          }
+        },
+        "manual_renaming": {
+          "description": "Manual file renaming interface",
+          "on": {
+            "CONFIRM_NAME": "naming_resolution",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "storage_cleanup_completed": {
+          "description": "Storage cleanup after failure completed",
+          "on": {
+            "RETRY_UPLOAD": "storage_operation",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "cleanup_failed": {
+          "description": "Storage cleanup failed - manual intervention needed",
+          "on": {
+            "MANUAL_CLEANUP": "manual_storage_cleanup",
+            "REPORT_ISSUE": "reporting_cleanup_issue",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "database_recovery_completed": {
+          "description": "Database recovery after failure completed",
+          "on": {
+            "RETRY_PERSISTENCE": "database_persistence",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "database_recovery_failed": {
+          "description": "Database recovery failed - critical error",
+          "on": {
+            "ESCALATE_ISSUE": "escalating_database_issue",
+            "MANUAL_INTERVENTION": "requesting_manual_intervention",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "compression_error": {
+          "description": "File compression failed",
+          "on": {
+            "TRY_DIFFERENT_COMPRESSION": "compressing_file",
+            "SELECT_DIFFERENT_FILE": "pre_upload_validation",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "quota_response_pending": {
+          "description": "Waiting for quota increase response",
+          "on": {
+            "QUOTA_APPROVED": "size_validation",
+            "QUOTA_DENIED": "size_limit_error",
+            "CANCEL_REQUEST": "#file_management_v2_workflow.idle"
+          }
+        },
+        "quota_request_error": {
+          "description": "Error requesting quota increase",
+          "on": {
+            "RETRY_REQUEST": "requesting_quota_increase",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "downloading": {
+      "description": "File download workflow with streaming and batch support",
+      "initial": "preparing_download",
+      "states": {
+        "preparing_download": {
+          "description": "Preparing files for download",
+          "invoke": {
+            "src": "prepareDownload",
+            "onDone": [
+              {
+                "target": "single_download",
+                "cond": "isSingleFile",
+                "actions": "setSingleFileDownload"
+              },
+              {
+                "target": "batch_download_preparation",
+                "cond": "isBatchDownload",
+                "actions": "setBatchDownload"
+              }
+            ],
+            "onError": {
+              "target": "download_preparation_error",
+              "actions": "setDownloadPreparationError"
+            }
+          }
+        },
+        "single_download": {
+          "description": "Single file download - streaming response with proper MIME types",
+          "invoke": {
+            "src": "streamSingleFile",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "confirmSingleDownloadCompleted"
+            },
+            "onError": {
+              "target": "single_download_error",
+              "actions": "setSingleDownloadError"
+            }
+          }
+        },
+        "batch_download_preparation": {
+          "description": "Batch download - ZIP compression with timestamp naming",
+          "invoke": {
+            "src": "prepareBatchDownload",
+            "onDone": {
+              "target": "creating_zip_archive",
+              "actions": "setBatchDownloadData"
+            },
+            "onError": {
+              "target": "batch_preparation_error",
+              "actions": "setBatchPreparationError"
+            }
+          }
+        },
+        "creating_zip_archive": {
+          "description": "Creating ZIP archive with timestamp naming",
+          "invoke": {
+            "src": "createZipArchive",
+            "onDone": {
+              "target": "streaming_batch_download",
+              "actions": "setZipArchive"
+            },
+            "onError": {
+              "target": "zip_creation_error",
+              "actions": "setZipCreationError"
+            }
+          }
+        },
+        "streaming_batch_download": {
+          "description": "Streaming ZIP archive to client",
+          "invoke": {
+            "src": "streamZipArchive",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "confirmBatchDownloadCompleted"
+            },
+            "onError": {
+              "target": "streaming_error",
+              "actions": "setStreamingError"
+            }
+          }
+        },
+        "download_completed": {
+          "description": "Download operation completed successfully",
+          "on": {
+            "DOWNLOAD_MORE": "preparing_download",
+            "RETURN_TO_MANAGEMENT": "#file_management_v2_workflow.managing",
+            "FINISH": "#file_management_v2_workflow.idle"
+          }
+        },
+        "download_preparation_error": {
+          "description": "Error preparing download",
+          "on": {
+            "RETRY_PREPARATION": "preparing_download",
+            "CANCEL": "#file_management_v2_workflow.managing"
+          }
+        },
+        "single_download_error": {
+          "description": "Error during single file download",
+          "on": {
+            "RETRY_DOWNLOAD": "single_download",
+            "TRY_BATCH_DOWNLOAD": "batch_download_preparation",
+            "CANCEL": "#file_management_v2_workflow.managing"
+          }
+        },
+        "batch_preparation_error": {
+          "description": "Error preparing batch download",
+          "on": {
+            "RETRY_PREPARATION": "batch_download_preparation",
+            "TRY_INDIVIDUAL_DOWNLOADS": "preparing_individual_downloads",
+            "CANCEL": "#file_management_v2_workflow.managing"
+          }
+        },
+        "zip_creation_error": {
+          "description": "Error creating ZIP archive",
+          "on": {
+            "RETRY_ZIP_CREATION": "creating_zip_archive",
+            "USE_DIFFERENT_COMPRESSION": "alternative_compression",
+            "CANCEL": "#file_management_v2_workflow.managing"
+          }
+        },
+        "streaming_error": {
+          "description": "Error streaming download",
+          "on": {
+            "RETRY_STREAMING": "streaming_batch_download",
+            "PREPARE_ALTERNATIVE_DOWNLOAD": "preparing_alternative_download",
+            "CANCEL": "#file_management_v2_workflow.managing"
+          }
+        },
+        "preparing_individual_downloads": {
+          "description": "Preparing individual downloads as fallback",
+          "invoke": {
+            "src": "prepareIndividualDownloads",
+            "onDone": {
+              "target": "sequential_downloads",
+              "actions": "setIndividualDownloads"
+            },
+            "onError": {
+              "target": "individual_preparation_error",
+              "actions": "setIndividualPreparationError"
+            }
+          }
+        },
+        "sequential_downloads": {
+          "description": "Downloading files sequentially",
+          "invoke": {
+            "src": "processSequentialDownloads",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "confirmSequentialDownloads"
+            },
+            "onError": {
+              "target": "sequential_download_error",
+              "actions": "setSequentialDownloadError"
+            }
+          }
+        },
+        "alternative_compression": {
+          "description": "Using alternative compression method",
+          "invoke": {
+            "src": "useAlternativeCompression",
+            "onDone": {
+              "target": "streaming_batch_download",
+              "actions": "setAlternativeArchive"
+            },
+            "onError": {
+              "target": "alternative_compression_error",
+              "actions": "setAlternativeCompressionError"
+            }
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "listing": {
+      "description": "File listing with user-scoped access and MCP filtering",
+      "initial": "loading_file_list",
+      "states": {
+        "loading_file_list": {
+          "description": "Loading user-scoped file list with MCP servers file filtering",
+          "invoke": {
+            "src": "loadUserFiles",
+            "onDone": {
+              "target": "processing_file_list",
+              "actions": "setFileList"
+            },
+            "onError": {
+              "target": "file_list_error",
+              "actions": "setFileListError"
+            }
+          }
+        },
+        "processing_file_list": {
+          "description": "Processing file list with MCP servers file filtering",
+          "invoke": {
+            "src": "processFileList",
+            "onDone": {
+              "target": "displaying_files",
+              "actions": "setProcessedFileList"
+            },
+            "onError": {
+              "target": "processing_error",
+              "actions": "setProcessingError"
+            }
+          }
+        },
+        "displaying_files": {
+          "description": "Displaying paginated file list with metadata",
+          "on": {
+            "SELECT_FILES": {
+              "actions": "selectFiles"
+            },
+            "FILTER_FILES": "filtering_files",
+            "SORT_FILES": "sorting_files",
+            "REFRESH_LIST": "loading_file_list",
+            "LOAD_MORE": "loading_more_files"
+          }
+        },
+        "filtering_files": {
+          "description": "Applying file filters and search",
+          "invoke": {
+            "src": "filterFiles",
+            "onDone": {
+              "target": "displaying_files",
+              "actions": "setFilteredFiles"
+            },
+            "onError": {
+              "target": "filtering_error",
+              "actions": "setFilteringError"
+            }
+          }
+        },
+        "sorting_files": {
+          "description": "Sorting file list by various criteria",
+          "invoke": {
+            "src": "sortFiles",
+            "onDone": {
+              "target": "displaying_files",
+              "actions": "setSortedFiles"
+            },
+            "onError": {
+              "target": "sorting_error",
+              "actions": "setSortingError"
+            }
+          }
+        },
+        "loading_more_files": {
+          "description": "Loading additional file pages",
+          "invoke": {
+            "src": "loadMoreFiles",
+            "onDone": {
+              "target": "displaying_files",
+              "actions": "appendMoreFiles"
+            },
+            "onError": {
+              "target": "load_more_error",
+              "actions": "setLoadMoreError"
+            }
+          }
+        },
+        "file_list_error": {
+          "description": "Error loading file list",
+          "on": {
+            "RETRY": "loading_file_list",
+            "CANCEL": "#file_management_v2_workflow.idle"
+          }
+        },
+        "processing_error": {
+          "description": "Error processing file list",
+          "on": {
+            "RETRY": "processing_file_list",
+            "SKIP_PROCESSING": "displaying_files"
+          }
+        },
+        "filtering_error": {
+          "description": "Error filtering files",
+          "on": {
+            "RETRY": "filtering_files",
+            "CLEAR_FILTERS": "displaying_files"
+          }
+        },
+        "sorting_error": {
+          "description": "Error sorting files",
+          "on": {
+            "RETRY": "sorting_files",
+            "RESET_SORT": "displaying_files"
+          }
+        },
+        "load_more_error": {
+          "description": "Error loading more files",
+          "on": {
+            "RETRY": "loading_more_files",
+            "CONTINUE": "displaying_files"
+          }
+        }
+      },
+      "on": {
+        "MANAGE_FILES": "managing",
+        "CANCEL": "idle"
+      }
+    },
+    "managing": {
+      "description": "Individual file management operations",
+      "initial": "file_operations_menu",
+      "states": {
+        "file_operations_menu": {
+          "description": "File management operations interface",
+          "on": {
+            "EDIT_FILE": "editing_file",
+            "DELETE_FILE": "deleting_file",
+            "RENAME_FILE": "renaming_file",
+            "MOVE_FILE": "moving_file",
+            "COPY_FILE": "copying_file",
+            "VIEW_METADATA": "viewing_metadata",
+            "SET_PERMISSIONS": "setting_permissions"
+          }
+        },
+        "editing_file": {
+          "description": "File name and metadata editing",
+          "invoke": {
+            "src": "loadFileForEdit",
+            "onDone": {
+              "target": "file_edit_form",
+              "actions": "setEditableFile"
+            },
+            "onError": {
+              "target": "edit_load_error",
+              "actions": "setEditLoadError"
+            }
+          }
+        },
+        "file_edit_form": {
+          "description": "File editing interface",
+          "on": {
+            "UPDATE_NAME": {
+              "actions": "updateFileName"
+            },
+            "UPDATE_METADATA": {
+              "actions": "updateFileMetadata"
+            },
+            "VALIDATE_CHANGES": "validating_file_changes",
+            "SAVE_CHANGES": "saving_file_changes"
+          }
+        },
+        "validating_file_changes": {
+          "description": "Validating file name and metadata changes",
+          "invoke": {
+            "src": "validateFileChanges",
+            "onDone": {
+              "target": "file_edit_form",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "file_validation_error",
+              "actions": "setFileValidationError"
+            }
+          }
+        },
+        "saving_file_changes": {
+          "description": "Saving file modifications",
+          "invoke": {
+            "src": "saveFileChanges",
+            "onDone": {
+              "target": "file_operations_menu",
+              "actions": "confirmFileChangesSaved"
+            },
+            "onError": {
+              "target": "file_save_error",
+              "actions": "setFileSaveError"
+            }
+          }
+        },
+        "deleting_file": {
+          "description": "File deletion with cascade delete and rollback capability",
+          "initial": "confirming_file_deletion",
+          "states": {
+            "confirming_file_deletion": {
+              "description": "Confirming file deletion",
+              "on": {
+                "CONFIRM_DELETE": "checking_file_dependencies",
+                "CANCEL_DELETE": "#file_management_v2_workflow.managing.file_operations_menu"
+              }
+            },
+            "checking_file_dependencies": {
+              "description": "Checking for file dependencies and references",
+              "invoke": {
+                "src": "checkFileDependencies",
+                "onDone": [
+                  {
+                    "target": "resolving_file_dependencies",
+                    "cond": "hasFileDependencies",
+                    "actions": "setFileDependencies"
+                  },
+                  {
+                    "target": "processing_file_deletion",
+                    "actions": "confirmNoDependencies"
+                  }
+                ],
+                "onError": {
+                  "target": "dependency_check_error",
+                  "actions": "setDependencyCheckError"
+                }
+              }
+            },
+            "resolving_file_dependencies": {
+              "description": "Resolving file dependencies before deletion",
+              "on": {
+                "CASCADE_DELETE": "processing_cascade_deletion",
+                "UPDATE_REFERENCES": "updating_file_references",
+                "CANCEL_DELETE": "#file_management_v2_workflow.managing.file_operations_menu"
+              }
+            },
+            "processing_cascade_deletion": {
+              "description": "Processing cascade deletion of file and dependencies",
+              "invoke": {
+                "src": "processCascadeDelete",
+                "onDone": {
+                  "target": "file_deletion_completed",
+                  "actions": "confirmCascadeDeleteCompleted"
+                },
+                "onError": {
+                  "target": "cascade_delete_error",
+                  "actions": "setCascadeDeleteError"
+                }
+              }
+            },
+            "updating_file_references": {
+              "description": "Updating file references before deletion",
+              "invoke": {
+                "src": "updateFileReferences",
+                "onDone": {
+                  "target": "processing_file_deletion",
+                  "actions": "confirmReferencesUpdated"
+                },
+                "onError": {
+                  "target": "reference_update_error",
+                  "actions": "setReferenceUpdateError"
+                }
+              }
+            },
+            "processing_file_deletion": {
+              "description": "Processing single file deletion",
+              "invoke": {
+                "src": "deleteFile",
+                "onDone": {
+                  "target": "file_deletion_completed",
+                  "actions": "confirmFileDeleted"
+                },
+                "onError": {
+                  "target": "file_deletion_error",
+                  "actions": "setFileDeletionError"
+                }
+              }
+            },
+            "file_deletion_completed": {
+              "description": "File deletion completed successfully",
+              "on": {
+                "DELETE_ANOTHER": "#file_management_v2_workflow.managing.file_operations_menu",
+                "RETURN_TO_LIST": "#file_management_v2_workflow.listing"
+              }
+            },
+            "dependency_check_error": {
+              "description": "Error checking file dependencies",
+              "on": {
+                "RETRY": "checking_file_dependencies",
+                "FORCE_DELETE": "processing_file_deletion"
+              }
+            },
+            "cascade_delete_error": {
+              "description": "Error during cascade deletion",
+              "on": {
+                "RETRY": "processing_cascade_deletion",
+                "ROLLBACK": "rolling_back_deletion"
+              }
+            },
+            "reference_update_error": {
+              "description": "Error updating file references",
+              "on": {
+                "RETRY": "updating_file_references",
+                "SKIP_UPDATE": "processing_file_deletion"
+              }
+            },
+            "file_deletion_error": {
+              "description": "Error during file deletion",
+              "on": {
+                "RETRY": "processing_file_deletion",
+                "CANCEL": "#file_management_v2_workflow.managing.file_operations_menu"
+              }
+            },
+            "rolling_back_deletion": {
+              "description": "Rolling back failed deletion",
+              "invoke": {
+                "src": "rollbackDeletion",
+                "onDone": {
+                  "target": "#file_management_v2_workflow.managing.file_operations_menu",
+                  "actions": "confirmRollbackCompleted"
+                },
+                "onError": {
+                  "target": "rollback_error",
+                  "actions": "setRollbackError"
+                }
+              }
+            },
+            "rollback_error": {
+              "description": "Error during deletion rollback",
+              "on": {
+                "MANUAL_RECOVERY": "requesting_manual_recovery",
+                "ACCEPT_PARTIAL_DELETE": "#file_management_v2_workflow.managing.file_operations_menu"
+              }
+            }
+          }
+        },
+        "renaming_file": {
+          "description": "File renaming with validation",
+          "invoke": {
+            "src": "renameFile",
+            "onDone": {
+              "target": "file_operations_menu",
+              "actions": "confirmFileRenamed"
+            },
+            "onError": {
+              "target": "rename_error",
+              "actions": "setRenameError"
+            }
+          }
+        },
+        "moving_file": {
+          "description": "Moving file to different location",
+          "invoke": {
+            "src": "moveFile",
+            "onDone": {
+              "target": "file_operations_menu",
+              "actions": "confirmFileMoved"
+            },
+            "onError": {
+              "target": "move_error",
+              "actions": "setMoveError"
+            }
+          }
+        },
+        "copying_file": {
+          "description": "Creating file copy",
+          "invoke": {
+            "src": "copyFile",
+            "onDone": {
+              "target": "file_operations_menu",
+              "actions": "confirmFileCopied"
+            },
+            "onError": {
+              "target": "copy_error",
+              "actions": "setCopyError"
+            }
+          }
+        },
+        "viewing_metadata": {
+          "description": "Viewing detailed file metadata",
+          "invoke": {
+            "src": "loadFileMetadata",
+            "onDone": {
+              "target": "displaying_metadata",
+              "actions": "setFileMetadata"
+            },
+            "onError": {
+              "target": "metadata_error",
+              "actions": "setMetadataError"
+            }
+          }
+        },
+        "displaying_metadata": {
+          "description": "Displaying file metadata information",
+          "on": {
+            "EDIT_METADATA": "editing_metadata",
+            "EXPORT_METADATA": "exporting_metadata",
+            "BACK": "file_operations_menu"
+          }
+        },
+        "editing_metadata": {
+          "description": "Editing file metadata",
+          "on": {
+            "SAVE_METADATA": "saving_metadata",
+            "CANCEL": "displaying_metadata"
+          }
+        },
+        "saving_metadata": {
+          "description": "Saving metadata changes",
+          "invoke": {
+            "src": "saveFileMetadata",
+            "onDone": {
+              "target": "displaying_metadata",
+              "actions": "confirmMetadataSaved"
+            },
+            "onError": {
+              "target": "metadata_save_error",
+              "actions": "setMetadataSaveError"
+            }
+          }
+        },
+        "setting_permissions": {
+          "description": "Setting file permissions and access control",
+          "invoke": {
+            "src": "setFilePermissions",
+            "onDone": {
+              "target": "file_operations_menu",
+              "actions": "confirmPermissionsSet"
+            },
+            "onError": {
+              "target": "permissions_error",
+              "actions": "setPermissionsError"
+            }
+          }
+        },
+        "edit_load_error": {
+          "description": "Error loading file for editing",
+          "on": {
+            "RETRY": "editing_file",
+            "CANCEL": "file_operations_menu"
+          }
+        },
+        "file_validation_error": {
+          "description": "File validation error",
+          "on": {
+            "FIX_ERRORS": "file_edit_form",
+            "CANCEL": "file_operations_menu"
+          }
+        },
+        "file_save_error": {
+          "description": "Error saving file changes",
+          "on": {
+            "RETRY": "saving_file_changes",
+            "CANCEL": "file_edit_form"
+          }
+        },
+        "rename_error": {
+          "description": "Error renaming file",
+          "on": {
+            "RETRY": "renaming_file",
+            "CANCEL": "file_operations_menu"
+          }
+        },
+        "move_error": {
+          "description": "Error moving file",
+          "on": {
+            "RETRY": "moving_file",
+            "CANCEL": "file_operations_menu"
+          }
+        },
+        "copy_error": {
+          "description": "Error copying file",
+          "on": {
+            "RETRY": "copying_file",
+            "CANCEL": "file_operations_menu"
+          }
+        },
+        "metadata_error": {
+          "description": "Error loading metadata",
+          "on": {
+            "RETRY": "viewing_metadata",
+            "CANCEL": "file_operations_menu"
+          }
+        },
+        "metadata_save_error": {
+          "description": "Error saving metadata",
+          "on": {
+            "RETRY": "saving_metadata",
+            "CANCEL": "displaying_metadata"
+          }
+        },
+        "permissions_error": {
+          "description": "Error setting file permissions",
+          "on": {
+            "RETRY": "setting_permissions",
+            "CANCEL": "file_operations_menu"
+          }
+        }
+      },
+      "on": {
+        "BACK_TO_LIST": "listing",
+        "CANCEL": "idle"
+      }
+    },
+    "batch_processing": {
+      "description": "Batch file operations for multiple files",
+      "initial": "selecting_batch_operation",
+      "states": {
+        "selecting_batch_operation": {
+          "description": "Selecting batch operation type",
+          "on": {
+            "BATCH_DELETE": "batch_deleting",
+            "BATCH_DOWNLOAD": "batch_downloading",
+            "BATCH_MOVE": "batch_moving",
+            "BATCH_COPY": "batch_copying",
+            "BATCH_RENAME": "batch_renaming",
+            "BATCH_METADATA_UPDATE": "batch_metadata_update"
+          }
+        },
+        "batch_deleting": {
+          "description": "Batch deletion - transactional deletion from storage and database",
+          "invoke": {
+            "src": "processBatchDelete",
+            "onDone": {
+              "target": "batch_operation_completed",
+              "actions": "confirmBatchDeleteCompleted"
+            },
+            "onError": {
+              "target": "batch_delete_error",
+              "actions": "setBatchDeleteError"
+            }
+          }
+        },
+        "batch_downloading": {
+          "description": "Batch download - ZIP compression with timestamp naming",
+          "invoke": {
+            "src": "processBatchDownload",
+            "onDone": {
+              "target": "batch_operation_completed",
+              "actions": "confirmBatchDownloadCompleted"
+            },
+            "onError": {
+              "target": "batch_download_error",
+              "actions": "setBatchDownloadError"
+            }
+          }
+        },
+        "batch_moving": {
+          "description": "Moving multiple files to new location",
+          "invoke": {
+            "src": "processBatchMove",
+            "onDone": {
+              "target": "batch_operation_completed",
+              "actions": "confirmBatchMoveCompleted"
+            },
+            "onError": {
+              "target": "batch_move_error",
+              "actions": "setBatchMoveError"
+            }
+          }
+        },
+        "batch_copying": {
+          "description": "Creating copies of multiple files",
+          "invoke": {
+            "src": "processBatchCopy",
+            "onDone": {
+              "target": "batch_operation_completed",
+              "actions": "confirmBatchCopyCompleted"
+            },
+            "onError": {
+              "target": "batch_copy_error",
+              "actions": "setBatchCopyError"
+            }
+          }
+        },
+        "batch_renaming": {
+          "description": "Renaming multiple files with pattern",
+          "invoke": {
+            "src": "processBatchRename",
+            "onDone": {
+              "target": "batch_operation_completed",
+              "actions": "confirmBatchRenameCompleted"
+            },
+            "onError": {
+              "target": "batch_rename_error",
+              "actions": "setBatchRenameError"
+            }
+          }
+        },
+        "batch_metadata_update": {
+          "description": "Updating metadata for multiple files",
+          "invoke": {
+            "src": "processBatchMetadataUpdate",
+            "onDone": {
+              "target": "batch_operation_completed",
+              "actions": "confirmBatchMetadataUpdateCompleted"
+            },
+            "onError": {
+              "target": "batch_metadata_error",
+              "actions": "setBatchMetadataError"
+            }
+          }
+        },
+        "batch_operation_completed": {
+          "description": "Batch operation completed successfully",
+          "on": {
+            "VIEW_RESULTS": "viewing_batch_results",
+            "PERFORM_ANOTHER": "selecting_batch_operation",
+            "RETURN_TO_LIST": "#file_management_v2_workflow.listing"
+          }
+        },
+        "viewing_batch_results": {
+          "description": "Viewing batch operation results and any failures",
+          "on": {
+            "RETRY_FAILED": "retrying_failed_operations",
+            "EXPORT_RESULTS": "exporting_batch_results",
+            "FINISH": "#file_management_v2_workflow.listing"
+          }
+        },
+        "retrying_failed_operations": {
+          "description": "Retrying failed batch operations",
+          "invoke": {
+            "src": "retryFailedBatchOperations",
+            "onDone": {
+              "target": "viewing_batch_results",
+              "actions": "updateBatchResults"
+            },
+            "onError": {
+              "target": "retry_error",
+              "actions": "setRetryError"
+            }
+          }
+        },
+        "exporting_batch_results": {
+          "description": "Exporting batch operation results",
+          "invoke": {
+            "src": "exportBatchResults",
+            "onDone": {
+              "target": "viewing_batch_results",
+              "actions": "confirmResultsExported"
+            },
+            "onError": {
+              "target": "export_results_error",
+              "actions": "setExportResultsError"
+            }
+          }
+        },
+        "batch_delete_error": {
+          "description": "Error during batch delete operation",
+          "on": {
+            "RETRY_BATCH": "batch_deleting",
+            "CANCEL": "selecting_batch_operation"
+          }
+        },
+        "batch_download_error": {
+          "description": "Error during batch download operation",
+          "on": {
+            "RETRY_BATCH": "batch_downloading",
+            "CANCEL": "selecting_batch_operation"
+          }
+        },
+        "batch_move_error": {
+          "description": "Error during batch move operation",
+          "on": {
+            "RETRY_BATCH": "batch_moving",
+            "CANCEL": "selecting_batch_operation"
+          }
+        },
+        "batch_copy_error": {
+          "description": "Error during batch copy operation",
+          "on": {
+            "RETRY_BATCH": "batch_copying",
+            "CANCEL": "selecting_batch_operation"
+          }
+        },
+        "batch_rename_error": {
+          "description": "Error during batch rename operation",
+          "on": {
+            "RETRY_BATCH": "batch_renaming",
+            "CANCEL": "selecting_batch_operation"
+          }
+        },
+        "batch_metadata_error": {
+          "description": "Error during batch metadata update",
+          "on": {
+            "RETRY_BATCH": "batch_metadata_update",
+            "CANCEL": "selecting_batch_operation"
+          }
+        },
+        "retry_error": {
+          "description": "Error retrying failed operations",
+          "on": {
+            "TRY_AGAIN": "retrying_failed_operations",
+            "ACCEPT_FAILURES": "viewing_batch_results"
+          }
+        },
+        "export_results_error": {
+          "description": "Error exporting batch results",
+          "on": {
+            "RETRY_EXPORT": "exporting_batch_results",
+            "SKIP_EXPORT": "viewing_batch_results"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "mcp_management": {
+      "description": "Special handling for MCP servers file (_mcp_servers)",
+      "initial": "mcp_file_operations",
+      "states": {
+        "mcp_file_operations": {
+          "description": "MCP servers file management interface",
+          "on": {
+            "UPLOAD_MCP_CONFIG": "uploading_mcp_config",
+            "UPDATE_MCP_CONFIG": "updating_mcp_config",
+            "VALIDATE_MCP_CONFIG": "validating_mcp_config",
+            "BACKUP_MCP_CONFIG": "backing_up_mcp_config",
+            "RESTORE_MCP_CONFIG": "restoring_mcp_config"
+          }
+        },
+        "uploading_mcp_config": {
+          "description": "Uploading new MCP servers configuration - replaces existing vs unique naming",
+          "invoke": {
+            "src": "uploadMcpConfig",
+            "onDone": {
+              "target": "mcp_config_uploaded",
+              "actions": "confirmMcpConfigUploaded"
+            },
+            "onError": {
+              "target": "mcp_upload_error",
+              "actions": "setMcpUploadError"
+            }
+          }
+        },
+        "updating_mcp_config": {
+          "description": "Updating existing MCP servers configuration",
+          "invoke": {
+            "src": "updateMcpConfig",
+            "onDone": {
+              "target": "mcp_config_updated",
+              "actions": "confirmMcpConfigUpdated"
+            },
+            "onError": {
+              "target": "mcp_update_error",
+              "actions": "setMcpUpdateError"
+            }
+          }
+        },
+        "validating_mcp_config": {
+          "description": "Validating MCP servers configuration format and syntax",
+          "invoke": {
+            "src": "validateMcpConfig",
+            "onDone": {
+              "target": "mcp_validation_completed",
+              "actions": "setMcpValidationResults"
+            },
+            "onError": {
+              "target": "mcp_validation_error",
+              "actions": "setMcpValidationError"
+            }
+          }
+        },
+        "backing_up_mcp_config": {
+          "description": "Creating backup of current MCP configuration",
+          "invoke": {
+            "src": "backupMcpConfig",
+            "onDone": {
+              "target": "mcp_backup_completed",
+              "actions": "confirmMcpBackupCompleted"
+            },
+            "onError": {
+              "target": "mcp_backup_error",
+              "actions": "setMcpBackupError"
+            }
+          }
+        },
+        "restoring_mcp_config": {
+          "description": "Restoring MCP configuration from backup",
+          "invoke": {
+            "src": "restoreMcpConfig",
+            "onDone": {
+              "target": "mcp_config_restored",
+              "actions": "confirmMcpConfigRestored"
+            },
+            "onError": {
+              "target": "mcp_restore_error",
+              "actions": "setMcpRestoreError"
+            }
+          }
+        },
+        "mcp_config_uploaded": {
+          "description": "MCP configuration uploaded successfully",
+          "on": {
+            "VALIDATE_CONFIG": "validating_mcp_config",
+            "MANAGE_MORE": "mcp_file_operations",
+            "FINISH": "#file_management_v2_workflow.idle"
+          }
+        },
+        "mcp_config_updated": {
+          "description": "MCP configuration updated successfully",
+          "on": {
+            "VALIDATE_CONFIG": "validating_mcp_config",
+            "MANAGE_MORE": "mcp_file_operations",
+            "FINISH": "#file_management_v2_workflow.idle"
+          }
+        },
+        "mcp_validation_completed": {
+          "description": "MCP configuration validation completed",
+          "on": {
+            "FIX_ERRORS": "updating_mcp_config",
+            "ACCEPT_CONFIG": "mcp_file_operations",
+            "BACKUP_CONFIG": "backing_up_mcp_config"
+          }
+        },
+        "mcp_backup_completed": {
+          "description": "MCP configuration backup completed",
+          "on": {
+            "MANAGE_MORE": "mcp_file_operations",
+            "FINISH": "#file_management_v2_workflow.idle"
+          }
+        },
+        "mcp_config_restored": {
+          "description": "MCP configuration restored from backup",
+          "on": {
+            "VALIDATE_RESTORED": "validating_mcp_config",
+            "MANAGE_MORE": "mcp_file_operations",
+            "FINISH": "#file_management_v2_workflow.idle"
+          }
+        },
+        "mcp_upload_error": {
+          "description": "Error uploading MCP configuration",
+          "on": {
+            "RETRY_UPLOAD": "uploading_mcp_config",
+            "CANCEL": "mcp_file_operations"
+          }
+        },
+        "mcp_update_error": {
+          "description": "Error updating MCP configuration",
+          "on": {
+            "RETRY_UPDATE": "updating_mcp_config",
+            "CANCEL": "mcp_file_operations"
+          }
+        },
+        "mcp_validation_error": {
+          "description": "Error validating MCP configuration",
+          "on": {
+            "RETRY_VALIDATION": "validating_mcp_config",
+            "SKIP_VALIDATION": "mcp_file_operations"
+          }
+        },
+        "mcp_backup_error": {
+          "description": "Error creating MCP configuration backup",
+          "on": {
+            "RETRY_BACKUP": "backing_up_mcp_config",
+            "SKIP_BACKUP": "mcp_file_operations"
+          }
+        },
+        "mcp_restore_error": {
+          "description": "Error restoring MCP configuration",
+          "on": {
+            "RETRY_RESTORE": "restoring_mcp_config",
+            "CANCEL": "mcp_file_operations"
+          }
+        }
+      },
+      "on": {
+        "BACK_TO_GENERAL": "managing",
+        "CANCEL": "idle"
+      }
+    }
+  },
+  "services": {
+    "validatePreUpload": "Service to validate files before upload",
+    "validateFileSecurity": "Service to validate file security (existence, non-empty filename)",
+    "validateFileSize": "Service to check file size against upload limits",
+    "resolveFileNaming": "Service to resolve unique naming for files vs MCP servers file",
+    "saveToStorage": "Service to save file to storage with user-scoped path",
+    "createUserFileRecord": "Service to create UserFile database record with metadata",
+    "generateUploadResponse": "Service to generate upload response with file metadata",
+    "cleanupFailedStorage": "Service to cleanup after storage failure",
+    "handleDatabaseFailure": "Service to handle database persistence failure",
+    "compressFile": "Service to compress file to meet size requirements",
+    "requestQuotaIncrease": "Service to request storage quota increase",
+    "prepareDownload": "Service to prepare files for download operation",
+    "streamSingleFile": "Service to stream single file with proper MIME types",
+    "prepareBatchDownload": "Service to prepare batch download with ZIP compression",
+    "createZipArchive": "Service to create ZIP archive with timestamp naming",
+    "streamZipArchive": "Service to stream ZIP archive to client",
+    "prepareIndividualDownloads": "Service to prepare individual file downloads as fallback",
+    "processSequentialDownloads": "Service to process files sequentially for download",
+    "useAlternativeCompression": "Service to use alternative compression method",
+    "loadUserFiles": "Service to load user-scoped file list",
+    "processFileList": "Service to process file list with MCP servers file filtering",
+    "filterFiles": "Service to apply file filters and search criteria",
+    "sortFiles": "Service to sort file list by various criteria",
+    "loadMoreFiles": "Service to load additional file pages",
+    "loadFileForEdit": "Service to load file data for editing",
+    "validateFileChanges": "Service to validate file name and metadata changes",
+    "saveFileChanges": "Service to save file modifications",
+    "checkFileDependencies": "Service to check file dependencies and references",
+    "processCascadeDelete": "Service to process cascade deletion",
+    "updateFileReferences": "Service to update file references before deletion",
+    "deleteFile": "Service to delete individual file",
+    "rollbackDeletion": "Service to rollback failed deletion",
+    "renameFile": "Service to rename file with validation",
+    "moveFile": "Service to move file to different location",
+    "copyFile": "Service to create file copy",
+    "loadFileMetadata": "Service to load detailed file metadata",
+    "saveFileMetadata": "Service to save file metadata changes",
+    "setFilePermissions": "Service to set file permissions and access control",
+    "processBatchDelete": "Service to process batch file deletion",
+    "processBatchDownload": "Service to process batch file download",
+    "processBatchMove": "Service to process batch file move operation",
+    "processBatchCopy": "Service to process batch file copy operation",
+    "processBatchRename": "Service to process batch file rename operation",
+    "processBatchMetadataUpdate": "Service to process batch metadata update",
+    "retryFailedBatchOperations": "Service to retry failed batch operations",
+    "exportBatchResults": "Service to export batch operation results",
+    "uploadMcpConfig": "Service to upload MCP servers configuration",
+    "updateMcpConfig": "Service to update existing MCP servers configuration",
+    "validateMcpConfig": "Service to validate MCP servers configuration",
+    "backupMcpConfig": "Service to create MCP configuration backup",
+    "restoreMcpConfig": "Service to restore MCP configuration from backup"
+  },
+  "guards": {
+    "passesSecurityCheck": "Check if file passes security validation",
+    "withinSizeLimit": "Check if file is within size limits",
+    "isSingleFile": "Check if download is for single file",
+    "isBatchDownload": "Check if download is for multiple files",
+    "hasFileDependencies": "Check if file has dependencies"
+  },
+  "actions": {
+    "setValidationResults": "Set file validation results in context",
+    "setValidationError": "Set validation error message",
+    "confirmSecurityValidation": "Confirm security validation passed",
+    "setSecurityError": "Set security validation error",
+    "confirmSizeValidation": "Confirm size validation passed",
+    "setSizeLimitError": "Set size limit error message",
+    "setSizeValidationError": "Set size validation error",
+    "setResolvedNames": "Set resolved file names",
+    "setNamingError": "Set file naming error",
+    "confirmStorageSaved": "Confirm file saved to storage",
+    "setStorageError": "Set storage operation error",
+    "confirmDatabaseSaved": "Confirm database record created",
+    "setDatabaseError": "Set database persistence error",
+    "setUploadResponse": "Set upload response data",
+    "setResponseError": "Set response generation error",
+    "confirmCleanupCompleted": "Confirm storage cleanup completed",
+    "setCleanupError": "Set cleanup operation error",
+    "confirmDatabaseRecovery": "Confirm database recovery completed",
+    "setDatabaseRecoveryError": "Set database recovery error",
+    "setCompressedFile": "Set compressed file data",
+    "setCompressionError": "Set file compression error",
+    "confirmQuotaRequested": "Confirm quota increase requested",
+    "setQuotaRequestError": "Set quota request error",
+    "setSingleFileDownload": "Set single file download data",
+    "setBatchDownload": "Set batch download data",
+    "setDownloadPreparationError": "Set download preparation error",
+    "confirmSingleDownloadCompleted": "Confirm single file download completed",
+    "setSingleDownloadError": "Set single file download error",
+    "setBatchDownloadData": "Set batch download preparation data",
+    "setBatchPreparationError": "Set batch preparation error",
+    "setZipArchive": "Set created ZIP archive data",
+    "setZipCreationError": "Set ZIP creation error",
+    "confirmBatchDownloadCompleted": "Confirm batch download completed",
+    "setStreamingError": "Set download streaming error",
+    "setIndividualDownloads": "Set individual download data",
+    "setIndividualPreparationError": "Set individual download preparation error",
+    "confirmSequentialDownloads": "Confirm sequential downloads completed",
+    "setSequentialDownloadError": "Set sequential download error",
+    "setAlternativeArchive": "Set alternative compression archive",
+    "setAlternativeCompressionError": "Set alternative compression error",
+    "setFileList": "Set loaded file list",
+    "setFileListError": "Set file list loading error",
+    "setProcessedFileList": "Set processed file list with filtering",
+    "setProcessingError": "Set file list processing error",
+    "selectFiles": "Select files from list",
+    "setFilteredFiles": "Set filtered file results",
+    "setFilteringError": "Set file filtering error",
+    "setSortedFiles": "Set sorted file list",
+    "setSortingError": "Set file sorting error",
+    "appendMoreFiles": "Append additional files to list",
+    "setLoadMoreError": "Set load more files error",
+    "setEditableFile": "Set file data for editing",
+    "setEditLoadError": "Set file edit loading error",
+    "updateFileName": "Update file name in edit form",
+    "updateFileMetadata": "Update file metadata in edit form",
+    "setFileValidationError": "Set file validation error",
+    "confirmFileChangesSaved": "Confirm file changes saved",
+    "setFileSaveError": "Set file save error",
+    "setFileDependencies": "Set file dependencies data",
+    "confirmNoDependencies": "Confirm no file dependencies found",
+    "setDependencyCheckError": "Set dependency check error",
+    "confirmCascadeDeleteCompleted": "Confirm cascade delete completed",
+    "setCascadeDeleteError": "Set cascade delete error",
+    "confirmReferencesUpdated": "Confirm file references updated",
+    "setReferenceUpdateError": "Set reference update error",
+    "confirmFileDeleted": "Confirm file deleted",
+    "setFileDeletionError": "Set file deletion error",
+    "confirmRollbackCompleted": "Confirm deletion rollback completed",
+    "setRollbackError": "Set rollback operation error",
+    "confirmFileRenamed": "Confirm file renamed",
+    "setRenameError": "Set file rename error",
+    "confirmFileMoved": "Confirm file moved",
+    "setMoveError": "Set file move error",
+    "confirmFileCopied": "Confirm file copied",
+    "setCopyError": "Set file copy error",
+    "setFileMetadata": "Set file metadata for viewing",
+    "setMetadataError": "Set metadata loading error",
+    "confirmMetadataSaved": "Confirm metadata changes saved",
+    "setMetadataSaveError": "Set metadata save error",
+    "confirmPermissionsSet": "Confirm file permissions set",
+    "setPermissionsError": "Set permissions setting error",
+    "confirmBatchDeleteCompleted": "Confirm batch delete operation completed",
+    "setBatchDeleteError": "Set batch delete error",
+    "confirmBatchDownloadCompleted": "Confirm batch download operation completed",
+    "setBatchDownloadError": "Set batch download error",
+    "confirmBatchMoveCompleted": "Confirm batch move operation completed",
+    "setBatchMoveError": "Set batch move error",
+    "confirmBatchCopyCompleted": "Confirm batch copy operation completed",
+    "setBatchCopyError": "Set batch copy error",
+    "confirmBatchRenameCompleted": "Confirm batch rename operation completed",
+    "setBatchRenameError": "Set batch rename error",
+    "confirmBatchMetadataUpdateCompleted": "Confirm batch metadata update completed",
+    "setBatchMetadataError": "Set batch metadata update error",
+    "updateBatchResults": "Update batch operation results",
+    "setRetryError": "Set batch retry error",
+    "confirmResultsExported": "Confirm batch results exported",
+    "setExportResultsError": "Set results export error",
+    "confirmMcpConfigUploaded": "Confirm MCP configuration uploaded",
+    "setMcpUploadError": "Set MCP config upload error",
+    "confirmMcpConfigUpdated": "Confirm MCP configuration updated",
+    "setMcpUpdateError": "Set MCP config update error",
+    "setMcpValidationResults": "Set MCP configuration validation results",
+    "setMcpValidationError": "Set MCP config validation error",
+    "confirmMcpBackupCompleted": "Confirm MCP configuration backup completed",
+    "setMcpBackupError": "Set MCP config backup error",
+    "confirmMcpConfigRestored": "Confirm MCP configuration restored",
+    "setMcpRestoreError": "Set MCP config restore error"
+  }
+}

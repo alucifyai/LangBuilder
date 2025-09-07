@@ -1,0 +1,1419 @@
+{
+  "id": "flow_management_workflow_statechart",
+  "name": "Flow Management Workflow State Machine",
+  "description": "Complete flow lifecycle management including creation, editing, building, execution, and sharing",
+  "version": "1.0.0",
+  "type": "xstate",
+  "initial": "flow_dashboard",
+  "context": {
+    "currentFlow": null,
+    "flows": [],
+    "selectedNodes": [],
+    "clipboardData": null,
+    "isBuilding": false,
+    "buildStatus": "idle",
+    "buildProgress": 0,
+    "executionResults": null,
+    "validationErrors": [],
+    "unsavedChanges": false,
+    "autoSaveEnabled": true,
+    "collaborationMode": false
+  },
+  "states": {
+    "flow_dashboard": {
+      "description": "Main flow management dashboard showing all user flows",
+      "entry": ["loadUserFlows", "initializeFilters", "setupRealTimeUpdates"],
+      "type": "compound",
+      "initial": "loading_flows",
+      "states": {
+        "loading_flows": {
+          "description": "Loading user flows from server",
+          "entry": ["showLoadingIndicator"],
+          "invoke": {
+            "src": "loadFlowsService",
+            "onDone": {
+              "target": "flows_loaded",
+              "actions": ["populateFlowList", "hideLoadingIndicator"]
+            },
+            "onError": {
+              "target": "load_error",
+              "actions": ["showLoadError", "logLoadError"]
+            }
+          }
+        },
+        "flows_loaded": {
+          "description": "Flows successfully loaded and displayed",
+          "entry": ["enableFlowActions", "setupSearch", "enableFiltering"],
+          "on": {
+            "SEARCH_FLOWS": {
+              "actions": ["filterFlows", "updateFlowList"]
+            },
+            "FILTER_FLOWS": {
+              "actions": ["applyFilters", "updateFlowList"]
+            },
+            "SORT_FLOWS": {
+              "actions": ["sortFlowList", "updateFlowList"]
+            },
+            "REFRESH_FLOWS": {
+              "target": "loading_flows",
+              "actions": ["clearCurrentData"]
+            }
+          }
+        },
+        "load_error": {
+          "description": "Error loading flows",
+          "entry": ["showErrorMessage", "enableRetry"],
+          "on": {
+            "RETRY_LOAD": {
+              "target": "loading_flows",
+              "actions": ["clearError"]
+            },
+            "WORK_OFFLINE": {
+              "target": "offline_mode",
+              "actions": ["loadCachedFlows", "showOfflineIndicator"]
+            }
+          }
+        },
+        "offline_mode": {
+          "description": "Working with cached flows while offline",
+          "entry": ["showOfflineWarning", "disableServerActions"],
+          "on": {
+            "CONNECTION_RESTORED": {
+              "target": "loading_flows",
+              "actions": ["syncOfflineChanges", "hideOfflineIndicator"]
+            }
+          }
+        }
+      },
+      "on": {
+        "CREATE_NEW_FLOW": {
+          "target": "creating_flow",
+          "actions": ["prepareNewFlow", "generateFlowId"]
+        },
+        "OPEN_FLOW": {
+          "target": "flow_editor",
+          "actions": ["selectFlow", "loadFlowData"]
+        },
+        "DUPLICATE_FLOW": {
+          "target": "duplicating_flow",
+          "actions": ["prepareFlowDuplication"]
+        },
+        "DELETE_FLOW": {
+          "target": "confirming_deletion",
+          "actions": ["showDeleteConfirmation"]
+        },
+        "EXPORT_FLOWS": {
+          "target": "exporting_flows",
+          "actions": ["prepareExport", "validateSelection"]
+        },
+        "IMPORT_FLOWS": {
+          "target": "importing_flows",
+          "actions": ["showImportDialog"]
+        },
+        "SHARE_FLOW": {
+          "target": "sharing_flow",
+          "actions": ["prepareSharing", "checkPermissions"]
+        }
+      }
+    },
+    "creating_flow": {
+      "description": "Creating a new flow with initial setup",
+      "entry": ["showCreateFlowDialog", "generateUniqueName"],
+      "type": "compound",
+      "initial": "configuring_flow",
+      "states": {
+        "configuring_flow": {
+          "description": "Configuring new flow parameters",
+          "entry": ["showFlowConfigForm", "setDefaultValues"],
+          "on": {
+            "CONFIGURE_BASIC": {
+              "actions": ["validateFlowName", "checkNameUniqueness"]
+            },
+            "CONFIGURE_ADVANCED": {
+              "actions": ["showAdvancedOptions", "validateAdvancedSettings"]
+            },
+            "VALIDATE_CONFIGURATION": {
+              "target": "validating_config",
+              "actions": ["validateAllSettings"]
+            }
+          }
+        },
+        "validating_config": {
+          "description": "Validating flow configuration",
+          "invoke": {
+            "src": "validateFlowConfigService",
+            "onDone": {
+              "target": "creating_flow_record",
+              "actions": ["storeValidatedConfig"]
+            },
+            "onError": {
+              "target": "config_invalid",
+              "actions": ["showValidationErrors", "highlightInvalidFields"]
+            }
+          }
+        },
+        "config_invalid": {
+          "description": "Flow configuration has validation errors",
+          "entry": ["showConfigErrors", "enableCorrection"],
+          "on": {
+            "FIX_CONFIGURATION": {
+              "target": "configuring_flow",
+              "actions": ["clearValidationErrors"]
+            },
+            "CANCEL_CREATION": {
+              "target": "#flow_management_workflow_statechart.flow_dashboard",
+              "actions": ["discardFlowData"]
+            }
+          }
+        },
+        "creating_flow_record": {
+          "description": "Creating flow record in database",
+          "invoke": {
+            "src": "createFlowService",
+            "onDone": {
+              "target": "#flow_management_workflow_statechart.flow_created",
+              "actions": ["storeFlowData", "addToFlowList"]
+            },
+            "onError": {
+              "target": "creation_failed",
+              "actions": ["showCreationError", "logCreationFailure"]
+            }
+          }
+        },
+        "creation_failed": {
+          "description": "Flow creation failed",
+          "entry": ["showCreationFailure", "enableRetry"],
+          "on": {
+            "RETRY_CREATION": {
+              "target": "creating_flow_record",
+              "actions": ["clearCreationError"]
+            },
+            "CANCEL_CREATION": {
+              "target": "#flow_management_workflow_statechart.flow_dashboard",
+              "actions": ["discardFlowData", "clearError"]
+            }
+          }
+        }
+      }
+    },
+    "flow_created": {
+      "description": "Flow successfully created, transitioning to editor",
+      "entry": ["showCreationSuccess", "prepareFlowEditor"],
+      "invoke": {
+        "src": "initializeFlowEditorService",
+        "onDone": {
+          "target": "flow_editor",
+          "actions": ["openFlowEditor", "addDefaultNodes"]
+        },
+        "onError": {
+          "target": "flow_dashboard",
+          "actions": ["showEditorError", "returnToDashboard"]
+        }
+      }
+    },
+    "flow_editor": {
+      "description": "Main flow editing interface with visual editor",
+      "entry": ["initializeReactFlow", "loadFlowData", "setupCollaboration"],
+      "type": "compound",
+      "initial": "editor_ready",
+      "states": {
+        "editor_ready": {
+          "description": "Flow editor is ready for user interaction",
+          "entry": ["enableEditorFeatures", "startAutoSave", "setupShortcuts"],
+          "on": {
+            "ADD_NODE": {
+              "actions": ["addNodeToFlow", "updateCanvasState", "markUnsaved"]
+            },
+            "DELETE_NODE": {
+              "actions": ["removeNodeFromFlow", "removeConnectedEdges", "markUnsaved"]
+            },
+            "CONNECT_NODES": {
+              "actions": ["createEdge", "validateConnection", "markUnsaved"]
+            },
+            "DISCONNECT_NODES": {
+              "actions": ["removeEdge", "markUnsaved"]
+            },
+            "EDIT_NODE": {
+              "actions": ["openNodeEditor", "showNodeProperties"]
+            },
+            "MOVE_NODE": {
+              "actions": ["updateNodePosition", "markUnsaved"]
+            },
+            "SELECT_NODES": {
+              "actions": ["updateNodeSelection", "enableBulkActions"]
+            },
+            "COPY_NODES": {
+              "actions": ["copyNodesToClipboard", "showCopyConfirmation"]
+            },
+            "PASTE_NODES": {
+              "actions": ["pasteNodesFromClipboard", "adjustNodePositions", "markUnsaved"]
+            },
+            "UNDO_ACTION": {
+              "actions": ["revertLastAction", "updateCanvasState"]
+            },
+            "REDO_ACTION": {
+              "actions": ["replayNextAction", "updateCanvasState"]
+            },
+            "ZOOM_CANVAS": {
+              "actions": ["adjustCanvasZoom", "updateViewport"]
+            },
+            "PAN_CANVAS": {
+              "actions": ["adjustCanvasPosition", "updateViewport"]
+            },
+            "FIT_TO_VIEW": {
+              "actions": ["calculateFitBounds", "animateToFit"]
+            }
+          }
+        },
+        "validating_flow": {
+          "description": "Validating flow structure and connections",
+          "entry": ["showValidationProgress"],
+          "invoke": {
+            "src": "validateFlowService",
+            "onDone": [
+              {
+                "target": "editor_ready",
+                "cond": "flowIsValid",
+                "actions": ["showValidationSuccess", "enableBuild"]
+              },
+              {
+                "target": "validation_errors",
+                "actions": ["showValidationErrors", "highlightErrors"]
+              }
+            ]
+          }
+        },
+        "validation_errors": {
+          "description": "Flow has validation errors that need fixing",
+          "entry": ["showErrorDetails", "disableBuild", "highlightProblems"],
+          "on": {
+            "FIX_ERRORS": {
+              "target": "editor_ready",
+              "actions": ["clearValidationErrors", "enableEditing"]
+            },
+            "REVALIDATE": {
+              "target": "validating_flow",
+              "actions": ["clearPreviousErrors"]
+            }
+          }
+        },
+        "auto_saving": {
+          "description": "Automatically saving flow changes",
+          "entry": ["showSaveIndicator"],
+          "invoke": {
+            "src": "autoSaveService",
+            "onDone": {
+              "target": "editor_ready",
+              "actions": ["markSaved", "hideSaveIndicator", "updateTimestamp"]
+            },
+            "onError": {
+              "target": "save_failed",
+              "actions": ["showSaveError", "enableManualSave"]
+            }
+          }
+        },
+        "save_failed": {
+          "description": "Auto-save failed, requiring manual intervention",
+          "entry": ["showSaveFailure", "preserveUnsavedChanges"],
+          "on": {
+            "RETRY_SAVE": {
+              "target": "auto_saving",
+              "actions": ["clearSaveError"]
+            },
+            "MANUAL_SAVE": {
+              "target": "manual_saving",
+              "actions": ["initateManualSave"]
+            },
+            "CONTINUE_EDITING": {
+              "target": "editor_ready",
+              "actions": ["acknowledgeRisk", "continueWithUnsaved"]
+            }
+          }
+        },
+        "manual_saving": {
+          "description": "Manually saving flow with user confirmation",
+          "entry": ["showManualSaveDialog", "validateBeforeSave"],
+          "invoke": {
+            "src": "manualSaveService",
+            "onDone": {
+              "target": "editor_ready",
+              "actions": ["confirmSaveSuccess", "updateFlowMetadata"]
+            },
+            "onError": {
+              "target": "save_failed",
+              "actions": ["showDetailedSaveError"]
+            }
+          }
+        }
+      },
+      "on": {
+        "BUILD_FLOW": {
+          "target": "building_flow",
+          "actions": ["prepareFlowBuild", "validateForBuild"]
+        },
+        "TEST_FLOW": {
+          "target": "testing_flow",
+          "actions": ["prepareFlowTest", "setupTestEnvironment"]
+        },
+        "SAVE_FLOW": {
+          "target": ".manual_saving",
+          "actions": ["initiateSave"]
+        },
+        "VALIDATE_FLOW": {
+          "target": ".validating_flow",
+          "actions": ["startValidation"]
+        },
+        "CLOSE_EDITOR": [
+          {
+            "target": "confirming_close",
+            "cond": "hasUnsavedChanges",
+            "actions": ["showUnsavedWarning"]
+          },
+          {
+            "target": "flow_dashboard",
+            "actions": ["cleanupEditor"]
+          }
+        ],
+        "COLLABORATION_INVITE": {
+          "actions": ["handleCollaborationRequest", "updateCollaborators"]
+        },
+        "EXTERNAL_CHANGE": {
+          "actions": ["handleExternalChange", "showChangeNotification"]
+        }
+      }
+    },
+    "building_flow": {
+      "description": "Building and compiling the flow for execution",
+      "entry": ["showBuildProgress", "initializeBuildQueue", "startEventStreaming"],
+      "type": "compound",
+      "initial": "preparing_build",
+      "states": {
+        "preparing_build": {
+          "description": "Preparing flow for build process",
+          "entry": ["validateFlowStructure", "optimizeGraph", "generateBuildOrder"],
+          "invoke": {
+            "src": "prepareBuildService",
+            "onDone": {
+              "target": "building_vertices",
+              "actions": ["startVertexBuilding", "updateBuildStatus"]
+            },
+            "onError": {
+              "target": "build_preparation_failed",
+              "actions": ["showPreparationError", "logBuildError"]
+            }
+          }
+        },
+        "building_vertices": {
+          "description": "Building individual vertices in dependency order",
+          "entry": ["processBuildQueue", "streamBuildEvents"],
+          "on": {
+            "VERTEX_BUILD_COMPLETE": {
+              "actions": ["updateVertexStatus", "updateBuildProgress"]
+            },
+            "VERTEX_BUILD_ERROR": {
+              "target": "build_error",
+              "actions": ["captureVertexError", "stopBuild"]
+            },
+            "BUILD_PROGRESS": {
+              "actions": ["updateProgressIndicator", "streamProgressEvent"]
+            },
+            "ALL_VERTICES_BUILT": {
+              "target": "build_complete",
+              "actions": ["finalizeBuild", "prepareBuildResults"]
+            }
+          }
+        },
+        "build_preparation_failed": {
+          "description": "Build preparation encountered errors",
+          "entry": ["showPreparationErrors", "analyzeFailureCause"],
+          "on": {
+            "RETRY_PREPARATION": {
+              "target": "preparing_build",
+              "actions": ["clearPreparationErrors", "resetBuildState"]
+            },
+            "FIX_FLOW_ISSUES": {
+              "target": "#flow_management_workflow_statechart.flow_editor.validation_errors",
+              "actions": ["returnToEditor", "highlightBuildIssues"]
+            },
+            "CANCEL_BUILD": {
+              "target": "#flow_management_workflow_statechart.flow_editor",
+              "actions": ["cancelBuildProcess", "cleanupBuildData"]
+            }
+          }
+        },
+        "build_error": {
+          "description": "Build process encountered an error",
+          "entry": ["showBuildError", "captureBuildLogs", "analyzeErrorCause"],
+          "on": {
+            "RETRY_BUILD": {
+              "target": "preparing_build",
+              "actions": ["clearBuildError", "resetBuildProgress"]
+            },
+            "DEBUG_BUILD": {
+              "target": "debugging_build",
+              "actions": ["enterDebugMode", "showBuildDetails"]
+            },
+            "CANCEL_BUILD": {
+              "target": "#flow_management_workflow_statechart.flow_editor",
+              "actions": ["abortBuild", "returnToEditor"]
+            }
+          }
+        },
+        "debugging_build": {
+          "description": "Debugging build issues with detailed information",
+          "entry": ["showDebugInterface", "loadBuildLogs", "highlightErrorNodes"],
+          "on": {
+            "STEP_THROUGH_BUILD": {
+              "actions": ["stepThroughVertices", "showIntermediateResults"]
+            },
+            "INSPECT_VERTEX": {
+              "actions": ["showVertexDetails", "displayVertexLogs"]
+            },
+            "FIX_AND_REBUILD": {
+              "target": "preparing_build",
+              "actions": ["applyFixes", "resetBuildState"]
+            },
+            "RETURN_TO_EDITOR": {
+              "target": "#flow_management_workflow_statechart.flow_editor",
+              "actions": ["exitDebugMode", "preserveDebugInfo"]
+            }
+          }
+        },
+        "build_complete": {
+          "description": "Build completed successfully",
+          "entry": ["showBuildSuccess", "prepareBuildResults", "updateFlowStatus"],
+          "invoke": {
+            "src": "finalizeBuildService",
+            "onDone": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["markFlowAsBuilt", "enableExecution"]
+            },
+            "onError": {
+              "target": "build_finalization_error",
+              "actions": ["showFinalizationError"]
+            }
+          }
+        },
+        "build_finalization_error": {
+          "description": "Error during build finalization",
+          "entry": ["showFinalizationError", "preserveBuildResults"],
+          "on": {
+            "RETRY_FINALIZATION": {
+              "target": "build_complete",
+              "actions": ["retryFinalization"]
+            },
+            "ACCEPT_PARTIAL_BUILD": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["acceptPartialResults", "showWarning"]
+            }
+          }
+        }
+      },
+      "on": {
+        "STOP_BUILD": {
+          "target": "build_stopped",
+          "actions": ["stopBuildProcess", "cleanupBuildResources"]
+        }
+      }
+    },
+    "build_stopped": {
+      "description": "Build process was stopped by user",
+      "entry": ["showBuildStopped", "cleanupPartialBuild"],
+      "on": {
+        "RESUME_BUILD": {
+          "target": "building_flow",
+          "actions": ["resumeFromLastCheckpoint"]
+        },
+        "RESTART_BUILD": {
+          "target": "building_flow",
+          "actions": ["restartFromBeginning", "clearPreviousBuild"]
+        },
+        "RETURN_TO_EDITOR": {
+          "target": "flow_editor",
+          "actions": ["returnToEditor", "preserveStopReason"]
+        }
+      }
+    },
+    "flow_built": {
+      "description": "Flow is successfully built and ready for execution",
+      "entry": ["showBuildCompleteStatus", "enableExecutionOptions", "preparePlatgroundMode"],
+      "on": {
+        "EXECUTE_FLOW": {
+          "target": "executing_flow",
+          "actions": ["prepareExecution", "setupExecutionEnvironment"]
+        },
+        "TEST_FLOW": {
+          "target": "testing_flow",
+          "actions": ["enterTestMode", "setupTestInputs"]
+        },
+        "DEPLOY_FLOW": {
+          "target": "deploying_flow",
+          "actions": ["prepareDeployment", "validateDeploymentTarget"]
+        },
+        "PLAYGROUND_MODE": {
+          "target": "playground_mode",
+          "actions": ["enterPlaygroundMode", "setupPlaygroundInterface"]
+        },
+        "MODIFY_FLOW": {
+          "target": "flow_editor",
+          "actions": ["returnToEditor", "preserveBuildResults"]
+        }
+      }
+    },
+    "testing_flow": {
+      "description": "Testing flow with sample inputs and validation",
+      "entry": ["setupTestEnvironment", "loadTestData", "initializeTestRunner"],
+      "type": "compound",
+      "initial": "preparing_test",
+      "states": {
+        "preparing_test": {
+          "description": "Preparing flow for testing",
+          "entry": ["validateTestInputs", "setupTestConfiguration"],
+          "invoke": {
+            "src": "prepareTestService",
+            "onDone": {
+              "target": "running_test",
+              "actions": ["startTestExecution", "beginTestMonitoring"]
+            },
+            "onError": {
+              "target": "test_preparation_failed",
+              "actions": ["showTestPreparationError"]
+            }
+          }
+        },
+        "running_test": {
+          "description": "Executing test with monitoring",
+          "entry": ["executeTestFlow", "monitorTestProgress"],
+          "on": {
+            "TEST_PROGRESS": {
+              "actions": ["updateTestProgress", "showTestStatus"]
+            },
+            "TEST_STEP_COMPLETE": {
+              "actions": ["validateTestStep", "continueTest"]
+            },
+            "TEST_ERROR": {
+              "target": "test_failed",
+              "actions": ["captureTestError", "stopTest"]
+            },
+            "TEST_COMPLETE": {
+              "target": "test_passed",
+              "actions": ["finalizeTestResults", "generateTestReport"]
+            }
+          }
+        },
+        "test_preparation_failed": {
+          "description": "Test preparation failed",
+          "entry": ["showPreparationError", "enableTestRetry"],
+          "on": {
+            "RETRY_TEST_PREPARATION": {
+              "target": "preparing_test",
+              "actions": ["clearTestErrors", "resetTestState"]
+            },
+            "MODIFY_TEST_CONFIG": {
+              "actions": ["openTestConfiguration", "allowTestConfigEdit"]
+            },
+            "CANCEL_TEST": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["cancelTest", "returnToBuiltState"]
+            }
+          }
+        },
+        "test_failed": {
+          "description": "Test execution failed",
+          "entry": ["showTestFailure", "analyzeTestError", "generateErrorReport"],
+          "on": {
+            "RETRY_TEST": {
+              "target": "preparing_test",
+              "actions": ["clearTestError", "resetTestEnvironment"]
+            },
+            "DEBUG_TEST": {
+              "target": "debugging_test",
+              "actions": ["enterTestDebugMode", "showTestDetails"]
+            },
+            "MODIFY_FLOW": {
+              "target": "#flow_management_workflow_statechart.flow_editor",
+              "actions": ["returnToEditor", "highlightTestErrors"]
+            }
+          }
+        },
+        "debugging_test": {
+          "description": "Debugging failed test execution",
+          "entry": ["showTestDebugInterface", "loadTestLogs"],
+          "on": {
+            "STEP_THROUGH_TEST": {
+              "actions": ["stepThroughTestExecution", "showIntermediateTestResults"]
+            },
+            "INSPECT_TEST_STEP": {
+              "actions": ["showTestStepDetails", "displayStepLogs"]
+            },
+            "FIX_AND_RETEST": {
+              "target": "preparing_test",
+              "actions": ["applyTestFixes", "resetTestState"]
+            },
+            "EXIT_DEBUG": {
+              "target": "test_failed",
+              "actions": ["exitTestDebugMode"]
+            }
+          }
+        },
+        "test_passed": {
+          "description": "Test execution completed successfully",
+          "entry": ["showTestSuccess", "displayTestResults", "saveTestReport"],
+          "on": {
+            "VIEW_TEST_RESULTS": {
+              "actions": ["showDetailedTestResults", "displayPerformanceMetrics"]
+            },
+            "SAVE_TEST_REPORT": {
+              "actions": ["saveTestReport", "addToTestHistory"]
+            },
+            "RUN_ADDITIONAL_TESTS": {
+              "target": "preparing_test",
+              "actions": ["setupAdditionalTests", "clearPreviousResults"]
+            },
+            "CONTINUE_TO_DEPLOYMENT": {
+              "target": "#flow_management_workflow_statechart.deploying_flow",
+              "actions": ["prepareForDeployment", "validateTestResults"]
+            },
+            "RETURN_TO_FLOW": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["returnToBuiltFlow", "preserveTestResults"]
+            }
+          }
+        }
+      },
+      "on": {
+        "STOP_TEST": {
+          "target": "flow_built",
+          "actions": ["stopTestExecution", "cleanupTestEnvironment"]
+        }
+      }
+    },
+    "executing_flow": {
+      "description": "Executing flow in production mode",
+      "entry": ["setupExecutionEnvironment", "initializeExecutionMonitoring"],
+      "type": "compound",
+      "initial": "execution_starting",
+      "states": {
+        "execution_starting": {
+          "description": "Starting flow execution",
+          "entry": ["validateExecutionReadiness", "setupExecutionContext"],
+          "invoke": {
+            "src": "startExecutionService",
+            "onDone": {
+              "target": "execution_running",
+              "actions": ["beginExecution", "startExecutionMonitoring"]
+            },
+            "onError": {
+              "target": "execution_start_failed",
+              "actions": ["showExecutionStartError"]
+            }
+          }
+        },
+        "execution_running": {
+          "description": "Flow is actively executing",
+          "entry": ["monitorExecution", "streamExecutionEvents"],
+          "on": {
+            "EXECUTION_PROGRESS": {
+              "actions": ["updateExecutionProgress", "showExecutionStatus"]
+            },
+            "EXECUTION_STEP_COMPLETE": {
+              "actions": ["validateExecutionStep", "continueExecution"]
+            },
+            "EXECUTION_ERROR": {
+              "target": "execution_failed",
+              "actions": ["captureExecutionError", "stopExecution"]
+            },
+            "EXECUTION_COMPLETE": {
+              "target": "execution_complete",
+              "actions": ["finalizeExecutionResults", "generateExecutionReport"]
+            }
+          }
+        },
+        "execution_start_failed": {
+          "description": "Failed to start execution",
+          "entry": ["showStartFailure", "analyzeStartError"],
+          "on": {
+            "RETRY_EXECUTION": {
+              "target": "execution_starting",
+              "actions": ["clearStartError", "resetExecutionState"]
+            },
+            "CHECK_FLOW_STATUS": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["validateFlowStatus", "returnToBuiltState"]
+            }
+          }
+        },
+        "execution_failed": {
+          "description": "Flow execution failed",
+          "entry": ["showExecutionFailure", "analyzeExecutionError", "generateFailureReport"],
+          "on": {
+            "RETRY_EXECUTION": {
+              "target": "execution_starting",
+              "actions": ["clearExecutionError", "resetExecutionEnvironment"]
+            },
+            "DEBUG_EXECUTION": {
+              "target": "debugging_execution",
+              "actions": ["enterExecutionDebugMode", "showExecutionDetails"]
+            },
+            "MODIFY_FLOW": {
+              "target": "#flow_management_workflow_statechart.flow_editor",
+              "actions": ["returnToEditor", "highlightExecutionErrors"]
+            }
+          }
+        },
+        "debugging_execution": {
+          "description": "Debugging failed execution",
+          "entry": ["showExecutionDebugInterface", "loadExecutionLogs"],
+          "on": {
+            "STEP_THROUGH_EXECUTION": {
+              "actions": ["stepThroughExecution", "showIntermediateExecutionResults"]
+            },
+            "INSPECT_EXECUTION_STEP": {
+              "actions": ["showExecutionStepDetails", "displayStepLogs"]
+            },
+            "FIX_AND_REEXECUTE": {
+              "target": "execution_starting",
+              "actions": ["applyExecutionFixes", "resetExecutionState"]
+            },
+            "EXIT_EXECUTION_DEBUG": {
+              "target": "execution_failed",
+              "actions": ["exitExecutionDebugMode"]
+            }
+          }
+        },
+        "execution_complete": {
+          "description": "Flow execution completed successfully",
+          "entry": ["showExecutionSuccess", "displayExecutionResults", "saveExecutionReport"],
+          "on": {
+            "VIEW_EXECUTION_RESULTS": {
+              "actions": ["showDetailedExecutionResults", "displayExecutionMetrics"]
+            },
+            "SAVE_EXECUTION_REPORT": {
+              "actions": ["saveExecutionReport", "addToExecutionHistory"]
+            },
+            "EXECUTE_AGAIN": {
+              "target": "execution_starting",
+              "actions": ["resetForNewExecution", "clearPreviousResults"]
+            },
+            "SCHEDULE_EXECUTION": {
+              "actions": ["showSchedulingOptions", "setupExecutionSchedule"]
+            },
+            "RETURN_TO_FLOW": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["returnToBuiltFlow", "preserveExecutionResults"]
+            }
+          }
+        }
+      },
+      "on": {
+        "STOP_EXECUTION": {
+          "target": "flow_built",
+          "actions": ["stopFlowExecution", "cleanupExecutionEnvironment"]
+        }
+      }
+    },
+    "playground_mode": {
+      "description": "Interactive playground mode for flow testing and experimentation",
+      "entry": ["setupPlaygroundInterface", "initializePlaygroundSession"],
+      "type": "compound",
+      "initial": "playground_ready",
+      "states": {
+        "playground_ready": {
+          "description": "Playground is ready for interaction",
+          "entry": ["enablePlaygroundFeatures", "setupChatInterface"],
+          "on": {
+            "SEND_MESSAGE": {
+              "actions": ["processPlaygroundMessage", "executeFlowWithInput"]
+            },
+            "UPLOAD_FILE": {
+              "actions": ["handleFileUpload", "processUploadedFile"]
+            },
+            "CLEAR_SESSION": {
+              "actions": ["clearPlaygroundSession", "resetPlaygroundState"]
+            },
+            "SWITCH_INPUT_MODE": {
+              "actions": ["switchPlaygroundInputMode", "updateInterface"]
+            }
+          }
+        },
+        "processing_playground_input": {
+          "description": "Processing playground input and executing flow",
+          "entry": ["showProcessingIndicator", "executePlaygroundFlow"],
+          "on": {
+            "PLAYGROUND_PROGRESS": {
+              "actions": ["updatePlaygroundProgress", "streamPlaygroundEvents"]
+            },
+            "PLAYGROUND_RESULT": {
+              "target": "playground_ready",
+              "actions": ["displayPlaygroundResult", "updatePlaygroundHistory"]
+            },
+            "PLAYGROUND_ERROR": {
+              "target": "playground_error",
+              "actions": ["showPlaygroundError", "capturePlaygroundError"]
+            }
+          }
+        },
+        "playground_error": {
+          "description": "Playground execution encountered an error",
+          "entry": ["showPlaygroundError", "enablePlaygroundRetry"],
+          "on": {
+            "RETRY_PLAYGROUND": {
+              "target": "playground_ready",
+              "actions": ["clearPlaygroundError", "resetPlaygroundInput"]
+            },
+            "DEBUG_PLAYGROUND": {
+              "actions": ["showPlaygroundDebugInfo", "displayErrorDetails"]
+            }
+          }
+        }
+      },
+      "on": {
+        "EXIT_PLAYGROUND": {
+          "target": "flow_built",
+          "actions": ["exitPlaygroundMode", "cleanupPlaygroundSession"]
+        },
+        "SAVE_PLAYGROUND_SESSION": {
+          "actions": ["savePlaygroundSession", "exportPlaygroundHistory"]
+        }
+      }
+    },
+    "deploying_flow": {
+      "description": "Deploying flow to production environment",
+      "entry": ["setupDeploymentProcess", "validateDeploymentReadiness"],
+      "type": "compound",
+      "initial": "preparing_deployment",
+      "states": {
+        "preparing_deployment": {
+          "description": "Preparing flow for deployment",
+          "entry": ["validateDeploymentTarget", "setupDeploymentConfig"],
+          "invoke": {
+            "src": "prepareDeploymentService",
+            "onDone": {
+              "target": "deploying",
+              "actions": ["startDeployment", "initializeDeploymentMonitoring"]
+            },
+            "onError": {
+              "target": "deployment_preparation_failed",
+              "actions": ["showDeploymentPreparationError"]
+            }
+          }
+        },
+        "deploying": {
+          "description": "Actively deploying flow",
+          "entry": ["executeDeployment", "monitorDeploymentProgress"],
+          "on": {
+            "DEPLOYMENT_PROGRESS": {
+              "actions": ["updateDeploymentProgress", "showDeploymentStatus"]
+            },
+            "DEPLOYMENT_COMPLETE": {
+              "target": "deployed",
+              "actions": ["finalizeDeployment", "generateDeploymentReport"]
+            },
+            "DEPLOYMENT_ERROR": {
+              "target": "deployment_failed",
+              "actions": ["captureDeploymentError", "stopDeployment"]
+            }
+          }
+        },
+        "deployment_preparation_failed": {
+          "description": "Deployment preparation failed",
+          "entry": ["showPreparationError", "enableDeploymentRetry"],
+          "on": {
+            "RETRY_DEPLOYMENT_PREPARATION": {
+              "target": "preparing_deployment",
+              "actions": ["clearDeploymentErrors", "resetDeploymentState"]
+            },
+            "MODIFY_DEPLOYMENT_CONFIG": {
+              "actions": ["openDeploymentConfiguration", "allowConfigEdit"]
+            },
+            "CANCEL_DEPLOYMENT": {
+              "target": "#flow_management_workflow_statechart.flow_built",
+              "actions": ["cancelDeployment", "returnToBuiltState"]
+            }
+          }
+        },
+        "deployment_failed": {
+          "description": "Deployment failed",
+          "entry": ["showDeploymentFailure", "analyzeDeploymentError"],
+          "on": {
+            "RETRY_DEPLOYMENT": {
+              "target": "preparing_deployment",
+              "actions": ["clearDeploymentError", "resetDeploymentEnvironment"]
+            },
+            "ROLLBACK_DEPLOYMENT": {
+              "actions": ["initiateRollback", "restorePreviousVersion"]
+            },
+            "DEBUG_DEPLOYMENT": {
+              "actions": ["showDeploymentDebugInfo", "displayDeploymentLogs"]
+            }
+          }
+        },
+        "deployed": {
+          "description": "Flow successfully deployed",
+          "entry": ["showDeploymentSuccess", "enablePostDeploymentActions"],
+          "on": {
+            "VIEW_DEPLOYMENT_STATUS": {
+              "actions": ["showDeploymentDetails", "displayDeploymentMetrics"]
+            },
+            "MONITOR_DEPLOYMENT": {
+              "actions": ["setupDeploymentMonitoring", "showMonitoringDashboard"]
+            },
+            "UPDATE_DEPLOYMENT": {
+              "target": "preparing_deployment",
+              "actions": ["prepareDeploymentUpdate", "validateUpdateReadiness"]
+            },
+            "ROLLBACK_DEPLOYMENT": {
+              "actions": ["initiateDeploymentRollback", "confirmRollback"]
+            }
+          }
+        }
+      },
+      "on": {
+        "CANCEL_DEPLOYMENT": {
+          "target": "flow_built",
+          "actions": ["cancelDeploymentProcess", "cleanupDeploymentResources"]
+        }
+      }
+    },
+    "duplicating_flow": {
+      "description": "Creating a duplicate of an existing flow",
+      "entry": ["prepareFlowDuplication", "generateDuplicateName"],
+      "invoke": {
+        "src": "duplicateFlowService",
+        "onDone": {
+          "target": "flow_dashboard",
+          "actions": ["addDuplicatedFlow", "showDuplicationSuccess"]
+        },
+        "onError": {
+          "target": "duplication_failed",
+          "actions": ["showDuplicationError", "logDuplicationFailure"]
+        }
+      }
+    },
+    "duplication_failed": {
+      "description": "Flow duplication failed",
+      "entry": ["showDuplicationFailure", "enableDuplicationRetry"],
+      "on": {
+        "RETRY_DUPLICATION": {
+          "target": "duplicating_flow",
+          "actions": ["clearDuplicationError"]
+        },
+        "CANCEL_DUPLICATION": {
+          "target": "flow_dashboard",
+          "actions": ["discardDuplication", "returnToDashboard"]
+        }
+      }
+    },
+    "confirming_deletion": {
+      "description": "Confirming flow deletion with user",
+      "entry": ["showDeleteConfirmationDialog", "displayDeletionWarnings"],
+      "on": {
+        "CONFIRM_DELETE": {
+          "target": "deleting_flow",
+          "actions": ["proceedWithDeletion"]
+        },
+        "CANCEL_DELETE": {
+          "target": "flow_dashboard",
+          "actions": ["cancelDeletion", "returnToDashboard"]
+        }
+      }
+    },
+    "deleting_flow": {
+      "description": "Deleting flow and associated data",
+      "entry": ["showDeletionProgress"],
+      "invoke": {
+        "src": "deleteFlowService",
+        "onDone": {
+          "target": "flow_dashboard",
+          "actions": ["removeFromFlowList", "showDeletionSuccess", "cleanupFlowData"]
+        },
+        "onError": {
+          "target": "deletion_failed",
+          "actions": ["showDeletionError", "logDeletionFailure"]
+        }
+      }
+    },
+    "deletion_failed": {
+      "description": "Flow deletion failed",
+      "entry": ["showDeletionFailure", "enableDeletionRetry"],
+      "on": {
+        "RETRY_DELETE": {
+          "target": "deleting_flow",
+          "actions": ["clearDeletionError"]
+        },
+        "CANCEL_DELETE": {
+          "target": "flow_dashboard",
+          "actions": ["cancelDeletion", "returnToDashboard"]
+        }
+      }
+    },
+    "sharing_flow": {
+      "description": "Sharing flow with other users or making it public",
+      "entry": ["setupSharingInterface", "loadSharingPermissions"],
+      "type": "compound",
+      "initial": "configuring_sharing",
+      "states": {
+        "configuring_sharing": {
+          "description": "Configuring sharing settings",
+          "entry": ["showSharingDialog", "loadCurrentPermissions"],
+          "on": {
+            "SET_SHARING_PERMISSIONS": {
+              "actions": ["updateSharingPermissions", "validatePermissions"]
+            },
+            "ADD_COLLABORATOR": {
+              "actions": ["addCollaborator", "validateCollaboratorAccess"]
+            },
+            "REMOVE_COLLABORATOR": {
+              "actions": ["removeCollaborator", "updatePermissions"]
+            },
+            "MAKE_PUBLIC": {
+              "actions": ["setPublicAccess", "showPublicWarning"]
+            },
+            "MAKE_PRIVATE": {
+              "actions": ["setPrivateAccess", "removePublicAccess"]
+            }
+          }
+        },
+        "applying_sharing": {
+          "description": "Applying sharing configuration",
+          "entry": ["applySharingSettings", "updateFlowPermissions"],
+          "invoke": {
+            "src": "applySharingService",
+            "onDone": {
+              "target": "sharing_complete",
+              "actions": ["confirmSharingApplied", "notifyCollaborators"]
+            },
+            "onError": {
+              "target": "sharing_failed",
+              "actions": ["showSharingError", "revertSharingChanges"]
+            }
+          }
+        },
+        "sharing_complete": {
+          "description": "Sharing configuration successfully applied",
+          "entry": ["showSharingSuccess", "displaySharingDetails"],
+          "on": {
+            "MODIFY_SHARING": {
+              "target": "configuring_sharing",
+              "actions": ["allowSharingModification"]
+            },
+            "COPY_SHARE_LINK": {
+              "actions": ["generateShareLink", "copyToClipboard", "showLinkCopied"]
+            },
+            "SEND_INVITATIONS": {
+              "actions": ["sendCollaboratorInvitations", "showInvitationsSent"]
+            }
+          }
+        },
+        "sharing_failed": {
+          "description": "Sharing configuration failed",
+          "entry": ["showSharingFailure", "enableSharingRetry"],
+          "on": {
+            "RETRY_SHARING": {
+              "target": "applying_sharing",
+              "actions": ["clearSharingError", "retrySharingApplication"]
+            },
+            "MODIFY_SHARING_CONFIG": {
+              "target": "configuring_sharing",
+              "actions": ["returnToSharingConfig", "preserveValidSettings"]
+            }
+          }
+        }
+      },
+      "on": {
+        "CANCEL_SHARING": {
+          "target": "flow_dashboard",
+          "actions": ["cancelSharing", "discardSharingChanges"]
+        },
+        "APPLY_SHARING": {
+          "target": ".applying_sharing",
+          "actions": ["validateAndApplySharing"]
+        }
+      }
+    },
+    "exporting_flows": {
+      "description": "Exporting flows to external format",
+      "entry": ["setupExportProcess", "validateExportSelection"],
+      "type": "compound",
+      "initial": "configuring_export",
+      "states": {
+        "configuring_export": {
+          "description": "Configuring export settings",
+          "entry": ["showExportDialog", "loadExportOptions"],
+          "on": {
+            "SELECT_EXPORT_FORMAT": {
+              "actions": ["setExportFormat", "updateExportOptions"]
+            },
+            "CONFIGURE_EXPORT_OPTIONS": {
+              "actions": ["updateExportSettings", "validateExportConfig"]
+            },
+            "SELECT_FLOWS_TO_EXPORT": {
+              "actions": ["updateFlowSelection", "validateSelection"]
+            }
+          }
+        },
+        "processing_export": {
+          "description": "Processing export request",
+          "entry": ["processFlowExport", "showExportProgress"],
+          "invoke": {
+            "src": "processExportService",
+            "onDone": {
+              "target": "export_complete",
+              "actions": ["finalizeExport", "prepareExportDownload"]
+            },
+            "onError": {
+              "target": "export_failed",
+              "actions": ["showExportError", "logExportFailure"]
+            }
+          }
+        },
+        "export_complete": {
+          "description": "Export completed successfully",
+          "entry": ["showExportSuccess", "enableExportDownload"],
+          "on": {
+            "DOWNLOAD_EXPORT": {
+              "actions": ["downloadExportFile", "showDownloadSuccess"]
+            },
+            "EXPORT_MORE": {
+              "target": "configuring_export",
+              "actions": ["resetExportState", "prepareNewExport"]
+            }
+          }
+        },
+        "export_failed": {
+          "description": "Export process failed",
+          "entry": ["showExportFailure", "enableExportRetry"],
+          "on": {
+            "RETRY_EXPORT": {
+              "target": "processing_export",
+              "actions": ["clearExportError", "retryExportProcess"]
+            },
+            "MODIFY_EXPORT_CONFIG": {
+              "target": "configuring_export",
+              "actions": ["returnToExportConfig", "preserveValidSettings"]
+            }
+          }
+        }
+      },
+      "on": {
+        "CANCEL_EXPORT": {
+          "target": "flow_dashboard",
+          "actions": ["cancelExport", "cleanupExportProcess"]
+        },
+        "START_EXPORT": {
+          "target": ".processing_export",
+          "actions": ["validateAndStartExport"]
+        }
+      }
+    },
+    "importing_flows": {
+      "description": "Importing flows from external source",
+      "entry": ["setupImportProcess", "showImportDialog"],
+      "type": "compound",
+      "initial": "selecting_import_source",
+      "states": {
+        "selecting_import_source": {
+          "description": "Selecting import source and files",
+          "entry": ["showImportSourceOptions"],
+          "on": {
+            "UPLOAD_IMPORT_FILE": {
+              "target": "validating_import",
+              "actions": ["uploadImportFile", "prepareImportValidation"]
+            },
+            "SELECT_IMPORT_URL": {
+              "target": "downloading_import",
+              "actions": ["validateImportUrl", "prepareUrlDownload"]
+            },
+            "PASTE_IMPORT_DATA": {
+              "target": "validating_import",
+              "actions": ["prepareImportData", "validatePastedData"]
+            }
+          }
+        },
+        "downloading_import": {
+          "description": "Downloading import data from URL",
+          "entry": ["showDownloadProgress"],
+          "invoke": {
+            "src": "downloadImportService",
+            "onDone": {
+              "target": "validating_import",
+              "actions": ["prepareDownloadedData", "beginImportValidation"]
+            },
+            "onError": {
+              "target": "import_download_failed",
+              "actions": ["showDownloadError", "logDownloadFailure"]
+            }
+          }
+        },
+        "validating_import": {
+          "description": "Validating import data",
+          "entry": ["validateImportData", "showValidationProgress"],
+          "invoke": {
+            "src": "validateImportService",
+            "onDone": [
+              {
+                "target": "import_preview",
+                "cond": "importIsValid",
+                "actions": ["showImportPreview", "enableImportConfirmation"]
+              },
+              {
+                "target": "import_validation_failed",
+                "actions": ["showValidationErrors", "highlightImportIssues"]
+              }
+            ]
+          }
+        },
+        "import_download_failed": {
+          "description": "Failed to download import data",
+          "entry": ["showDownloadFailure", "enableDownloadRetry"],
+          "on": {
+            "RETRY_DOWNLOAD": {
+              "target": "downloading_import",
+              "actions": ["clearDownloadError", "retryUrlDownload"]
+            },
+            "CHANGE_IMPORT_SOURCE": {
+              "target": "selecting_import_source",
+              "actions": ["returnToSourceSelection"]
+            }
+          }
+        },
+        "import_validation_failed": {
+          "description": "Import validation failed",
+          "entry": ["showValidationFailure", "displayValidationDetails"],
+          "on": {
+            "FIX_IMPORT_DATA": {
+              "target": "selecting_import_source",
+              "actions": ["allowImportDataFix", "preserveErrorDetails"]
+            },
+            "IGNORE_VALIDATION_ERRORS": {
+              "target": "import_preview",
+              "cond": "canIgnoreValidationErrors",
+              "actions": ["proceedWithWarnings", "showWarningDialog"]
+            },
+            "CANCEL_IMPORT": {
+              "target": "#flow_management_workflow_statechart.flow_dashboard",
+              "actions": ["cancelImport", "cleanupImportData"]
+            }
+          }
+        },
+        "import_preview": {
+          "description": "Previewing import data before confirmation",
+          "entry": ["showImportPreview", "displayImportSummary"],
+          "on": {
+            "CONFIRM_IMPORT": {
+              "target": "processing_import",
+              "actions": ["proceedWithImport", "prepareImportExecution"]
+            },
+            "MODIFY_IMPORT_SETTINGS": {
+              "actions": ["showImportSettings", "allowImportCustomization"]
+            },
+            "SELECT_FLOWS_TO_IMPORT": {
+              "actions": ["updateImportSelection", "refreshPreview"]
+            }
+          }
+        },
+        "processing_import": {
+          "description": "Processing import and creating flows",
+          "entry": ["executeImport", "showImportProgress"],
+          "invoke": {
+            "src": "processImportService",
+            "onDone": {
+              "target": "import_complete",
+              "actions": ["finalizeImport", "addImportedFlows"]
+            },
+            "onError": {
+              "target": "import_failed",
+              "actions": ["showImportError", "logImportFailure"]
+            }
+          }
+        },
+        "import_complete": {
+          "description": "Import completed successfully",
+          "entry": ["showImportSuccess", "displayImportResults"],
+          "on": {
+            "VIEW_IMPORTED_FLOWS": {
+              "target": "#flow_management_workflow_statechart.flow_dashboard",
+              "actions": ["showImportedFlows", "filterByImported"]
+            },
+            "IMPORT_MORE": {
+              "target": "selecting_import_source",
+              "actions": ["resetImportState", "prepareNewImport"]
+            }
+          }
+        },
+        "import_failed": {
+          "description": "Import process failed",
+          "entry": ["showImportFailure", "enableImportRetry"],
+          "on": {
+            "RETRY_IMPORT": {
+              "target": "processing_import",
+              "actions": ["clearImportError", "retryImportProcess"]
+            },
+            "PARTIAL_IMPORT": {
+              "target": "import_complete",
+              "cond": "hasPartialImportResults",
+              "actions": ["acceptPartialImport", "showPartialResults"]
+            },
+            "CANCEL_IMPORT": {
+              "target": "#flow_management_workflow_statechart.flow_dashboard",
+              "actions": ["cancelImport", "cleanupFailedImport"]
+            }
+          }
+        }
+      },
+      "on": {
+        "CANCEL_IMPORT": {
+          "target": "flow_dashboard",
+          "actions": ["cancelImport", "cleanupImportProcess"]
+        }
+      }
+    },
+    "confirming_close": {
+      "description": "Confirming editor close with unsaved changes",
+      "entry": ["showUnsavedChangesDialog", "displayChangesSummary"],
+      "on": {
+        "SAVE_AND_CLOSE": {
+          "target": "flow_dashboard",
+          "actions": ["saveCurrentChanges", "closeEditor"]
+        },
+        "CLOSE_WITHOUT_SAVING": {
+          "target": "flow_dashboard",
+          "actions": ["discardChanges", "closeEditor"]
+        },
+        "CANCEL_CLOSE": {
+          "target": "flow_editor",
+          "actions": ["returnToEditor", "preserveChanges"]
+        }
+      }
+    }
+  },
+  "guards": {
+    "hasUnsavedChanges": "context.unsavedChanges === true",
+    "flowIsValid": "context.validationErrors.length === 0",
+    "autoLoginEnabled": "context.autoLoginEnabled === true",
+    "canIgnoreValidationErrors": "context.validationErrors.every(error => error.severity !== 'critical')",
+    "importIsValid": "context.importValidation.isValid === true",
+    "hasPartialImportResults": "context.partialImportResults && context.partialImportResults.length > 0"
+  },
+  "services": {
+    "loadFlowsService": "API call to GET /api/v1/flows/",
+    "createFlowService": "API call to POST /api/v1/flows/ with flow data",
+    "validateFlowConfigService": "Validate flow configuration parameters",
+    "initializeFlowEditorService": "Initialize ReactFlow editor with flow data",
+    "validateFlowService": "Validate flow structure and connections",
+    "autoSaveService": "Auto-save flow changes periodically",
+    "manualSaveService": "Manual save flow with user confirmation",
+    "prepareBuildService": "Prepare flow for build process",
+    "finalizeBuildService": "Finalize build results and update flow status",
+    "prepareTestService": "Prepare flow for testing",
+    "startExecutionService": "Start flow execution process",
+    "prepareDeploymentService": "Prepare flow for deployment",
+    "duplicateFlowService": "API call to duplicate existing flow",
+    "deleteFlowService": "API call to DELETE /api/v1/flows/{flow_id}",
+    "applySharingService": "Apply sharing configuration to flow",
+    "processExportService": "Process flow export request",
+    "downloadImportService": "Download import data from URL",
+    "validateImportService": "Validate import data structure",
+    "processImportService": "Process import and create flows"
+  }
+}

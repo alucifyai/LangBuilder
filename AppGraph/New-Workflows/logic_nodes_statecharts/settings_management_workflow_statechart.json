@@ -1,0 +1,2341 @@
+{
+  "id": "settings_management_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "currentSettings": {},
+    "modifiedSettings": {},
+    "settingsCategories": [],
+    "validationResults": null,
+    "backupSettings": null,
+    "importData": null,
+    "exportData": null,
+    "profileData": null,
+    "apiKeys": {},
+    "integrationConfigs": {},
+    "themeSettings": {},
+    "accessibilitySettings": {},
+    "performanceSettings": {},
+    "securitySettings": {},
+    "notificationSettings": {},
+    "errors": [],
+    "pendingChanges": false
+  },
+  "states": {
+    "idle": {
+      "description": "Settings management system ready",
+      "on": {
+        "OPEN_SETTINGS": "loading_settings",
+        "QUICK_SETTING": "quick_setting_change",
+        "IMPORT_SETTINGS": "importing_settings",
+        "EXPORT_SETTINGS": "exporting_settings"
+      }
+    },
+    "loading_settings": {
+      "description": "Loading user settings and preferences",
+      "invoke": {
+        "src": "loadUserSettings",
+        "onDone": {
+          "target": "settings_overview",
+          "actions": "setCurrentSettings"
+        },
+        "onError": {
+          "target": "settings_load_error",
+          "actions": "setSettingsLoadError"
+        }
+      }
+    },
+    "settings_overview": {
+      "description": "Settings dashboard with categories and quick access",
+      "on": {
+        "GENERAL_SETTINGS": "general_settings",
+        "ACCOUNT_SETTINGS": "account_settings",
+        "APPEARANCE_SETTINGS": "appearance_settings",
+        "PERFORMANCE_SETTINGS": "performance_settings",
+        "SECURITY_SETTINGS": "security_settings",
+        "INTEGRATION_SETTINGS": "integration_settings",
+        "NOTIFICATION_SETTINGS": "notification_settings",
+        "ACCESSIBILITY_SETTINGS": "accessibility_settings",
+        "ADVANCED_SETTINGS": "advanced_settings",
+        "SEARCH_SETTINGS": "searching_settings"
+      }
+    },
+    "general_settings": {
+      "description": "General application settings management",
+      "initial": "displaying_general_settings",
+      "states": {
+        "displaying_general_settings": {
+          "description": "Showing general settings options",
+          "on": {
+            "SET_LANGUAGE": "setting_language",
+            "SET_TIMEZONE": "setting_timezone",
+            "SET_DEFAULT_WORKSPACE": "setting_default_workspace",
+            "SET_AUTO_SAVE": "setting_auto_save",
+            "SET_FILE_SIZE_LIMITS": "setting_file_limits",
+            "RESET_GENERAL": "resetting_general_settings"
+          }
+        },
+        "setting_language": {
+          "description": "Setting application language",
+          "invoke": {
+            "src": "setApplicationLanguage",
+            "onDone": {
+              "target": "displaying_general_settings",
+              "actions": "confirmLanguageSet"
+            },
+            "onError": {
+              "target": "language_setting_error",
+              "actions": "setLanguageSettingError"
+            }
+          }
+        },
+        "setting_timezone": {
+          "description": "Setting user timezone",
+          "invoke": {
+            "src": "setUserTimezone",
+            "onDone": {
+              "target": "displaying_general_settings",
+              "actions": "confirmTimezoneSet"
+            },
+            "onError": {
+              "target": "timezone_setting_error",
+              "actions": "setTimezoneSettingError"
+            }
+          }
+        },
+        "setting_default_workspace": {
+          "description": "Setting default workspace/project",
+          "invoke": {
+            "src": "setDefaultWorkspace",
+            "onDone": {
+              "target": "displaying_general_settings",
+              "actions": "confirmWorkspaceSet"
+            },
+            "onError": {
+              "target": "workspace_setting_error",
+              "actions": "setWorkspaceSettingError"
+            }
+          }
+        },
+        "setting_auto_save": {
+          "description": "Configuring auto-save settings",
+          "invoke": {
+            "src": "setAutoSaveSettings",
+            "onDone": {
+              "target": "displaying_general_settings",
+              "actions": "confirmAutoSaveSet"
+            },
+            "onError": {
+              "target": "auto_save_setting_error",
+              "actions": "setAutoSaveSettingError"
+            }
+          }
+        },
+        "setting_file_limits": {
+          "description": "Setting file size and upload limits",
+          "invoke": {
+            "src": "setFileLimits",
+            "onDone": {
+              "target": "displaying_general_settings",
+              "actions": "confirmFileLimitsSet"
+            },
+            "onError": {
+              "target": "file_limits_error",
+              "actions": "setFileLimitsError"
+            }
+          }
+        },
+        "resetting_general_settings": {
+          "description": "Resetting general settings to defaults",
+          "invoke": {
+            "src": "resetGeneralSettings",
+            "onDone": {
+              "target": "displaying_general_settings",
+              "actions": "confirmGeneralReset"
+            },
+            "onError": {
+              "target": "general_reset_error",
+              "actions": "setGeneralResetError"
+            }
+          }
+        },
+        "language_setting_error": {
+          "description": "Error setting language",
+          "on": {
+            "RETRY": "setting_language",
+            "CANCEL": "displaying_general_settings"
+          }
+        },
+        "timezone_setting_error": {
+          "description": "Error setting timezone",
+          "on": {
+            "RETRY": "setting_timezone",
+            "CANCEL": "displaying_general_settings"
+          }
+        },
+        "workspace_setting_error": {
+          "description": "Error setting workspace",
+          "on": {
+            "RETRY": "setting_default_workspace",
+            "CANCEL": "displaying_general_settings"
+          }
+        },
+        "auto_save_setting_error": {
+          "description": "Error setting auto-save",
+          "on": {
+            "RETRY": "setting_auto_save",
+            "CANCEL": "displaying_general_settings"
+          }
+        },
+        "file_limits_error": {
+          "description": "Error setting file limits",
+          "on": {
+            "RETRY": "setting_file_limits",
+            "CANCEL": "displaying_general_settings"
+          }
+        },
+        "general_reset_error": {
+          "description": "Error resetting general settings",
+          "on": {
+            "RETRY": "resetting_general_settings",
+            "CANCEL": "displaying_general_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview",
+        "SAVE_CHANGES": "saving_settings",
+        "CANCEL_CHANGES": "canceling_changes"
+      }
+    },
+    "account_settings": {
+      "description": "User account and profile settings",
+      "initial": "displaying_account_settings",
+      "states": {
+        "displaying_account_settings": {
+          "description": "Showing account settings options",
+          "on": {
+            "UPDATE_PROFILE": "updating_profile",
+            "CHANGE_PASSWORD": "changing_password",
+            "MANAGE_API_KEYS": "managing_api_keys",
+            "PRIVACY_SETTINGS": "privacy_settings",
+            "DELETE_ACCOUNT": "deleting_account"
+          }
+        },
+        "updating_profile": {
+          "description": "Updating user profile information",
+          "invoke": {
+            "src": "updateUserProfile",
+            "onDone": {
+              "target": "displaying_account_settings",
+              "actions": "confirmProfileUpdated"
+            },
+            "onError": {
+              "target": "profile_update_error",
+              "actions": "setProfileUpdateError"
+            }
+          }
+        },
+        "changing_password": {
+          "description": "Changing user password with validation",
+          "invoke": {
+            "src": "changeUserPassword",
+            "onDone": {
+              "target": "displaying_account_settings",
+              "actions": "confirmPasswordChanged"
+            },
+            "onError": {
+              "target": "password_change_error",
+              "actions": "setPasswordChangeError"
+            }
+          }
+        },
+        "managing_api_keys": {
+          "description": "API key management interface",
+          "invoke": {
+            "src": "loadApiKeys",
+            "onDone": {
+              "target": "displaying_api_keys",
+              "actions": "setApiKeys"
+            },
+            "onError": {
+              "target": "api_keys_error",
+              "actions": "setApiKeysError"
+            }
+          }
+        },
+        "displaying_api_keys": {
+          "description": "Showing API keys with management options",
+          "on": {
+            "CREATE_API_KEY": "creating_api_key",
+            "REVOKE_API_KEY": "revoking_api_key",
+            "REGENERATE_API_KEY": "regenerating_api_key",
+            "BACK": "displaying_account_settings"
+          }
+        },
+        "creating_api_key": {
+          "description": "Creating new API key",
+          "invoke": {
+            "src": "createApiKey",
+            "onDone": {
+              "target": "displaying_api_keys",
+              "actions": "confirmApiKeyCreated"
+            },
+            "onError": {
+              "target": "api_key_creation_error",
+              "actions": "setApiKeyCreationError"
+            }
+          }
+        },
+        "revoking_api_key": {
+          "description": "Revoking existing API key",
+          "invoke": {
+            "src": "revokeApiKey",
+            "onDone": {
+              "target": "displaying_api_keys",
+              "actions": "confirmApiKeyRevoked"
+            },
+            "onError": {
+              "target": "api_key_revocation_error",
+              "actions": "setApiKeyRevocationError"
+            }
+          }
+        },
+        "regenerating_api_key": {
+          "description": "Regenerating existing API key",
+          "invoke": {
+            "src": "regenerateApiKey",
+            "onDone": {
+              "target": "displaying_api_keys",
+              "actions": "confirmApiKeyRegenerated"
+            },
+            "onError": {
+              "target": "api_key_regeneration_error",
+              "actions": "setApiKeyRegenerationError"
+            }
+          }
+        },
+        "privacy_settings": {
+          "description": "Privacy and data settings",
+          "invoke": {
+            "src": "loadPrivacySettings",
+            "onDone": {
+              "target": "displaying_privacy_settings",
+              "actions": "setPrivacySettings"
+            },
+            "onError": {
+              "target": "privacy_settings_error",
+              "actions": "setPrivacySettingsError"
+            }
+          }
+        },
+        "displaying_privacy_settings": {
+          "description": "Showing privacy options",
+          "on": {
+            "SET_DATA_SHARING": "setting_data_sharing",
+            "SET_ANALYTICS": "setting_analytics",
+            "EXPORT_DATA": "exporting_user_data",
+            "REQUEST_DELETION": "requesting_data_deletion",
+            "BACK": "displaying_account_settings"
+          }
+        },
+        "deleting_account": {
+          "description": "Account deletion process",
+          "initial": "confirming_account_deletion",
+          "states": {
+            "confirming_account_deletion": {
+              "description": "Confirming account deletion",
+              "on": {
+                "CONFIRM_DELETE": "processing_account_deletion",
+                "CANCEL_DELETE": "#settings_management_workflow.account_settings.displaying_account_settings"
+              }
+            },
+            "processing_account_deletion": {
+              "description": "Processing account deletion",
+              "invoke": {
+                "src": "deleteUserAccount",
+                "onDone": {
+                  "target": "account_deletion_completed",
+                  "actions": "confirmAccountDeleted"
+                },
+                "onError": {
+                  "target": "account_deletion_error",
+                  "actions": "setAccountDeletionError"
+                }
+              }
+            },
+            "account_deletion_completed": {
+              "description": "Account deleted successfully",
+              "type": "final"
+            },
+            "account_deletion_error": {
+              "description": "Error deleting account",
+              "on": {
+                "RETRY": "processing_account_deletion",
+                "CANCEL": "#settings_management_workflow.account_settings.displaying_account_settings"
+              }
+            }
+          }
+        },
+        "profile_update_error": {
+          "description": "Error updating profile",
+          "on": {
+            "RETRY": "updating_profile",
+            "CANCEL": "displaying_account_settings"
+          }
+        },
+        "password_change_error": {
+          "description": "Error changing password",
+          "on": {
+            "RETRY": "changing_password",
+            "CANCEL": "displaying_account_settings"
+          }
+        },
+        "api_keys_error": {
+          "description": "Error loading API keys",
+          "on": {
+            "RETRY": "managing_api_keys",
+            "CANCEL": "displaying_account_settings"
+          }
+        },
+        "api_key_creation_error": {
+          "description": "Error creating API key",
+          "on": {
+            "RETRY": "creating_api_key",
+            "CANCEL": "displaying_api_keys"
+          }
+        },
+        "api_key_revocation_error": {
+          "description": "Error revoking API key",
+          "on": {
+            "RETRY": "revoking_api_key",
+            "CANCEL": "displaying_api_keys"
+          }
+        },
+        "api_key_regeneration_error": {
+          "description": "Error regenerating API key",
+          "on": {
+            "RETRY": "regenerating_api_key",
+            "CANCEL": "displaying_api_keys"
+          }
+        },
+        "privacy_settings_error": {
+          "description": "Error loading privacy settings",
+          "on": {
+            "RETRY": "privacy_settings",
+            "CANCEL": "displaying_account_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "appearance_settings": {
+      "description": "Theme, layout, and visual settings",
+      "initial": "displaying_appearance_settings",
+      "states": {
+        "displaying_appearance_settings": {
+          "description": "Showing appearance settings options",
+          "on": {
+            "SET_THEME": "setting_theme",
+            "CUSTOMIZE_COLORS": "customizing_colors",
+            "SET_LAYOUT": "setting_layout",
+            "SET_FONT_SIZE": "setting_font_size",
+            "SET_DENSITY": "setting_density",
+            "RESET_APPEARANCE": "resetting_appearance"
+          }
+        },
+        "setting_theme": {
+          "description": "Setting application theme (light, dark, auto)",
+          "invoke": {
+            "src": "setApplicationTheme",
+            "onDone": {
+              "target": "displaying_appearance_settings",
+              "actions": "confirmThemeSet"
+            },
+            "onError": {
+              "target": "theme_setting_error",
+              "actions": "setThemeSettingError"
+            }
+          }
+        },
+        "customizing_colors": {
+          "description": "Customizing theme colors and accents",
+          "invoke": {
+            "src": "customizeThemeColors",
+            "onDone": {
+              "target": "displaying_appearance_settings",
+              "actions": "confirmColorsCustomized"
+            },
+            "onError": {
+              "target": "color_customization_error",
+              "actions": "setColorCustomizationError"
+            }
+          }
+        },
+        "setting_layout": {
+          "description": "Setting application layout preferences",
+          "invoke": {
+            "src": "setLayoutPreferences",
+            "onDone": {
+              "target": "displaying_appearance_settings",
+              "actions": "confirmLayoutSet"
+            },
+            "onError": {
+              "target": "layout_setting_error",
+              "actions": "setLayoutSettingError"
+            }
+          }
+        },
+        "setting_font_size": {
+          "description": "Setting font size and typography",
+          "invoke": {
+            "src": "setFontPreferences",
+            "onDone": {
+              "target": "displaying_appearance_settings",
+              "actions": "confirmFontSet"
+            },
+            "onError": {
+              "target": "font_setting_error",
+              "actions": "setFontSettingError"
+            }
+          }
+        },
+        "setting_density": {
+          "description": "Setting interface density (compact, comfortable, spacious)",
+          "invoke": {
+            "src": "setInterfaceDensity",
+            "onDone": {
+              "target": "displaying_appearance_settings",
+              "actions": "confirmDensitySet"
+            },
+            "onError": {
+              "target": "density_setting_error",
+              "actions": "setDensitySettingError"
+            }
+          }
+        },
+        "resetting_appearance": {
+          "description": "Resetting appearance to default settings",
+          "invoke": {
+            "src": "resetAppearanceSettings",
+            "onDone": {
+              "target": "displaying_appearance_settings",
+              "actions": "confirmAppearanceReset"
+            },
+            "onError": {
+              "target": "appearance_reset_error",
+              "actions": "setAppearanceResetError"
+            }
+          }
+        },
+        "theme_setting_error": {
+          "description": "Error setting theme",
+          "on": {
+            "RETRY": "setting_theme",
+            "CANCEL": "displaying_appearance_settings"
+          }
+        },
+        "color_customization_error": {
+          "description": "Error customizing colors",
+          "on": {
+            "RETRY": "customizing_colors",
+            "CANCEL": "displaying_appearance_settings"
+          }
+        },
+        "layout_setting_error": {
+          "description": "Error setting layout",
+          "on": {
+            "RETRY": "setting_layout",
+            "CANCEL": "displaying_appearance_settings"
+          }
+        },
+        "font_setting_error": {
+          "description": "Error setting font preferences",
+          "on": {
+            "RETRY": "setting_font_size",
+            "CANCEL": "displaying_appearance_settings"
+          }
+        },
+        "density_setting_error": {
+          "description": "Error setting interface density",
+          "on": {
+            "RETRY": "setting_density",
+            "CANCEL": "displaying_appearance_settings"
+          }
+        },
+        "appearance_reset_error": {
+          "description": "Error resetting appearance settings",
+          "on": {
+            "RETRY": "resetting_appearance",
+            "CANCEL": "displaying_appearance_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "performance_settings": {
+      "description": "Performance and optimization settings",
+      "initial": "displaying_performance_settings",
+      "states": {
+        "displaying_performance_settings": {
+          "description": "Showing performance settings options",
+          "on": {
+            "SET_CACHE_SIZE": "setting_cache_size",
+            "SET_MAX_WORKERS": "setting_max_workers",
+            "SET_MEMORY_LIMITS": "setting_memory_limits",
+            "ENABLE_GPU_ACCELERATION": "enabling_gpu_acceleration",
+            "SET_PREFETCH": "setting_prefetch",
+            "CLEAR_CACHE": "clearing_cache",
+            "RESET_PERFORMANCE": "resetting_performance"
+          }
+        },
+        "setting_cache_size": {
+          "description": "Setting cache size limits",
+          "invoke": {
+            "src": "setCacheSize",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmCacheSizeSet"
+            },
+            "onError": {
+              "target": "cache_size_error",
+              "actions": "setCacheSizeError"
+            }
+          }
+        },
+        "setting_max_workers": {
+          "description": "Setting maximum worker threads",
+          "invoke": {
+            "src": "setMaxWorkers",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmMaxWorkersSet"
+            },
+            "onError": {
+              "target": "max_workers_error",
+              "actions": "setMaxWorkersError"
+            }
+          }
+        },
+        "setting_memory_limits": {
+          "description": "Setting memory usage limits",
+          "invoke": {
+            "src": "setMemoryLimits",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmMemoryLimitsSet"
+            },
+            "onError": {
+              "target": "memory_limits_error",
+              "actions": "setMemoryLimitsError"
+            }
+          }
+        },
+        "enabling_gpu_acceleration": {
+          "description": "Enabling/disabling GPU acceleration",
+          "invoke": {
+            "src": "setGpuAcceleration",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmGpuAccelerationSet"
+            },
+            "onError": {
+              "target": "gpu_acceleration_error",
+              "actions": "setGpuAccelerationError"
+            }
+          }
+        },
+        "setting_prefetch": {
+          "description": "Setting data prefetch settings",
+          "invoke": {
+            "src": "setPrefetchSettings",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmPrefetchSet"
+            },
+            "onError": {
+              "target": "prefetch_error",
+              "actions": "setPrefetchError"
+            }
+          }
+        },
+        "clearing_cache": {
+          "description": "Clearing application cache",
+          "invoke": {
+            "src": "clearApplicationCache",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmCacheCleared"
+            },
+            "onError": {
+              "target": "cache_clear_error",
+              "actions": "setCacheClearError"
+            }
+          }
+        },
+        "resetting_performance": {
+          "description": "Resetting performance settings to defaults",
+          "invoke": {
+            "src": "resetPerformanceSettings",
+            "onDone": {
+              "target": "displaying_performance_settings",
+              "actions": "confirmPerformanceReset"
+            },
+            "onError": {
+              "target": "performance_reset_error",
+              "actions": "setPerformanceResetError"
+            }
+          }
+        },
+        "cache_size_error": {
+          "description": "Error setting cache size",
+          "on": {
+            "RETRY": "setting_cache_size",
+            "CANCEL": "displaying_performance_settings"
+          }
+        },
+        "max_workers_error": {
+          "description": "Error setting max workers",
+          "on": {
+            "RETRY": "setting_max_workers",
+            "CANCEL": "displaying_performance_settings"
+          }
+        },
+        "memory_limits_error": {
+          "description": "Error setting memory limits",
+          "on": {
+            "RETRY": "setting_memory_limits",
+            "CANCEL": "displaying_performance_settings"
+          }
+        },
+        "gpu_acceleration_error": {
+          "description": "Error setting GPU acceleration",
+          "on": {
+            "RETRY": "enabling_gpu_acceleration",
+            "CANCEL": "displaying_performance_settings"
+          }
+        },
+        "prefetch_error": {
+          "description": "Error setting prefetch settings",
+          "on": {
+            "RETRY": "setting_prefetch",
+            "CANCEL": "displaying_performance_settings"
+          }
+        },
+        "cache_clear_error": {
+          "description": "Error clearing cache",
+          "on": {
+            "RETRY": "clearing_cache",
+            "CANCEL": "displaying_performance_settings"
+          }
+        },
+        "performance_reset_error": {
+          "description": "Error resetting performance settings",
+          "on": {
+            "RETRY": "resetting_performance",
+            "CANCEL": "displaying_performance_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "security_settings": {
+      "description": "Security and privacy settings",
+      "initial": "displaying_security_settings",
+      "states": {
+        "displaying_security_settings": {
+          "description": "Showing security settings options",
+          "on": {
+            "TWO_FACTOR_AUTH": "two_factor_authentication",
+            "SESSION_MANAGEMENT": "session_management",
+            "ENCRYPTION_SETTINGS": "encryption_settings",
+            "AUDIT_LOG": "audit_log_settings",
+            "SECURITY_ALERTS": "security_alert_settings"
+          }
+        },
+        "two_factor_authentication": {
+          "description": "2FA setup and management",
+          "invoke": {
+            "src": "load2FASettings",
+            "onDone": {
+              "target": "displaying_2fa_settings",
+              "actions": "set2FASettings"
+            },
+            "onError": {
+              "target": "2fa_load_error",
+              "actions": "set2FALoadError"
+            }
+          }
+        },
+        "displaying_2fa_settings": {
+          "description": "Showing 2FA options",
+          "on": {
+            "ENABLE_2FA": "enabling_2fa",
+            "DISABLE_2FA": "disabling_2fa",
+            "REGENERATE_BACKUP_CODES": "regenerating_backup_codes",
+            "BACK": "displaying_security_settings"
+          }
+        },
+        "enabling_2fa": {
+          "description": "Enabling two-factor authentication",
+          "invoke": {
+            "src": "enable2FA",
+            "onDone": {
+              "target": "displaying_2fa_settings",
+              "actions": "confirm2FAEnabled"
+            },
+            "onError": {
+              "target": "2fa_enable_error",
+              "actions": "set2FAEnableError"
+            }
+          }
+        },
+        "disabling_2fa": {
+          "description": "Disabling two-factor authentication",
+          "invoke": {
+            "src": "disable2FA",
+            "onDone": {
+              "target": "displaying_2fa_settings",
+              "actions": "confirm2FADisabled"
+            },
+            "onError": {
+              "target": "2fa_disable_error",
+              "actions": "set2FADisableError"
+            }
+          }
+        },
+        "regenerating_backup_codes": {
+          "description": "Regenerating 2FA backup codes",
+          "invoke": {
+            "src": "regenerateBackupCodes",
+            "onDone": {
+              "target": "displaying_2fa_settings",
+              "actions": "confirmBackupCodesRegenerated"
+            },
+            "onError": {
+              "target": "backup_codes_error",
+              "actions": "setBackupCodesError"
+            }
+          }
+        },
+        "session_management": {
+          "description": "Active session management",
+          "invoke": {
+            "src": "loadActiveSessions",
+            "onDone": {
+              "target": "displaying_sessions",
+              "actions": "setActiveSessions"
+            },
+            "onError": {
+              "target": "sessions_load_error",
+              "actions": "setSessionsLoadError"
+            }
+          }
+        },
+        "displaying_sessions": {
+          "description": "Showing active sessions",
+          "on": {
+            "TERMINATE_SESSION": "terminating_session",
+            "TERMINATE_ALL_OTHERS": "terminating_all_others",
+            "BACK": "displaying_security_settings"
+          }
+        },
+        "terminating_session": {
+          "description": "Terminating specific session",
+          "invoke": {
+            "src": "terminateSession",
+            "onDone": {
+              "target": "displaying_sessions",
+              "actions": "confirmSessionTerminated"
+            },
+            "onError": {
+              "target": "session_termination_error",
+              "actions": "setSessionTerminationError"
+            }
+          }
+        },
+        "terminating_all_others": {
+          "description": "Terminating all other sessions",
+          "invoke": {
+            "src": "terminateAllOtherSessions",
+            "onDone": {
+              "target": "displaying_sessions",
+              "actions": "confirmAllOthersTerminated"
+            },
+            "onError": {
+              "target": "all_termination_error",
+              "actions": "setAllTerminationError"
+            }
+          }
+        },
+        "encryption_settings": {
+          "description": "Data encryption settings",
+          "invoke": {
+            "src": "loadEncryptionSettings",
+            "onDone": {
+              "target": "displaying_encryption_settings",
+              "actions": "setEncryptionSettings"
+            },
+            "onError": {
+              "target": "encryption_load_error",
+              "actions": "setEncryptionLoadError"
+            }
+          }
+        },
+        "displaying_encryption_settings": {
+          "description": "Showing encryption options",
+          "on": {
+            "SET_ENCRYPTION_LEVEL": "setting_encryption_level",
+            "ROTATE_KEYS": "rotating_encryption_keys",
+            "BACKUP_KEYS": "backing_up_keys",
+            "BACK": "displaying_security_settings"
+          }
+        },
+        "audit_log_settings": {
+          "description": "Audit log configuration",
+          "invoke": {
+            "src": "loadAuditLogSettings",
+            "onDone": {
+              "target": "displaying_audit_settings",
+              "actions": "setAuditLogSettings"
+            },
+            "onError": {
+              "target": "audit_load_error",
+              "actions": "setAuditLoadError"
+            }
+          }
+        },
+        "displaying_audit_settings": {
+          "description": "Showing audit log options",
+          "on": {
+            "VIEW_AUDIT_LOG": "viewing_audit_log",
+            "EXPORT_AUDIT_LOG": "exporting_audit_log",
+            "SET_RETENTION": "setting_audit_retention",
+            "BACK": "displaying_security_settings"
+          }
+        },
+        "security_alert_settings": {
+          "description": "Security alert configuration",
+          "invoke": {
+            "src": "loadSecurityAlertSettings",
+            "onDone": {
+              "target": "displaying_alert_settings",
+              "actions": "setSecurityAlertSettings"
+            },
+            "onError": {
+              "target": "alert_load_error",
+              "actions": "setAlertLoadError"
+            }
+          }
+        },
+        "displaying_alert_settings": {
+          "description": "Showing security alert options",
+          "on": {
+            "SET_ALERT_TYPES": "setting_alert_types",
+            "SET_ALERT_CHANNELS": "setting_alert_channels",
+            "TEST_ALERTS": "testing_alerts",
+            "BACK": "displaying_security_settings"
+          }
+        },
+        "2fa_load_error": {
+          "description": "Error loading 2FA settings",
+          "on": {
+            "RETRY": "two_factor_authentication",
+            "CANCEL": "displaying_security_settings"
+          }
+        },
+        "2fa_enable_error": {
+          "description": "Error enabling 2FA",
+          "on": {
+            "RETRY": "enabling_2fa",
+            "CANCEL": "displaying_2fa_settings"
+          }
+        },
+        "2fa_disable_error": {
+          "description": "Error disabling 2FA",
+          "on": {
+            "RETRY": "disabling_2fa",
+            "CANCEL": "displaying_2fa_settings"
+          }
+        },
+        "backup_codes_error": {
+          "description": "Error regenerating backup codes",
+          "on": {
+            "RETRY": "regenerating_backup_codes",
+            "CANCEL": "displaying_2fa_settings"
+          }
+        },
+        "sessions_load_error": {
+          "description": "Error loading active sessions",
+          "on": {
+            "RETRY": "session_management",
+            "CANCEL": "displaying_security_settings"
+          }
+        },
+        "session_termination_error": {
+          "description": "Error terminating session",
+          "on": {
+            "RETRY": "terminating_session",
+            "CANCEL": "displaying_sessions"
+          }
+        },
+        "all_termination_error": {
+          "description": "Error terminating all other sessions",
+          "on": {
+            "RETRY": "terminating_all_others",
+            "CANCEL": "displaying_sessions"
+          }
+        },
+        "encryption_load_error": {
+          "description": "Error loading encryption settings",
+          "on": {
+            "RETRY": "encryption_settings",
+            "CANCEL": "displaying_security_settings"
+          }
+        },
+        "audit_load_error": {
+          "description": "Error loading audit settings",
+          "on": {
+            "RETRY": "audit_log_settings",
+            "CANCEL": "displaying_security_settings"
+          }
+        },
+        "alert_load_error": {
+          "description": "Error loading alert settings",
+          "on": {
+            "RETRY": "security_alert_settings",
+            "CANCEL": "displaying_security_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "integration_settings": {
+      "description": "Third-party integrations and API configurations",
+      "initial": "displaying_integrations",
+      "states": {
+        "displaying_integrations": {
+          "description": "Showing available integrations",
+          "invoke": {
+            "src": "loadIntegrations",
+            "onDone": {
+              "target": "showing_integrations_list",
+              "actions": "setIntegrations"
+            },
+            "onError": {
+              "target": "integrations_load_error",
+              "actions": "setIntegrationsLoadError"
+            }
+          }
+        },
+        "showing_integrations_list": {
+          "description": "Showing integrations with status",
+          "on": {
+            "CONFIGURE_INTEGRATION": "configuring_integration",
+            "ENABLE_INTEGRATION": "enabling_integration",
+            "DISABLE_INTEGRATION": "disabling_integration",
+            "TEST_INTEGRATION": "testing_integration",
+            "ADD_CUSTOM_INTEGRATION": "adding_custom_integration"
+          }
+        },
+        "configuring_integration": {
+          "description": "Configuring integration settings",
+          "invoke": {
+            "src": "configureIntegration",
+            "onDone": {
+              "target": "showing_integrations_list",
+              "actions": "confirmIntegrationConfigured"
+            },
+            "onError": {
+              "target": "integration_config_error",
+              "actions": "setIntegrationConfigError"
+            }
+          }
+        },
+        "enabling_integration": {
+          "description": "Enabling integration",
+          "invoke": {
+            "src": "enableIntegration",
+            "onDone": {
+              "target": "showing_integrations_list",
+              "actions": "confirmIntegrationEnabled"
+            },
+            "onError": {
+              "target": "integration_enable_error",
+              "actions": "setIntegrationEnableError"
+            }
+          }
+        },
+        "disabling_integration": {
+          "description": "Disabling integration",
+          "invoke": {
+            "src": "disableIntegration",
+            "onDone": {
+              "target": "showing_integrations_list",
+              "actions": "confirmIntegrationDisabled"
+            },
+            "onError": {
+              "target": "integration_disable_error",
+              "actions": "setIntegrationDisableError"
+            }
+          }
+        },
+        "testing_integration": {
+          "description": "Testing integration connection",
+          "invoke": {
+            "src": "testIntegration",
+            "onDone": {
+              "target": "showing_integrations_list",
+              "actions": "setIntegrationTestResults"
+            },
+            "onError": {
+              "target": "integration_test_error",
+              "actions": "setIntegrationTestError"
+            }
+          }
+        },
+        "adding_custom_integration": {
+          "description": "Adding custom integration",
+          "invoke": {
+            "src": "addCustomIntegration",
+            "onDone": {
+              "target": "showing_integrations_list",
+              "actions": "confirmCustomIntegrationAdded"
+            },
+            "onError": {
+              "target": "custom_integration_error",
+              "actions": "setCustomIntegrationError"
+            }
+          }
+        },
+        "integrations_load_error": {
+          "description": "Error loading integrations",
+          "on": {
+            "RETRY": "displaying_integrations",
+            "CANCEL": "#settings_management_workflow.settings_overview"
+          }
+        },
+        "integration_config_error": {
+          "description": "Error configuring integration",
+          "on": {
+            "RETRY": "configuring_integration",
+            "CANCEL": "showing_integrations_list"
+          }
+        },
+        "integration_enable_error": {
+          "description": "Error enabling integration",
+          "on": {
+            "RETRY": "enabling_integration",
+            "CANCEL": "showing_integrations_list"
+          }
+        },
+        "integration_disable_error": {
+          "description": "Error disabling integration",
+          "on": {
+            "RETRY": "disabling_integration",
+            "CANCEL": "showing_integrations_list"
+          }
+        },
+        "integration_test_error": {
+          "description": "Error testing integration",
+          "on": {
+            "RETRY": "testing_integration",
+            "CANCEL": "showing_integrations_list"
+          }
+        },
+        "custom_integration_error": {
+          "description": "Error adding custom integration",
+          "on": {
+            "RETRY": "adding_custom_integration",
+            "CANCEL": "showing_integrations_list"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "notification_settings": {
+      "description": "Notification preferences and channels",
+      "initial": "displaying_notification_settings",
+      "states": {
+        "displaying_notification_settings": {
+          "description": "Showing notification settings options",
+          "on": {
+            "SET_EMAIL_NOTIFICATIONS": "setting_email_notifications",
+            "SET_PUSH_NOTIFICATIONS": "setting_push_notifications",
+            "SET_IN_APP_NOTIFICATIONS": "setting_in_app_notifications",
+            "SET_NOTIFICATION_SCHEDULE": "setting_notification_schedule",
+            "TEST_NOTIFICATIONS": "testing_notifications"
+          }
+        },
+        "setting_email_notifications": {
+          "description": "Configuring email notification preferences",
+          "invoke": {
+            "src": "setEmailNotifications",
+            "onDone": {
+              "target": "displaying_notification_settings",
+              "actions": "confirmEmailNotificationsSet"
+            },
+            "onError": {
+              "target": "email_notifications_error",
+              "actions": "setEmailNotificationsError"
+            }
+          }
+        },
+        "setting_push_notifications": {
+          "description": "Configuring push notification preferences",
+          "invoke": {
+            "src": "setPushNotifications",
+            "onDone": {
+              "target": "displaying_notification_settings",
+              "actions": "confirmPushNotificationsSet"
+            },
+            "onError": {
+              "target": "push_notifications_error",
+              "actions": "setPushNotificationsError"
+            }
+          }
+        },
+        "setting_in_app_notifications": {
+          "description": "Configuring in-app notification preferences",
+          "invoke": {
+            "src": "setInAppNotifications",
+            "onDone": {
+              "target": "displaying_notification_settings",
+              "actions": "confirmInAppNotificationsSet"
+            },
+            "onError": {
+              "target": "in_app_notifications_error",
+              "actions": "setInAppNotificationsError"
+            }
+          }
+        },
+        "setting_notification_schedule": {
+          "description": "Setting notification quiet hours and schedule",
+          "invoke": {
+            "src": "setNotificationSchedule",
+            "onDone": {
+              "target": "displaying_notification_settings",
+              "actions": "confirmNotificationScheduleSet"
+            },
+            "onError": {
+              "target": "notification_schedule_error",
+              "actions": "setNotificationScheduleError"
+            }
+          }
+        },
+        "testing_notifications": {
+          "description": "Testing notification delivery",
+          "invoke": {
+            "src": "testNotifications",
+            "onDone": {
+              "target": "displaying_notification_settings",
+              "actions": "setNotificationTestResults"
+            },
+            "onError": {
+              "target": "notification_test_error",
+              "actions": "setNotificationTestError"
+            }
+          }
+        },
+        "email_notifications_error": {
+          "description": "Error setting email notifications",
+          "on": {
+            "RETRY": "setting_email_notifications",
+            "CANCEL": "displaying_notification_settings"
+          }
+        },
+        "push_notifications_error": {
+          "description": "Error setting push notifications",
+          "on": {
+            "RETRY": "setting_push_notifications",
+            "CANCEL": "displaying_notification_settings"
+          }
+        },
+        "in_app_notifications_error": {
+          "description": "Error setting in-app notifications",
+          "on": {
+            "RETRY": "setting_in_app_notifications",
+            "CANCEL": "displaying_notification_settings"
+          }
+        },
+        "notification_schedule_error": {
+          "description": "Error setting notification schedule",
+          "on": {
+            "RETRY": "setting_notification_schedule",
+            "CANCEL": "displaying_notification_settings"
+          }
+        },
+        "notification_test_error": {
+          "description": "Error testing notifications",
+          "on": {
+            "RETRY": "testing_notifications",
+            "CANCEL": "displaying_notification_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "accessibility_settings": {
+      "description": "Accessibility and usability settings",
+      "initial": "displaying_accessibility_settings",
+      "states": {
+        "displaying_accessibility_settings": {
+          "description": "Showing accessibility settings options",
+          "on": {
+            "SET_HIGH_CONTRAST": "setting_high_contrast",
+            "SET_LARGE_TEXT": "setting_large_text",
+            "SET_KEYBOARD_NAVIGATION": "setting_keyboard_navigation",
+            "SET_SCREEN_READER": "setting_screen_reader",
+            "SET_MOTION_REDUCTION": "setting_motion_reduction",
+            "TEST_ACCESSIBILITY": "testing_accessibility"
+          }
+        },
+        "setting_high_contrast": {
+          "description": "Setting high contrast mode",
+          "invoke": {
+            "src": "setHighContrast",
+            "onDone": {
+              "target": "displaying_accessibility_settings",
+              "actions": "confirmHighContrastSet"
+            },
+            "onError": {
+              "target": "high_contrast_error",
+              "actions": "setHighContrastError"
+            }
+          }
+        },
+        "setting_large_text": {
+          "description": "Setting large text and scaling options",
+          "invoke": {
+            "src": "setLargeText",
+            "onDone": {
+              "target": "displaying_accessibility_settings",
+              "actions": "confirmLargeTextSet"
+            },
+            "onError": {
+              "target": "large_text_error",
+              "actions": "setLargeTextError"
+            }
+          }
+        },
+        "setting_keyboard_navigation": {
+          "description": "Setting keyboard navigation preferences",
+          "invoke": {
+            "src": "setKeyboardNavigation",
+            "onDone": {
+              "target": "displaying_accessibility_settings",
+              "actions": "confirmKeyboardNavigationSet"
+            },
+            "onError": {
+              "target": "keyboard_navigation_error",
+              "actions": "setKeyboardNavigationError"
+            }
+          }
+        },
+        "setting_screen_reader": {
+          "description": "Setting screen reader support options",
+          "invoke": {
+            "src": "setScreenReader",
+            "onDone": {
+              "target": "displaying_accessibility_settings",
+              "actions": "confirmScreenReaderSet"
+            },
+            "onError": {
+              "target": "screen_reader_error",
+              "actions": "setScreenReaderError"
+            }
+          }
+        },
+        "setting_motion_reduction": {
+          "description": "Setting reduced motion preferences",
+          "invoke": {
+            "src": "setMotionReduction",
+            "onDone": {
+              "target": "displaying_accessibility_settings",
+              "actions": "confirmMotionReductionSet"
+            },
+            "onError": {
+              "target": "motion_reduction_error",
+              "actions": "setMotionReductionError"
+            }
+          }
+        },
+        "testing_accessibility": {
+          "description": "Testing accessibility features",
+          "invoke": {
+            "src": "testAccessibility",
+            "onDone": {
+              "target": "displaying_accessibility_settings",
+              "actions": "setAccessibilityTestResults"
+            },
+            "onError": {
+              "target": "accessibility_test_error",
+              "actions": "setAccessibilityTestError"
+            }
+          }
+        },
+        "high_contrast_error": {
+          "description": "Error setting high contrast",
+          "on": {
+            "RETRY": "setting_high_contrast",
+            "CANCEL": "displaying_accessibility_settings"
+          }
+        },
+        "large_text_error": {
+          "description": "Error setting large text",
+          "on": {
+            "RETRY": "setting_large_text",
+            "CANCEL": "displaying_accessibility_settings"
+          }
+        },
+        "keyboard_navigation_error": {
+          "description": "Error setting keyboard navigation",
+          "on": {
+            "RETRY": "setting_keyboard_navigation",
+            "CANCEL": "displaying_accessibility_settings"
+          }
+        },
+        "screen_reader_error": {
+          "description": "Error setting screen reader support",
+          "on": {
+            "RETRY": "setting_screen_reader",
+            "CANCEL": "displaying_accessibility_settings"
+          }
+        },
+        "motion_reduction_error": {
+          "description": "Error setting motion reduction",
+          "on": {
+            "RETRY": "setting_motion_reduction",
+            "CANCEL": "displaying_accessibility_settings"
+          }
+        },
+        "accessibility_test_error": {
+          "description": "Error testing accessibility",
+          "on": {
+            "RETRY": "testing_accessibility",
+            "CANCEL": "displaying_accessibility_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "advanced_settings": {
+      "description": "Advanced and experimental settings",
+      "initial": "displaying_advanced_settings",
+      "states": {
+        "displaying_advanced_settings": {
+          "description": "Showing advanced settings options",
+          "on": {
+            "EXPERIMENTAL_FEATURES": "experimental_features",
+            "DEVELOPER_MODE": "developer_mode",
+            "DEBUG_SETTINGS": "debug_settings",
+            "MAINTENANCE_MODE": "maintenance_mode",
+            "SYSTEM_INFO": "system_info"
+          }
+        },
+        "experimental_features": {
+          "description": "Managing experimental features",
+          "invoke": {
+            "src": "loadExperimentalFeatures",
+            "onDone": {
+              "target": "displaying_experimental_features",
+              "actions": "setExperimentalFeatures"
+            },
+            "onError": {
+              "target": "experimental_features_error",
+              "actions": "setExperimentalFeaturesError"
+            }
+          }
+        },
+        "displaying_experimental_features": {
+          "description": "Showing experimental features list",
+          "on": {
+            "ENABLE_FEATURE": "enabling_experimental_feature",
+            "DISABLE_FEATURE": "disabling_experimental_feature",
+            "BACK": "displaying_advanced_settings"
+          }
+        },
+        "developer_mode": {
+          "description": "Developer mode settings",
+          "invoke": {
+            "src": "loadDeveloperSettings",
+            "onDone": {
+              "target": "displaying_developer_settings",
+              "actions": "setDeveloperSettings"
+            },
+            "onError": {
+              "target": "developer_settings_error",
+              "actions": "setDeveloperSettingsError"
+            }
+          }
+        },
+        "displaying_developer_settings": {
+          "description": "Showing developer options",
+          "on": {
+            "ENABLE_DEV_TOOLS": "enabling_dev_tools",
+            "SET_LOG_LEVEL": "setting_log_level",
+            "EXPORT_LOGS": "exporting_logs",
+            "BACK": "displaying_advanced_settings"
+          }
+        },
+        "debug_settings": {
+          "description": "Debug and diagnostic settings",
+          "invoke": {
+            "src": "loadDebugSettings",
+            "onDone": {
+              "target": "displaying_debug_settings",
+              "actions": "setDebugSettings"
+            },
+            "onError": {
+              "target": "debug_settings_error",
+              "actions": "setDebugSettingsError"
+            }
+          }
+        },
+        "displaying_debug_settings": {
+          "description": "Showing debug options",
+          "on": {
+            "RUN_DIAGNOSTICS": "running_diagnostics",
+            "GENERATE_REPORT": "generating_debug_report",
+            "RESET_DEBUG": "resetting_debug_settings",
+            "BACK": "displaying_advanced_settings"
+          }
+        },
+        "maintenance_mode": {
+          "description": "System maintenance settings",
+          "invoke": {
+            "src": "loadMaintenanceSettings",
+            "onDone": {
+              "target": "displaying_maintenance_settings",
+              "actions": "setMaintenanceSettings"
+            },
+            "onError": {
+              "target": "maintenance_settings_error",
+              "actions": "setMaintenanceSettingsError"
+            }
+          }
+        },
+        "displaying_maintenance_settings": {
+          "description": "Showing maintenance options",
+          "on": {
+            "SCHEDULE_MAINTENANCE": "scheduling_maintenance",
+            "FORCE_MAINTENANCE": "forcing_maintenance",
+            "CHECK_UPDATES": "checking_updates",
+            "BACK": "displaying_advanced_settings"
+          }
+        },
+        "system_info": {
+          "description": "System information and diagnostics",
+          "invoke": {
+            "src": "loadSystemInfo",
+            "onDone": {
+              "target": "displaying_system_info",
+              "actions": "setSystemInfo"
+            },
+            "onError": {
+              "target": "system_info_error",
+              "actions": "setSystemInfoError"
+            }
+          }
+        },
+        "displaying_system_info": {
+          "description": "Showing system information",
+          "on": {
+            "EXPORT_SYSTEM_INFO": "exporting_system_info",
+            "RUN_HEALTH_CHECK": "running_health_check",
+            "BACK": "displaying_advanced_settings"
+          }
+        },
+        "experimental_features_error": {
+          "description": "Error loading experimental features",
+          "on": {
+            "RETRY": "experimental_features",
+            "CANCEL": "displaying_advanced_settings"
+          }
+        },
+        "developer_settings_error": {
+          "description": "Error loading developer settings",
+          "on": {
+            "RETRY": "developer_mode",
+            "CANCEL": "displaying_advanced_settings"
+          }
+        },
+        "debug_settings_error": {
+          "description": "Error loading debug settings",
+          "on": {
+            "RETRY": "debug_settings",
+            "CANCEL": "displaying_advanced_settings"
+          }
+        },
+        "maintenance_settings_error": {
+          "description": "Error loading maintenance settings",
+          "on": {
+            "RETRY": "maintenance_mode",
+            "CANCEL": "displaying_advanced_settings"
+          }
+        },
+        "system_info_error": {
+          "description": "Error loading system info",
+          "on": {
+            "RETRY": "system_info",
+            "CANCEL": "displaying_advanced_settings"
+          }
+        }
+      },
+      "on": {
+        "BACK": "settings_overview"
+      }
+    },
+    "searching_settings": {
+      "description": "Settings search functionality",
+      "initial": "search_input",
+      "states": {
+        "search_input": {
+          "description": "Settings search input",
+          "on": {
+            "SEARCH": "performing_search",
+            "CLEAR_SEARCH": "#settings_management_workflow.settings_overview"
+          }
+        },
+        "performing_search": {
+          "description": "Searching through settings",
+          "invoke": {
+            "src": "searchSettings",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "setSearchResults"
+            },
+            "onError": {
+              "target": "search_error",
+              "actions": "setSearchError"
+            }
+          }
+        },
+        "displaying_search_results": {
+          "description": "Showing settings search results",
+          "on": {
+            "SELECT_SETTING": "navigating_to_setting",
+            "REFINE_SEARCH": "search_input",
+            "CLEAR_SEARCH": "#settings_management_workflow.settings_overview"
+          }
+        },
+        "navigating_to_setting": {
+          "description": "Navigating to specific setting",
+          "invoke": {
+            "src": "navigateToSetting",
+            "onDone": {
+              "target": "#settings_management_workflow.settings_overview",
+              "actions": "navigateToSelectedSetting"
+            },
+            "onError": {
+              "target": "navigation_error",
+              "actions": "setNavigationError"
+            }
+          }
+        },
+        "search_error": {
+          "description": "Error searching settings",
+          "on": {
+            "RETRY": "performing_search",
+            "CANCEL": "search_input"
+          }
+        },
+        "navigation_error": {
+          "description": "Error navigating to setting",
+          "on": {
+            "RETRY": "navigating_to_setting",
+            "BACK": "displaying_search_results"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "settings_overview"
+      }
+    },
+    "quick_setting_change": {
+      "description": "Quick setting modification without full settings UI",
+      "invoke": {
+        "src": "performQuickSettingChange",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmQuickSettingChanged"
+        },
+        "onError": {
+          "target": "quick_setting_error",
+          "actions": "setQuickSettingError"
+        }
+      }
+    },
+    "importing_settings": {
+      "description": "Importing settings from file or backup",
+      "initial": "selecting_import_source",
+      "states": {
+        "selecting_import_source": {
+          "description": "Selecting settings import source",
+          "on": {
+            "IMPORT_FROM_FILE": "importing_from_file",
+            "IMPORT_FROM_BACKUP": "importing_from_backup",
+            "IMPORT_FROM_URL": "importing_from_url"
+          }
+        },
+        "importing_from_file": {
+          "description": "Importing settings from file",
+          "invoke": {
+            "src": "importSettingsFromFile",
+            "onDone": {
+              "target": "validating_import",
+              "actions": "setImportData"
+            },
+            "onError": {
+              "target": "file_import_error",
+              "actions": "setFileImportError"
+            }
+          }
+        },
+        "importing_from_backup": {
+          "description": "Importing settings from backup",
+          "invoke": {
+            "src": "importSettingsFromBackup",
+            "onDone": {
+              "target": "validating_import",
+              "actions": "setImportData"
+            },
+            "onError": {
+              "target": "backup_import_error",
+              "actions": "setBackupImportError"
+            }
+          }
+        },
+        "importing_from_url": {
+          "description": "Importing settings from URL",
+          "invoke": {
+            "src": "importSettingsFromUrl",
+            "onDone": {
+              "target": "validating_import",
+              "actions": "setImportData"
+            },
+            "onError": {
+              "target": "url_import_error",
+              "actions": "setUrlImportError"
+            }
+          }
+        },
+        "validating_import": {
+          "description": "Validating imported settings",
+          "invoke": {
+            "src": "validateImportedSettings",
+            "onDone": {
+              "target": "reviewing_import",
+              "actions": "setImportValidationResults"
+            },
+            "onError": {
+              "target": "import_validation_error",
+              "actions": "setImportValidationError"
+            }
+          }
+        },
+        "reviewing_import": {
+          "description": "Reviewing settings before applying",
+          "on": {
+            "APPLY_IMPORT": "applying_import",
+            "MODIFY_IMPORT": "modifying_import",
+            "CANCEL_IMPORT": "#settings_management_workflow.idle"
+          }
+        },
+        "modifying_import": {
+          "description": "Modifying imported settings before applying",
+          "on": {
+            "CONFIRM_MODIFICATIONS": "applying_import",
+            "CANCEL_MODIFICATIONS": "reviewing_import"
+          }
+        },
+        "applying_import": {
+          "description": "Applying imported settings",
+          "invoke": {
+            "src": "applyImportedSettings",
+            "onDone": {
+              "target": "import_completed",
+              "actions": "confirmImportApplied"
+            },
+            "onError": {
+              "target": "import_application_error",
+              "actions": "setImportApplicationError"
+            }
+          }
+        },
+        "import_completed": {
+          "description": "Settings import completed successfully",
+          "on": {
+            "VIEW_IMPORTED_SETTINGS": "#settings_management_workflow.settings_overview",
+            "FINISH": "#settings_management_workflow.idle"
+          }
+        },
+        "file_import_error": {
+          "description": "Error importing from file",
+          "on": {
+            "RETRY": "importing_from_file",
+            "SELECT_DIFFERENT_FILE": "selecting_import_source"
+          }
+        },
+        "backup_import_error": {
+          "description": "Error importing from backup",
+          "on": {
+            "RETRY": "importing_from_backup",
+            "SELECT_DIFFERENT_BACKUP": "selecting_import_source"
+          }
+        },
+        "url_import_error": {
+          "description": "Error importing from URL",
+          "on": {
+            "RETRY": "importing_from_url",
+            "TRY_DIFFERENT_URL": "selecting_import_source"
+          }
+        },
+        "import_validation_error": {
+          "description": "Error validating imported settings",
+          "on": {
+            "FIX_VALIDATION": "fixing_import_validation",
+            "SKIP_VALIDATION": "reviewing_import",
+            "CANCEL": "selecting_import_source"
+          }
+        },
+        "import_application_error": {
+          "description": "Error applying imported settings",
+          "on": {
+            "RETRY": "applying_import",
+            "RESTORE_BACKUP": "restoring_settings_backup",
+            "CANCEL": "reviewing_import"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "exporting_settings": {
+      "description": "Exporting current settings to file or backup",
+      "initial": "selecting_export_options",
+      "states": {
+        "selecting_export_options": {
+          "description": "Selecting export format and scope",
+          "on": {
+            "EXPORT_ALL": "exporting_all_settings",
+            "EXPORT_CATEGORY": "selecting_category_export",
+            "EXPORT_CUSTOM": "selecting_custom_export"
+          }
+        },
+        "selecting_category_export": {
+          "description": "Selecting categories to export",
+          "on": {
+            "CONFIRM_CATEGORIES": "exporting_selected_categories",
+            "CANCEL": "selecting_export_options"
+          }
+        },
+        "selecting_custom_export": {
+          "description": "Selecting specific settings to export",
+          "on": {
+            "CONFIRM_CUSTOM": "exporting_custom_settings",
+            "CANCEL": "selecting_export_options"
+          }
+        },
+        "exporting_all_settings": {
+          "description": "Exporting all user settings",
+          "invoke": {
+            "src": "exportAllSettings",
+            "onDone": {
+              "target": "export_completed",
+              "actions": "setExportResults"
+            },
+            "onError": {
+              "target": "export_all_error",
+              "actions": "setExportAllError"
+            }
+          }
+        },
+        "exporting_selected_categories": {
+          "description": "Exporting selected category settings",
+          "invoke": {
+            "src": "exportSelectedCategories",
+            "onDone": {
+              "target": "export_completed",
+              "actions": "setExportResults"
+            },
+            "onError": {
+              "target": "export_categories_error",
+              "actions": "setExportCategoriesError"
+            }
+          }
+        },
+        "exporting_custom_settings": {
+          "description": "Exporting custom selected settings",
+          "invoke": {
+            "src": "exportCustomSettings",
+            "onDone": {
+              "target": "export_completed",
+              "actions": "setExportResults"
+            },
+            "onError": {
+              "target": "export_custom_error",
+              "actions": "setExportCustomError"
+            }
+          }
+        },
+        "export_completed": {
+          "description": "Settings export completed successfully",
+          "on": {
+            "DOWNLOAD_EXPORT": "downloading_export",
+            "SHARE_EXPORT": "sharing_export",
+            "EXPORT_ANOTHER": "selecting_export_options",
+            "FINISH": "#settings_management_workflow.idle"
+          }
+        },
+        "downloading_export": {
+          "description": "Downloading exported settings file",
+          "invoke": {
+            "src": "downloadExportFile",
+            "onDone": {
+              "target": "export_completed",
+              "actions": "confirmExportDownloaded"
+            },
+            "onError": {
+              "target": "export_download_error",
+              "actions": "setExportDownloadError"
+            }
+          }
+        },
+        "sharing_export": {
+          "description": "Sharing exported settings",
+          "invoke": {
+            "src": "shareExportFile",
+            "onDone": {
+              "target": "export_completed",
+              "actions": "confirmExportShared"
+            },
+            "onError": {
+              "target": "export_share_error",
+              "actions": "setExportShareError"
+            }
+          }
+        },
+        "export_all_error": {
+          "description": "Error exporting all settings",
+          "on": {
+            "RETRY": "exporting_all_settings",
+            "TRY_PARTIAL": "selecting_category_export"
+          }
+        },
+        "export_categories_error": {
+          "description": "Error exporting selected categories",
+          "on": {
+            "RETRY": "exporting_selected_categories",
+            "MODIFY_SELECTION": "selecting_category_export"
+          }
+        },
+        "export_custom_error": {
+          "description": "Error exporting custom settings",
+          "on": {
+            "RETRY": "exporting_custom_settings",
+            "MODIFY_SELECTION": "selecting_custom_export"
+          }
+        },
+        "export_download_error": {
+          "description": "Error downloading export file",
+          "on": {
+            "RETRY": "downloading_export",
+            "SKIP": "export_completed"
+          }
+        },
+        "export_share_error": {
+          "description": "Error sharing export file",
+          "on": {
+            "RETRY": "sharing_export",
+            "SKIP": "export_completed"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "saving_settings": {
+      "description": "Saving modified settings",
+      "invoke": {
+        "src": "saveModifiedSettings",
+        "onDone": {
+          "target": "settings_overview",
+          "actions": "confirmSettingsSaved"
+        },
+        "onError": {
+          "target": "settings_save_error",
+          "actions": "setSettingsSaveError"
+        }
+      }
+    },
+    "canceling_changes": {
+      "description": "Canceling unsaved changes",
+      "invoke": {
+        "src": "cancelSettingsChanges",
+        "onDone": {
+          "target": "settings_overview",
+          "actions": "confirmChangesCanceled"
+        },
+        "onError": {
+          "target": "changes_cancel_error",
+          "actions": "setChangesCancelError"
+        }
+      }
+    },
+    "settings_load_error": {
+      "description": "Error loading user settings",
+      "on": {
+        "RETRY": "loading_settings",
+        "USE_DEFAULTS": "using_default_settings",
+        "CANCEL": "idle"
+      }
+    },
+    "using_default_settings": {
+      "description": "Loading default settings",
+      "invoke": {
+        "src": "loadDefaultSettings",
+        "onDone": {
+          "target": "settings_overview",
+          "actions": "setDefaultSettings"
+        },
+        "onError": {
+          "target": "default_settings_error",
+          "actions": "setDefaultSettingsError"
+        }
+      }
+    },
+    "quick_setting_error": {
+      "description": "Error performing quick setting change",
+      "on": {
+        "RETRY": "quick_setting_change",
+        "OPEN_FULL_SETTINGS": "loading_settings",
+        "CANCEL": "idle"
+      }
+    },
+    "settings_save_error": {
+      "description": "Error saving settings",
+      "on": {
+        "RETRY": "saving_settings",
+        "FORCE_SAVE": "force_saving_settings",
+        "CANCEL": "settings_overview"
+      }
+    },
+    "changes_cancel_error": {
+      "description": "Error canceling changes",
+      "on": {
+        "RETRY": "canceling_changes",
+        "FORCE_CANCEL": "force_canceling_changes",
+        "CONTINUE": "settings_overview"
+      }
+    },
+    "default_settings_error": {
+      "description": "Error loading default settings",
+      "on": {
+        "RETRY": "using_default_settings",
+        "MANUAL_SETUP": "manual_settings_setup",
+        "CANCEL": "idle"
+      }
+    },
+    "force_saving_settings": {
+      "description": "Force saving settings despite errors",
+      "invoke": {
+        "src": "forceSaveSettings",
+        "onDone": {
+          "target": "settings_overview",
+          "actions": "confirmSettingsForceSaved"
+        },
+        "onError": {
+          "target": "force_save_error",
+          "actions": "setForceSaveError"
+        }
+      }
+    },
+    "force_canceling_changes": {
+      "description": "Force canceling changes despite errors",
+      "invoke": {
+        "src": "forceCancelChanges",
+        "onDone": {
+          "target": "settings_overview",
+          "actions": "confirmChangesForceCancel"
+        },
+        "onError": {
+          "target": "force_cancel_error",
+          "actions": "setForceCancelError"
+        }
+      }
+    },
+    "manual_settings_setup": {
+      "description": "Manual settings configuration",
+      "on": {
+        "SETUP_COMPLETE": "settings_overview",
+        "CANCEL": "idle"
+      }
+    },
+    "force_save_error": {
+      "description": "Error force saving settings",
+      "on": {
+        "ACCEPT_PARTIAL": "settings_overview",
+        "MANUAL_INTERVENTION": "manual_settings_setup"
+      }
+    },
+    "force_cancel_error": {
+      "description": "Error force canceling changes",
+      "on": {
+        "ACCEPT_STATE": "settings_overview",
+        "MANUAL_INTERVENTION": "manual_settings_setup"
+      }
+    }
+  },
+  "services": {
+    "loadUserSettings": "Service to load user settings and preferences",
+    "setApplicationLanguage": "Service to set application language",
+    "setUserTimezone": "Service to set user timezone",
+    "setDefaultWorkspace": "Service to set default workspace/project",
+    "setAutoSaveSettings": "Service to configure auto-save settings",
+    "setFileLimits": "Service to set file size and upload limits",
+    "resetGeneralSettings": "Service to reset general settings to defaults",
+    "updateUserProfile": "Service to update user profile information",
+    "changeUserPassword": "Service to change user password with validation",
+    "loadApiKeys": "Service to load user API keys",
+    "createApiKey": "Service to create new API key",
+    "revokeApiKey": "Service to revoke existing API key",
+    "regenerateApiKey": "Service to regenerate existing API key",
+    "loadPrivacySettings": "Service to load privacy and data settings",
+    "deleteUserAccount": "Service to delete user account",
+    "setApplicationTheme": "Service to set application theme",
+    "customizeThemeColors": "Service to customize theme colors and accents",
+    "setLayoutPreferences": "Service to set application layout preferences",
+    "setFontPreferences": "Service to set font size and typography",
+    "setInterfaceDensity": "Service to set interface density",
+    "resetAppearanceSettings": "Service to reset appearance to default settings",
+    "setCacheSize": "Service to set cache size limits",
+    "setMaxWorkers": "Service to set maximum worker threads",
+    "setMemoryLimits": "Service to set memory usage limits",
+    "setGpuAcceleration": "Service to enable/disable GPU acceleration",
+    "setPrefetchSettings": "Service to set data prefetch settings",
+    "clearApplicationCache": "Service to clear application cache",
+    "resetPerformanceSettings": "Service to reset performance settings to defaults",
+    "load2FASettings": "Service to load 2FA settings",
+    "enable2FA": "Service to enable two-factor authentication",
+    "disable2FA": "Service to disable two-factor authentication",
+    "regenerateBackupCodes": "Service to regenerate 2FA backup codes",
+    "loadActiveSessions": "Service to load active sessions",
+    "terminateSession": "Service to terminate specific session",
+    "terminateAllOtherSessions": "Service to terminate all other sessions",
+    "loadEncryptionSettings": "Service to load data encryption settings",
+    "loadAuditLogSettings": "Service to load audit log configuration",
+    "loadSecurityAlertSettings": "Service to load security alert configuration",
+    "loadIntegrations": "Service to load available integrations",
+    "configureIntegration": "Service to configure integration settings",
+    "enableIntegration": "Service to enable integration",
+    "disableIntegration": "Service to disable integration",
+    "testIntegration": "Service to test integration connection",
+    "addCustomIntegration": "Service to add custom integration",
+    "setEmailNotifications": "Service to configure email notification preferences",
+    "setPushNotifications": "Service to configure push notification preferences",
+    "setInAppNotifications": "Service to configure in-app notification preferences",
+    "setNotificationSchedule": "Service to set notification quiet hours and schedule",
+    "testNotifications": "Service to test notification delivery",
+    "setHighContrast": "Service to set high contrast mode",
+    "setLargeText": "Service to set large text and scaling options",
+    "setKeyboardNavigation": "Service to set keyboard navigation preferences",
+    "setScreenReader": "Service to set screen reader support options",
+    "setMotionReduction": "Service to set reduced motion preferences",
+    "testAccessibility": "Service to test accessibility features",
+    "loadExperimentalFeatures": "Service to load experimental features",
+    "loadDeveloperSettings": "Service to load developer mode settings",
+    "loadDebugSettings": "Service to load debug and diagnostic settings",
+    "loadMaintenanceSettings": "Service to load system maintenance settings",
+    "loadSystemInfo": "Service to load system information and diagnostics",
+    "searchSettings": "Service to search through settings",
+    "navigateToSetting": "Service to navigate to specific setting",
+    "performQuickSettingChange": "Service to perform quick setting modification",
+    "importSettingsFromFile": "Service to import settings from file",
+    "importSettingsFromBackup": "Service to import settings from backup",
+    "importSettingsFromUrl": "Service to import settings from URL",
+    "validateImportedSettings": "Service to validate imported settings",
+    "applyImportedSettings": "Service to apply imported settings",
+    "exportAllSettings": "Service to export all user settings",
+    "exportSelectedCategories": "Service to export selected category settings",
+    "exportCustomSettings": "Service to export custom selected settings",
+    "downloadExportFile": "Service to download exported settings file",
+    "shareExportFile": "Service to share exported settings",
+    "saveModifiedSettings": "Service to save modified settings",
+    "cancelSettingsChanges": "Service to cancel unsaved changes",
+    "loadDefaultSettings": "Service to load default settings",
+    "forceSaveSettings": "Service to force save settings despite errors",
+    "forceCancelChanges": "Service to force cancel changes despite errors"
+  },
+  "guards": {},
+  "actions": {
+    "setCurrentSettings": "Set current user settings in context",
+    "setSettingsLoadError": "Set settings loading error",
+    "confirmLanguageSet": "Confirm application language set",
+    "setLanguageSettingError": "Set language setting error",
+    "confirmTimezoneSet": "Confirm timezone set",
+    "setTimezoneSettingError": "Set timezone setting error",
+    "confirmWorkspaceSet": "Confirm default workspace set",
+    "setWorkspaceSettingError": "Set workspace setting error",
+    "confirmAutoSaveSet": "Confirm auto-save settings set",
+    "setAutoSaveSettingError": "Set auto-save setting error",
+    "confirmFileLimitsSet": "Confirm file limits set",
+    "setFileLimitsError": "Set file limits error",
+    "confirmGeneralReset": "Confirm general settings reset",
+    "setGeneralResetError": "Set general reset error",
+    "confirmProfileUpdated": "Confirm profile updated",
+    "setProfileUpdateError": "Set profile update error",
+    "confirmPasswordChanged": "Confirm password changed",
+    "setPasswordChangeError": "Set password change error",
+    "setApiKeys": "Set user API keys",
+    "setApiKeysError": "Set API keys error",
+    "confirmApiKeyCreated": "Confirm API key created",
+    "setApiKeyCreationError": "Set API key creation error",
+    "confirmApiKeyRevoked": "Confirm API key revoked",
+    "setApiKeyRevocationError": "Set API key revocation error",
+    "confirmApiKeyRegenerated": "Confirm API key regenerated",
+    "setApiKeyRegenerationError": "Set API key regeneration error",
+    "setPrivacySettings": "Set privacy settings",
+    "setPrivacySettingsError": "Set privacy settings error",
+    "confirmAccountDeleted": "Confirm account deleted",
+    "setAccountDeletionError": "Set account deletion error",
+    "confirmThemeSet": "Confirm theme set",
+    "setThemeSettingError": "Set theme setting error",
+    "confirmColorsCustomized": "Confirm colors customized",
+    "setColorCustomizationError": "Set color customization error",
+    "confirmLayoutSet": "Confirm layout set",
+    "setLayoutSettingError": "Set layout setting error",
+    "confirmFontSet": "Confirm font preferences set",
+    "setFontSettingError": "Set font setting error",
+    "confirmDensitySet": "Confirm interface density set",
+    "setDensitySettingError": "Set density setting error",
+    "confirmAppearanceReset": "Confirm appearance reset",
+    "setAppearanceResetError": "Set appearance reset error",
+    "confirmCacheSizeSet": "Confirm cache size set",
+    "setCacheSizeError": "Set cache size error",
+    "confirmMaxWorkersSet": "Confirm max workers set",
+    "setMaxWorkersError": "Set max workers error",
+    "confirmMemoryLimitsSet": "Confirm memory limits set",
+    "setMemoryLimitsError": "Set memory limits error",
+    "confirmGpuAccelerationSet": "Confirm GPU acceleration set",
+    "setGpuAccelerationError": "Set GPU acceleration error",
+    "confirmPrefetchSet": "Confirm prefetch settings set",
+    "setPrefetchError": "Set prefetch error",
+    "confirmCacheCleared": "Confirm cache cleared",
+    "setCacheClearError": "Set cache clear error",
+    "confirmPerformanceReset": "Confirm performance settings reset",
+    "setPerformanceResetError": "Set performance reset error",
+    "set2FASettings": "Set 2FA settings",
+    "set2FALoadError": "Set 2FA load error",
+    "confirm2FAEnabled": "Confirm 2FA enabled",
+    "set2FAEnableError": "Set 2FA enable error",
+    "confirm2FADisabled": "Confirm 2FA disabled",
+    "set2FADisableError": "Set 2FA disable error",
+    "confirmBackupCodesRegenerated": "Confirm backup codes regenerated",
+    "setBackupCodesError": "Set backup codes error",
+    "setActiveSessions": "Set active sessions",
+    "setSessionsLoadError": "Set sessions load error",
+    "confirmSessionTerminated": "Confirm session terminated",
+    "setSessionTerminationError": "Set session termination error",
+    "confirmAllOthersTerminated": "Confirm all other sessions terminated",
+    "setAllTerminationError": "Set all termination error",
+    "setEncryptionSettings": "Set encryption settings",
+    "setEncryptionLoadError": "Set encryption load error",
+    "setAuditLogSettings": "Set audit log settings",
+    "setAuditLoadError": "Set audit load error",
+    "setSecurityAlertSettings": "Set security alert settings",
+    "setAlertLoadError": "Set alert load error",
+    "setIntegrations": "Set available integrations",
+    "setIntegrationsLoadError": "Set integrations load error",
+    "confirmIntegrationConfigured": "Confirm integration configured",
+    "setIntegrationConfigError": "Set integration config error",
+    "confirmIntegrationEnabled": "Confirm integration enabled",
+    "setIntegrationEnableError": "Set integration enable error",
+    "confirmIntegrationDisabled": "Confirm integration disabled",
+    "setIntegrationDisableError": "Set integration disable error",
+    "setIntegrationTestResults": "Set integration test results",
+    "setIntegrationTestError": "Set integration test error",
+    "confirmCustomIntegrationAdded": "Confirm custom integration added",
+    "setCustomIntegrationError": "Set custom integration error",
+    "confirmEmailNotificationsSet": "Confirm email notifications set",
+    "setEmailNotificationsError": "Set email notifications error",
+    "confirmPushNotificationsSet": "Confirm push notifications set",
+    "setPushNotificationsError": "Set push notifications error",
+    "confirmInAppNotificationsSet": "Confirm in-app notifications set",
+    "setInAppNotificationsError": "Set in-app notifications error",
+    "confirmNotificationScheduleSet": "Confirm notification schedule set",
+    "setNotificationScheduleError": "Set notification schedule error",
+    "setNotificationTestResults": "Set notification test results",
+    "setNotificationTestError": "Set notification test error",
+    "confirmHighContrastSet": "Confirm high contrast set",
+    "setHighContrastError": "Set high contrast error",
+    "confirmLargeTextSet": "Confirm large text set",
+    "setLargeTextError": "Set large text error",
+    "confirmKeyboardNavigationSet": "Confirm keyboard navigation set",
+    "setKeyboardNavigationError": "Set keyboard navigation error",
+    "confirmScreenReaderSet": "Confirm screen reader set",
+    "setScreenReaderError": "Set screen reader error",
+    "confirmMotionReductionSet": "Confirm motion reduction set",
+    "setMotionReductionError": "Set motion reduction error",
+    "setAccessibilityTestResults": "Set accessibility test results",
+    "setAccessibilityTestError": "Set accessibility test error",
+    "setExperimentalFeatures": "Set experimental features",
+    "setExperimentalFeaturesError": "Set experimental features error",
+    "setDeveloperSettings": "Set developer settings",
+    "setDeveloperSettingsError": "Set developer settings error",
+    "setDebugSettings": "Set debug settings",
+    "setDebugSettingsError": "Set debug settings error",
+    "setMaintenanceSettings": "Set maintenance settings",
+    "setMaintenanceSettingsError": "Set maintenance settings error",
+    "setSystemInfo": "Set system information",
+    "setSystemInfoError": "Set system info error",
+    "setSearchResults": "Set settings search results",
+    "setSearchError": "Set search error",
+    "navigateToSelectedSetting": "Navigate to selected setting",
+    "setNavigationError": "Set navigation error",
+    "confirmQuickSettingChanged": "Confirm quick setting changed",
+    "setQuickSettingError": "Set quick setting error",
+    "setImportData": "Set import data",
+    "setFileImportError": "Set file import error",
+    "setBackupImportError": "Set backup import error",
+    "setUrlImportError": "Set URL import error",
+    "setImportValidationResults": "Set import validation results",
+    "setImportValidationError": "Set import validation error",
+    "confirmImportApplied": "Confirm import applied",
+    "setImportApplicationError": "Set import application error",
+    "setExportResults": "Set export results",
+    "setExportAllError": "Set export all error",
+    "setExportCategoriesError": "Set export categories error",
+    "setExportCustomError": "Set export custom error",
+    "confirmExportDownloaded": "Confirm export downloaded",
+    "setExportDownloadError": "Set export download error",
+    "confirmExportShared": "Confirm export shared",
+    "setExportShareError": "Set export share error",
+    "confirmSettingsSaved": "Confirm settings saved",
+    "setSettingsSaveError": "Set settings save error",
+    "confirmChangesCanceled": "Confirm changes canceled",
+    "setChangesCancelError": "Set changes cancel error",
+    "setDefaultSettings": "Set default settings",
+    "setDefaultSettingsError": "Set default settings error",
+    "confirmSettingsForceSaved": "Confirm settings force saved",
+    "setForceSaveError": "Set force save error",
+    "confirmChangesForceCancel": "Confirm changes force canceled",
+    "setForceCancelError": "Set force cancel error"
+  }
+}

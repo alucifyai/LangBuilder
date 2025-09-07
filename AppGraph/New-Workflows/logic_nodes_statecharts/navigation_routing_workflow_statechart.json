@@ -1,0 +1,1496 @@
+{
+  "id": "navigation_routing_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "currentRoute": null,
+    "routeHistory": [],
+    "routeParams": {},
+    "queryParams": {},
+    "navigationState": {},
+    "breadcrumbs": [],
+    "sidebarState": "collapsed",
+    "modalStack": [],
+    "tabStates": {},
+    "layoutMode": "default",
+    "navigationPermissions": {},
+    "routeGuards": {},
+    "pendingNavigation": null,
+    "errors": [],
+    "loadingStates": {},
+    "cacheStates": {}
+  },
+  "states": {
+    "idle": {
+      "description": "Navigation system ready for routing operations",
+      "on": {
+        "NAVIGATE_TO": "navigating",
+        "INITIALIZE_ROUTER": "initializing_router",
+        "HANDLE_DEEP_LINK": "handling_deep_link",
+        "UPDATE_BROWSER_HISTORY": "updating_browser_history"
+      }
+    },
+    "initializing_router": {
+      "description": "Setting up application router and route definitions",
+      "invoke": {
+        "src": "initializeRouter",
+        "onDone": {
+          "target": "router_ready",
+          "actions": "setRouterInitialized"
+        },
+        "onError": {
+          "target": "router_initialization_error",
+          "actions": "setRouterInitializationError"
+        }
+      }
+    },
+    "router_ready": {
+      "description": "Router initialized and ready for navigation",
+      "on": {
+        "NAVIGATE_TO": "navigating",
+        "HANDLE_DEEP_LINK": "handling_deep_link",
+        "UPDATE_BROWSER_HISTORY": "updating_browser_history",
+        "CONFIGURE_ROUTES": "configuring_routes"
+      }
+    },
+    "navigating": {
+      "description": "Navigation workflow with route resolution and guards",
+      "initial": "resolving_route",
+      "states": {
+        "resolving_route": {
+          "description": "Resolving target route and validating accessibility",
+          "invoke": {
+            "src": "resolveRoute",
+            "onDone": {
+              "target": "checking_route_guards",
+              "actions": "setResolvedRoute"
+            },
+            "onError": {
+              "target": "route_resolution_error",
+              "actions": "setRouteResolutionError"
+            }
+          }
+        },
+        "checking_route_guards": {
+          "description": "Executing route guards and permission checks",
+          "invoke": {
+            "src": "checkRouteGuards",
+            "onDone": [
+              {
+                "target": "loading_route_data",
+                "cond": "routeAccessAllowed",
+                "actions": "confirmRouteAccess"
+              },
+              {
+                "target": "route_access_denied",
+                "actions": "setRouteAccessDenied"
+              }
+            ],
+            "onError": {
+              "target": "route_guard_error",
+              "actions": "setRouteGuardError"
+            }
+          }
+        },
+        "loading_route_data": {
+          "description": "Loading route-specific data and dependencies",
+          "invoke": {
+            "src": "loadRouteData",
+            "onDone": {
+              "target": "updating_navigation_state",
+              "actions": "setRouteData"
+            },
+            "onError": {
+              "target": "route_data_error",
+              "actions": "setRouteDataError"
+            }
+          }
+        },
+        "updating_navigation_state": {
+          "description": "Updating navigation state and UI components",
+          "invoke": {
+            "src": "updateNavigationState",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setNavigationState"
+            },
+            "onError": {
+              "target": "navigation_state_error",
+              "actions": "setNavigationStateError"
+            }
+          }
+        },
+        "navigation_completed": {
+          "description": "Navigation completed successfully",
+          "on": {
+            "UPDATE_BREADCRUMBS": "updating_breadcrumbs",
+            "UPDATE_SIDEBAR": "updating_sidebar",
+            "TRACK_ANALYTICS": "tracking_navigation_analytics"
+          }
+        },
+        "updating_breadcrumbs": {
+          "description": "Updating breadcrumb navigation",
+          "invoke": {
+            "src": "updateBreadcrumbs",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setBreadcrumbs"
+            },
+            "onError": {
+              "target": "breadcrumbs_error",
+              "actions": "setBreadcrumbsError"
+            }
+          }
+        },
+        "updating_sidebar": {
+          "description": "Updating sidebar navigation state",
+          "invoke": {
+            "src": "updateSidebar",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setSidebarState"
+            },
+            "onError": {
+              "target": "sidebar_error",
+              "actions": "setSidebarError"
+            }
+          }
+        },
+        "tracking_navigation_analytics": {
+          "description": "Tracking navigation for analytics",
+          "invoke": {
+            "src": "trackNavigationAnalytics",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "confirmAnalyticsTracked"
+            },
+            "onError": {
+              "target": "analytics_error",
+              "actions": "setAnalyticsError"
+            }
+          }
+        },
+        "route_resolution_error": {
+          "description": "Error resolving target route",
+          "on": {
+            "RETRY": "resolving_route",
+            "NAVIGATE_TO_FALLBACK": "navigating_to_fallback",
+            "SHOW_404": "showing_404_page"
+          }
+        },
+        "route_guard_error": {
+          "description": "Error executing route guards",
+          "on": {
+            "RETRY": "checking_route_guards",
+            "BYPASS_GUARDS": "loading_route_data",
+            "NAVIGATE_TO_LOGIN": "navigating_to_login"
+          }
+        },
+        "route_access_denied": {
+          "description": "Route access denied by guards",
+          "on": {
+            "REQUEST_PERMISSION": "requesting_route_permission",
+            "NAVIGATE_TO_LOGIN": "navigating_to_login",
+            "NAVIGATE_TO_UNAUTHORIZED": "navigating_to_unauthorized",
+            "GO_BACK": "going_back"
+          }
+        },
+        "route_data_error": {
+          "description": "Error loading route-specific data",
+          "on": {
+            "RETRY": "loading_route_data",
+            "LOAD_CACHED_DATA": "loading_cached_route_data",
+            "CONTINUE_WITHOUT_DATA": "updating_navigation_state"
+          }
+        },
+        "navigation_state_error": {
+          "description": "Error updating navigation state",
+          "on": {
+            "RETRY": "updating_navigation_state",
+            "CONTINUE_PARTIAL": "partial_navigation_update",
+            "ROLLBACK": "rolling_back_navigation"
+          }
+        },
+        "breadcrumbs_error": {
+          "description": "Error updating breadcrumbs",
+          "on": {
+            "RETRY": "updating_breadcrumbs",
+            "SKIP": "navigation_completed"
+          }
+        },
+        "sidebar_error": {
+          "description": "Error updating sidebar",
+          "on": {
+            "RETRY": "updating_sidebar",
+            "SKIP": "navigation_completed"
+          }
+        },
+        "analytics_error": {
+          "description": "Error tracking navigation analytics",
+          "on": {
+            "RETRY": "tracking_navigation_analytics",
+            "SKIP": "navigation_completed"
+          }
+        },
+        "navigating_to_fallback": {
+          "description": "Navigating to fallback route",
+          "invoke": {
+            "src": "navigateToFallback",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setFallbackNavigation"
+            },
+            "onError": {
+              "target": "fallback_navigation_error",
+              "actions": "setFallbackNavigationError"
+            }
+          }
+        },
+        "showing_404_page": {
+          "description": "Showing 404 error page",
+          "invoke": {
+            "src": "show404Page",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "set404PageShown"
+            },
+            "onError": {
+              "target": "404_page_error",
+              "actions": "set404PageError"
+            }
+          }
+        },
+        "navigating_to_login": {
+          "description": "Redirecting to login page",
+          "invoke": {
+            "src": "navigateToLogin",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setLoginRedirect"
+            },
+            "onError": {
+              "target": "login_redirect_error",
+              "actions": "setLoginRedirectError"
+            }
+          }
+        },
+        "requesting_route_permission": {
+          "description": "Requesting permission for restricted route",
+          "invoke": {
+            "src": "requestRoutePermission",
+            "onDone": [
+              {
+                "target": "loading_route_data",
+                "cond": "permissionGranted",
+                "actions": "setPermissionGranted"
+              },
+              {
+                "target": "route_access_denied",
+                "actions": "setPermissionDenied"
+              }
+            ],
+            "onError": {
+              "target": "permission_request_error",
+              "actions": "setPermissionRequestError"
+            }
+          }
+        },
+        "navigating_to_unauthorized": {
+          "description": "Navigating to unauthorized page",
+          "invoke": {
+            "src": "navigateToUnauthorized",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setUnauthorizedNavigation"
+            },
+            "onError": {
+              "target": "unauthorized_navigation_error",
+              "actions": "setUnauthorizedNavigationError"
+            }
+          }
+        },
+        "going_back": {
+          "description": "Going back to previous route",
+          "invoke": {
+            "src": "goBack",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setBackNavigation"
+            },
+            "onError": {
+              "target": "back_navigation_error",
+              "actions": "setBackNavigationError"
+            }
+          }
+        },
+        "loading_cached_route_data": {
+          "description": "Loading cached route data as fallback",
+          "invoke": {
+            "src": "loadCachedRouteData",
+            "onDone": {
+              "target": "updating_navigation_state",
+              "actions": "setCachedRouteData"
+            },
+            "onError": {
+              "target": "cached_data_error",
+              "actions": "setCachedDataError"
+            }
+          }
+        },
+        "partial_navigation_update": {
+          "description": "Partial navigation state update",
+          "invoke": {
+            "src": "partialNavigationUpdate",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setPartialNavigationUpdate"
+            },
+            "onError": {
+              "target": "partial_update_error",
+              "actions": "setPartialUpdateError"
+            }
+          }
+        },
+        "rolling_back_navigation": {
+          "description": "Rolling back failed navigation",
+          "invoke": {
+            "src": "rollbackNavigation",
+            "onDone": {
+              "target": "#navigation_routing_workflow.router_ready",
+              "actions": "confirmNavigationRollback"
+            },
+            "onError": {
+              "target": "rollback_error",
+              "actions": "setRollbackError"
+            }
+          }
+        },
+        "fallback_navigation_error": {
+          "description": "Error navigating to fallback",
+          "on": {
+            "SHOW_ERROR_PAGE": "showing_error_page",
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "404_page_error": {
+          "description": "Error showing 404 page",
+          "on": {
+            "SHOW_GENERIC_ERROR": "showing_generic_error",
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "login_redirect_error": {
+          "description": "Error redirecting to login",
+          "on": {
+            "SHOW_LOGIN_MODAL": "showing_login_modal",
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "permission_request_error": {
+          "description": "Error requesting route permission",
+          "on": {
+            "RETRY": "requesting_route_permission",
+            "NAVIGATE_TO_UNAUTHORIZED": "navigating_to_unauthorized"
+          }
+        },
+        "unauthorized_navigation_error": {
+          "description": "Error navigating to unauthorized page",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home",
+            "SHOW_ERROR_MESSAGE": "showing_error_message"
+          }
+        },
+        "back_navigation_error": {
+          "description": "Error going back",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home",
+            "STAY_CURRENT": "navigation_completed"
+          }
+        },
+        "cached_data_error": {
+          "description": "Error loading cached route data",
+          "on": {
+            "CONTINUE_WITHOUT_DATA": "updating_navigation_state",
+            "SHOW_ERROR": "showing_data_error"
+          }
+        },
+        "partial_update_error": {
+          "description": "Error during partial navigation update",
+          "on": {
+            "ROLLBACK": "rolling_back_navigation",
+            "CONTINUE_BROKEN": "navigation_completed"
+          }
+        },
+        "rollback_error": {
+          "description": "Error rolling back navigation",
+          "on": {
+            "FORCE_HOME": "force_navigating_home",
+            "ACCEPT_BROKEN_STATE": "#navigation_routing_workflow.router_ready"
+          }
+        },
+        "showing_error_page": {
+          "description": "Showing generic error page",
+          "invoke": {
+            "src": "showErrorPage",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setErrorPageShown"
+            },
+            "onError": {
+              "target": "error_page_error",
+              "actions": "setErrorPageError"
+            }
+          }
+        },
+        "navigating_to_home": {
+          "description": "Navigating to home page as final fallback",
+          "invoke": {
+            "src": "navigateToHome",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setHomeNavigation"
+            },
+            "onError": {
+              "target": "home_navigation_error",
+              "actions": "setHomeNavigationError"
+            }
+          }
+        },
+        "showing_generic_error": {
+          "description": "Showing generic error message",
+          "invoke": {
+            "src": "showGenericError",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setGenericErrorShown"
+            },
+            "onError": {
+              "target": "generic_error_error",
+              "actions": "setGenericErrorError"
+            }
+          }
+        },
+        "showing_login_modal": {
+          "description": "Showing login modal instead of redirect",
+          "invoke": {
+            "src": "showLoginModal",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setLoginModalShown"
+            },
+            "onError": {
+              "target": "login_modal_error",
+              "actions": "setLoginModalError"
+            }
+          }
+        },
+        "showing_error_message": {
+          "description": "Showing error message to user",
+          "invoke": {
+            "src": "showErrorMessage",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setErrorMessageShown"
+            },
+            "onError": {
+              "target": "error_message_error",
+              "actions": "setErrorMessageError"
+            }
+          }
+        },
+        "showing_data_error": {
+          "description": "Showing data loading error",
+          "invoke": {
+            "src": "showDataError",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setDataErrorShown"
+            },
+            "onError": {
+              "target": "data_error_error",
+              "actions": "setDataErrorError"
+            }
+          }
+        },
+        "force_navigating_home": {
+          "description": "Force navigating to home page",
+          "invoke": {
+            "src": "forceNavigateHome",
+            "onDone": {
+              "target": "navigation_completed",
+              "actions": "setForceHomeNavigation"
+            },
+            "onError": {
+              "target": "force_home_error",
+              "actions": "setForceHomeError"
+            }
+          }
+        },
+        "error_page_error": {
+          "description": "Error showing error page",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "home_navigation_error": {
+          "description": "Error navigating to home",
+          "on": {
+            "RELOAD_APPLICATION": "reloading_application"
+          }
+        },
+        "generic_error_error": {
+          "description": "Error showing generic error",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "login_modal_error": {
+          "description": "Error showing login modal",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "error_message_error": {
+          "description": "Error showing error message",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home"
+          }
+        },
+        "data_error_error": {
+          "description": "Error showing data error",
+          "on": {
+            "CONTINUE": "navigation_completed"
+          }
+        },
+        "force_home_error": {
+          "description": "Error force navigating home",
+          "on": {
+            "RELOAD_APPLICATION": "reloading_application"
+          }
+        },
+        "reloading_application": {
+          "description": "Reloading entire application",
+          "invoke": {
+            "src": "reloadApplication",
+            "onDone": {
+              "target": "#navigation_routing_workflow.idle",
+              "actions": "confirmApplicationReloaded"
+            },
+            "onError": {
+              "target": "application_reload_error",
+              "actions": "setApplicationReloadError"
+            }
+          }
+        },
+        "application_reload_error": {
+          "description": "Error reloading application",
+          "type": "final"
+        }
+      },
+      "on": {
+        "CANCEL_NAVIGATION": "#navigation_routing_workflow.router_ready"
+      }
+    },
+    "handling_deep_link": {
+      "description": "Handling deep link navigation from external sources",
+      "initial": "parsing_deep_link",
+      "states": {
+        "parsing_deep_link": {
+          "description": "Parsing deep link URL and extracting route information",
+          "invoke": {
+            "src": "parseDeepLink",
+            "onDone": {
+              "target": "validating_deep_link",
+              "actions": "setParsedDeepLink"
+            },
+            "onError": {
+              "target": "deep_link_parsing_error",
+              "actions": "setDeepLinkParsingError"
+            }
+          }
+        },
+        "validating_deep_link": {
+          "description": "Validating deep link route and parameters",
+          "invoke": {
+            "src": "validateDeepLink",
+            "onDone": {
+              "target": "processing_deep_link",
+              "actions": "setValidatedDeepLink"
+            },
+            "onError": {
+              "target": "deep_link_validation_error",
+              "actions": "setDeepLinkValidationError"
+            }
+          }
+        },
+        "processing_deep_link": {
+          "description": "Processing validated deep link for navigation",
+          "invoke": {
+            "src": "processDeepLink",
+            "onDone": {
+              "target": "#navigation_routing_workflow.navigating",
+              "actions": "setDeepLinkProcessed"
+            },
+            "onError": {
+              "target": "deep_link_processing_error",
+              "actions": "setDeepLinkProcessingError"
+            }
+          }
+        },
+        "deep_link_parsing_error": {
+          "description": "Error parsing deep link",
+          "on": {
+            "RETRY": "parsing_deep_link",
+            "NAVIGATE_HOME": "navigating_to_home_from_deep_link",
+            "SHOW_INVALID_LINK_ERROR": "showing_invalid_link_error"
+          }
+        },
+        "deep_link_validation_error": {
+          "description": "Error validating deep link",
+          "on": {
+            "RETRY": "validating_deep_link",
+            "TREAT_AS_REGULAR_NAVIGATION": "treating_as_regular_navigation",
+            "SHOW_INVALID_LINK_ERROR": "showing_invalid_link_error"
+          }
+        },
+        "deep_link_processing_error": {
+          "description": "Error processing deep link",
+          "on": {
+            "RETRY": "processing_deep_link",
+            "FALLBACK_NAVIGATION": "fallback_deep_link_navigation",
+            "SHOW_ERROR": "showing_deep_link_error"
+          }
+        },
+        "navigating_to_home_from_deep_link": {
+          "description": "Navigating to home page from failed deep link",
+          "invoke": {
+            "src": "navigateToHomeFromDeepLink",
+            "onDone": {
+              "target": "#navigation_routing_workflow.router_ready",
+              "actions": "setHomeNavigationFromDeepLink"
+            },
+            "onError": {
+              "target": "home_from_deep_link_error",
+              "actions": "setHomeFromDeepLinkError"
+            }
+          }
+        },
+        "showing_invalid_link_error": {
+          "description": "Showing invalid deep link error message",
+          "invoke": {
+            "src": "showInvalidLinkError",
+            "onDone": {
+              "target": "#navigation_routing_workflow.router_ready",
+              "actions": "setInvalidLinkErrorShown"
+            },
+            "onError": {
+              "target": "invalid_link_error_error",
+              "actions": "setInvalidLinkErrorError"
+            }
+          }
+        },
+        "treating_as_regular_navigation": {
+          "description": "Treating deep link as regular navigation",
+          "invoke": {
+            "src": "treatAsRegularNavigation",
+            "onDone": {
+              "target": "#navigation_routing_workflow.navigating",
+              "actions": "setRegularNavigationFromDeepLink"
+            },
+            "onError": {
+              "target": "regular_navigation_error",
+              "actions": "setRegularNavigationError"
+            }
+          }
+        },
+        "fallback_deep_link_navigation": {
+          "description": "Fallback navigation for failed deep link",
+          "invoke": {
+            "src": "fallbackDeepLinkNavigation",
+            "onDone": {
+              "target": "#navigation_routing_workflow.router_ready",
+              "actions": "setFallbackDeepLinkNavigation"
+            },
+            "onError": {
+              "target": "fallback_deep_link_error",
+              "actions": "setFallbackDeepLinkError"
+            }
+          }
+        },
+        "showing_deep_link_error": {
+          "description": "Showing deep link processing error",
+          "invoke": {
+            "src": "showDeepLinkError",
+            "onDone": {
+              "target": "#navigation_routing_workflow.router_ready",
+              "actions": "setDeepLinkErrorShown"
+            },
+            "onError": {
+              "target": "deep_link_error_error",
+              "actions": "setDeepLinkErrorError"
+            }
+          }
+        },
+        "home_from_deep_link_error": {
+          "description": "Error navigating home from deep link",
+          "on": {
+            "RELOAD": "#navigation_routing_workflow.reloading_from_deep_link"
+          }
+        },
+        "invalid_link_error_error": {
+          "description": "Error showing invalid link error",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home_from_deep_link"
+          }
+        },
+        "regular_navigation_error": {
+          "description": "Error treating as regular navigation",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home_from_deep_link"
+          }
+        },
+        "fallback_deep_link_error": {
+          "description": "Error in fallback deep link navigation",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home_from_deep_link"
+          }
+        },
+        "deep_link_error_error": {
+          "description": "Error showing deep link error",
+          "on": {
+            "NAVIGATE_HOME": "navigating_to_home_from_deep_link"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "#navigation_routing_workflow.router_ready"
+      }
+    },
+    "updating_browser_history": {
+      "description": "Managing browser history and URL synchronization",
+      "initial": "syncing_url_state",
+      "states": {
+        "syncing_url_state": {
+          "description": "Synchronizing application state with browser URL",
+          "invoke": {
+            "src": "syncUrlState",
+            "onDone": {
+              "target": "url_state_synced",
+              "actions": "setUrlStateSynced"
+            },
+            "onError": {
+              "target": "url_sync_error",
+              "actions": "setUrlSyncError"
+            }
+          }
+        },
+        "url_state_synced": {
+          "description": "URL state synchronized successfully",
+          "on": {
+            "PUSH_HISTORY_STATE": "pushing_history_state",
+            "REPLACE_HISTORY_STATE": "replacing_history_state",
+            "HANDLE_POPSTATE": "handling_popstate",
+            "UPDATE_QUERY_PARAMS": "updating_query_params"
+          }
+        },
+        "pushing_history_state": {
+          "description": "Adding new entry to browser history",
+          "invoke": {
+            "src": "pushHistoryState",
+            "onDone": {
+              "target": "url_state_synced",
+              "actions": "confirmHistoryPushed"
+            },
+            "onError": {
+              "target": "history_push_error",
+              "actions": "setHistoryPushError"
+            }
+          }
+        },
+        "replacing_history_state": {
+          "description": "Replacing current history entry",
+          "invoke": {
+            "src": "replaceHistoryState",
+            "onDone": {
+              "target": "url_state_synced",
+              "actions": "confirmHistoryReplaced"
+            },
+            "onError": {
+              "target": "history_replace_error",
+              "actions": "setHistoryReplaceError"
+            }
+          }
+        },
+        "handling_popstate": {
+          "description": "Handling browser back/forward navigation",
+          "invoke": {
+            "src": "handlePopstate",
+            "onDone": {
+              "target": "url_state_synced",
+              "actions": "setPopstateHandled"
+            },
+            "onError": {
+              "target": "popstate_error",
+              "actions": "setPopstateError"
+            }
+          }
+        },
+        "updating_query_params": {
+          "description": "Updating URL query parameters without navigation",
+          "invoke": {
+            "src": "updateQueryParams",
+            "onDone": {
+              "target": "url_state_synced",
+              "actions": "setQueryParamsUpdated"
+            },
+            "onError": {
+              "target": "query_params_error",
+              "actions": "setQueryParamsError"
+            }
+          }
+        },
+        "url_sync_error": {
+          "description": "Error synchronizing URL state",
+          "on": {
+            "RETRY": "syncing_url_state",
+            "CONTINUE_WITHOUT_SYNC": "#navigation_routing_workflow.router_ready",
+            "RELOAD_PAGE": "reloading_page_for_sync"
+          }
+        },
+        "history_push_error": {
+          "description": "Error pushing history state",
+          "on": {
+            "RETRY": "pushing_history_state",
+            "USE_REPLACE": "replacing_history_state",
+            "SKIP": "url_state_synced"
+          }
+        },
+        "history_replace_error": {
+          "description": "Error replacing history state",
+          "on": {
+            "RETRY": "replacing_history_state",
+            "SKIP": "url_state_synced"
+          }
+        },
+        "popstate_error": {
+          "description": "Error handling popstate",
+          "on": {
+            "RETRY": "handling_popstate",
+            "FORCE_SYNC": "forcing_url_sync",
+            "IGNORE": "url_state_synced"
+          }
+        },
+        "query_params_error": {
+          "description": "Error updating query parameters",
+          "on": {
+            "RETRY": "updating_query_params",
+            "SKIP": "url_state_synced"
+          }
+        },
+        "reloading_page_for_sync": {
+          "description": "Reloading page to fix sync issues",
+          "invoke": {
+            "src": "reloadPageForSync",
+            "onDone": {
+              "target": "#navigation_routing_workflow.idle",
+              "actions": "confirmPageReloadedForSync"
+            },
+            "onError": {
+              "target": "page_reload_sync_error",
+              "actions": "setPageReloadSyncError"
+            }
+          }
+        },
+        "forcing_url_sync": {
+          "description": "Force synchronizing URL state",
+          "invoke": {
+            "src": "forceUrlSync",
+            "onDone": {
+              "target": "url_state_synced",
+              "actions": "setForcedUrlSync"
+            },
+            "onError": {
+              "target": "force_sync_error",
+              "actions": "setForceSyncError"
+            }
+          }
+        },
+        "page_reload_sync_error": {
+          "description": "Error reloading page for sync",
+          "on": {
+            "CONTINUE": "#navigation_routing_workflow.router_ready"
+          }
+        },
+        "force_sync_error": {
+          "description": "Error force syncing URL",
+          "on": {
+            "CONTINUE": "url_state_synced"
+          }
+        }
+      },
+      "on": {
+        "COMPLETE": "#navigation_routing_workflow.router_ready"
+      }
+    },
+    "configuring_routes": {
+      "description": "Dynamic route configuration and management",
+      "initial": "loading_route_config",
+      "states": {
+        "loading_route_config": {
+          "description": "Loading route configuration from various sources",
+          "invoke": {
+            "src": "loadRouteConfig",
+            "onDone": {
+              "target": "processing_route_config",
+              "actions": "setRouteConfig"
+            },
+            "onError": {
+              "target": "route_config_error",
+              "actions": "setRouteConfigError"
+            }
+          }
+        },
+        "processing_route_config": {
+          "description": "Processing and validating route configuration",
+          "invoke": {
+            "src": "processRouteConfig",
+            "onDone": {
+              "target": "applying_route_config",
+              "actions": "setProcessedRouteConfig"
+            },
+            "onError": {
+              "target": "route_config_processing_error",
+              "actions": "setRouteConfigProcessingError"
+            }
+          }
+        },
+        "applying_route_config": {
+          "description": "Applying route configuration to router",
+          "invoke": {
+            "src": "applyRouteConfig",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmRouteConfigApplied"
+            },
+            "onError": {
+              "target": "route_config_apply_error",
+              "actions": "setRouteConfigApplyError"
+            }
+          }
+        },
+        "route_config_applied": {
+          "description": "Route configuration applied successfully",
+          "on": {
+            "ADD_DYNAMIC_ROUTE": "adding_dynamic_route",
+            "REMOVE_ROUTE": "removing_route",
+            "UPDATE_ROUTE": "updating_route",
+            "VALIDATE_ROUTES": "validating_routes"
+          }
+        },
+        "adding_dynamic_route": {
+          "description": "Adding new route dynamically",
+          "invoke": {
+            "src": "addDynamicRoute",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmDynamicRouteAdded"
+            },
+            "onError": {
+              "target": "dynamic_route_add_error",
+              "actions": "setDynamicRouteAddError"
+            }
+          }
+        },
+        "removing_route": {
+          "description": "Removing existing route",
+          "invoke": {
+            "src": "removeRoute",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmRouteRemoved"
+            },
+            "onError": {
+              "target": "route_remove_error",
+              "actions": "setRouteRemoveError"
+            }
+          }
+        },
+        "updating_route": {
+          "description": "Updating existing route configuration",
+          "invoke": {
+            "src": "updateRoute",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmRouteUpdated"
+            },
+            "onError": {
+              "target": "route_update_error",
+              "actions": "setRouteUpdateError"
+            }
+          }
+        },
+        "validating_routes": {
+          "description": "Validating all configured routes",
+          "invoke": {
+            "src": "validateRoutes",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "setRouteValidationResults"
+            },
+            "onError": {
+              "target": "route_validation_error",
+              "actions": "setRouteValidationError"
+            }
+          }
+        },
+        "route_config_error": {
+          "description": "Error loading route configuration",
+          "on": {
+            "RETRY": "loading_route_config",
+            "USE_DEFAULT_CONFIG": "using_default_route_config",
+            "CANCEL": "#navigation_routing_workflow.router_ready"
+          }
+        },
+        "route_config_processing_error": {
+          "description": "Error processing route configuration",
+          "on": {
+            "RETRY": "processing_route_config",
+            "USE_PARTIAL_CONFIG": "using_partial_route_config",
+            "USE_DEFAULT_CONFIG": "using_default_route_config"
+          }
+        },
+        "route_config_apply_error": {
+          "description": "Error applying route configuration",
+          "on": {
+            "RETRY": "applying_route_config",
+            "REVERT_CONFIG": "reverting_route_config",
+            "USE_DEFAULT_CONFIG": "using_default_route_config"
+          }
+        },
+        "dynamic_route_add_error": {
+          "description": "Error adding dynamic route",
+          "on": {
+            "RETRY": "adding_dynamic_route",
+            "SKIP": "route_config_applied"
+          }
+        },
+        "route_remove_error": {
+          "description": "Error removing route",
+          "on": {
+            "RETRY": "removing_route",
+            "SKIP": "route_config_applied"
+          }
+        },
+        "route_update_error": {
+          "description": "Error updating route",
+          "on": {
+            "RETRY": "updating_route",
+            "SKIP": "route_config_applied"
+          }
+        },
+        "route_validation_error": {
+          "description": "Error validating routes",
+          "on": {
+            "RETRY": "validating_routes",
+            "FIX_INVALID_ROUTES": "fixing_invalid_routes",
+            "CONTINUE": "route_config_applied"
+          }
+        },
+        "using_default_route_config": {
+          "description": "Using default route configuration",
+          "invoke": {
+            "src": "useDefaultRouteConfig",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "setDefaultRouteConfig"
+            },
+            "onError": {
+              "target": "default_config_error",
+              "actions": "setDefaultConfigError"
+            }
+          }
+        },
+        "using_partial_route_config": {
+          "description": "Using partial route configuration",
+          "invoke": {
+            "src": "usePartialRouteConfig",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "setPartialRouteConfig"
+            },
+            "onError": {
+              "target": "partial_config_error",
+              "actions": "setPartialConfigError"
+            }
+          }
+        },
+        "reverting_route_config": {
+          "description": "Reverting to previous route configuration",
+          "invoke": {
+            "src": "revertRouteConfig",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmRouteConfigReverted"
+            },
+            "onError": {
+              "target": "config_revert_error",
+              "actions": "setConfigRevertError"
+            }
+          }
+        },
+        "fixing_invalid_routes": {
+          "description": "Fixing invalid route configurations",
+          "invoke": {
+            "src": "fixInvalidRoutes",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmInvalidRoutesFixed"
+            },
+            "onError": {
+              "target": "route_fix_error",
+              "actions": "setRouteFixError"
+            }
+          }
+        },
+        "default_config_error": {
+          "description": "Error using default configuration",
+          "on": {
+            "MINIMAL_CONFIG": "using_minimal_route_config"
+          }
+        },
+        "partial_config_error": {
+          "description": "Error using partial configuration",
+          "on": {
+            "USE_DEFAULT_CONFIG": "using_default_route_config"
+          }
+        },
+        "config_revert_error": {
+          "description": "Error reverting configuration",
+          "on": {
+            "USE_DEFAULT_CONFIG": "using_default_route_config"
+          }
+        },
+        "route_fix_error": {
+          "description": "Error fixing invalid routes",
+          "on": {
+            "REMOVE_INVALID": "removing_invalid_routes",
+            "CONTINUE": "route_config_applied"
+          }
+        },
+        "using_minimal_route_config": {
+          "description": "Using minimal route configuration as fallback",
+          "invoke": {
+            "src": "useMinimalRouteConfig",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "setMinimalRouteConfig"
+            },
+            "onError": {
+              "target": "minimal_config_error",
+              "actions": "setMinimalConfigError"
+            }
+          }
+        },
+        "removing_invalid_routes": {
+          "description": "Removing invalid routes from configuration",
+          "invoke": {
+            "src": "removeInvalidRoutes",
+            "onDone": {
+              "target": "route_config_applied",
+              "actions": "confirmInvalidRoutesRemoved"
+            },
+            "onError": {
+              "target": "invalid_removal_error",
+              "actions": "setInvalidRemovalError"
+            }
+          }
+        },
+        "minimal_config_error": {
+          "description": "Error using minimal configuration",
+          "type": "final"
+        },
+        "invalid_removal_error": {
+          "description": "Error removing invalid routes",
+          "on": {
+            "CONTINUE": "route_config_applied"
+          }
+        }
+      },
+      "on": {
+        "COMPLETE": "#navigation_routing_workflow.router_ready"
+      }
+    },
+    "reloading_from_deep_link": {
+      "description": "Reloading application from deep link error",
+      "invoke": {
+        "src": "reloadFromDeepLink",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmReloadFromDeepLink"
+        },
+        "onError": {
+          "target": "deep_link_reload_error",
+          "actions": "setDeepLinkReloadError"
+        }
+      }
+    },
+    "router_initialization_error": {
+      "description": "Error initializing router",
+      "on": {
+        "RETRY": "initializing_router",
+        "USE_FALLBACK_ROUTER": "fallback_router_setup",
+        "DISABLE_ROUTING": "disabling_routing"
+      }
+    },
+    "fallback_router_setup": {
+      "description": "Setting up fallback router with basic functionality",
+      "invoke": {
+        "src": "setupFallbackRouter",
+        "onDone": {
+          "target": "router_ready",
+          "actions": "setFallbackRouterReady"
+        },
+        "onError": {
+          "target": "fallback_router_error",
+          "actions": "setFallbackRouterError"
+        }
+      }
+    },
+    "disabling_routing": {
+      "description": "Disabling routing and using single-page mode",
+      "invoke": {
+        "src": "disableRouting",
+        "onDone": {
+          "target": "single_page_mode",
+          "actions": "setRoutingDisabled"
+        },
+        "onError": {
+          "target": "disable_routing_error",
+          "actions": "setDisableRoutingError"
+        }
+      }
+    },
+    "single_page_mode": {
+      "description": "Application running in single-page mode without routing",
+      "on": {
+        "ENABLE_ROUTING": "initializing_router"
+      }
+    },
+    "fallback_router_error": {
+      "description": "Error setting up fallback router",
+      "on": {
+        "DISABLE_ROUTING": "disabling_routing",
+        "RELOAD_APPLICATION": "reloading_application_for_router"
+      }
+    },
+    "disable_routing_error": {
+      "description": "Error disabling routing",
+      "on": {
+        "RELOAD_APPLICATION": "reloading_application_for_router"
+      }
+    },
+    "deep_link_reload_error": {
+      "description": "Error reloading from deep link",
+      "type": "final"
+    },
+    "reloading_application_for_router": {
+      "description": "Reloading application to fix router issues",
+      "invoke": {
+        "src": "reloadApplicationForRouter",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmApplicationReloadedForRouter"
+        },
+        "onError": {
+          "target": "application_router_reload_error",
+          "actions": "setApplicationRouterReloadError"
+        }
+      }
+    },
+    "application_router_reload_error": {
+      "description": "Error reloading application for router",
+      "type": "final"
+    }
+  },
+  "services": {
+    "initializeRouter": "Service to initialize application router and route definitions",
+    "resolveRoute": "Service to resolve target route and validate accessibility",
+    "checkRouteGuards": "Service to execute route guards and permission checks",
+    "loadRouteData": "Service to load route-specific data and dependencies",
+    "updateNavigationState": "Service to update navigation state and UI components",
+    "updateBreadcrumbs": "Service to update breadcrumb navigation",
+    "updateSidebar": "Service to update sidebar navigation state",
+    "trackNavigationAnalytics": "Service to track navigation for analytics",
+    "navigateToFallback": "Service to navigate to fallback route",
+    "show404Page": "Service to show 404 error page",
+    "navigateToLogin": "Service to redirect to login page",
+    "requestRoutePermission": "Service to request permission for restricted route",
+    "navigateToUnauthorized": "Service to navigate to unauthorized page",
+    "goBack": "Service to go back to previous route",
+    "loadCachedRouteData": "Service to load cached route data as fallback",
+    "partialNavigationUpdate": "Service for partial navigation state update",
+    "rollbackNavigation": "Service to rollback failed navigation",
+    "showErrorPage": "Service to show generic error page",
+    "navigateToHome": "Service to navigate to home page as final fallback",
+    "showGenericError": "Service to show generic error message",
+    "showLoginModal": "Service to show login modal instead of redirect",
+    "showErrorMessage": "Service to show error message to user",
+    "showDataError": "Service to show data loading error",
+    "forceNavigateHome": "Service to force navigate to home page",
+    "reloadApplication": "Service to reload entire application",
+    "parseDeepLink": "Service to parse deep link URL and extract route information",
+    "validateDeepLink": "Service to validate deep link route and parameters",
+    "processDeepLink": "Service to process validated deep link for navigation",
+    "navigateToHomeFromDeepLink": "Service to navigate to home page from failed deep link",
+    "showInvalidLinkError": "Service to show invalid deep link error message",
+    "treatAsRegularNavigation": "Service to treat deep link as regular navigation",
+    "fallbackDeepLinkNavigation": "Service for fallback navigation for failed deep link",
+    "showDeepLinkError": "Service to show deep link processing error",
+    "reloadFromDeepLink": "Service to reload application from deep link error",
+    "syncUrlState": "Service to synchronize application state with browser URL",
+    "pushHistoryState": "Service to add new entry to browser history",
+    "replaceHistoryState": "Service to replace current history entry",
+    "handlePopstate": "Service to handle browser back/forward navigation",
+    "updateQueryParams": "Service to update URL query parameters without navigation",
+    "reloadPageForSync": "Service to reload page to fix sync issues",
+    "forceUrlSync": "Service to force synchronize URL state",
+    "loadRouteConfig": "Service to load route configuration from various sources",
+    "processRouteConfig": "Service to process and validate route configuration",
+    "applyRouteConfig": "Service to apply route configuration to router",
+    "addDynamicRoute": "Service to add new route dynamically",
+    "removeRoute": "Service to remove existing route",
+    "updateRoute": "Service to update existing route configuration",
+    "validateRoutes": "Service to validate all configured routes",
+    "useDefaultRouteConfig": "Service to use default route configuration",
+    "usePartialRouteConfig": "Service to use partial route configuration",
+    "revertRouteConfig": "Service to revert to previous route configuration",
+    "fixInvalidRoutes": "Service to fix invalid route configurations",
+    "useMinimalRouteConfig": "Service to use minimal route configuration as fallback",
+    "removeInvalidRoutes": "Service to remove invalid routes from configuration",
+    "setupFallbackRouter": "Service to setup fallback router with basic functionality",
+    "disableRouting": "Service to disable routing and use single-page mode",
+    "reloadApplicationForRouter": "Service to reload application to fix router issues"
+  },
+  "guards": {
+    "routeAccessAllowed": "Check if route access is allowed by guards",
+    "permissionGranted": "Check if route permission was granted"
+  },
+  "actions": {
+    "setRouterInitialized": "Set router as initialized",
+    "setRouterInitializationError": "Set router initialization error",
+    "setResolvedRoute": "Set resolved route information",
+    "setRouteResolutionError": "Set route resolution error",
+    "confirmRouteAccess": "Confirm route access allowed",
+    "setRouteAccessDenied": "Set route access denied",
+    "setRouteGuardError": "Set route guard error",
+    "setRouteData": "Set loaded route data",
+    "setRouteDataError": "Set route data error",
+    "setNavigationState": "Set updated navigation state",
+    "setNavigationStateError": "Set navigation state error",
+    "setBreadcrumbs": "Set updated breadcrumbs",
+    "setBreadcrumbsError": "Set breadcrumbs error",
+    "setSidebarState": "Set updated sidebar state",
+    "setSidebarError": "Set sidebar error",
+    "confirmAnalyticsTracked": "Confirm navigation analytics tracked",
+    "setAnalyticsError": "Set analytics tracking error",
+    "setFallbackNavigation": "Set fallback navigation completed",
+    "setFallbackNavigationError": "Set fallback navigation error",
+    "set404PageShown": "Set 404 page shown",
+    "set404PageError": "Set 404 page error",
+    "setLoginRedirect": "Set login redirect completed",
+    "setLoginRedirectError": "Set login redirect error",
+    "setPermissionGranted": "Set route permission granted",
+    "setPermissionDenied": "Set route permission denied",
+    "setPermissionRequestError": "Set permission request error",
+    "setUnauthorizedNavigation": "Set unauthorized navigation completed",
+    "setUnauthorizedNavigationError": "Set unauthorized navigation error",
+    "setBackNavigation": "Set back navigation completed",
+    "setBackNavigationError": "Set back navigation error",
+    "setCachedRouteData": "Set cached route data loaded",
+    "setCachedDataError": "Set cached data error",
+    "setPartialNavigationUpdate": "Set partial navigation update completed",
+    "setPartialUpdateError": "Set partial update error",
+    "confirmNavigationRollback": "Confirm navigation rollback completed",
+    "setRollbackError": "Set rollback error",
+    "setErrorPageShown": "Set error page shown",
+    "setErrorPageError": "Set error page error",
+    "setHomeNavigation": "Set home navigation completed",
+    "setHomeNavigationError": "Set home navigation error",
+    "setGenericErrorShown": "Set generic error shown",
+    "setGenericErrorError": "Set generic error error",
+    "setLoginModalShown": "Set login modal shown",
+    "setLoginModalError": "Set login modal error",
+    "setErrorMessageShown": "Set error message shown",
+    "setErrorMessageError": "Set error message error",
+    "setDataErrorShown": "Set data error shown",
+    "setDataErrorError": "Set data error error",
+    "setForceHomeNavigation": "Set force home navigation completed",
+    "setForceHomeError": "Set force home error",
+    "confirmApplicationReloaded": "Confirm application reloaded",
+    "setApplicationReloadError": "Set application reload error",
+    "setParsedDeepLink": "Set parsed deep link data",
+    "setDeepLinkParsingError": "Set deep link parsing error",
+    "setValidatedDeepLink": "Set validated deep link data",
+    "setDeepLinkValidationError": "Set deep link validation error",
+    "setDeepLinkProcessed": "Set deep link processed for navigation",
+    "setDeepLinkProcessingError": "Set deep link processing error",
+    "setHomeNavigationFromDeepLink": "Set home navigation from failed deep link",
+    "setHomeFromDeepLinkError": "Set home from deep link error",
+    "setInvalidLinkErrorShown": "Set invalid link error shown",
+    "setInvalidLinkErrorError": "Set invalid link error error",
+    "setRegularNavigationFromDeepLink": "Set regular navigation from deep link",
+    "setRegularNavigationError": "Set regular navigation error",
+    "setFallbackDeepLinkNavigation": "Set fallback deep link navigation",
+    "setFallbackDeepLinkError": "Set fallback deep link error",
+    "setDeepLinkErrorShown": "Set deep link error shown",
+    "setDeepLinkErrorError": "Set deep link error error",
+    "confirmReloadFromDeepLink": "Confirm reload from deep link",
+    "setDeepLinkReloadError": "Set deep link reload error",
+    "setUrlStateSynced": "Set URL state synchronized",
+    "setUrlSyncError": "Set URL sync error",
+    "confirmHistoryPushed": "Confirm history state pushed",
+    "setHistoryPushError": "Set history push error",
+    "confirmHistoryReplaced": "Confirm history state replaced",
+    "setHistoryReplaceError": "Set history replace error",
+    "setPopstateHandled": "Set popstate handled",
+    "setPopstateError": "Set popstate error",
+    "setQueryParamsUpdated": "Set query parameters updated",
+    "setQueryParamsError": "Set query parameters error",
+    "confirmPageReloadedForSync": "Confirm page reloaded for sync",
+    "setPageReloadSyncError": "Set page reload sync error",
+    "setForcedUrlSync": "Set forced URL sync completed",
+    "setForceSyncError": "Set force sync error",
+    "setRouteConfig": "Set loaded route configuration",
+    "setRouteConfigError": "Set route configuration error",
+    "setProcessedRouteConfig": "Set processed route configuration",
+    "setRouteConfigProcessingError": "Set route config processing error",
+    "confirmRouteConfigApplied": "Confirm route configuration applied",
+    "setRouteConfigApplyError": "Set route config apply error",
+    "confirmDynamicRouteAdded": "Confirm dynamic route added",
+    "setDynamicRouteAddError": "Set dynamic route add error",
+    "confirmRouteRemoved": "Confirm route removed",
+    "setRouteRemoveError": "Set route remove error",
+    "confirmRouteUpdated": "Confirm route updated",
+    "setRouteUpdateError": "Set route update error",
+    "setRouteValidationResults": "Set route validation results",
+    "setRouteValidationError": "Set route validation error",
+    "setDefaultRouteConfig": "Set default route configuration",
+    "setDefaultConfigError": "Set default config error",
+    "setPartialRouteConfig": "Set partial route configuration",
+    "setPartialConfigError": "Set partial config error",
+    "confirmRouteConfigReverted": "Confirm route configuration reverted",
+    "setConfigRevertError": "Set config revert error",
+    "confirmInvalidRoutesFixed": "Confirm invalid routes fixed",
+    "setRouteFixError": "Set route fix error",
+    "setMinimalRouteConfig": "Set minimal route configuration",
+    "setMinimalConfigError": "Set minimal config error",
+    "confirmInvalidRoutesRemoved": "Confirm invalid routes removed",
+    "setInvalidRemovalError": "Set invalid removal error",
+    "setFallbackRouterReady": "Set fallback router ready",
+    "setFallbackRouterError": "Set fallback router error",
+    "setRoutingDisabled": "Set routing disabled",
+    "setDisableRoutingError": "Set disable routing error",
+    "confirmApplicationReloadedForRouter": "Confirm application reloaded for router",
+    "setApplicationRouterReloadError": "Set application router reload error"
+  }
+}

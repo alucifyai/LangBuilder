@@ -1,0 +1,1478 @@
+{
+  "id": "mcp_server_management_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "servers": [],
+    "selectedServer": null,
+    "connectionConfig": null,
+    "discoveredTools": [],
+    "serverSessions": {},
+    "healthStatus": {},
+    "errors": [],
+    "validationResults": null,
+    "registrationData": null,
+    "serverTypes": ["stdio", "sse"],
+    "sessionLimits": {},
+    "connectionRetries": 0,
+    "maxRetries": 3
+  },
+  "states": {
+    "idle": {
+      "description": "MCP server management system ready",
+      "on": {
+        "REGISTER_SERVER": "registering",
+        "MANAGE_SERVERS": "managing_servers",
+        "DISCOVER_TOOLS": "discovering_tools",
+        "MANAGE_SESSIONS": "session_management",
+        "HEALTH_CHECK": "health_monitoring"
+      }
+    },
+    "registering": {
+      "description": "Server registration and discovery workflow",
+      "initial": "configuration_upload",
+      "states": {
+        "configuration_upload": {
+          "description": "JSON config stored as special file",
+          "invoke": {
+            "src": "uploadServerConfig",
+            "onDone": {
+              "target": "server_validation",
+              "actions": "setServerConfig"
+            },
+            "onError": {
+              "target": "config_upload_error",
+              "actions": "setConfigUploadError"
+            }
+          }
+        },
+        "server_validation": {
+          "description": "Connection parameter validation (stdio vs SSE)",
+          "invoke": {
+            "src": "validateServerConfig",
+            "onDone": [
+              {
+                "target": "stdio_server_setup",
+                "cond": "isStdioServer",
+                "actions": "setStdioConfig"
+              },
+              {
+                "target": "sse_server_setup",
+                "cond": "isSseServer",
+                "actions": "setSseConfig"
+              }
+            ],
+            "onError": {
+              "target": "validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "stdio_server_setup": {
+          "description": "Command execution with process lifecycle setup",
+          "invoke": {
+            "src": "setupStdioServer",
+            "onDone": {
+              "target": "tool_discovery",
+              "actions": "setStdioServerSetup"
+            },
+            "onError": {
+              "target": "stdio_setup_error",
+              "actions": "setStdioSetupError"
+            }
+          }
+        },
+        "sse_server_setup": {
+          "description": "HTTP event streams with header validation setup",
+          "invoke": {
+            "src": "setupSseServer",
+            "onDone": {
+              "target": "tool_discovery",
+              "actions": "setSseServerSetup"
+            },
+            "onError": {
+              "target": "sse_setup_error",
+              "actions": "setSseSetupError"
+            }
+          }
+        },
+        "tool_discovery": {
+          "description": "Async tool enumeration with timeout handling",
+          "invoke": {
+            "src": "discoverServerTools",
+            "onDone": {
+              "target": "health_checking",
+              "actions": "setDiscoveredTools"
+            },
+            "onError": {
+              "target": "tool_discovery_error",
+              "actions": "setToolDiscoveryError"
+            }
+          }
+        },
+        "health_checking": {
+          "description": "Connectivity validation and error categorization",
+          "invoke": {
+            "src": "performHealthCheck",
+            "onDone": {
+              "target": "session_creation",
+              "actions": "setHealthStatus"
+            },
+            "onError": {
+              "target": "health_check_error",
+              "actions": "setHealthCheckError"
+            }
+          }
+        },
+        "session_creation": {
+          "description": "Persistent session creation with reuse strategy",
+          "invoke": {
+            "src": "createServerSession",
+            "onDone": {
+              "target": "registration_completed",
+              "actions": "setServerSession"
+            },
+            "onError": {
+              "target": "session_creation_error",
+              "actions": "setSessionCreationError"
+            }
+          }
+        },
+        "registration_completed": {
+          "description": "Server registration completed successfully",
+          "on": {
+            "REGISTER_ANOTHER": "configuration_upload",
+            "MANAGE_REGISTERED": "#mcp_server_management_workflow.managing_servers",
+            "FINISH": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "config_upload_error": {
+          "description": "Error uploading server configuration",
+          "on": {
+            "RETRY_UPLOAD": "configuration_upload",
+            "FIX_CONFIG": "fixing_config",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "validation_error": {
+          "description": "Server configuration validation failed",
+          "on": {
+            "FIX_CONFIG": "fixing_config",
+            "RETRY_VALIDATION": "server_validation",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "stdio_setup_error": {
+          "description": "Error setting up stdio server",
+          "on": {
+            "RETRY_SETUP": "stdio_server_setup",
+            "TRY_DIFFERENT_CONFIG": "fixing_config",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "sse_setup_error": {
+          "description": "Error setting up SSE server",
+          "on": {
+            "RETRY_SETUP": "sse_server_setup",
+            "TRY_DIFFERENT_CONFIG": "fixing_config",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "tool_discovery_error": {
+          "description": "Error during tool discovery phase",
+          "on": {
+            "RETRY_DISCOVERY": "tool_discovery",
+            "SKIP_TOOLS": "health_checking",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "health_check_error": {
+          "description": "Health check failed during registration",
+          "on": {
+            "RETRY_HEALTH_CHECK": "health_checking",
+            "SKIP_HEALTH_CHECK": "session_creation",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "session_creation_error": {
+          "description": "Error creating server session",
+          "on": {
+            "RETRY_SESSION": "session_creation",
+            "COMPLETE_WITHOUT_SESSION": "registration_completed",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "fixing_config": {
+          "description": "Fixing server configuration issues",
+          "on": {
+            "CONFIG_FIXED": "server_validation",
+            "UPLOAD_NEW_CONFIG": "configuration_upload",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "managing_servers": {
+      "description": "Managing existing MCP servers",
+      "initial": "server_list",
+      "states": {
+        "server_list": {
+          "description": "Displaying registered servers with status",
+          "invoke": {
+            "src": "loadServerList",
+            "onDone": {
+              "target": "displaying_servers",
+              "actions": "setServerList"
+            },
+            "onError": {
+              "target": "server_list_error",
+              "actions": "setServerListError"
+            }
+          }
+        },
+        "displaying_servers": {
+          "description": "Showing server list with management options",
+          "on": {
+            "SELECT_SERVER": {
+              "target": "server_details",
+              "actions": "setSelectedServer"
+            },
+            "REFRESH_LIST": "server_list",
+            "START_SERVER": "starting_server",
+            "STOP_SERVER": "stopping_server",
+            "REMOVE_SERVER": "removing_server",
+            "EDIT_SERVER": "editing_server"
+          }
+        },
+        "server_details": {
+          "description": "Displaying detailed server information",
+          "invoke": {
+            "src": "loadServerDetails",
+            "onDone": {
+              "target": "showing_details",
+              "actions": "setServerDetails"
+            },
+            "onError": {
+              "target": "details_error",
+              "actions": "setDetailsError"
+            }
+          }
+        },
+        "showing_details": {
+          "description": "Showing server details, tools, and status",
+          "on": {
+            "EDIT_SERVER": "editing_server",
+            "TEST_SERVER": "testing_server",
+            "VIEW_TOOLS": "viewing_tools",
+            "VIEW_SESSIONS": "viewing_sessions",
+            "BACK_TO_LIST": "displaying_servers"
+          }
+        },
+        "starting_server": {
+          "description": "Starting server with process/connection initialization",
+          "invoke": {
+            "src": "startServer",
+            "onDone": {
+              "target": "displaying_servers",
+              "actions": "confirmServerStarted"
+            },
+            "onError": {
+              "target": "start_error",
+              "actions": "setStartError"
+            }
+          }
+        },
+        "stopping_server": {
+          "description": "Stopping server and cleaning up resources",
+          "invoke": {
+            "src": "stopServer",
+            "onDone": {
+              "target": "displaying_servers",
+              "actions": "confirmServerStopped"
+            },
+            "onError": {
+              "target": "stop_error",
+              "actions": "setStopError"
+            }
+          }
+        },
+        "removing_server": {
+          "description": "Removing server registration and cleanup",
+          "initial": "confirming_removal",
+          "states": {
+            "confirming_removal": {
+              "description": "Confirming server removal",
+              "on": {
+                "CONFIRM_REMOVE": "checking_server_usage",
+                "CANCEL_REMOVE": "#mcp_server_management_workflow.managing_servers.displaying_servers"
+              }
+            },
+            "checking_server_usage": {
+              "description": "Checking if server is in use",
+              "invoke": {
+                "src": "checkServerUsage",
+                "onDone": [
+                  {
+                    "target": "resolving_usage",
+                    "cond": "serverInUse",
+                    "actions": "setServerUsage"
+                  },
+                  {
+                    "target": "processing_removal",
+                    "actions": "confirmNoUsage"
+                  }
+                ],
+                "onError": {
+                  "target": "usage_check_error",
+                  "actions": "setUsageCheckError"
+                }
+              }
+            },
+            "resolving_usage": {
+              "description": "Resolving server usage before removal",
+              "on": {
+                "FORCE_REMOVE": "processing_removal",
+                "STOP_USAGE": "stopping_server_usage",
+                "CANCEL": "#mcp_server_management_workflow.managing_servers.displaying_servers"
+              }
+            },
+            "stopping_server_usage": {
+              "description": "Stopping server usage before removal",
+              "invoke": {
+                "src": "stopServerUsage",
+                "onDone": {
+                  "target": "processing_removal",
+                  "actions": "confirmUsageStopped"
+                },
+                "onError": {
+                  "target": "stop_usage_error",
+                  "actions": "setStopUsageError"
+                }
+              }
+            },
+            "processing_removal": {
+              "description": "Processing server removal",
+              "invoke": {
+                "src": "removeServer",
+                "onDone": {
+                  "target": "#mcp_server_management_workflow.managing_servers.displaying_servers",
+                  "actions": "confirmServerRemoved"
+                },
+                "onError": {
+                  "target": "removal_error",
+                  "actions": "setRemovalError"
+                }
+              }
+            },
+            "usage_check_error": {
+              "description": "Error checking server usage",
+              "on": {
+                "RETRY": "checking_server_usage",
+                "FORCE_REMOVE": "processing_removal"
+              }
+            },
+            "stop_usage_error": {
+              "description": "Error stopping server usage",
+              "on": {
+                "RETRY": "stopping_server_usage",
+                "FORCE_REMOVE": "processing_removal"
+              }
+            },
+            "removal_error": {
+              "description": "Error removing server",
+              "on": {
+                "RETRY": "processing_removal",
+                "CANCEL": "#mcp_server_management_workflow.managing_servers.displaying_servers"
+              }
+            }
+          }
+        },
+        "editing_server": {
+          "description": "Editing server configuration",
+          "invoke": {
+            "src": "loadServerForEdit",
+            "onDone": {
+              "target": "server_edit_form",
+              "actions": "setEditableServer"
+            },
+            "onError": {
+              "target": "edit_load_error",
+              "actions": "setEditLoadError"
+            }
+          }
+        },
+        "server_edit_form": {
+          "description": "Server editing interface",
+          "on": {
+            "UPDATE_CONFIG": {
+              "actions": "updateServerConfig"
+            },
+            "VALIDATE_CONFIG": "validating_server_config",
+            "SAVE_CONFIG": "saving_server_config",
+            "TEST_CONFIG": "testing_server_config"
+          }
+        },
+        "validating_server_config": {
+          "description": "Validating server configuration changes",
+          "invoke": {
+            "src": "validateServerConfigChanges",
+            "onDone": {
+              "target": "server_edit_form",
+              "actions": "setConfigValidationResults"
+            },
+            "onError": {
+              "target": "config_validation_error",
+              "actions": "setConfigValidationError"
+            }
+          }
+        },
+        "saving_server_config": {
+          "description": "Saving server configuration changes",
+          "invoke": {
+            "src": "saveServerConfig",
+            "onDone": {
+              "target": "showing_details",
+              "actions": "confirmConfigSaved"
+            },
+            "onError": {
+              "target": "config_save_error",
+              "actions": "setConfigSaveError"
+            }
+          }
+        },
+        "testing_server": {
+          "description": "Testing server connectivity and tools",
+          "invoke": {
+            "src": "testServerConnection",
+            "onDone": {
+              "target": "test_results",
+              "actions": "setTestResults"
+            },
+            "onError": {
+              "target": "test_error",
+              "actions": "setTestError"
+            }
+          }
+        },
+        "test_results": {
+          "description": "Displaying server test results",
+          "on": {
+            "RUN_ANOTHER_TEST": "testing_server",
+            "BACK_TO_DETAILS": "showing_details",
+            "FIX_ISSUES": "server_edit_form"
+          }
+        },
+        "viewing_tools": {
+          "description": "Viewing server tools and capabilities",
+          "invoke": {
+            "src": "loadServerTools",
+            "onDone": {
+              "target": "displaying_tools",
+              "actions": "setServerTools"
+            },
+            "onError": {
+              "target": "tools_error",
+              "actions": "setToolsError"
+            }
+          }
+        },
+        "displaying_tools": {
+          "description": "Displaying server tools with details",
+          "on": {
+            "TEST_TOOL": "testing_tool",
+            "REFRESH_TOOLS": "viewing_tools",
+            "BACK_TO_DETAILS": "showing_details"
+          }
+        },
+        "testing_tool": {
+          "description": "Testing individual server tool",
+          "invoke": {
+            "src": "testServerTool",
+            "onDone": {
+              "target": "displaying_tools",
+              "actions": "setToolTestResults"
+            },
+            "onError": {
+              "target": "tool_test_error",
+              "actions": "setToolTestError"
+            }
+          }
+        },
+        "viewing_sessions": {
+          "description": "Viewing active server sessions",
+          "invoke": {
+            "src": "loadServerSessions",
+            "onDone": {
+              "target": "displaying_sessions",
+              "actions": "setServerSessions"
+            },
+            "onError": {
+              "target": "sessions_error",
+              "actions": "setSessionsError"
+            }
+          }
+        },
+        "displaying_sessions": {
+          "description": "Displaying active sessions with management options",
+          "on": {
+            "TERMINATE_SESSION": "terminating_session",
+            "REFRESH_SESSIONS": "viewing_sessions",
+            "BACK_TO_DETAILS": "showing_details"
+          }
+        },
+        "terminating_session": {
+          "description": "Terminating server session",
+          "invoke": {
+            "src": "terminateServerSession",
+            "onDone": {
+              "target": "displaying_sessions",
+              "actions": "confirmSessionTerminated"
+            },
+            "onError": {
+              "target": "session_termination_error",
+              "actions": "setSessionTerminationError"
+            }
+          }
+        },
+        "server_list_error": {
+          "description": "Error loading server list",
+          "on": {
+            "RETRY": "server_list",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "details_error": {
+          "description": "Error loading server details",
+          "on": {
+            "RETRY": "server_details",
+            "BACK": "displaying_servers"
+          }
+        },
+        "start_error": {
+          "description": "Error starting server",
+          "on": {
+            "RETRY": "starting_server",
+            "CANCEL": "displaying_servers"
+          }
+        },
+        "stop_error": {
+          "description": "Error stopping server",
+          "on": {
+            "RETRY": "stopping_server",
+            "FORCE_STOP": "force_stopping_server",
+            "CANCEL": "displaying_servers"
+          }
+        },
+        "edit_load_error": {
+          "description": "Error loading server for editing",
+          "on": {
+            "RETRY": "editing_server",
+            "CANCEL": "showing_details"
+          }
+        },
+        "config_validation_error": {
+          "description": "Server configuration validation error",
+          "on": {
+            "FIX_CONFIG": "server_edit_form",
+            "CANCEL": "showing_details"
+          }
+        },
+        "config_save_error": {
+          "description": "Error saving server configuration",
+          "on": {
+            "RETRY": "saving_server_config",
+            "CANCEL": "server_edit_form"
+          }
+        },
+        "test_error": {
+          "description": "Error testing server",
+          "on": {
+            "RETRY": "testing_server",
+            "CANCEL": "showing_details"
+          }
+        },
+        "tools_error": {
+          "description": "Error loading server tools",
+          "on": {
+            "RETRY": "viewing_tools",
+            "CANCEL": "showing_details"
+          }
+        },
+        "tool_test_error": {
+          "description": "Error testing server tool",
+          "on": {
+            "RETRY": "testing_tool",
+            "CANCEL": "displaying_tools"
+          }
+        },
+        "sessions_error": {
+          "description": "Error loading server sessions",
+          "on": {
+            "RETRY": "viewing_sessions",
+            "CANCEL": "showing_details"
+          }
+        },
+        "session_termination_error": {
+          "description": "Error terminating server session",
+          "on": {
+            "RETRY": "terminating_session",
+            "FORCE_TERMINATE": "force_terminating_session",
+            "CANCEL": "displaying_sessions"
+          }
+        },
+        "force_stopping_server": {
+          "description": "Force stopping unresponsive server",
+          "invoke": {
+            "src": "forceStopServer",
+            "onDone": {
+              "target": "displaying_servers",
+              "actions": "confirmServerForceStopped"
+            },
+            "onError": {
+              "target": "force_stop_error",
+              "actions": "setForceStopError"
+            }
+          }
+        },
+        "force_terminating_session": {
+          "description": "Force terminating unresponsive session",
+          "invoke": {
+            "src": "forceTerminateSession",
+            "onDone": {
+              "target": "displaying_sessions",
+              "actions": "confirmSessionForceTerminated"
+            },
+            "onError": {
+              "target": "force_termination_error",
+              "actions": "setForceTerminationError"
+            }
+          }
+        },
+        "force_stop_error": {
+          "description": "Error force stopping server",
+          "on": {
+            "MANUAL_INTERVENTION": "requesting_manual_intervention",
+            "ACCEPT_PARTIAL": "displaying_servers"
+          }
+        },
+        "force_termination_error": {
+          "description": "Error force terminating session",
+          "on": {
+            "MANUAL_INTERVENTION": "requesting_manual_intervention",
+            "ACCEPT_PARTIAL": "displaying_sessions"
+          }
+        }
+      },
+      "on": {
+        "BACK": "idle"
+      }
+    },
+    "discovering_tools": {
+      "description": "Tool discovery across all registered servers",
+      "initial": "initiating_discovery",
+      "states": {
+        "initiating_discovery": {
+          "description": "Starting tool discovery process",
+          "invoke": {
+            "src": "initiateToolDiscovery",
+            "onDone": {
+              "target": "discovering_from_servers",
+              "actions": "setDiscoveryScope"
+            },
+            "onError": {
+              "target": "discovery_initiation_error",
+              "actions": "setDiscoveryInitiationError"
+            }
+          }
+        },
+        "discovering_from_servers": {
+          "description": "Discovering tools from all active servers",
+          "invoke": {
+            "src": "discoverAllTools",
+            "onDone": {
+              "target": "consolidating_tools",
+              "actions": "setAllDiscoveredTools"
+            },
+            "onError": {
+              "target": "discovery_error",
+              "actions": "setDiscoveryError"
+            }
+          }
+        },
+        "consolidating_tools": {
+          "description": "Consolidating and categorizing discovered tools",
+          "invoke": {
+            "src": "consolidateTools",
+            "onDone": {
+              "target": "discovery_completed",
+              "actions": "setConsolidatedTools"
+            },
+            "onError": {
+              "target": "consolidation_error",
+              "actions": "setConsolidationError"
+            }
+          }
+        },
+        "discovery_completed": {
+          "description": "Tool discovery completed successfully",
+          "on": {
+            "VIEW_TOOLS": "viewing_discovered_tools",
+            "EXPORT_TOOLS": "exporting_tools",
+            "REFRESH_DISCOVERY": "initiating_discovery",
+            "FINISH": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "viewing_discovered_tools": {
+          "description": "Viewing all discovered tools with details",
+          "on": {
+            "FILTER_TOOLS": "filtering_tools",
+            "TEST_TOOL": "testing_discovered_tool",
+            "BACK_TO_RESULTS": "discovery_completed"
+          }
+        },
+        "filtering_tools": {
+          "description": "Filtering discovered tools by criteria",
+          "invoke": {
+            "src": "filterDiscoveredTools",
+            "onDone": {
+              "target": "viewing_discovered_tools",
+              "actions": "setFilteredTools"
+            },
+            "onError": {
+              "target": "filter_error",
+              "actions": "setFilterError"
+            }
+          }
+        },
+        "testing_discovered_tool": {
+          "description": "Testing discovered tool functionality",
+          "invoke": {
+            "src": "testDiscoveredTool",
+            "onDone": {
+              "target": "viewing_discovered_tools",
+              "actions": "setDiscoveredToolTestResults"
+            },
+            "onError": {
+              "target": "discovered_tool_test_error",
+              "actions": "setDiscoveredToolTestError"
+            }
+          }
+        },
+        "exporting_tools": {
+          "description": "Exporting discovered tools data",
+          "invoke": {
+            "src": "exportDiscoveredTools",
+            "onDone": {
+              "target": "discovery_completed",
+              "actions": "confirmToolsExported"
+            },
+            "onError": {
+              "target": "tools_export_error",
+              "actions": "setToolsExportError"
+            }
+          }
+        },
+        "discovery_initiation_error": {
+          "description": "Error initiating tool discovery",
+          "on": {
+            "RETRY": "initiating_discovery",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "discovery_error": {
+          "description": "Error during tool discovery",
+          "on": {
+            "RETRY": "discovering_from_servers",
+            "PARTIAL_DISCOVERY": "consolidating_tools",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "consolidation_error": {
+          "description": "Error consolidating discovered tools",
+          "on": {
+            "RETRY": "consolidating_tools",
+            "SKIP_CONSOLIDATION": "discovery_completed"
+          }
+        },
+        "filter_error": {
+          "description": "Error filtering tools",
+          "on": {
+            "RETRY": "filtering_tools",
+            "CLEAR_FILTERS": "viewing_discovered_tools"
+          }
+        },
+        "discovered_tool_test_error": {
+          "description": "Error testing discovered tool",
+          "on": {
+            "RETRY": "testing_discovered_tool",
+            "SKIP_TEST": "viewing_discovered_tools"
+          }
+        },
+        "tools_export_error": {
+          "description": "Error exporting tools data",
+          "on": {
+            "RETRY": "exporting_tools",
+            "SKIP_EXPORT": "discovery_completed"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "session_management": {
+      "description": "MCP session lifecycle management",
+      "initial": "session_overview",
+      "states": {
+        "session_overview": {
+          "description": "Overview of all active sessions",
+          "invoke": {
+            "src": "loadSessionOverview",
+            "onDone": {
+              "target": "displaying_session_overview",
+              "actions": "setSessionOverview"
+            },
+            "onError": {
+              "target": "session_overview_error",
+              "actions": "setSessionOverviewError"
+            }
+          }
+        },
+        "displaying_session_overview": {
+          "description": "Displaying session overview with management options",
+          "on": {
+            "CREATE_SESSION": "creating_session",
+            "MANAGE_SESSION": "managing_session",
+            "CLEANUP_SESSIONS": "cleaning_up_sessions",
+            "REFRESH_OVERVIEW": "session_overview"
+          }
+        },
+        "creating_session": {
+          "description": "Creating new server session with initialization futures",
+          "invoke": {
+            "src": "createNewSession",
+            "onDone": {
+              "target": "session_initialization",
+              "actions": "setNewSession"
+            },
+            "onError": {
+              "target": "session_creation_error",
+              "actions": "setNewSessionCreationError"
+            }
+          }
+        },
+        "session_initialization": {
+          "description": "Initializing session with background tasks",
+          "invoke": {
+            "src": "initializeSession",
+            "onDone": {
+              "target": "displaying_session_overview",
+              "actions": "confirmSessionInitialized"
+            },
+            "onError": {
+              "target": "session_initialization_error",
+              "actions": "setSessionInitializationError"
+            }
+          }
+        },
+        "managing_session": {
+          "description": "Managing individual session",
+          "initial": "session_details",
+          "states": {
+            "session_details": {
+              "description": "Viewing session details and status",
+              "on": {
+                "MONITOR_HEALTH": "monitoring_session_health",
+                "RESET_SESSION": "resetting_session",
+                "TERMINATE_SESSION": "terminating_session_management",
+                "VIEW_SESSION_HISTORY": "viewing_session_history"
+              }
+            },
+            "monitoring_session_health": {
+              "description": "Periodic connectivity checks for session",
+              "invoke": {
+                "src": "monitorSessionHealth",
+                "onDone": {
+                  "target": "session_details",
+                  "actions": "setSessionHealthStatus"
+                },
+                "onError": {
+                  "target": "health_monitoring_error",
+                  "actions": "setHealthMonitoringError"
+                }
+              }
+            },
+            "resetting_session": {
+              "description": "Resetting session connection",
+              "invoke": {
+                "src": "resetSession",
+                "onDone": {
+                  "target": "session_details",
+                  "actions": "confirmSessionReset"
+                },
+                "onError": {
+                  "target": "session_reset_error",
+                  "actions": "setSessionResetError"
+                }
+              }
+            },
+            "terminating_session_management": {
+              "description": "Terminating managed session",
+              "invoke": {
+                "src": "terminateManagedSession",
+                "onDone": {
+                  "target": "#mcp_server_management_workflow.session_management.displaying_session_overview",
+                  "actions": "confirmManagedSessionTerminated"
+                },
+                "onError": {
+                  "target": "managed_session_termination_error",
+                  "actions": "setManagedSessionTerminationError"
+                }
+              }
+            },
+            "viewing_session_history": {
+              "description": "Viewing session activity history",
+              "invoke": {
+                "src": "loadSessionHistory",
+                "onDone": {
+                  "target": "displaying_session_history",
+                  "actions": "setSessionHistory"
+                },
+                "onError": {
+                  "target": "session_history_error",
+                  "actions": "setSessionHistoryError"
+                }
+              }
+            },
+            "displaying_session_history": {
+              "description": "Displaying session history with filtering options",
+              "on": {
+                "FILTER_HISTORY": "filtering_session_history",
+                "EXPORT_HISTORY": "exporting_session_history",
+                "BACK_TO_DETAILS": "session_details"
+              }
+            },
+            "filtering_session_history": {
+              "description": "Filtering session history by criteria",
+              "invoke": {
+                "src": "filterSessionHistory",
+                "onDone": {
+                  "target": "displaying_session_history",
+                  "actions": "setFilteredSessionHistory"
+                },
+                "onError": {
+                  "target": "history_filter_error",
+                  "actions": "setHistoryFilterError"
+                }
+              }
+            },
+            "exporting_session_history": {
+              "description": "Exporting session history data",
+              "invoke": {
+                "src": "exportSessionHistory",
+                "onDone": {
+                  "target": "displaying_session_history",
+                  "actions": "confirmSessionHistoryExported"
+                },
+                "onError": {
+                  "target": "history_export_error",
+                  "actions": "setHistoryExportError"
+                }
+              }
+            },
+            "health_monitoring_error": {
+              "description": "Error monitoring session health",
+              "on": {
+                "RETRY": "monitoring_session_health",
+                "SKIP": "session_details"
+              }
+            },
+            "session_reset_error": {
+              "description": "Error resetting session",
+              "on": {
+                "RETRY": "resetting_session",
+                "TERMINATE": "terminating_session_management"
+              }
+            },
+            "managed_session_termination_error": {
+              "description": "Error terminating managed session",
+              "on": {
+                "FORCE_TERMINATE": "force_terminating_managed_session",
+                "CANCEL": "session_details"
+              }
+            },
+            "session_history_error": {
+              "description": "Error loading session history",
+              "on": {
+                "RETRY": "viewing_session_history",
+                "CANCEL": "session_details"
+              }
+            },
+            "history_filter_error": {
+              "description": "Error filtering session history",
+              "on": {
+                "RETRY": "filtering_session_history",
+                "CLEAR_FILTERS": "displaying_session_history"
+              }
+            },
+            "history_export_error": {
+              "description": "Error exporting session history",
+              "on": {
+                "RETRY": "exporting_session_history",
+                "SKIP": "displaying_session_history"
+              }
+            },
+            "force_terminating_managed_session": {
+              "description": "Force terminating unresponsive managed session",
+              "invoke": {
+                "src": "forceTerminateManagedSession",
+                "onDone": {
+                  "target": "#mcp_server_management_workflow.session_management.displaying_session_overview",
+                  "actions": "confirmManagedSessionForceTerminated"
+                },
+                "onError": {
+                  "target": "force_managed_termination_error",
+                  "actions": "setForceManagedTerminationError"
+                }
+              }
+            },
+            "force_managed_termination_error": {
+              "description": "Error force terminating managed session",
+              "on": {
+                "MANUAL_INTERVENTION": "requesting_manual_intervention",
+                "ACCEPT_PARTIAL": "#mcp_server_management_workflow.session_management.displaying_session_overview"
+              }
+            }
+          }
+        },
+        "cleaning_up_sessions": {
+          "description": "Cleaning up idle timeout and manual cleanup procedures",
+          "invoke": {
+            "src": "cleanupIdleSessions",
+            "onDone": {
+              "target": "cleanup_completed",
+              "actions": "setCleanupResults"
+            },
+            "onError": {
+              "target": "cleanup_error",
+              "actions": "setCleanupError"
+            }
+          }
+        },
+        "cleanup_completed": {
+          "description": "Session cleanup completed",
+          "on": {
+            "VIEW_CLEANUP_RESULTS": "viewing_cleanup_results",
+            "BACK_TO_OVERVIEW": "displaying_session_overview"
+          }
+        },
+        "viewing_cleanup_results": {
+          "description": "Viewing session cleanup results",
+          "on": {
+            "CLEANUP_MORE": "cleaning_up_sessions",
+            "BACK": "displaying_session_overview"
+          }
+        },
+        "session_overview_error": {
+          "description": "Error loading session overview",
+          "on": {
+            "RETRY": "session_overview",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "session_creation_error": {
+          "description": "Error creating new session",
+          "on": {
+            "RETRY": "creating_session",
+            "CANCEL": "displaying_session_overview"
+          }
+        },
+        "session_initialization_error": {
+          "description": "Error initializing new session",
+          "on": {
+            "RETRY": "session_initialization",
+            "CANCEL": "displaying_session_overview"
+          }
+        },
+        "cleanup_error": {
+          "description": "Error during session cleanup",
+          "on": {
+            "RETRY": "cleaning_up_sessions",
+            "FORCE_CLEANUP": "force_cleaning_sessions",
+            "CANCEL": "displaying_session_overview"
+          }
+        },
+        "force_cleaning_sessions": {
+          "description": "Force cleaning unresponsive sessions",
+          "invoke": {
+            "src": "forceCleanupSessions",
+            "onDone": {
+              "target": "cleanup_completed",
+              "actions": "setForceCleanupResults"
+            },
+            "onError": {
+              "target": "force_cleanup_error",
+              "actions": "setForceCleanupError"
+            }
+          }
+        },
+        "force_cleanup_error": {
+          "description": "Error during force cleanup",
+          "on": {
+            "MANUAL_INTERVENTION": "requesting_manual_intervention",
+            "ACCEPT_PARTIAL": "displaying_session_overview"
+          }
+        }
+      },
+      "on": {
+        "BACK": "idle"
+      }
+    },
+    "health_monitoring": {
+      "description": "Health monitoring for all MCP servers",
+      "initial": "initiating_health_check",
+      "states": {
+        "initiating_health_check": {
+          "description": "Starting comprehensive health check",
+          "invoke": {
+            "src": "initiateHealthCheck",
+            "onDone": {
+              "target": "running_health_checks",
+              "actions": "setHealthCheckScope"
+            },
+            "onError": {
+              "target": "health_check_initiation_error",
+              "actions": "setHealthCheckInitiationError"
+            }
+          }
+        },
+        "running_health_checks": {
+          "description": "Running health checks on all servers",
+          "invoke": {
+            "src": "runComprehensiveHealthCheck",
+            "onDone": {
+              "target": "processing_health_results",
+              "actions": "setHealthCheckResults"
+            },
+            "onError": {
+              "target": "health_check_execution_error",
+              "actions": "setHealthCheckExecutionError"
+            }
+          }
+        },
+        "processing_health_results": {
+          "description": "Processing and categorizing health check results",
+          "invoke": {
+            "src": "processHealthResults",
+            "onDone": {
+              "target": "health_monitoring_completed",
+              "actions": "setProcessedHealthResults"
+            },
+            "onError": {
+              "target": "health_results_processing_error",
+              "actions": "setHealthResultsProcessingError"
+            }
+          }
+        },
+        "health_monitoring_completed": {
+          "description": "Health monitoring completed successfully",
+          "on": {
+            "VIEW_HEALTH_STATUS": "viewing_health_status",
+            "EXPORT_HEALTH_REPORT": "exporting_health_report",
+            "SCHEDULE_MONITORING": "scheduling_monitoring",
+            "REFRESH_HEALTH": "initiating_health_check",
+            "FINISH": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "viewing_health_status": {
+          "description": "Viewing detailed health status of all servers",
+          "on": {
+            "FILTER_BY_STATUS": "filtering_health_status",
+            "FIX_HEALTH_ISSUES": "fixing_health_issues",
+            "BACK_TO_RESULTS": "health_monitoring_completed"
+          }
+        },
+        "filtering_health_status": {
+          "description": "Filtering servers by health status",
+          "invoke": {
+            "src": "filterHealthStatus",
+            "onDone": {
+              "target": "viewing_health_status",
+              "actions": "setFilteredHealthStatus"
+            },
+            "onError": {
+              "target": "health_filter_error",
+              "actions": "setHealthFilterError"
+            }
+          }
+        },
+        "fixing_health_issues": {
+          "description": "Attempting to fix identified health issues",
+          "invoke": {
+            "src": "fixHealthIssues",
+            "onDone": {
+              "target": "viewing_health_status",
+              "actions": "setHealthFixResults"
+            },
+            "onError": {
+              "target": "health_fix_error",
+              "actions": "setHealthFixError"
+            }
+          }
+        },
+        "exporting_health_report": {
+          "description": "Exporting comprehensive health report",
+          "invoke": {
+            "src": "exportHealthReport",
+            "onDone": {
+              "target": "health_monitoring_completed",
+              "actions": "confirmHealthReportExported"
+            },
+            "onError": {
+              "target": "health_export_error",
+              "actions": "setHealthExportError"
+            }
+          }
+        },
+        "scheduling_monitoring": {
+          "description": "Scheduling recurring health monitoring",
+          "invoke": {
+            "src": "scheduleHealthMonitoring",
+            "onDone": {
+              "target": "health_monitoring_completed",
+              "actions": "confirmHealthMonitoringScheduled"
+            },
+            "onError": {
+              "target": "health_scheduling_error",
+              "actions": "setHealthSchedulingError"
+            }
+          }
+        },
+        "health_check_initiation_error": {
+          "description": "Error initiating health check",
+          "on": {
+            "RETRY": "initiating_health_check",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "health_check_execution_error": {
+          "description": "Error executing health checks",
+          "on": {
+            "RETRY": "running_health_checks",
+            "PARTIAL_CHECK": "processing_health_results",
+            "CANCEL": "#mcp_server_management_workflow.idle"
+          }
+        },
+        "health_results_processing_error": {
+          "description": "Error processing health results",
+          "on": {
+            "RETRY": "processing_health_results",
+            "SKIP_PROCESSING": "health_monitoring_completed"
+          }
+        },
+        "health_filter_error": {
+          "description": "Error filtering health status",
+          "on": {
+            "RETRY": "filtering_health_status",
+            "CLEAR_FILTERS": "viewing_health_status"
+          }
+        },
+        "health_fix_error": {
+          "description": "Error fixing health issues",
+          "on": {
+            "RETRY": "fixing_health_issues",
+            "MANUAL_FIX": "manual_health_fix",
+            "SKIP": "viewing_health_status"
+          }
+        },
+        "health_export_error": {
+          "description": "Error exporting health report",
+          "on": {
+            "RETRY": "exporting_health_report",
+            "SKIP": "health_monitoring_completed"
+          }
+        },
+        "health_scheduling_error": {
+          "description": "Error scheduling health monitoring",
+          "on": {
+            "RETRY": "scheduling_monitoring",
+            "SKIP": "health_monitoring_completed"
+          }
+        },
+        "manual_health_fix": {
+          "description": "Manual health issue resolution",
+          "on": {
+            "ISSUES_FIXED": "viewing_health_status",
+            "CANCEL": "viewing_health_status"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    }
+  },
+  "services": {
+    "uploadServerConfig": "Service to upload MCP server configuration as special file",
+    "validateServerConfig": "Service to validate server connection parameters (stdio vs SSE)",
+    "setupStdioServer": "Service to setup stdio server with command execution and process lifecycle",
+    "setupSseServer": "Service to setup SSE server with HTTP event streams and header validation",
+    "discoverServerTools": "Service for async tool enumeration with timeout handling",
+    "performHealthCheck": "Service for connectivity validation and error categorization",
+    "createServerSession": "Service for persistent session creation with reuse strategy",
+    "loadServerList": "Service to load list of registered MCP servers",
+    "loadServerDetails": "Service to load detailed server information",
+    "startServer": "Service to start server with process/connection initialization",
+    "stopServer": "Service to stop server and cleanup resources",
+    "checkServerUsage": "Service to check if server is currently in use",
+    "stopServerUsage": "Service to stop server usage before removal",
+    "removeServer": "Service to remove server registration and cleanup",
+    "loadServerForEdit": "Service to load server data for editing",
+    "validateServerConfigChanges": "Service to validate server configuration changes",
+    "saveServerConfig": "Service to save server configuration changes",
+    "testServerConnection": "Service to test server connectivity and tools",
+    "loadServerTools": "Service to load server tools and capabilities",
+    "testServerTool": "Service to test individual server tool",
+    "loadServerSessions": "Service to load active server sessions",
+    "terminateServerSession": "Service to terminate server session",
+    "forceStopServer": "Service to force stop unresponsive server",
+    "forceTerminateSession": "Service to force terminate unresponsive session",
+    "initiateToolDiscovery": "Service to start tool discovery process",
+    "discoverAllTools": "Service to discover tools from all active servers",
+    "consolidateTools": "Service to consolidate and categorize discovered tools",
+    "filterDiscoveredTools": "Service to filter discovered tools by criteria",
+    "testDiscoveredTool": "Service to test discovered tool functionality",
+    "exportDiscoveredTools": "Service to export discovered tools data",
+    "loadSessionOverview": "Service to load overview of all active sessions",
+    "createNewSession": "Service to create new server session",
+    "initializeSession": "Service to initialize session with background tasks",
+    "monitorSessionHealth": "Service for periodic session connectivity checks",
+    "resetSession": "Service to reset session connection",
+    "terminateManagedSession": "Service to terminate managed session",
+    "loadSessionHistory": "Service to load session activity history",
+    "filterSessionHistory": "Service to filter session history by criteria",
+    "exportSessionHistory": "Service to export session history data",
+    "forceTerminateManagedSession": "Service to force terminate unresponsive managed session",
+    "cleanupIdleSessions": "Service for idle timeout and manual cleanup procedures",
+    "forceCleanupSessions": "Service to force cleanup unresponsive sessions",
+    "initiateHealthCheck": "Service to start comprehensive health check",
+    "runComprehensiveHealthCheck": "Service to run health checks on all servers",
+    "processHealthResults": "Service to process and categorize health check results",
+    "filterHealthStatus": "Service to filter servers by health status",
+    "fixHealthIssues": "Service to attempt fixing identified health issues",
+    "exportHealthReport": "Service to export comprehensive health report",
+    "scheduleHealthMonitoring": "Service to schedule recurring health monitoring"
+  },
+  "guards": {
+    "isStdioServer": "Check if server type is stdio",
+    "isSseServer": "Check if server type is SSE",
+    "serverInUse": "Check if server is currently in use"
+  },
+  "actions": {
+    "setServerConfig": "Set uploaded server configuration",
+    "setConfigUploadError": "Set configuration upload error",
+    "setStdioConfig": "Set stdio server configuration",
+    "setSseConfig": "Set SSE server configuration",
+    "setValidationError": "Set server validation error",
+    "setStdioServerSetup": "Set stdio server setup data",
+    "setStdioSetupError": "Set stdio setup error",
+    "setSseServerSetup": "Set SSE server setup data",
+    "setSseSetupError": "Set SSE setup error",
+    "setDiscoveredTools": "Set discovered server tools",
+    "setToolDiscoveryError": "Set tool discovery error",
+    "setHealthStatus": "Set server health status",
+    "setHealthCheckError": "Set health check error",
+    "setServerSession": "Set created server session",
+    "setSessionCreationError": "Set session creation error",
+    "setServerList": "Set loaded server list",
+    "setServerListError": "Set server list loading error",
+    "setSelectedServer": "Set currently selected server",
+    "setServerDetails": "Set detailed server information",
+    "setDetailsError": "Set server details loading error",
+    "confirmServerStarted": "Confirm server started successfully",
+    "setStartError": "Set server start error",
+    "confirmServerStopped": "Confirm server stopped successfully",
+    "setStopError": "Set server stop error",
+    "setServerUsage": "Set server usage information",
+    "confirmNoUsage": "Confirm server is not in use",
+    "setUsageCheckError": "Set usage check error",
+    "confirmUsageStopped": "Confirm server usage stopped",
+    "setStopUsageError": "Set stop usage error",
+    "confirmServerRemoved": "Confirm server removed successfully",
+    "setRemovalError": "Set server removal error",
+    "setEditableServer": "Set server data for editing",
+    "setEditLoadError": "Set edit loading error",
+    "updateServerConfig": "Update server configuration in form",
+    "setConfigValidationResults": "Set configuration validation results",
+    "setConfigValidationError": "Set configuration validation error",
+    "confirmConfigSaved": "Confirm server configuration saved",
+    "setConfigSaveError": "Set configuration save error",
+    "setTestResults": "Set server test results",
+    "setTestError": "Set server test error",
+    "setServerTools": "Set server tools and capabilities",
+    "setToolsError": "Set tools loading error",
+    "setToolTestResults": "Set tool test results",
+    "setToolTestError": "Set tool test error",
+    "setServerSessions": "Set active server sessions",
+    "setSessionsError": "Set sessions loading error",
+    "confirmSessionTerminated": "Confirm session terminated",
+    "setSessionTerminationError": "Set session termination error",
+    "confirmServerForceStopped": "Confirm server force stopped",
+    "setForceStopError": "Set force stop error",
+    "confirmSessionForceTerminated": "Confirm session force terminated",
+    "setForceTerminationError": "Set force termination error",
+    "setDiscoveryScope": "Set tool discovery scope",
+    "setDiscoveryInitiationError": "Set discovery initiation error",
+    "setAllDiscoveredTools": "Set all discovered tools from servers",
+    "setDiscoveryError": "Set tool discovery error",
+    "setConsolidatedTools": "Set consolidated and categorized tools",
+    "setConsolidationError": "Set tool consolidation error",
+    "setFilteredTools": "Set filtered discovered tools",
+    "setFilterError": "Set tool filter error",
+    "setDiscoveredToolTestResults": "Set discovered tool test results",
+    "setDiscoveredToolTestError": "Set discovered tool test error",
+    "confirmToolsExported": "Confirm tools data exported",
+    "setToolsExportError": "Set tools export error",
+    "setSessionOverview": "Set session overview data",
+    "setSessionOverviewError": "Set session overview error",
+    "setNewSession": "Set newly created session",
+    "setNewSessionCreationError": "Set new session creation error",
+    "confirmSessionInitialized": "Confirm session initialized",
+    "setSessionInitializationError": "Set session initialization error",
+    "setSessionHealthStatus": "Set session health monitoring status",
+    "setHealthMonitoringError": "Set health monitoring error",
+    "confirmSessionReset": "Confirm session reset",
+    "setSessionResetError": "Set session reset error",
+    "confirmManagedSessionTerminated": "Confirm managed session terminated",
+    "setManagedSessionTerminationError": "Set managed session termination error",
+    "setSessionHistory": "Set session activity history",
+    "setSessionHistoryError": "Set session history error",
+    "setFilteredSessionHistory": "Set filtered session history",
+    "setHistoryFilterError": "Set history filter error",
+    "confirmSessionHistoryExported": "Confirm session history exported",
+    "setHistoryExportError": "Set history export error",
+    "confirmManagedSessionForceTerminated": "Confirm managed session force terminated",
+    "setForceManagedTerminationError": "Set force managed termination error",
+    "setCleanupResults": "Set session cleanup results",
+    "setCleanupError": "Set session cleanup error",
+    "setForceCleanupResults": "Set force cleanup results",
+    "setForceCleanupError": "Set force cleanup error",
+    "setHealthCheckScope": "Set health check scope",
+    "setHealthCheckInitiationError": "Set health check initiation error",
+    "setHealthCheckResults": "Set comprehensive health check results",
+    "setHealthCheckExecutionError": "Set health check execution error",
+    "setProcessedHealthResults": "Set processed health check results",
+    "setHealthResultsProcessingError": "Set health results processing error",
+    "setFilteredHealthStatus": "Set filtered health status",
+    "setHealthFilterError": "Set health filter error",
+    "setHealthFixResults": "Set health issue fix results",
+    "setHealthFixError": "Set health fix error",
+    "confirmHealthReportExported": "Confirm health report exported",
+    "setHealthExportError": "Set health export error",
+    "confirmHealthMonitoringScheduled": "Confirm health monitoring scheduled",
+    "setHealthSchedulingError": "Set health scheduling error"
+  }
+}

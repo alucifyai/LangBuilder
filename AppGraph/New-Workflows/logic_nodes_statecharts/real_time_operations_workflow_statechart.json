@@ -1,0 +1,2173 @@
+{
+  "id": "real_time_operations_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "activeConnections": {},
+    "messageQueues": {},
+    "eventStreams": {},
+    "backgroundJobs": {},
+    "workerPool": {},
+    "cacheStates": {},
+    "syncStates": {},
+    "performanceMetrics": {},
+    "connectionHealth": {},
+    "queueDepth": {},
+    "retryCounters": {},
+    "circuitBreakerStates": {},
+    "errors": [],
+    "alerts": [],
+    "loadBalancerState": null,
+    "scalingMetrics": null
+  },
+  "states": {
+    "idle": {
+      "description": "Real-time operations system ready",
+      "on": {
+        "START_WEBSOCKET_SERVER": "websocket_management",
+        "START_SSE_SERVER": "sse_management",
+        "MANAGE_BACKGROUND_JOBS": "background_job_processing",
+        "MANAGE_SYNC_OPERATIONS": "sync_management",
+        "MONITOR_PERFORMANCE": "performance_monitoring"
+      }
+    },
+    "websocket_management": {
+      "description": "WebSocket connection management and real-time communication",
+      "initial": "initializing_websocket_server",
+      "states": {
+        "initializing_websocket_server": {
+          "description": "Setting up WebSocket server with connection management",
+          "invoke": {
+            "src": "initializeWebSocketServer",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "setWebSocketServerReady"
+            },
+            "onError": {
+              "target": "websocket_server_error",
+              "actions": "setWebSocketServerError"
+            }
+          }
+        },
+        "websocket_server_ready": {
+          "description": "WebSocket server ready for connections",
+          "on": {
+            "NEW_CONNECTION": "handling_new_connection",
+            "MESSAGE_RECEIVED": "processing_message",
+            "CONNECTION_LOST": "handling_connection_loss",
+            "BROADCAST_MESSAGE": "broadcasting_message",
+            "MANAGE_CONNECTIONS": "managing_connections"
+          }
+        },
+        "handling_new_connection": {
+          "description": "Auto-reconnection with exponential backoff",
+          "invoke": {
+            "src": "handleNewWebSocketConnection",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "addActiveConnection"
+            },
+            "onError": {
+              "target": "connection_handling_error",
+              "actions": "setConnectionHandlingError"
+            }
+          }
+        },
+        "processing_message": {
+          "description": "Reliable message delivery with persistence",
+          "invoke": {
+            "src": "processWebSocketMessage",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "confirmMessageProcessed"
+            },
+            "onError": {
+              "target": "message_processing_error",
+              "actions": "setMessageProcessingError"
+            }
+          }
+        },
+        "handling_connection_loss": {
+          "description": "Connection recovery with state restoration",
+          "invoke": {
+            "src": "handleConnectionLoss",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "removeActiveConnection"
+            },
+            "onError": {
+              "target": "connection_loss_error",
+              "actions": "setConnectionLossError"
+            }
+          }
+        },
+        "broadcasting_message": {
+          "description": "Multi-client synchronization broadcasting",
+          "invoke": {
+            "src": "broadcastWebSocketMessage",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "confirmMessageBroadcast"
+            },
+            "onError": {
+              "target": "broadcast_error",
+              "actions": "setBroadcastError"
+            }
+          }
+        },
+        "managing_connections": {
+          "description": "Connection distribution and load balancing",
+          "invoke": {
+            "src": "manageWebSocketConnections",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "updateConnectionState"
+            },
+            "onError": {
+              "target": "connection_management_error",
+              "actions": "setConnectionManagementError"
+            }
+          }
+        },
+        "websocket_server_error": {
+          "description": "Error initializing WebSocket server",
+          "on": {
+            "RETRY": "initializing_websocket_server",
+            "USE_FALLBACK": "fallback_websocket_setup",
+            "CANCEL": "#real_time_operations_workflow.idle"
+          }
+        },
+        "connection_handling_error": {
+          "description": "Error handling new connection",
+          "on": {
+            "RETRY": "handling_new_connection",
+            "REJECT_CONNECTION": "websocket_server_ready"
+          }
+        },
+        "message_processing_error": {
+          "description": "Error processing WebSocket message",
+          "on": {
+            "RETRY": "processing_message",
+            "QUEUE_FOR_RETRY": "queueing_failed_message",
+            "DROP_MESSAGE": "websocket_server_ready"
+          }
+        },
+        "connection_loss_error": {
+          "description": "Error handling connection loss",
+          "on": {
+            "FORCE_CLEANUP": "force_connection_cleanup",
+            "IGNORE": "websocket_server_ready"
+          }
+        },
+        "broadcast_error": {
+          "description": "Error broadcasting message",
+          "on": {
+            "RETRY": "broadcasting_message",
+            "PARTIAL_BROADCAST": "partial_broadcast_handling",
+            "SKIP": "websocket_server_ready"
+          }
+        },
+        "connection_management_error": {
+          "description": "Error managing connections",
+          "on": {
+            "RETRY": "managing_connections",
+            "MANUAL_INTERVENTION": "manual_connection_management",
+            "CONTINUE": "websocket_server_ready"
+          }
+        },
+        "fallback_websocket_setup": {
+          "description": "Fallback WebSocket setup with reduced features",
+          "invoke": {
+            "src": "setupFallbackWebSocket",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "setFallbackWebSocketReady"
+            },
+            "onError": {
+              "target": "fallback_setup_error",
+              "actions": "setFallbackSetupError"
+            }
+          }
+        },
+        "queueing_failed_message": {
+          "description": "Queueing failed message for retry",
+          "invoke": {
+            "src": "queueFailedMessage",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "confirmMessageQueued"
+            },
+            "onError": {
+              "target": "message_queue_error",
+              "actions": "setMessageQueueError"
+            }
+          }
+        },
+        "partial_broadcast_handling": {
+          "description": "Handling partial broadcast success",
+          "invoke": {
+            "src": "handlePartialBroadcast",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "setPartialBroadcastResults"
+            },
+            "onError": {
+              "target": "partial_broadcast_error",
+              "actions": "setPartialBroadcastError"
+            }
+          }
+        },
+        "force_connection_cleanup": {
+          "description": "Force cleanup of problematic connections",
+          "invoke": {
+            "src": "forceConnectionCleanup",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "confirmConnectionCleanup"
+            },
+            "onError": {
+              "target": "force_cleanup_error",
+              "actions": "setForceCleanupError"
+            }
+          }
+        },
+        "manual_connection_management": {
+          "description": "Manual connection management interface",
+          "on": {
+            "MANAGEMENT_COMPLETE": "websocket_server_ready",
+            "CANCEL": "websocket_server_ready"
+          }
+        },
+        "fallback_setup_error": {
+          "description": "Fallback setup also failed",
+          "on": {
+            "TRY_MINIMAL": "minimal_websocket_setup",
+            "DISABLE_WEBSOCKET": "#real_time_operations_workflow.idle"
+          }
+        },
+        "message_queue_error": {
+          "description": "Error queueing message",
+          "on": {
+            "RETRY": "queueing_failed_message",
+            "DROP_MESSAGE": "websocket_server_ready"
+          }
+        },
+        "partial_broadcast_error": {
+          "description": "Error handling partial broadcast",
+          "on": {
+            "CONTINUE": "websocket_server_ready",
+            "RETRY_FAILED": "broadcasting_message"
+          }
+        },
+        "force_cleanup_error": {
+          "description": "Error during force cleanup",
+          "on": {
+            "CONTINUE_DIRTY": "websocket_server_ready",
+            "RESTART_SERVER": "initializing_websocket_server"
+          }
+        },
+        "minimal_websocket_setup": {
+          "description": "Minimal WebSocket setup as last resort",
+          "invoke": {
+            "src": "setupMinimalWebSocket",
+            "onDone": {
+              "target": "websocket_server_ready",
+              "actions": "setMinimalWebSocketReady"
+            },
+            "onError": {
+              "target": "minimal_setup_error",
+              "actions": "setMinimalSetupError"
+            }
+          }
+        },
+        "minimal_setup_error": {
+          "description": "Minimal setup failed",
+          "on": {
+            "DISABLE_WEBSOCKET": "#real_time_operations_workflow.idle",
+            "REPORT_FAILURE": "reporting_websocket_failure"
+          }
+        },
+        "reporting_websocket_failure": {
+          "description": "Reporting WebSocket system failure",
+          "invoke": {
+            "src": "reportWebSocketFailure",
+            "onDone": {
+              "target": "#real_time_operations_workflow.idle",
+              "actions": "confirmFailureReported"
+            },
+            "onError": {
+              "target": "failure_report_error",
+              "actions": "setFailureReportError"
+            }
+          }
+        },
+        "failure_report_error": {
+          "description": "Error reporting failure",
+          "on": {
+            "CONTINUE": "#real_time_operations_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "SHUTDOWN": "shutting_down_websocket",
+        "SWITCH_TO_SSE": "sse_management"
+      }
+    },
+    "sse_management": {
+      "description": "Server-Sent Events management for real-time updates",
+      "initial": "initializing_sse_server",
+      "states": {
+        "initializing_sse_server": {
+          "description": "Setting up SSE server with event streaming",
+          "invoke": {
+            "src": "initializeSSEServer",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "setSSEServerReady"
+            },
+            "onError": {
+              "target": "sse_server_error",
+              "actions": "setSSEServerError"
+            }
+          }
+        },
+        "sse_server_ready": {
+          "description": "SSE server ready for event streaming",
+          "on": {
+            "NEW_SSE_CLIENT": "handling_new_sse_client",
+            "SEND_EVENT": "sending_sse_event",
+            "CLIENT_DISCONNECTED": "handling_sse_disconnect",
+            "MANAGE_EVENT_STREAMS": "managing_event_streams"
+          }
+        },
+        "handling_new_sse_client": {
+          "description": "Long-polling support for restricted environments",
+          "invoke": {
+            "src": "handleNewSSEClient",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "addSSEClient"
+            },
+            "onError": {
+              "target": "sse_client_error",
+              "actions": "setSSEClientError"
+            }
+          }
+        },
+        "sending_sse_event": {
+          "description": "Client-specific event subscription and filtering",
+          "invoke": {
+            "src": "sendSSEEvent",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "confirmEventSent"
+            },
+            "onError": {
+              "target": "sse_event_error",
+              "actions": "setSSEEventError"
+            }
+          }
+        },
+        "handling_sse_disconnect": {
+          "description": "Automatic reconnection with state recovery",
+          "invoke": {
+            "src": "handleSSEDisconnect",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "removeSSEClient"
+            },
+            "onError": {
+              "target": "sse_disconnect_error",
+              "actions": "setSSEDisconnectError"
+            }
+          }
+        },
+        "managing_event_streams": {
+          "description": "Event compression and batching for bandwidth optimization",
+          "invoke": {
+            "src": "manageEventStreams",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "updateEventStreamState"
+            },
+            "onError": {
+              "target": "event_stream_error",
+              "actions": "setEventStreamError"
+            }
+          }
+        },
+        "sse_server_error": {
+          "description": "Error initializing SSE server",
+          "on": {
+            "RETRY": "initializing_sse_server",
+            "USE_POLLING_FALLBACK": "polling_fallback_setup",
+            "CANCEL": "#real_time_operations_workflow.idle"
+          }
+        },
+        "sse_client_error": {
+          "description": "Error handling new SSE client",
+          "on": {
+            "RETRY": "handling_new_sse_client",
+            "REJECT_CLIENT": "sse_server_ready"
+          }
+        },
+        "sse_event_error": {
+          "description": "Error sending SSE event",
+          "on": {
+            "RETRY": "sending_sse_event",
+            "QUEUE_EVENT": "queueing_sse_event",
+            "DROP_EVENT": "sse_server_ready"
+          }
+        },
+        "sse_disconnect_error": {
+          "description": "Error handling SSE disconnect",
+          "on": {
+            "FORCE_CLEANUP": "force_sse_cleanup",
+            "IGNORE": "sse_server_ready"
+          }
+        },
+        "event_stream_error": {
+          "description": "Error managing event streams",
+          "on": {
+            "RETRY": "managing_event_streams",
+            "RESET_STREAMS": "resetting_event_streams",
+            "CONTINUE": "sse_server_ready"
+          }
+        },
+        "polling_fallback_setup": {
+          "description": "Setting up polling fallback for SSE",
+          "invoke": {
+            "src": "setupPollingFallback",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "setPollingFallbackReady"
+            },
+            "onError": {
+              "target": "polling_fallback_error",
+              "actions": "setPollingFallbackError"
+            }
+          }
+        },
+        "queueing_sse_event": {
+          "description": "Queueing SSE event for retry",
+          "invoke": {
+            "src": "queueSSEEvent",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "confirmSSEEventQueued"
+            },
+            "onError": {
+              "target": "sse_queue_error",
+              "actions": "setSSEQueueError"
+            }
+          }
+        },
+        "force_sse_cleanup": {
+          "description": "Force cleanup of SSE connections",
+          "invoke": {
+            "src": "forceSSECleanup",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "confirmSSECleanup"
+            },
+            "onError": {
+              "target": "force_sse_cleanup_error",
+              "actions": "setForceSSECleanupError"
+            }
+          }
+        },
+        "resetting_event_streams": {
+          "description": "Resetting event streams to recover from errors",
+          "invoke": {
+            "src": "resetEventStreams",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "confirmEventStreamsReset"
+            },
+            "onError": {
+              "target": "event_stream_reset_error",
+              "actions": "setEventStreamResetError"
+            }
+          }
+        },
+        "polling_fallback_error": {
+          "description": "Polling fallback setup failed",
+          "on": {
+            "DISABLE_SSE": "#real_time_operations_workflow.idle",
+            "TRY_MINIMAL": "minimal_sse_setup"
+          }
+        },
+        "sse_queue_error": {
+          "description": "Error queueing SSE event",
+          "on": {
+            "RETRY": "queueing_sse_event",
+            "DROP_EVENT": "sse_server_ready"
+          }
+        },
+        "force_sse_cleanup_error": {
+          "description": "Error during force SSE cleanup",
+          "on": {
+            "CONTINUE": "sse_server_ready",
+            "RESTART_SSE": "initializing_sse_server"
+          }
+        },
+        "event_stream_reset_error": {
+          "description": "Error resetting event streams",
+          "on": {
+            "CONTINUE_DEGRADED": "sse_server_ready",
+            "RESTART_SSE": "initializing_sse_server"
+          }
+        },
+        "minimal_sse_setup": {
+          "description": "Minimal SSE setup as fallback",
+          "invoke": {
+            "src": "setupMinimalSSE",
+            "onDone": {
+              "target": "sse_server_ready",
+              "actions": "setMinimalSSEReady"
+            },
+            "onError": {
+              "target": "minimal_sse_error",
+              "actions": "setMinimalSSEError"
+            }
+          }
+        },
+        "minimal_sse_error": {
+          "description": "Minimal SSE setup failed",
+          "on": {
+            "DISABLE_SSE": "#real_time_operations_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "SHUTDOWN": "shutting_down_sse",
+        "SWITCH_TO_WEBSOCKET": "websocket_management"
+      }
+    },
+    "background_job_processing": {
+      "description": "Background job queue management and processing",
+      "initial": "initializing_job_system",
+      "states": {
+        "initializing_job_system": {
+          "description": "Setting up job queue management system",
+          "invoke": {
+            "src": "initializeJobSystem",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "setJobSystemReady"
+            },
+            "onError": {
+              "target": "job_system_error",
+              "actions": "setJobSystemError"
+            }
+          }
+        },
+        "job_system_ready": {
+          "description": "Job system ready for task processing",
+          "on": {
+            "SCHEDULE_JOB": "scheduling_job",
+            "PROCESS_QUEUE": "processing_job_queue",
+            "MANAGE_WORKERS": "managing_workers",
+            "MONITOR_JOBS": "monitoring_jobs",
+            "HANDLE_FAILED_JOB": "handling_failed_job"
+          }
+        },
+        "scheduling_job": {
+          "description": "Job scheduling for immediate and delayed execution",
+          "invoke": {
+            "src": "scheduleJob",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmJobScheduled"
+            },
+            "onError": {
+              "target": "job_scheduling_error",
+              "actions": "setJobSchedulingError"
+            }
+          }
+        },
+        "processing_job_queue": {
+          "description": "Priority queues with task prioritization and resource allocation",
+          "invoke": {
+            "src": "processJobQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "updateQueueStatus"
+            },
+            "onError": {
+              "target": "queue_processing_error",
+              "actions": "setQueueProcessingError"
+            }
+          }
+        },
+        "managing_workers": {
+          "description": "Dynamic worker allocation and health monitoring",
+          "invoke": {
+            "src": "manageWorkers",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "updateWorkerStatus"
+            },
+            "onError": {
+              "target": "worker_management_error",
+              "actions": "setWorkerManagementError"
+            }
+          }
+        },
+        "monitoring_jobs": {
+          "description": "Job monitoring with retry mechanisms and exponential backoff",
+          "invoke": {
+            "src": "monitorJobs",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "updateJobMonitoringStatus"
+            },
+            "onError": {
+              "target": "job_monitoring_error",
+              "actions": "setJobMonitoringError"
+            }
+          }
+        },
+        "handling_failed_job": {
+          "description": "Dead letter queues with failed job handling and manual intervention",
+          "invoke": {
+            "src": "handleFailedJob",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmFailedJobHandled"
+            },
+            "onError": {
+              "target": "failed_job_handling_error",
+              "actions": "setFailedJobHandlingError"
+            }
+          }
+        },
+        "job_system_error": {
+          "description": "Error initializing job system",
+          "on": {
+            "RETRY": "initializing_job_system",
+            "USE_SIMPLE_QUEUE": "simple_queue_setup",
+            "DISABLE_JOBS": "#real_time_operations_workflow.idle"
+          }
+        },
+        "job_scheduling_error": {
+          "description": "Error scheduling job",
+          "on": {
+            "RETRY": "scheduling_job",
+            "QUEUE_FOR_LATER": "queueing_job_for_later",
+            "DROP_JOB": "job_system_ready"
+          }
+        },
+        "queue_processing_error": {
+          "description": "Error processing job queue",
+          "on": {
+            "RETRY": "processing_job_queue",
+            "PROCESS_PARTIAL": "processing_partial_queue",
+            "PAUSE_PROCESSING": "pausing_queue_processing"
+          }
+        },
+        "worker_management_error": {
+          "description": "Error managing workers",
+          "on": {
+            "RETRY": "managing_workers",
+            "RESET_WORKERS": "resetting_workers",
+            "MANUAL_WORKER_MANAGEMENT": "manual_worker_management"
+          }
+        },
+        "job_monitoring_error": {
+          "description": "Error monitoring jobs",
+          "on": {
+            "RETRY": "monitoring_jobs",
+            "DISABLE_MONITORING": "job_system_ready",
+            "RESET_MONITORING": "resetting_job_monitoring"
+          }
+        },
+        "failed_job_handling_error": {
+          "description": "Error handling failed job",
+          "on": {
+            "RETRY": "handling_failed_job",
+            "MOVE_TO_DLQ": "moving_to_dead_letter_queue",
+            "ABANDON_JOB": "job_system_ready"
+          }
+        },
+        "simple_queue_setup": {
+          "description": "Setting up simple queue as fallback",
+          "invoke": {
+            "src": "setupSimpleQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "setSimpleQueueReady"
+            },
+            "onError": {
+              "target": "simple_queue_error",
+              "actions": "setSimpleQueueError"
+            }
+          }
+        },
+        "queueing_job_for_later": {
+          "description": "Queueing job for later processing",
+          "invoke": {
+            "src": "queueJobForLater",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmJobQueuedForLater"
+            },
+            "onError": {
+              "target": "later_queue_error",
+              "actions": "setLaterQueueError"
+            }
+          }
+        },
+        "processing_partial_queue": {
+          "description": "Processing partial queue to recover from errors",
+          "invoke": {
+            "src": "processPartialQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "setPartialQueueResults"
+            },
+            "onError": {
+              "target": "partial_queue_error",
+              "actions": "setPartialQueueError"
+            }
+          }
+        },
+        "pausing_queue_processing": {
+          "description": "Pausing queue processing due to errors",
+          "invoke": {
+            "src": "pauseQueueProcessing",
+            "onDone": {
+              "target": "queue_paused",
+              "actions": "confirmQueuePaused"
+            },
+            "onError": {
+              "target": "pause_error",
+              "actions": "setPauseError"
+            }
+          }
+        },
+        "queue_paused": {
+          "description": "Queue processing is paused",
+          "on": {
+            "RESUME_PROCESSING": "resuming_queue_processing",
+            "DRAIN_QUEUE": "draining_queue",
+            "RESET_QUEUE": "resetting_queue"
+          }
+        },
+        "resuming_queue_processing": {
+          "description": "Resuming paused queue processing",
+          "invoke": {
+            "src": "resumeQueueProcessing",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmQueueResumed"
+            },
+            "onError": {
+              "target": "resume_error",
+              "actions": "setResumeError"
+            }
+          }
+        },
+        "resetting_workers": {
+          "description": "Resetting worker pool",
+          "invoke": {
+            "src": "resetWorkers",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmWorkersReset"
+            },
+            "onError": {
+              "target": "worker_reset_error",
+              "actions": "setWorkerResetError"
+            }
+          }
+        },
+        "manual_worker_management": {
+          "description": "Manual worker management interface",
+          "on": {
+            "MANAGEMENT_COMPLETE": "job_system_ready",
+            "RESET_WORKERS": "resetting_workers"
+          }
+        },
+        "resetting_job_monitoring": {
+          "description": "Resetting job monitoring system",
+          "invoke": {
+            "src": "resetJobMonitoring",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmMonitoringReset"
+            },
+            "onError": {
+              "target": "monitoring_reset_error",
+              "actions": "setMonitoringResetError"
+            }
+          }
+        },
+        "moving_to_dead_letter_queue": {
+          "description": "Moving failed job to dead letter queue",
+          "invoke": {
+            "src": "moveToDeadLetterQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmJobMovedToDLQ"
+            },
+            "onError": {
+              "target": "dlq_move_error",
+              "actions": "setDLQMoveError"
+            }
+          }
+        },
+        "simple_queue_error": {
+          "description": "Simple queue setup failed",
+          "on": {
+            "DISABLE_JOBS": "#real_time_operations_workflow.idle",
+            "TRY_IN_MEMORY": "in_memory_queue_setup"
+          }
+        },
+        "later_queue_error": {
+          "description": "Error queueing job for later",
+          "on": {
+            "RETRY": "queueing_job_for_later",
+            "DROP_JOB": "job_system_ready"
+          }
+        },
+        "partial_queue_error": {
+          "description": "Error processing partial queue",
+          "on": {
+            "CONTINUE": "job_system_ready",
+            "PAUSE_PROCESSING": "pausing_queue_processing"
+          }
+        },
+        "pause_error": {
+          "description": "Error pausing queue",
+          "on": {
+            "FORCE_PAUSE": "force_pausing_queue",
+            "CONTINUE_PROCESSING": "job_system_ready"
+          }
+        },
+        "resume_error": {
+          "description": "Error resuming queue",
+          "on": {
+            "RETRY": "resuming_queue_processing",
+            "RESET_QUEUE": "resetting_queue"
+          }
+        },
+        "worker_reset_error": {
+          "description": "Error resetting workers",
+          "on": {
+            "RETRY": "resetting_workers",
+            "CONTINUE_DEGRADED": "job_system_ready"
+          }
+        },
+        "monitoring_reset_error": {
+          "description": "Error resetting monitoring",
+          "on": {
+            "RETRY": "resetting_job_monitoring",
+            "DISABLE_MONITORING": "job_system_ready"
+          }
+        },
+        "dlq_move_error": {
+          "description": "Error moving to dead letter queue",
+          "on": {
+            "RETRY": "moving_to_dead_letter_queue",
+            "ABANDON_JOB": "job_system_ready"
+          }
+        },
+        "in_memory_queue_setup": {
+          "description": "Setting up in-memory queue as last resort",
+          "invoke": {
+            "src": "setupInMemoryQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "setInMemoryQueueReady"
+            },
+            "onError": {
+              "target": "in_memory_queue_error",
+              "actions": "setInMemoryQueueError"
+            }
+          }
+        },
+        "force_pausing_queue": {
+          "description": "Force pausing queue processing",
+          "invoke": {
+            "src": "forcePauseQueue",
+            "onDone": {
+              "target": "queue_paused",
+              "actions": "confirmQueueForcePaused"
+            },
+            "onError": {
+              "target": "force_pause_error",
+              "actions": "setForcePauseError"
+            }
+          }
+        },
+        "resetting_queue": {
+          "description": "Resetting entire queue system",
+          "invoke": {
+            "src": "resetQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmQueueReset"
+            },
+            "onError": {
+              "target": "queue_reset_error",
+              "actions": "setQueueResetError"
+            }
+          }
+        },
+        "draining_queue": {
+          "description": "Draining queue of all pending jobs",
+          "invoke": {
+            "src": "drainQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmQueueDrained"
+            },
+            "onError": {
+              "target": "queue_drain_error",
+              "actions": "setQueueDrainError"
+            }
+          }
+        },
+        "in_memory_queue_error": {
+          "description": "In-memory queue setup failed",
+          "on": {
+            "DISABLE_JOBS": "#real_time_operations_workflow.idle"
+          }
+        },
+        "force_pause_error": {
+          "description": "Error force pausing queue",
+          "on": {
+            "CONTINUE_PROCESSING": "job_system_ready"
+          }
+        },
+        "queue_reset_error": {
+          "description": "Error resetting queue",
+          "on": {
+            "CONTINUE_DEGRADED": "job_system_ready",
+            "REINITIALIZE": "initializing_job_system"
+          }
+        },
+        "queue_drain_error": {
+          "description": "Error draining queue",
+          "on": {
+            "CONTINUE": "job_system_ready",
+            "FORCE_DRAIN": "force_draining_queue"
+          }
+        },
+        "force_draining_queue": {
+          "description": "Force draining queue",
+          "invoke": {
+            "src": "forceDrainQueue",
+            "onDone": {
+              "target": "job_system_ready",
+              "actions": "confirmQueueForceDrained"
+            },
+            "onError": {
+              "target": "force_drain_error",
+              "actions": "setForceDrainError"
+            }
+          }
+        },
+        "force_drain_error": {
+          "description": "Error force draining queue",
+          "on": {
+            "CONTINUE": "job_system_ready"
+          }
+        }
+      },
+      "on": {
+        "SHUTDOWN": "shutting_down_jobs"
+      }
+    },
+    "sync_management": {
+      "description": "Real-time data synchronization and live updates",
+      "initial": "initializing_sync_system",
+      "states": {
+        "initializing_sync_system": {
+          "description": "Setting up live data synchronization system",
+          "invoke": {
+            "src": "initializeSyncSystem",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "setSyncSystemReady"
+            },
+            "onError": {
+              "target": "sync_system_error",
+              "actions": "setSyncSystemError"
+            }
+          }
+        },
+        "sync_system_ready": {
+          "description": "Sync system ready for live data updates",
+          "on": {
+            "START_SYNC": "syncing_data",
+            "HANDLE_CONFLICT": "resolving_conflict",
+            "DETECT_CHANGES": "detecting_changes",
+            "MANAGE_CACHE": "managing_cache",
+            "OPTIMIZE_PERFORMANCE": "optimizing_performance"
+          }
+        },
+        "syncing_data": {
+          "description": "Live data synchronization with change detection",
+          "invoke": {
+            "src": "syncData",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmDataSynced"
+            },
+            "onError": {
+              "target": "sync_error",
+              "actions": "setSyncError"
+            }
+          }
+        },
+        "resolving_conflict": {
+          "description": "Multi-user concurrent editing conflict resolution",
+          "invoke": {
+            "src": "resolveConflict",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmConflictResolved"
+            },
+            "onError": {
+              "target": "conflict_resolution_error",
+              "actions": "setConflictResolutionError"
+            }
+          }
+        },
+        "detecting_changes": {
+          "description": "Database change streams and notifications",
+          "invoke": {
+            "src": "detectChanges",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "setDetectedChanges"
+            },
+            "onError": {
+              "target": "change_detection_error",
+              "actions": "setChangeDetectionError"
+            }
+          }
+        },
+        "managing_cache": {
+          "description": "Multi-level caching with invalidation",
+          "invoke": {
+            "src": "manageCache",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "updateCacheStatus"
+            },
+            "onError": {
+              "target": "cache_management_error",
+              "actions": "setCacheManagementError"
+            }
+          }
+        },
+        "optimizing_performance": {
+          "description": "Client-server state consistency and partial updates",
+          "invoke": {
+            "src": "optimizePerformance",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "setPerformanceOptimizations"
+            },
+            "onError": {
+              "target": "performance_optimization_error",
+              "actions": "setPerformanceOptimizationError"
+            }
+          }
+        },
+        "sync_system_error": {
+          "description": "Error initializing sync system",
+          "on": {
+            "RETRY": "initializing_sync_system",
+            "USE_POLLING_SYNC": "polling_sync_setup",
+            "DISABLE_SYNC": "#real_time_operations_workflow.idle"
+          }
+        },
+        "sync_error": {
+          "description": "Error during data synchronization",
+          "on": {
+            "RETRY": "syncing_data",
+            "FORCE_SYNC": "force_syncing_data",
+            "RESOLVE_MANUALLY": "manual_sync_resolution"
+          }
+        },
+        "conflict_resolution_error": {
+          "description": "Error resolving conflict",
+          "on": {
+            "RETRY": "resolving_conflict",
+            "USE_LAST_WRITE_WINS": "last_write_wins_resolution",
+            "REQUEST_MANUAL_RESOLUTION": "requesting_manual_resolution"
+          }
+        },
+        "change_detection_error": {
+          "description": "Error detecting changes",
+          "on": {
+            "RETRY": "detecting_changes",
+            "USE_POLLING": "polling_change_detection",
+            "DISABLE_CHANGE_DETECTION": "sync_system_ready"
+          }
+        },
+        "cache_management_error": {
+          "description": "Error managing cache",
+          "on": {
+            "RETRY": "managing_cache",
+            "CLEAR_CACHE": "clearing_cache",
+            "DISABLE_CACHING": "sync_system_ready"
+          }
+        },
+        "performance_optimization_error": {
+          "description": "Error optimizing performance",
+          "on": {
+            "RETRY": "optimizing_performance",
+            "USE_BASIC_SYNC": "basic_sync_mode",
+            "CONTINUE": "sync_system_ready"
+          }
+        },
+        "polling_sync_setup": {
+          "description": "Setting up polling-based sync as fallback",
+          "invoke": {
+            "src": "setupPollingSync",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "setPollingSyncReady"
+            },
+            "onError": {
+              "target": "polling_sync_error",
+              "actions": "setPollingSyncError"
+            }
+          }
+        },
+        "force_syncing_data": {
+          "description": "Force data synchronization",
+          "invoke": {
+            "src": "forceSyncData",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmForceSynced"
+            },
+            "onError": {
+              "target": "force_sync_error",
+              "actions": "setForceSyncError"
+            }
+          }
+        },
+        "manual_sync_resolution": {
+          "description": "Manual sync conflict resolution interface",
+          "on": {
+            "RESOLUTION_COMPLETE": "sync_system_ready",
+            "AUTO_RESOLVE": "resolving_conflict"
+          }
+        },
+        "last_write_wins_resolution": {
+          "description": "Using last write wins for conflict resolution",
+          "invoke": {
+            "src": "lastWriteWinsResolution",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmLastWriteWins"
+            },
+            "onError": {
+              "target": "last_write_wins_error",
+              "actions": "setLastWriteWinsError"
+            }
+          }
+        },
+        "requesting_manual_resolution": {
+          "description": "Requesting manual conflict resolution",
+          "invoke": {
+            "src": "requestManualResolution",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmManualResolutionRequested"
+            },
+            "onError": {
+              "target": "manual_resolution_request_error",
+              "actions": "setManualResolutionRequestError"
+            }
+          }
+        },
+        "polling_change_detection": {
+          "description": "Using polling for change detection",
+          "invoke": {
+            "src": "pollingChangeDetection",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "setPollingChangeDetection"
+            },
+            "onError": {
+              "target": "polling_detection_error",
+              "actions": "setPollingDetectionError"
+            }
+          }
+        },
+        "clearing_cache": {
+          "description": "Clearing cache to resolve management issues",
+          "invoke": {
+            "src": "clearCache",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmCacheCleared"
+            },
+            "onError": {
+              "target": "cache_clear_error",
+              "actions": "setCacheClearError"
+            }
+          }
+        },
+        "basic_sync_mode": {
+          "description": "Using basic sync mode without optimizations",
+          "invoke": {
+            "src": "basicSyncMode",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "setBasicSyncMode"
+            },
+            "onError": {
+              "target": "basic_sync_error",
+              "actions": "setBasicSyncError"
+            }
+          }
+        },
+        "polling_sync_error": {
+          "description": "Polling sync setup failed",
+          "on": {
+            "DISABLE_SYNC": "#real_time_operations_workflow.idle",
+            "TRY_MANUAL_SYNC": "manual_sync_mode"
+          }
+        },
+        "force_sync_error": {
+          "description": "Force sync failed",
+          "on": {
+            "RETRY": "force_syncing_data",
+            "MANUAL_RESOLUTION": "manual_sync_resolution"
+          }
+        },
+        "last_write_wins_error": {
+          "description": "Last write wins resolution failed",
+          "on": {
+            "RETRY": "last_write_wins_resolution",
+            "MANUAL_RESOLUTION": "requesting_manual_resolution"
+          }
+        },
+        "manual_resolution_request_error": {
+          "description": "Error requesting manual resolution",
+          "on": {
+            "RETRY": "requesting_manual_resolution",
+            "CONTINUE": "sync_system_ready"
+          }
+        },
+        "polling_detection_error": {
+          "description": "Polling detection failed",
+          "on": {
+            "RETRY": "polling_change_detection",
+            "DISABLE_CHANGE_DETECTION": "sync_system_ready"
+          }
+        },
+        "cache_clear_error": {
+          "description": "Error clearing cache",
+          "on": {
+            "FORCE_CLEAR": "force_clearing_cache",
+            "CONTINUE": "sync_system_ready"
+          }
+        },
+        "basic_sync_error": {
+          "description": "Basic sync mode failed",
+          "on": {
+            "DISABLE_SYNC": "#real_time_operations_workflow.idle"
+          }
+        },
+        "manual_sync_mode": {
+          "description": "Manual sync mode as last resort",
+          "on": {
+            "SYNC_MANUALLY": "manual_data_sync",
+            "DISABLE_SYNC": "#real_time_operations_workflow.idle"
+          }
+        },
+        "manual_data_sync": {
+          "description": "Manual data synchronization",
+          "invoke": {
+            "src": "manualDataSync",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmManualSync"
+            },
+            "onError": {
+              "target": "manual_sync_error",
+              "actions": "setManualSyncError"
+            }
+          }
+        },
+        "force_clearing_cache": {
+          "description": "Force clearing cache",
+          "invoke": {
+            "src": "forceClearCache",
+            "onDone": {
+              "target": "sync_system_ready",
+              "actions": "confirmCacheForceCleared"
+            },
+            "onError": {
+              "target": "force_cache_clear_error",
+              "actions": "setForceCacheClearError"
+            }
+          }
+        },
+        "manual_sync_error": {
+          "description": "Manual sync failed",
+          "on": {
+            "RETRY": "manual_data_sync",
+            "DISABLE_SYNC": "#real_time_operations_workflow.idle"
+          }
+        },
+        "force_cache_clear_error": {
+          "description": "Force cache clear failed",
+          "on": {
+            "CONTINUE": "sync_system_ready"
+          }
+        }
+      },
+      "on": {
+        "SHUTDOWN": "shutting_down_sync"
+      }
+    },
+    "performance_monitoring": {
+      "description": "Real-time performance monitoring and alerting",
+      "initial": "initializing_monitoring",
+      "states": {
+        "initializing_monitoring": {
+          "description": "Setting up performance monitoring system",
+          "invoke": {
+            "src": "initializeMonitoring",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "setMonitoringReady"
+            },
+            "onError": {
+              "target": "monitoring_init_error",
+              "actions": "setMonitoringInitError"
+            }
+          }
+        },
+        "monitoring_ready": {
+          "description": "Performance monitoring system ready",
+          "on": {
+            "COLLECT_METRICS": "collecting_metrics",
+            "CHECK_THRESHOLDS": "checking_thresholds",
+            "GENERATE_ALERTS": "generating_alerts",
+            "VIEW_DASHBOARD": "viewing_dashboard",
+            "CAPACITY_PLANNING": "capacity_planning"
+          }
+        },
+        "collecting_metrics": {
+          "description": "Queue depth, throughput, and latency monitoring",
+          "invoke": {
+            "src": "collectMetrics",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "updateMetrics"
+            },
+            "onError": {
+              "target": "metrics_collection_error",
+              "actions": "setMetricsCollectionError"
+            }
+          }
+        },
+        "checking_thresholds": {
+          "description": "Threshold-based alerting system",
+          "invoke": {
+            "src": "checkThresholds",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "setThresholdResults"
+            },
+            "onError": {
+              "target": "threshold_check_error",
+              "actions": "setThresholdCheckError"
+            }
+          }
+        },
+        "generating_alerts": {
+          "description": "Performance alerts with intelligent noise reduction",
+          "invoke": {
+            "src": "generateAlerts",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "setGeneratedAlerts"
+            },
+            "onError": {
+              "target": "alert_generation_error",
+              "actions": "setAlertGenerationError"
+            }
+          }
+        },
+        "viewing_dashboard": {
+          "description": "Real-time system status visualization",
+          "invoke": {
+            "src": "loadDashboard",
+            "onDone": {
+              "target": "displaying_dashboard",
+              "actions": "setDashboardData"
+            },
+            "onError": {
+              "target": "dashboard_load_error",
+              "actions": "setDashboardLoadError"
+            }
+          }
+        },
+        "displaying_dashboard": {
+          "description": "Showing performance dashboard with real-time updates",
+          "on": {
+            "REFRESH_DASHBOARD": "viewing_dashboard",
+            "DRILL_DOWN": "drilling_down_metrics",
+            "EXPORT_REPORT": "exporting_report",
+            "BACK": "monitoring_ready"
+          }
+        },
+        "drilling_down_metrics": {
+          "description": "Detailed metric analysis and drill-down",
+          "invoke": {
+            "src": "drillDownMetrics",
+            "onDone": {
+              "target": "displaying_dashboard",
+              "actions": "setDrillDownResults"
+            },
+            "onError": {
+              "target": "drill_down_error",
+              "actions": "setDrillDownError"
+            }
+          }
+        },
+        "exporting_report": {
+          "description": "Exporting performance report",
+          "invoke": {
+            "src": "exportReport",
+            "onDone": {
+              "target": "displaying_dashboard",
+              "actions": "confirmReportExported"
+            },
+            "onError": {
+              "target": "report_export_error",
+              "actions": "setReportExportError"
+            }
+          }
+        },
+        "capacity_planning": {
+          "description": "Resource usage prediction and scaling recommendations",
+          "invoke": {
+            "src": "performCapacityPlanning",
+            "onDone": {
+              "target": "displaying_capacity_plan",
+              "actions": "setCapacityPlan"
+            },
+            "onError": {
+              "target": "capacity_planning_error",
+              "actions": "setCapacityPlanningError"
+            }
+          }
+        },
+        "displaying_capacity_plan": {
+          "description": "Showing capacity planning results and recommendations",
+          "on": {
+            "APPLY_RECOMMENDATIONS": "applying_capacity_recommendations",
+            "SCHEDULE_SCALING": "scheduling_scaling",
+            "EXPORT_PLAN": "exporting_capacity_plan",
+            "BACK": "monitoring_ready"
+          }
+        },
+        "applying_capacity_recommendations": {
+          "description": "Applying capacity planning recommendations",
+          "invoke": {
+            "src": "applyCapacityRecommendations",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "confirmRecommendationsApplied"
+            },
+            "onError": {
+              "target": "recommendations_apply_error",
+              "actions": "setRecommendationsApplyError"
+            }
+          }
+        },
+        "scheduling_scaling": {
+          "description": "Scheduling automatic scaling based on predictions",
+          "invoke": {
+            "src": "scheduleScaling",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "confirmScalingScheduled"
+            },
+            "onError": {
+              "target": "scaling_schedule_error",
+              "actions": "setScalingScheduleError"
+            }
+          }
+        },
+        "exporting_capacity_plan": {
+          "description": "Exporting capacity planning report",
+          "invoke": {
+            "src": "exportCapacityPlan",
+            "onDone": {
+              "target": "displaying_capacity_plan",
+              "actions": "confirmCapacityPlanExported"
+            },
+            "onError": {
+              "target": "capacity_plan_export_error",
+              "actions": "setCapacityPlanExportError"
+            }
+          }
+        },
+        "monitoring_init_error": {
+          "description": "Error initializing monitoring",
+          "on": {
+            "RETRY": "initializing_monitoring",
+            "USE_BASIC_MONITORING": "basic_monitoring_setup",
+            "DISABLE_MONITORING": "#real_time_operations_workflow.idle"
+          }
+        },
+        "metrics_collection_error": {
+          "description": "Error collecting metrics",
+          "on": {
+            "RETRY": "collecting_metrics",
+            "USE_CACHED_METRICS": "using_cached_metrics",
+            "CONTINUE": "monitoring_ready"
+          }
+        },
+        "threshold_check_error": {
+          "description": "Error checking thresholds",
+          "on": {
+            "RETRY": "checking_thresholds",
+            "RESET_THRESHOLDS": "resetting_thresholds",
+            "CONTINUE": "monitoring_ready"
+          }
+        },
+        "alert_generation_error": {
+          "description": "Error generating alerts",
+          "on": {
+            "RETRY": "generating_alerts",
+            "DISABLE_ALERTS": "monitoring_ready",
+            "MANUAL_ALERT": "manual_alert_creation"
+          }
+        },
+        "dashboard_load_error": {
+          "description": "Error loading dashboard",
+          "on": {
+            "RETRY": "viewing_dashboard",
+            "USE_CACHED_DATA": "cached_dashboard_display",
+            "BACK": "monitoring_ready"
+          }
+        },
+        "drill_down_error": {
+          "description": "Error drilling down metrics",
+          "on": {
+            "RETRY": "drilling_down_metrics",
+            "BACK": "displaying_dashboard"
+          }
+        },
+        "report_export_error": {
+          "description": "Error exporting report",
+          "on": {
+            "RETRY": "exporting_report",
+            "SKIP": "displaying_dashboard"
+          }
+        },
+        "capacity_planning_error": {
+          "description": "Error in capacity planning",
+          "on": {
+            "RETRY": "capacity_planning",
+            "USE_SIMPLE_ANALYSIS": "simple_capacity_analysis",
+            "SKIP": "monitoring_ready"
+          }
+        },
+        "recommendations_apply_error": {
+          "description": "Error applying recommendations",
+          "on": {
+            "RETRY": "applying_capacity_recommendations",
+            "MANUAL_APPLICATION": "manual_recommendations_application",
+            "SKIP": "displaying_capacity_plan"
+          }
+        },
+        "scaling_schedule_error": {
+          "description": "Error scheduling scaling",
+          "on": {
+            "RETRY": "scheduling_scaling",
+            "MANUAL_SCALING": "manual_scaling_setup",
+            "SKIP": "displaying_capacity_plan"
+          }
+        },
+        "capacity_plan_export_error": {
+          "description": "Error exporting capacity plan",
+          "on": {
+            "RETRY": "exporting_capacity_plan",
+            "SKIP": "displaying_capacity_plan"
+          }
+        },
+        "basic_monitoring_setup": {
+          "description": "Setting up basic monitoring as fallback",
+          "invoke": {
+            "src": "setupBasicMonitoring",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "setBasicMonitoringReady"
+            },
+            "onError": {
+              "target": "basic_monitoring_error",
+              "actions": "setBasicMonitoringError"
+            }
+          }
+        },
+        "using_cached_metrics": {
+          "description": "Using cached metrics when collection fails",
+          "invoke": {
+            "src": "useCachedMetrics",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "setCachedMetrics"
+            },
+            "onError": {
+              "target": "cached_metrics_error",
+              "actions": "setCachedMetricsError"
+            }
+          }
+        },
+        "resetting_thresholds": {
+          "description": "Resetting thresholds to defaults",
+          "invoke": {
+            "src": "resetThresholds",
+            "onDone": {
+              "target": "monitoring_ready",
+              "actions": "confirmThresholdsReset"
+            },
+            "onError": {
+              "target": "threshold_reset_error",
+              "actions": "setThresholdResetError"
+            }
+          }
+        },
+        "manual_alert_creation": {
+          "description": "Manual alert creation interface",
+          "on": {
+            "ALERT_CREATED": "monitoring_ready",
+            "CANCEL": "monitoring_ready"
+          }
+        },
+        "cached_dashboard_display": {
+          "description": "Displaying cached dashboard data",
+          "on": {
+            "REFRESH": "viewing_dashboard",
+            "BACK": "monitoring_ready"
+          }
+        },
+        "simple_capacity_analysis": {
+          "description": "Simple capacity analysis as fallback",
+          "invoke": {
+            "src": "simpleCapacityAnalysis",
+            "onDone": {
+              "target": "displaying_capacity_plan",
+              "actions": "setSimpleCapacityPlan"
+            },
+            "onError": {
+              "target": "simple_capacity_error",
+              "actions": "setSimpleCapacityError"
+            }
+          }
+        },
+        "manual_recommendations_application": {
+          "description": "Manual application of recommendations",
+          "on": {
+            "APPLICATION_COMPLETE": "monitoring_ready",
+            "CANCEL": "displaying_capacity_plan"
+          }
+        },
+        "manual_scaling_setup": {
+          "description": "Manual scaling setup",
+          "on": {
+            "SCALING_CONFIGURED": "monitoring_ready",
+            "CANCEL": "displaying_capacity_plan"
+          }
+        },
+        "basic_monitoring_error": {
+          "description": "Basic monitoring setup failed",
+          "on": {
+            "DISABLE_MONITORING": "#real_time_operations_workflow.idle"
+          }
+        },
+        "cached_metrics_error": {
+          "description": "Error using cached metrics",
+          "on": {
+            "CONTINUE": "monitoring_ready"
+          }
+        },
+        "threshold_reset_error": {
+          "description": "Error resetting thresholds",
+          "on": {
+            "CONTINUE": "monitoring_ready"
+          }
+        },
+        "simple_capacity_error": {
+          "description": "Simple capacity analysis failed",
+          "on": {
+            "SKIP": "monitoring_ready"
+          }
+        }
+      },
+      "on": {
+        "SHUTDOWN": "shutting_down_monitoring"
+      }
+    },
+    "shutting_down_websocket": {
+      "description": "Gracefully shutting down WebSocket server",
+      "invoke": {
+        "src": "shutdownWebSocket",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmWebSocketShutdown"
+        },
+        "onError": {
+          "target": "websocket_shutdown_error",
+          "actions": "setWebSocketShutdownError"
+        }
+      }
+    },
+    "shutting_down_sse": {
+      "description": "Gracefully shutting down SSE server",
+      "invoke": {
+        "src": "shutdownSSE",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmSSEShutdown"
+        },
+        "onError": {
+          "target": "sse_shutdown_error",
+          "actions": "setSSEShutdownError"
+        }
+      }
+    },
+    "shutting_down_jobs": {
+      "description": "Gracefully shutting down job processing system",
+      "invoke": {
+        "src": "shutdownJobs",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmJobsShutdown"
+        },
+        "onError": {
+          "target": "jobs_shutdown_error",
+          "actions": "setJobsShutdownError"
+        }
+      }
+    },
+    "shutting_down_sync": {
+      "description": "Gracefully shutting down sync system",
+      "invoke": {
+        "src": "shutdownSync",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmSyncShutdown"
+        },
+        "onError": {
+          "target": "sync_shutdown_error",
+          "actions": "setSyncShutdownError"
+        }
+      }
+    },
+    "shutting_down_monitoring": {
+      "description": "Gracefully shutting down monitoring system",
+      "invoke": {
+        "src": "shutdownMonitoring",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmMonitoringShutdown"
+        },
+        "onError": {
+          "target": "monitoring_shutdown_error",
+          "actions": "setMonitoringShutdownError"
+        }
+      }
+    },
+    "websocket_shutdown_error": {
+      "description": "Error shutting down WebSocket",
+      "on": {
+        "FORCE_SHUTDOWN": "force_websocket_shutdown",
+        "CONTINUE": "idle"
+      }
+    },
+    "sse_shutdown_error": {
+      "description": "Error shutting down SSE",
+      "on": {
+        "FORCE_SHUTDOWN": "force_sse_shutdown",
+        "CONTINUE": "idle"
+      }
+    },
+    "jobs_shutdown_error": {
+      "description": "Error shutting down jobs",
+      "on": {
+        "FORCE_SHUTDOWN": "force_jobs_shutdown",
+        "CONTINUE": "idle"
+      }
+    },
+    "sync_shutdown_error": {
+      "description": "Error shutting down sync",
+      "on": {
+        "FORCE_SHUTDOWN": "force_sync_shutdown",
+        "CONTINUE": "idle"
+      }
+    },
+    "monitoring_shutdown_error": {
+      "description": "Error shutting down monitoring",
+      "on": {
+        "FORCE_SHUTDOWN": "force_monitoring_shutdown",
+        "CONTINUE": "idle"
+      }
+    },
+    "force_websocket_shutdown": {
+      "description": "Force WebSocket shutdown",
+      "invoke": {
+        "src": "forceShutdownWebSocket",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmWebSocketForceShutdown"
+        },
+        "onError": {
+          "target": "force_websocket_shutdown_error",
+          "actions": "setForceWebSocketShutdownError"
+        }
+      }
+    },
+    "force_sse_shutdown": {
+      "description": "Force SSE shutdown",
+      "invoke": {
+        "src": "forceShutdownSSE",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmSSEForceShutdown"
+        },
+        "onError": {
+          "target": "force_sse_shutdown_error",
+          "actions": "setForceSSEShutdownError"
+        }
+      }
+    },
+    "force_jobs_shutdown": {
+      "description": "Force jobs shutdown",
+      "invoke": {
+        "src": "forceShutdownJobs",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmJobsForceShutdown"
+        },
+        "onError": {
+          "target": "force_jobs_shutdown_error",
+          "actions": "setForceJobsShutdownError"
+        }
+      }
+    },
+    "force_sync_shutdown": {
+      "description": "Force sync shutdown",
+      "invoke": {
+        "src": "forceShutdownSync",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmSyncForceShutdown"
+        },
+        "onError": {
+          "target": "force_sync_shutdown_error",
+          "actions": "setForceSyncShutdownError"
+        }
+      }
+    },
+    "force_monitoring_shutdown": {
+      "description": "Force monitoring shutdown",
+      "invoke": {
+        "src": "forceShutdownMonitoring",
+        "onDone": {
+          "target": "idle",
+          "actions": "confirmMonitoringForceShutdown"
+        },
+        "onError": {
+          "target": "force_monitoring_shutdown_error",
+          "actions": "setForceMonitoringShutdownError"
+        }
+      }
+    },
+    "force_websocket_shutdown_error": {
+      "description": "Error during force WebSocket shutdown",
+      "on": {
+        "CONTINUE": "idle"
+      }
+    },
+    "force_sse_shutdown_error": {
+      "description": "Error during force SSE shutdown",
+      "on": {
+        "CONTINUE": "idle"
+      }
+    },
+    "force_jobs_shutdown_error": {
+      "description": "Error during force jobs shutdown",
+      "on": {
+        "CONTINUE": "idle"
+      }
+    },
+    "force_sync_shutdown_error": {
+      "description": "Error during force sync shutdown",
+      "on": {
+        "CONTINUE": "idle"
+      }
+    },
+    "force_monitoring_shutdown_error": {
+      "description": "Error during force monitoring shutdown",
+      "on": {
+        "CONTINUE": "idle"
+      }
+    }
+  },
+  "services": {
+    "initializeWebSocketServer": "Service to initialize WebSocket server with connection management",
+    "handleNewWebSocketConnection": "Service to handle new WebSocket connections with auto-reconnection",
+    "processWebSocketMessage": "Service for reliable WebSocket message delivery with persistence",
+    "handleConnectionLoss": "Service to handle WebSocket connection loss with state restoration",
+    "broadcastWebSocketMessage": "Service for multi-client WebSocket message broadcasting",
+    "manageWebSocketConnections": "Service for WebSocket connection distribution and load balancing",
+    "setupFallbackWebSocket": "Service to setup fallback WebSocket with reduced features",
+    "queueFailedMessage": "Service to queue failed WebSocket messages for retry",
+    "handlePartialBroadcast": "Service to handle partial broadcast success scenarios",
+    "forceConnectionCleanup": "Service to force cleanup of problematic WebSocket connections",
+    "setupMinimalWebSocket": "Service to setup minimal WebSocket as last resort",
+    "reportWebSocketFailure": "Service to report WebSocket system failure",
+    "shutdownWebSocket": "Service to gracefully shutdown WebSocket server",
+    "forceShutdownWebSocket": "Service to force shutdown WebSocket server",
+    "initializeSSEServer": "Service to initialize SSE server with event streaming",
+    "handleNewSSEClient": "Service to handle new SSE clients with long-polling support",
+    "sendSSEEvent": "Service for client-specific SSE event subscription and filtering",
+    "handleSSEDisconnect": "Service to handle SSE disconnections with automatic reconnection",
+    "manageEventStreams": "Service for SSE event compression and batching",
+    "setupPollingFallback": "Service to setup polling fallback for SSE",
+    "queueSSEEvent": "Service to queue SSE events for retry",
+    "forceSSECleanup": "Service to force cleanup of SSE connections",
+    "resetEventStreams": "Service to reset SSE event streams",
+    "setupMinimalSSE": "Service to setup minimal SSE as fallback",
+    "shutdownSSE": "Service to gracefully shutdown SSE server",
+    "forceShutdownSSE": "Service to force shutdown SSE server",
+    "initializeJobSystem": "Service to initialize job queue management system",
+    "scheduleJob": "Service for job scheduling with immediate and delayed execution",
+    "processJobQueue": "Service for priority queue processing with task prioritization",
+    "manageWorkers": "Service for dynamic worker allocation and health monitoring",
+    "monitorJobs": "Service for job monitoring with retry mechanisms",
+    "handleFailedJob": "Service for dead letter queue handling of failed jobs",
+    "setupSimpleQueue": "Service to setup simple queue as fallback",
+    "queueJobForLater": "Service to queue jobs for later processing",
+    "processPartialQueue": "Service to process partial queue during recovery",
+    "pauseQueueProcessing": "Service to pause queue processing",
+    "resumeQueueProcessing": "Service to resume paused queue processing",
+    "resetWorkers": "Service to reset worker pool",
+    "resetJobMonitoring": "Service to reset job monitoring system",
+    "moveToDeadLetterQueue": "Service to move failed jobs to dead letter queue",
+    "setupInMemoryQueue": "Service to setup in-memory queue as last resort",
+    "forcePauseQueue": "Service to force pause queue processing",
+    "resetQueue": "Service to reset entire queue system",
+    "drainQueue": "Service to drain queue of all pending jobs",
+    "forceDrainQueue": "Service to force drain queue",
+    "shutdownJobs": "Service to gracefully shutdown job processing system",
+    "forceShutdownJobs": "Service to force shutdown job processing system",
+    "initializeSyncSystem": "Service to initialize live data synchronization system",
+    "syncData": "Service for live data synchronization with change detection",
+    "resolveConflict": "Service for multi-user concurrent editing conflict resolution",
+    "detectChanges": "Service for database change streams and notifications",
+    "manageCache": "Service for multi-level caching with invalidation",
+    "optimizePerformance": "Service for client-server state consistency optimization",
+    "setupPollingSync": "Service to setup polling-based sync as fallback",
+    "forceSyncData": "Service to force data synchronization",
+    "lastWriteWinsResolution": "Service for last write wins conflict resolution",
+    "requestManualResolution": "Service to request manual conflict resolution",
+    "pollingChangeDetection": "Service for polling-based change detection",
+    "clearCache": "Service to clear cache for management issue resolution",
+    "basicSyncMode": "Service for basic sync mode without optimizations",
+    "manualDataSync": "Service for manual data synchronization",
+    "forceClearCache": "Service to force clear cache",
+    "shutdownSync": "Service to gracefully shutdown sync system",
+    "forceShutdownSync": "Service to force shutdown sync system",
+    "initializeMonitoring": "Service to initialize performance monitoring system",
+    "collectMetrics": "Service for queue depth, throughput, and latency monitoring",
+    "checkThresholds": "Service for threshold-based alerting system",
+    "generateAlerts": "Service for performance alerts with intelligent noise reduction",
+    "loadDashboard": "Service to load real-time system status dashboard",
+    "drillDownMetrics": "Service for detailed metric analysis and drill-down",
+    "exportReport": "Service to export performance report",
+    "performCapacityPlanning": "Service for resource usage prediction and scaling",
+    "applyCapacityRecommendations": "Service to apply capacity planning recommendations",
+    "scheduleScaling": "Service to schedule automatic scaling based on predictions",
+    "exportCapacityPlan": "Service to export capacity planning report",
+    "setupBasicMonitoring": "Service to setup basic monitoring as fallback",
+    "useCachedMetrics": "Service to use cached metrics when collection fails",
+    "resetThresholds": "Service to reset thresholds to defaults",
+    "simpleCapacityAnalysis": "Service for simple capacity analysis as fallback",
+    "shutdownMonitoring": "Service to gracefully shutdown monitoring system",
+    "forceShutdownMonitoring": "Service to force shutdown monitoring system"
+  },
+  "guards": {},
+  "actions": {
+    "setWebSocketServerReady": "Set WebSocket server as ready",
+    "setWebSocketServerError": "Set WebSocket server initialization error",
+    "addActiveConnection": "Add new active WebSocket connection",
+    "setConnectionHandlingError": "Set connection handling error",
+    "confirmMessageProcessed": "Confirm WebSocket message processed",
+    "setMessageProcessingError": "Set message processing error",
+    "removeActiveConnection": "Remove active WebSocket connection",
+    "setConnectionLossError": "Set connection loss error",
+    "confirmMessageBroadcast": "Confirm message broadcast completed",
+    "setBroadcastError": "Set broadcast error",
+    "updateConnectionState": "Update WebSocket connection state",
+    "setConnectionManagementError": "Set connection management error",
+    "setFallbackWebSocketReady": "Set fallback WebSocket as ready",
+    "setFallbackSetupError": "Set fallback setup error",
+    "confirmMessageQueued": "Confirm message queued for retry",
+    "setMessageQueueError": "Set message queue error",
+    "setPartialBroadcastResults": "Set partial broadcast results",
+    "setPartialBroadcastError": "Set partial broadcast error",
+    "confirmConnectionCleanup": "Confirm connection cleanup completed",
+    "setForceCleanupError": "Set force cleanup error",
+    "setMinimalWebSocketReady": "Set minimal WebSocket as ready",
+    "setMinimalSetupError": "Set minimal setup error",
+    "confirmFailureReported": "Confirm WebSocket failure reported",
+    "setFailureReportError": "Set failure report error",
+    "confirmWebSocketShutdown": "Confirm WebSocket shutdown completed",
+    "setWebSocketShutdownError": "Set WebSocket shutdown error",
+    "confirmWebSocketForceShutdown": "Confirm WebSocket force shutdown",
+    "setForceWebSocketShutdownError": "Set force WebSocket shutdown error",
+    "setSSEServerReady": "Set SSE server as ready",
+    "setSSEServerError": "Set SSE server initialization error",
+    "addSSEClient": "Add new SSE client",
+    "setSSEClientError": "Set SSE client error",
+    "confirmEventSent": "Confirm SSE event sent",
+    "setSSEEventError": "Set SSE event error",
+    "removeSSEClient": "Remove SSE client",
+    "setSSEDisconnectError": "Set SSE disconnect error",
+    "updateEventStreamState": "Update event stream state",
+    "setEventStreamError": "Set event stream error",
+    "setPollingFallbackReady": "Set polling fallback as ready",
+    "setPollingFallbackError": "Set polling fallback error",
+    "confirmSSEEventQueued": "Confirm SSE event queued",
+    "setSSEQueueError": "Set SSE queue error",
+    "confirmSSECleanup": "Confirm SSE cleanup completed",
+    "setForceSSECleanupError": "Set force SSE cleanup error",
+    "confirmEventStreamsReset": "Confirm event streams reset",
+    "setEventStreamResetError": "Set event stream reset error",
+    "setMinimalSSEReady": "Set minimal SSE as ready",
+    "setMinimalSSEError": "Set minimal SSE error",
+    "confirmSSEShutdown": "Confirm SSE shutdown completed",
+    "setSSEShutdownError": "Set SSE shutdown error",
+    "confirmSSEForceShutdown": "Confirm SSE force shutdown",
+    "setForceSSEShutdownError": "Set force SSE shutdown error",
+    "setJobSystemReady": "Set job system as ready",
+    "setJobSystemError": "Set job system initialization error",
+    "confirmJobScheduled": "Confirm job scheduled",
+    "setJobSchedulingError": "Set job scheduling error",
+    "updateQueueStatus": "Update job queue status",
+    "setQueueProcessingError": "Set queue processing error",
+    "updateWorkerStatus": "Update worker status",
+    "setWorkerManagementError": "Set worker management error",
+    "updateJobMonitoringStatus": "Update job monitoring status",
+    "setJobMonitoringError": "Set job monitoring error",
+    "confirmFailedJobHandled": "Confirm failed job handled",
+    "setFailedJobHandlingError": "Set failed job handling error",
+    "setSimpleQueueReady": "Set simple queue as ready",
+    "setSimpleQueueError": "Set simple queue error",
+    "confirmJobQueuedForLater": "Confirm job queued for later",
+    "setLaterQueueError": "Set later queue error",
+    "setPartialQueueResults": "Set partial queue processing results",
+    "setPartialQueueError": "Set partial queue error",
+    "confirmQueuePaused": "Confirm queue processing paused",
+    "setPauseError": "Set pause error",
+    "confirmQueueResumed": "Confirm queue processing resumed",
+    "setResumeError": "Set resume error",
+    "confirmWorkersReset": "Confirm workers reset",
+    "setWorkerResetError": "Set worker reset error",
+    "confirmMonitoringReset": "Confirm monitoring reset",
+    "setMonitoringResetError": "Set monitoring reset error",
+    "confirmJobMovedToDLQ": "Confirm job moved to dead letter queue",
+    "setDLQMoveError": "Set DLQ move error",
+    "setInMemoryQueueReady": "Set in-memory queue as ready",
+    "setInMemoryQueueError": "Set in-memory queue error",
+    "confirmQueueForcePaused": "Confirm queue force paused",
+    "setForcePauseError": "Set force pause error",
+    "confirmQueueReset": "Confirm queue reset",
+    "setQueueResetError": "Set queue reset error",
+    "confirmQueueDrained": "Confirm queue drained",
+    "setQueueDrainError": "Set queue drain error",
+    "confirmQueueForceDrained": "Confirm queue force drained",
+    "setForceDrainError": "Set force drain error",
+    "confirmJobsShutdown": "Confirm jobs shutdown completed",
+    "setJobsShutdownError": "Set jobs shutdown error",
+    "confirmJobsForceShutdown": "Confirm jobs force shutdown",
+    "setForceJobsShutdownError": "Set force jobs shutdown error",
+    "setSyncSystemReady": "Set sync system as ready",
+    "setSyncSystemError": "Set sync system initialization error",
+    "confirmDataSynced": "Confirm data synchronized",
+    "setSyncError": "Set data sync error",
+    "confirmConflictResolved": "Confirm conflict resolved",
+    "setConflictResolutionError": "Set conflict resolution error",
+    "setDetectedChanges": "Set detected changes",
+    "setChangeDetectionError": "Set change detection error",
+    "updateCacheStatus": "Update cache status",
+    "setCacheManagementError": "Set cache management error",
+    "setPerformanceOptimizations": "Set performance optimizations",
+    "setPerformanceOptimizationError": "Set performance optimization error",
+    "setPollingSyncReady": "Set polling sync as ready",
+    "setPollingSyncError": "Set polling sync error",
+    "confirmForceSynced": "Confirm force sync completed",
+    "setForceSyncError": "Set force sync error",
+    "confirmLastWriteWins": "Confirm last write wins resolution",
+    "setLastWriteWinsError": "Set last write wins error",
+    "confirmManualResolutionRequested": "Confirm manual resolution requested",
+    "setManualResolutionRequestError": "Set manual resolution request error",
+    "setPollingChangeDetection": "Set polling change detection",
+    "setPollingDetectionError": "Set polling detection error",
+    "confirmCacheCleared": "Confirm cache cleared",
+    "setCacheClearError": "Set cache clear error",
+    "setBasicSyncMode": "Set basic sync mode",
+    "setBasicSyncError": "Set basic sync error",
+    "confirmManualSync": "Confirm manual sync completed",
+    "setManualSyncError": "Set manual sync error",
+    "confirmCacheForceCleared": "Confirm cache force cleared",
+    "setForceCacheClearError": "Set force cache clear error",
+    "confirmSyncShutdown": "Confirm sync shutdown completed",
+    "setSyncShutdownError": "Set sync shutdown error",
+    "confirmSyncForceShutdown": "Confirm sync force shutdown",
+    "setForceSyncShutdownError": "Set force sync shutdown error",
+    "setMonitoringReady": "Set monitoring system as ready",
+    "setMonitoringInitError": "Set monitoring initialization error",
+    "updateMetrics": "Update performance metrics",
+    "setMetricsCollectionError": "Set metrics collection error",
+    "setThresholdResults": "Set threshold check results",
+    "setThresholdCheckError": "Set threshold check error",
+    "setGeneratedAlerts": "Set generated alerts",
+    "setAlertGenerationError": "Set alert generation error",
+    "setDashboardData": "Set dashboard data",
+    "setDashboardLoadError": "Set dashboard load error",
+    "setDrillDownResults": "Set drill-down results",
+    "setDrillDownError": "Set drill-down error",
+    "confirmReportExported": "Confirm report exported",
+    "setReportExportError": "Set report export error",
+    "setCapacityPlan": "Set capacity planning results",
+    "setCapacityPlanningError": "Set capacity planning error",
+    "confirmRecommendationsApplied": "Confirm recommendations applied",
+    "setRecommendationsApplyError": "Set recommendations apply error",
+    "confirmScalingScheduled": "Confirm scaling scheduled",
+    "setScalingScheduleError": "Set scaling schedule error",
+    "confirmCapacityPlanExported": "Confirm capacity plan exported",
+    "setCapacityPlanExportError": "Set capacity plan export error",
+    "setBasicMonitoringReady": "Set basic monitoring as ready",
+    "setBasicMonitoringError": "Set basic monitoring error",
+    "setCachedMetrics": "Set cached metrics",
+    "setCachedMetricsError": "Set cached metrics error",
+    "confirmThresholdsReset": "Confirm thresholds reset",
+    "setThresholdResetError": "Set threshold reset error",
+    "setSimpleCapacityPlan": "Set simple capacity plan",
+    "setSimpleCapacityError": "Set simple capacity error",
+    "confirmMonitoringShutdown": "Confirm monitoring shutdown completed",
+    "setMonitoringShutdownError": "Set monitoring shutdown error",
+    "confirmMonitoringForceShutdown": "Confirm monitoring force shutdown",
+    "setForceMonitoringShutdownError": "Set force monitoring shutdown error"
+  }
+}

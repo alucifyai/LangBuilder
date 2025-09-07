@@ -1,0 +1,1900 @@
+{
+  "id": "store_marketplace_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "searchQuery": "",
+    "searchResults": [],
+    "filters": {},
+    "selectedComponent": null,
+    "browsedComponents": [],
+    "likedComponents": [],
+    "ownedComponents": [],
+    "uploadData": null,
+    "downloadData": null,
+    "marketplaceConnection": null,
+    "apiKey": null,
+    "directusBackend": null,
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 0
+    },
+    "categories": [],
+    "tags": [],
+    "errors": [],
+    "validationResults": null
+  },
+  "states": {
+    "idle": {
+      "description": "Store and marketplace ready for operations",
+      "on": {
+        "BROWSE_COMPONENTS": "browsing",
+        "SEARCH_COMPONENTS": "searching",
+        "UPLOAD_COMPONENT": "uploading",
+        "DOWNLOAD_COMPONENT": "downloading",
+        "MANAGE_ACCOUNT": "account_management"
+      }
+    },
+    "browsing": {
+      "description": "Component discovery and browsing workflow",
+      "initial": "loading_marketplace",
+      "states": {
+        "loading_marketplace": {
+          "description": "Loading marketplace connection and categories",
+          "invoke": {
+            "src": "loadMarketplaceData",
+            "onDone": {
+              "target": "displaying_categories",
+              "actions": "setMarketplaceData"
+            },
+            "onError": {
+              "target": "marketplace_load_error",
+              "actions": "setMarketplaceLoadError"
+            }
+          }
+        },
+        "displaying_categories": {
+          "description": "Displaying component categories and featured items",
+          "on": {
+            "SELECT_CATEGORY": "filtering_by_category",
+            "VIEW_FEATURED": "viewing_featured",
+            "VIEW_POPULAR": "viewing_popular",
+            "VIEW_RECENT": "viewing_recent",
+            "APPLY_FILTERS": "applying_filters"
+          }
+        },
+        "filtering_by_category": {
+          "description": "Component vs flow differentiation filtering",
+          "invoke": {
+            "src": "filterByCategory",
+            "onDone": {
+              "target": "displaying_filtered_results",
+              "actions": "setCategoryFilterResults"
+            },
+            "onError": {
+              "target": "category_filter_error",
+              "actions": "setCategoryFilterError"
+            }
+          }
+        },
+        "applying_filters": {
+          "description": "Complex filter condition building",
+          "invoke": {
+            "src": "applyComplexFilters",
+            "onDone": {
+              "target": "displaying_filtered_results",
+              "actions": "setComplexFilterResults"
+            },
+            "onError": {
+              "target": "complex_filter_error",
+              "actions": "setComplexFilterError"
+            }
+          }
+        },
+        "viewing_featured": {
+          "description": "Viewing featured components",
+          "invoke": {
+            "src": "loadFeaturedComponents",
+            "onDone": {
+              "target": "displaying_component_list",
+              "actions": "setFeaturedComponents"
+            },
+            "onError": {
+              "target": "featured_load_error",
+              "actions": "setFeaturedLoadError"
+            }
+          }
+        },
+        "viewing_popular": {
+          "description": "Viewing popular components by download count",
+          "invoke": {
+            "src": "loadPopularComponents",
+            "onDone": {
+              "target": "displaying_component_list",
+              "actions": "setPopularComponents"
+            },
+            "onError": {
+              "target": "popular_load_error",
+              "actions": "setPopularLoadError"
+            }
+          }
+        },
+        "viewing_recent": {
+          "description": "Viewing recently added components",
+          "invoke": {
+            "src": "loadRecentComponents",
+            "onDone": {
+              "target": "displaying_component_list",
+              "actions": "setRecentComponents"
+            },
+            "onError": {
+              "target": "recent_load_error",
+              "actions": "setRecentLoadError"
+            }
+          }
+        },
+        "displaying_filtered_results": {
+          "description": "Displaying filtered component results with metadata",
+          "on": {
+            "SELECT_COMPONENT": {
+              "target": "viewing_component_details",
+              "actions": "setSelectedComponent"
+            },
+            "REFINE_FILTERS": "refining_filters",
+            "CLEAR_FILTERS": "displaying_categories",
+            "LOAD_MORE": "loading_more_results"
+          }
+        },
+        "displaying_component_list": {
+          "description": "Displaying component list with pagination",
+          "on": {
+            "SELECT_COMPONENT": {
+              "target": "viewing_component_details",
+              "actions": "setSelectedComponent"
+            },
+            "APPLY_SORTING": "applying_sorting",
+            "CHANGE_VIEW": "changing_view_mode",
+            "LOAD_MORE": "loading_more_results"
+          }
+        },
+        "refining_filters": {
+          "description": "Refining existing filters with additional criteria",
+          "invoke": {
+            "src": "refineFilters",
+            "onDone": {
+              "target": "displaying_filtered_results",
+              "actions": "setRefinedFilterResults"
+            },
+            "onError": {
+              "target": "filter_refinement_error",
+              "actions": "setFilterRefinementError"
+            }
+          }
+        },
+        "applying_sorting": {
+          "description": "Applying sorting options to component list",
+          "invoke": {
+            "src": "applySorting",
+            "onDone": {
+              "target": "displaying_component_list",
+              "actions": "setSortedResults"
+            },
+            "onError": {
+              "target": "sorting_error",
+              "actions": "setSortingError"
+            }
+          }
+        },
+        "changing_view_mode": {
+          "description": "Changing component display mode (grid, list, detailed)",
+          "invoke": {
+            "src": "changeViewMode",
+            "onDone": {
+              "target": "displaying_component_list",
+              "actions": "setViewMode"
+            },
+            "onError": {
+              "target": "view_mode_error",
+              "actions": "setViewModeError"
+            }
+          }
+        },
+        "loading_more_results": {
+          "description": "Result chunking with count metadata",
+          "invoke": {
+            "src": "loadMoreResults",
+            "onDone": {
+              "target": "displaying_component_list",
+              "actions": "appendMoreResults"
+            },
+            "onError": {
+              "target": "load_more_error",
+              "actions": "setLoadMoreError"
+            }
+          }
+        },
+        "viewing_component_details": {
+          "description": "Component metadata enrichment and detailed view",
+          "invoke": {
+            "src": "loadComponentDetails",
+            "onDone": {
+              "target": "displaying_component_details",
+              "actions": "setComponentDetails"
+            },
+            "onError": {
+              "target": "component_details_error",
+              "actions": "setComponentDetailsError"
+            }
+          }
+        },
+        "displaying_component_details": {
+          "description": "Showing component details with user data integration",
+          "on": {
+            "LIKE_COMPONENT": "liking_component",
+            "UNLIKE_COMPONENT": "unliking_component",
+            "DOWNLOAD_COMPONENT": "#store_marketplace_workflow.downloading",
+            "VIEW_SIMILAR": "viewing_similar_components",
+            "REPORT_COMPONENT": "reporting_component",
+            "BACK_TO_LIST": "displaying_component_list"
+          }
+        },
+        "liking_component": {
+          "description": "Adding component to user likes",
+          "invoke": {
+            "src": "likeComponent",
+            "onDone": {
+              "target": "displaying_component_details",
+              "actions": "confirmComponentLiked"
+            },
+            "onError": {
+              "target": "like_error",
+              "actions": "setLikeError"
+            }
+          }
+        },
+        "unliking_component": {
+          "description": "Removing component from user likes",
+          "invoke": {
+            "src": "unlikeComponent",
+            "onDone": {
+              "target": "displaying_component_details",
+              "actions": "confirmComponentUnliked"
+            },
+            "onError": {
+              "target": "unlike_error",
+              "actions": "setUnlikeError"
+            }
+          }
+        },
+        "viewing_similar_components": {
+          "description": "Finding and displaying similar components",
+          "invoke": {
+            "src": "findSimilarComponents",
+            "onDone": {
+              "target": "displaying_similar_components",
+              "actions": "setSimilarComponents"
+            },
+            "onError": {
+              "target": "similar_components_error",
+              "actions": "setSimilarComponentsError"
+            }
+          }
+        },
+        "displaying_similar_components": {
+          "description": "Showing similar components with relevance scoring",
+          "on": {
+            "SELECT_SIMILAR": {
+              "target": "viewing_component_details",
+              "actions": "setSelectedComponent"
+            },
+            "BACK_TO_ORIGINAL": "displaying_component_details"
+          }
+        },
+        "reporting_component": {
+          "description": "Reporting component for policy violations",
+          "invoke": {
+            "src": "reportComponent",
+            "onDone": {
+              "target": "displaying_component_details",
+              "actions": "confirmComponentReported"
+            },
+            "onError": {
+              "target": "report_error",
+              "actions": "setReportError"
+            }
+          }
+        },
+        "marketplace_load_error": {
+          "description": "Error loading marketplace data",
+          "on": {
+            "RETRY": "loading_marketplace",
+            "WORK_OFFLINE": "offline_mode",
+            "CANCEL": "#store_marketplace_workflow.idle"
+          }
+        },
+        "category_filter_error": {
+          "description": "Error filtering by category",
+          "on": {
+            "RETRY": "filtering_by_category",
+            "CLEAR_FILTERS": "displaying_categories"
+          }
+        },
+        "complex_filter_error": {
+          "description": "Error applying complex filters",
+          "on": {
+            "RETRY": "applying_filters",
+            "SIMPLIFY_FILTERS": "simplifying_filters",
+            "CLEAR_FILTERS": "displaying_categories"
+          }
+        },
+        "featured_load_error": {
+          "description": "Error loading featured components",
+          "on": {
+            "RETRY": "viewing_featured",
+            "VIEW_ALL": "displaying_categories"
+          }
+        },
+        "popular_load_error": {
+          "description": "Error loading popular components",
+          "on": {
+            "RETRY": "viewing_popular",
+            "VIEW_ALL": "displaying_categories"
+          }
+        },
+        "recent_load_error": {
+          "description": "Error loading recent components",
+          "on": {
+            "RETRY": "viewing_recent",
+            "VIEW_ALL": "displaying_categories"
+          }
+        },
+        "filter_refinement_error": {
+          "description": "Error refining filters",
+          "on": {
+            "RETRY": "refining_filters",
+            "RESET_FILTERS": "displaying_categories"
+          }
+        },
+        "sorting_error": {
+          "description": "Error applying sorting",
+          "on": {
+            "RETRY": "applying_sorting",
+            "DEFAULT_SORT": "displaying_component_list"
+          }
+        },
+        "view_mode_error": {
+          "description": "Error changing view mode",
+          "on": {
+            "RETRY": "changing_view_mode",
+            "DEFAULT_VIEW": "displaying_component_list"
+          }
+        },
+        "load_more_error": {
+          "description": "Error loading more results",
+          "on": {
+            "RETRY": "loading_more_results",
+            "CONTINUE": "displaying_component_list"
+          }
+        },
+        "component_details_error": {
+          "description": "Error loading component details",
+          "on": {
+            "RETRY": "viewing_component_details",
+            "BACK": "displaying_component_list"
+          }
+        },
+        "like_error": {
+          "description": "Error liking component",
+          "on": {
+            "RETRY": "liking_component",
+            "SKIP": "displaying_component_details"
+          }
+        },
+        "unlike_error": {
+          "description": "Error unliking component",
+          "on": {
+            "RETRY": "unliking_component",
+            "SKIP": "displaying_component_details"
+          }
+        },
+        "similar_components_error": {
+          "description": "Error finding similar components",
+          "on": {
+            "RETRY": "viewing_similar_components",
+            "SKIP": "displaying_component_details"
+          }
+        },
+        "report_error": {
+          "description": "Error reporting component",
+          "on": {
+            "RETRY": "reporting_component",
+            "SKIP": "displaying_component_details"
+          }
+        },
+        "offline_mode": {
+          "description": "Offline browsing with cached data",
+          "on": {
+            "VIEW_CACHED": "viewing_cached_components",
+            "TRY_RECONNECT": "loading_marketplace"
+          }
+        },
+        "viewing_cached_components": {
+          "description": "Viewing cached components offline",
+          "on": {
+            "SELECT_CACHED": {
+              "target": "viewing_cached_details",
+              "actions": "setSelectedCachedComponent"
+            },
+            "TRY_RECONNECT": "loading_marketplace"
+          }
+        },
+        "viewing_cached_details": {
+          "description": "Viewing cached component details",
+          "on": {
+            "BACK_TO_CACHED": "viewing_cached_components",
+            "TRY_RECONNECT": "loading_marketplace"
+          }
+        },
+        "simplifying_filters": {
+          "description": "Simplifying complex filters that failed",
+          "invoke": {
+            "src": "simplifyFilters",
+            "onDone": {
+              "target": "displaying_filtered_results",
+              "actions": "setSimplifiedFilterResults"
+            },
+            "onError": {
+              "target": "simplification_error",
+              "actions": "setSimplificationError"
+            }
+          }
+        },
+        "simplification_error": {
+          "description": "Error simplifying filters",
+          "on": {
+            "CLEAR_FILTERS": "displaying_categories",
+            "MANUAL_FILTER": "manual_filtering"
+          }
+        },
+        "manual_filtering": {
+          "description": "Manual filter configuration",
+          "on": {
+            "APPLY_MANUAL": "applying_filters",
+            "CANCEL": "displaying_categories"
+          }
+        }
+      },
+      "on": {
+        "SEARCH": "searching",
+        "CANCEL": "idle"
+      }
+    },
+    "searching": {
+      "description": "Component search with query processing and filtering",
+      "initial": "search_input",
+      "states": {
+        "search_input": {
+          "description": "Search query input and processing",
+          "on": {
+            "ENTER_QUERY": {
+              "actions": "setSearchQuery"
+            },
+            "QUICK_SEARCH": "performing_quick_search",
+            "ADVANCED_SEARCH": "advanced_search_options",
+            "SEARCH_BY_ID": "searching_by_id"
+          }
+        },
+        "performing_quick_search": {
+          "description": "Name, description, tag, and author search",
+          "invoke": {
+            "src": "performQuickSearch",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "setQuickSearchResults"
+            },
+            "onError": {
+              "target": "quick_search_error",
+              "actions": "setQuickSearchError"
+            }
+          }
+        },
+        "advanced_search_options": {
+          "description": "Advanced search with multiple criteria",
+          "on": {
+            "SET_PRIVACY_FILTER": {
+              "actions": "setPrivacyFilter"
+            },
+            "SET_USER_FILTER": {
+              "actions": "setUserFilter"
+            },
+            "SET_TAG_FILTER": {
+              "actions": "setTagFilter"
+            },
+            "SET_DATE_RANGE": {
+              "actions": "setDateRange"
+            },
+            "PERFORM_ADVANCED_SEARCH": "performing_advanced_search"
+          }
+        },
+        "performing_advanced_search": {
+          "description": "Multi-tag AND/OR operations and complex filtering",
+          "invoke": {
+            "src": "performAdvancedSearch",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "setAdvancedSearchResults"
+            },
+            "onError": {
+              "target": "advanced_search_error",
+              "actions": "setAdvancedSearchError"
+            }
+          }
+        },
+        "searching_by_id": {
+          "description": "Direct component ID search",
+          "invoke": {
+            "src": "searchById",
+            "onDone": {
+              "target": "displaying_id_search_result",
+              "actions": "setIdSearchResult"
+            },
+            "onError": {
+              "target": "id_search_error",
+              "actions": "setIdSearchError"
+            }
+          }
+        },
+        "displaying_search_results": {
+          "description": "Showing search results with relevance ranking",
+          "on": {
+            "SELECT_RESULT": {
+              "target": "#store_marketplace_workflow.browsing.viewing_component_details",
+              "actions": "setSelectedComponent"
+            },
+            "REFINE_SEARCH": "refining_search",
+            "SORT_RESULTS": "sorting_search_results",
+            "FILTER_RESULTS": "filtering_search_results",
+            "LOAD_MORE_RESULTS": "loading_more_search_results"
+          }
+        },
+        "displaying_id_search_result": {
+          "description": "Showing direct ID search result",
+          "on": {
+            "VIEW_COMPONENT": {
+              "target": "#store_marketplace_workflow.browsing.viewing_component_details",
+              "actions": "setSelectedComponent"
+            },
+            "SEARCH_AGAIN": "search_input"
+          }
+        },
+        "refining_search": {
+          "description": "Refining search query and parameters",
+          "invoke": {
+            "src": "refineSearch",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "setRefinedSearchResults"
+            },
+            "onError": {
+              "target": "search_refinement_error",
+              "actions": "setSearchRefinementError"
+            }
+          }
+        },
+        "sorting_search_results": {
+          "description": "Sorting search results by various criteria",
+          "invoke": {
+            "src": "sortSearchResults",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "setSortedSearchResults"
+            },
+            "onError": {
+              "target": "search_sorting_error",
+              "actions": "setSearchSortingError"
+            }
+          }
+        },
+        "filtering_search_results": {
+          "description": "Applying additional filters to search results",
+          "invoke": {
+            "src": "filterSearchResults",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "setFilteredSearchResults"
+            },
+            "onError": {
+              "target": "search_filtering_error",
+              "actions": "setSearchFilteringError"
+            }
+          }
+        },
+        "loading_more_search_results": {
+          "description": "Loading additional search result pages",
+          "invoke": {
+            "src": "loadMoreSearchResults",
+            "onDone": {
+              "target": "displaying_search_results",
+              "actions": "appendMoreSearchResults"
+            },
+            "onError": {
+              "target": "search_load_more_error",
+              "actions": "setSearchLoadMoreError"
+            }
+          }
+        },
+        "quick_search_error": {
+          "description": "Error during quick search",
+          "on": {
+            "RETRY": "performing_quick_search",
+            "TRY_ADVANCED": "advanced_search_options",
+            "MODIFY_QUERY": "search_input"
+          }
+        },
+        "advanced_search_error": {
+          "description": "Error during advanced search",
+          "on": {
+            "RETRY": "performing_advanced_search",
+            "SIMPLIFY_SEARCH": "performing_quick_search",
+            "MODIFY_CRITERIA": "advanced_search_options"
+          }
+        },
+        "id_search_error": {
+          "description": "Error searching by ID",
+          "on": {
+            "RETRY": "searching_by_id",
+            "TRY_TEXT_SEARCH": "performing_quick_search",
+            "MODIFY_ID": "search_input"
+          }
+        },
+        "search_refinement_error": {
+          "description": "Error refining search",
+          "on": {
+            "RETRY": "refining_search",
+            "NEW_SEARCH": "search_input"
+          }
+        },
+        "search_sorting_error": {
+          "description": "Error sorting search results",
+          "on": {
+            "RETRY": "sorting_search_results",
+            "DEFAULT_SORT": "displaying_search_results"
+          }
+        },
+        "search_filtering_error": {
+          "description": "Error filtering search results",
+          "on": {
+            "RETRY": "filtering_search_results",
+            "CLEAR_FILTERS": "displaying_search_results"
+          }
+        },
+        "search_load_more_error": {
+          "description": "Error loading more search results",
+          "on": {
+            "RETRY": "loading_more_search_results",
+            "CONTINUE": "displaying_search_results"
+          }
+        }
+      },
+      "on": {
+        "BROWSE": "browsing",
+        "CANCEL": "idle"
+      }
+    },
+    "uploading": {
+      "description": "Component upload and publication workflow",
+      "initial": "authentication_check",
+      "states": {
+        "authentication_check": {
+          "description": "API key validation and user identification",
+          "invoke": {
+            "src": "validateAuthentication",
+            "onDone": {
+              "target": "upload_preparation",
+              "actions": "setAuthenticatedUser"
+            },
+            "onError": {
+              "target": "authentication_error",
+              "actions": "setAuthenticationError"
+            }
+          }
+        },
+        "upload_preparation": {
+          "description": "Preparing component for upload",
+          "on": {
+            "SELECT_FILE": "file_selection",
+            "CREATE_NEW": "component_creation",
+            "IMPORT_FROM_URL": "url_import"
+          }
+        },
+        "file_selection": {
+          "description": "Selecting component file for upload",
+          "invoke": {
+            "src": "selectComponentFile",
+            "onDone": {
+              "target": "data_processing",
+              "actions": "setSelectedFile"
+            },
+            "onError": {
+              "target": "file_selection_error",
+              "actions": "setFileSelectionError"
+            }
+          }
+        },
+        "component_creation": {
+          "description": "Creating component from scratch",
+          "invoke": {
+            "src": "createNewComponent",
+            "onDone": {
+              "target": "metadata_extraction",
+              "actions": "setCreatedComponent"
+            },
+            "onError": {
+              "target": "component_creation_error",
+              "actions": "setComponentCreationError"
+            }
+          }
+        },
+        "url_import": {
+          "description": "Importing component from URL",
+          "invoke": {
+            "src": "importFromUrl",
+            "onDone": {
+              "target": "data_processing",
+              "actions": "setImportedComponent"
+            },
+            "onError": {
+              "target": "url_import_error",
+              "actions": "setUrlImportError"
+            }
+          }
+        },
+        "data_processing": {
+          "description": "Component metadata extraction and validation",
+          "invoke": {
+            "src": "processComponentData",
+            "onDone": {
+              "target": "metadata_extraction",
+              "actions": "setProcessedData"
+            },
+            "onError": {
+              "target": "data_processing_error",
+              "actions": "setDataProcessingError"
+            }
+          }
+        },
+        "metadata_extraction": {
+          "description": "Extracting component metadata and schema validation",
+          "invoke": {
+            "src": "extractMetadata",
+            "onDone": {
+              "target": "tag_processing",
+              "actions": "setExtractedMetadata"
+            },
+            "onError": {
+              "target": "metadata_extraction_error",
+              "actions": "setMetadataExtractionError"
+            }
+          }
+        },
+        "tag_processing": {
+          "description": "Tag association and creation",
+          "invoke": {
+            "src": "processComponentTags",
+            "onDone": {
+              "target": "validation",
+              "actions": "setProcessedTags"
+            },
+            "onError": {
+              "target": "tag_processing_error",
+              "actions": "setTagProcessingError"
+            }
+          }
+        },
+        "validation": {
+          "description": "Component validation and compatibility checks",
+          "invoke": {
+            "src": "validateComponent",
+            "onDone": {
+              "target": "upload_review",
+              "actions": "setValidationResults"
+            },
+            "onError": {
+              "target": "validation_error",
+              "actions": "setValidationError"
+            }
+          }
+        },
+        "upload_review": {
+          "description": "User review of upload data before submission",
+          "on": {
+            "EDIT_METADATA": "editing_metadata",
+            "EDIT_TAGS": "editing_tags",
+            "SET_PRIVACY": "setting_privacy",
+            "CONFIRM_UPLOAD": "uploading_to_marketplace"
+          }
+        },
+        "editing_metadata": {
+          "description": "Editing component metadata before upload",
+          "on": {
+            "SAVE_METADATA": "upload_review",
+            "CANCEL_EDIT": "upload_review"
+          }
+        },
+        "editing_tags": {
+          "description": "Editing component tags before upload",
+          "on": {
+            "SAVE_TAGS": "upload_review",
+            "CANCEL_EDIT": "upload_review"
+          }
+        },
+        "setting_privacy": {
+          "description": "Setting component privacy and access levels",
+          "on": {
+            "SET_PUBLIC": {
+              "actions": "setPublicComponent"
+            },
+            "SET_PRIVATE": {
+              "actions": "setPrivateComponent"
+            },
+            "SET_UNLISTED": {
+              "actions": "setUnlistedComponent"
+            },
+            "APPLY_PRIVACY": "upload_review"
+          }
+        },
+        "uploading_to_marketplace": {
+          "description": "Transactional component creation and upload",
+          "invoke": {
+            "src": "uploadToMarketplace",
+            "onDone": {
+              "target": "upload_completed",
+              "actions": "setUploadResults"
+            },
+            "onError": {
+              "target": "upload_error",
+              "actions": "setUploadError"
+            }
+          }
+        },
+        "upload_completed": {
+          "description": "Component uploaded successfully",
+          "on": {
+            "VIEW_UPLOADED": "viewing_uploaded_component",
+            "UPLOAD_ANOTHER": "upload_preparation",
+            "SHARE_COMPONENT": "sharing_uploaded_component",
+            "FINISH": "#store_marketplace_workflow.idle"
+          }
+        },
+        "viewing_uploaded_component": {
+          "description": "Viewing newly uploaded component",
+          "invoke": {
+            "src": "loadUploadedComponent",
+            "onDone": {
+              "target": "displaying_uploaded_component",
+              "actions": "setUploadedComponent"
+            },
+            "onError": {
+              "target": "uploaded_component_error",
+              "actions": "setUploadedComponentError"
+            }
+          }
+        },
+        "displaying_uploaded_component": {
+          "description": "Showing uploaded component details",
+          "on": {
+            "EDIT_COMPONENT": "editing_uploaded_component",
+            "DELETE_COMPONENT": "deleting_uploaded_component",
+            "SHARE_COMPONENT": "sharing_uploaded_component",
+            "BACK": "upload_completed"
+          }
+        },
+        "sharing_uploaded_component": {
+          "description": "Sharing uploaded component",
+          "invoke": {
+            "src": "shareComponent",
+            "onDone": {
+              "target": "upload_completed",
+              "actions": "confirmComponentShared"
+            },
+            "onError": {
+              "target": "sharing_error",
+              "actions": "setSharingError"
+            }
+          }
+        },
+        "authentication_error": {
+          "description": "Authentication failed",
+          "on": {
+            "PROVIDE_API_KEY": "providing_api_key",
+            "LOGIN": "user_login",
+            "CANCEL": "#store_marketplace_workflow.idle"
+          }
+        },
+        "file_selection_error": {
+          "description": "Error selecting component file",
+          "on": {
+            "RETRY": "file_selection",
+            "SELECT_DIFFERENT": "file_selection",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "component_creation_error": {
+          "description": "Error creating new component",
+          "on": {
+            "RETRY": "component_creation",
+            "TRY_FILE_UPLOAD": "file_selection",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "url_import_error": {
+          "description": "Error importing from URL",
+          "on": {
+            "RETRY": "url_import",
+            "TRY_FILE_UPLOAD": "file_selection",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "data_processing_error": {
+          "description": "Error processing component data",
+          "on": {
+            "RETRY": "data_processing",
+            "FIX_DATA": "manual_data_correction",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "metadata_extraction_error": {
+          "description": "Error extracting metadata",
+          "on": {
+            "RETRY": "metadata_extraction",
+            "MANUAL_METADATA": "manual_metadata_entry",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "tag_processing_error": {
+          "description": "Error processing tags",
+          "on": {
+            "RETRY": "tag_processing",
+            "MANUAL_TAGS": "manual_tag_entry",
+            "SKIP_TAGS": "validation"
+          }
+        },
+        "validation_error": {
+          "description": "Component validation failed",
+          "on": {
+            "FIX_ISSUES": "fixing_validation_issues",
+            "OVERRIDE_VALIDATION": "override_validation",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "upload_error": {
+          "description": "Error during upload to marketplace",
+          "on": {
+            "RETRY": "uploading_to_marketplace",
+            "CHECK_CONNECTION": "checking_connection",
+            "CANCEL": "upload_review"
+          }
+        },
+        "uploaded_component_error": {
+          "description": "Error loading uploaded component",
+          "on": {
+            "RETRY": "viewing_uploaded_component",
+            "SKIP": "upload_completed"
+          }
+        },
+        "sharing_error": {
+          "description": "Error sharing component",
+          "on": {
+            "RETRY": "sharing_uploaded_component",
+            "MANUAL_SHARE": "manual_sharing",
+            "SKIP": "upload_completed"
+          }
+        },
+        "providing_api_key": {
+          "description": "User providing API key for authentication",
+          "on": {
+            "API_KEY_PROVIDED": "authentication_check",
+            "CANCEL": "#store_marketplace_workflow.idle"
+          }
+        },
+        "user_login": {
+          "description": "User login process",
+          "on": {
+            "LOGIN_SUCCESS": "authentication_check",
+            "LOGIN_FAILED": "authentication_error",
+            "CANCEL": "#store_marketplace_workflow.idle"
+          }
+        },
+        "manual_data_correction": {
+          "description": "Manual correction of component data",
+          "on": {
+            "DATA_CORRECTED": "data_processing",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "manual_metadata_entry": {
+          "description": "Manual metadata entry",
+          "on": {
+            "METADATA_ENTERED": "tag_processing",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "manual_tag_entry": {
+          "description": "Manual tag entry",
+          "on": {
+            "TAGS_ENTERED": "validation",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "fixing_validation_issues": {
+          "description": "Fixing component validation issues",
+          "on": {
+            "ISSUES_FIXED": "validation",
+            "CANCEL": "upload_preparation"
+          }
+        },
+        "override_validation": {
+          "description": "Overriding validation warnings",
+          "on": {
+            "CONFIRM_OVERRIDE": "upload_review",
+            "CANCEL": "validation"
+          }
+        },
+        "checking_connection": {
+          "description": "Checking marketplace connection",
+          "invoke": {
+            "src": "checkMarketplaceConnection",
+            "onDone": {
+              "target": "uploading_to_marketplace",
+              "actions": "confirmConnectionOk"
+            },
+            "onError": {
+              "target": "connection_error",
+              "actions": "setConnectionError"
+            }
+          }
+        },
+        "connection_error": {
+          "description": "Marketplace connection error",
+          "on": {
+            "RETRY_CONNECTION": "checking_connection",
+            "WORK_OFFLINE": "offline_upload_queue",
+            "CANCEL": "upload_review"
+          }
+        },
+        "offline_upload_queue": {
+          "description": "Queueing upload for when online",
+          "invoke": {
+            "src": "queueOfflineUpload",
+            "onDone": {
+              "target": "upload_queued",
+              "actions": "confirmUploadQueued"
+            },
+            "onError": {
+              "target": "queue_error",
+              "actions": "setQueueError"
+            }
+          }
+        },
+        "upload_queued": {
+          "description": "Upload queued for later",
+          "on": {
+            "VIEW_QUEUE": "viewing_upload_queue",
+            "TRY_UPLOAD_NOW": "uploading_to_marketplace",
+            "FINISH": "#store_marketplace_workflow.idle"
+          }
+        },
+        "viewing_upload_queue": {
+          "description": "Viewing pending upload queue",
+          "on": {
+            "PROCESS_QUEUE": "processing_upload_queue",
+            "CANCEL_QUEUED": "canceling_queued_upload",
+            "BACK": "upload_queued"
+          }
+        },
+        "processing_upload_queue": {
+          "description": "Processing queued uploads",
+          "invoke": {
+            "src": "processUploadQueue",
+            "onDone": {
+              "target": "upload_completed",
+              "actions": "setQueueProcessResults"
+            },
+            "onError": {
+              "target": "queue_processing_error",
+              "actions": "setQueueProcessingError"
+            }
+          }
+        },
+        "queue_error": {
+          "description": "Error queueing upload",
+          "on": {
+            "RETRY": "offline_upload_queue",
+            "SAVE_LOCALLY": "saving_locally",
+            "CANCEL": "upload_review"
+          }
+        },
+        "queue_processing_error": {
+          "description": "Error processing upload queue",
+          "on": {
+            "RETRY": "processing_upload_queue",
+            "CANCEL": "viewing_upload_queue"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "downloading": {
+      "description": "Component download and integration workflow",
+      "initial": "download_preparation",
+      "states": {
+        "download_preparation": {
+          "description": "Preparing component for download",
+          "invoke": {
+            "src": "prepareComponentDownload",
+            "onDone": {
+              "target": "access_validation",
+              "actions": "setDownloadPreparation"
+            },
+            "onError": {
+              "target": "download_preparation_error",
+              "actions": "setDownloadPreparationError"
+            }
+          }
+        },
+        "access_validation": {
+          "description": "Permission checking and rate limiting",
+          "invoke": {
+            "src": "validateDownloadAccess",
+            "onDone": {
+              "target": "webhook_tracking",
+              "actions": "confirmDownloadAccess"
+            },
+            "onError": {
+              "target": "access_validation_error",
+              "actions": "setAccessValidationError"
+            }
+          }
+        },
+        "webhook_tracking": {
+          "description": "Download event recording",
+          "invoke": {
+            "src": "trackDownloadEvent",
+            "onDone": {
+              "target": "data_retrieval",
+              "actions": "confirmEventTracked"
+            },
+            "onError": {
+              "target": "tracking_error",
+              "actions": "setTrackingError"
+            }
+          }
+        },
+        "data_retrieval": {
+          "description": "Component data fetching with metadata",
+          "invoke": {
+            "src": "retrieveComponentData",
+            "onDone": {
+              "target": "metadata_processing",
+              "actions": "setRetrievedData"
+            },
+            "onError": {
+              "target": "data_retrieval_error",
+              "actions": "setDataRetrievalError"
+            }
+          }
+        },
+        "metadata_processing": {
+          "description": "Dynamic metadata generation if needed",
+          "invoke": {
+            "src": "processDownloadMetadata",
+            "onDone": {
+              "target": "download_options",
+              "actions": "setProcessedMetadata"
+            },
+            "onError": {
+              "target": "metadata_processing_error",
+              "actions": "setMetadataProcessingError"
+            }
+          }
+        },
+        "download_options": {
+          "description": "Download options and format selection",
+          "on": {
+            "DOWNLOAD_DIRECT": "direct_download",
+            "DOWNLOAD_WITH_DEPENDENCIES": "dependency_download",
+            "DOWNLOAD_DOCUMENTATION": "documentation_download",
+            "CUSTOM_DOWNLOAD": "custom_download_options"
+          }
+        },
+        "direct_download": {
+          "description": "Direct component download",
+          "invoke": {
+            "src": "downloadComponent",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "setDownloadedComponent"
+            },
+            "onError": {
+              "target": "direct_download_error",
+              "actions": "setDirectDownloadError"
+            }
+          }
+        },
+        "dependency_download": {
+          "description": "Download with dependencies included",
+          "invoke": {
+            "src": "downloadWithDependencies",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "setDownloadedWithDependencies"
+            },
+            "onError": {
+              "target": "dependency_download_error",
+              "actions": "setDependencyDownloadError"
+            }
+          }
+        },
+        "documentation_download": {
+          "description": "Download with documentation included",
+          "invoke": {
+            "src": "downloadWithDocumentation",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "setDownloadedWithDocs"
+            },
+            "onError": {
+              "target": "documentation_download_error",
+              "actions": "setDocumentationDownloadError"
+            }
+          }
+        },
+        "custom_download_options": {
+          "description": "Custom download configuration",
+          "on": {
+            "SELECT_FORMAT": {
+              "actions": "setDownloadFormat"
+            },
+            "SELECT_COMPONENTS": {
+              "actions": "setSelectedComponents"
+            },
+            "INCLUDE_EXAMPLES": {
+              "actions": "includeExamples"
+            },
+            "CONFIRM_CUSTOM": "custom_download"
+          }
+        },
+        "custom_download": {
+          "description": "Custom configured download",
+          "invoke": {
+            "src": "downloadCustom",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "setCustomDownload"
+            },
+            "onError": {
+              "target": "custom_download_error",
+              "actions": "setCustomDownloadError"
+            }
+          }
+        },
+        "download_completed": {
+          "description": "Download completed successfully",
+          "on": {
+            "INSTALL_COMPONENT": "installing_component",
+            "VIEW_DOWNLOADED": "viewing_downloaded",
+            "DOWNLOAD_ANOTHER": "#store_marketplace_workflow.browsing",
+            "RATE_COMPONENT": "rating_component",
+            "FINISH": "#store_marketplace_workflow.idle"
+          }
+        },
+        "installing_component": {
+          "description": "Installing downloaded component",
+          "invoke": {
+            "src": "installComponent",
+            "onDone": {
+              "target": "installation_completed",
+              "actions": "confirmInstallation"
+            },
+            "onError": {
+              "target": "installation_error",
+              "actions": "setInstallationError"
+            }
+          }
+        },
+        "installation_completed": {
+          "description": "Component installed successfully",
+          "on": {
+            "TEST_COMPONENT": "testing_installed_component",
+            "VIEW_INSTALLED": "viewing_installed_component",
+            "FINISH": "#store_marketplace_workflow.idle"
+          }
+        },
+        "viewing_downloaded": {
+          "description": "Viewing downloaded component files",
+          "on": {
+            "INSTALL_NOW": "installing_component",
+            "SAVE_FOR_LATER": "saving_for_later",
+            "BACK": "download_completed"
+          }
+        },
+        "rating_component": {
+          "description": "Rating downloaded component",
+          "invoke": {
+            "src": "rateComponent",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "confirmRating"
+            },
+            "onError": {
+              "target": "rating_error",
+              "actions": "setRatingError"
+            }
+          }
+        },
+        "testing_installed_component": {
+          "description": "Testing installed component functionality",
+          "invoke": {
+            "src": "testInstalledComponent",
+            "onDone": {
+              "target": "installation_completed",
+              "actions": "setTestResults"
+            },
+            "onError": {
+              "target": "testing_error",
+              "actions": "setTestingError"
+            }
+          }
+        },
+        "viewing_installed_component": {
+          "description": "Viewing installed component details",
+          "on": {
+            "UNINSTALL": "uninstalling_component",
+            "UPDATE": "updating_component",
+            "CONFIGURE": "configuring_component",
+            "BACK": "installation_completed"
+          }
+        },
+        "download_preparation_error": {
+          "description": "Error preparing download",
+          "on": {
+            "RETRY": "download_preparation",
+            "CANCEL": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "access_validation_error": {
+          "description": "Access validation failed",
+          "on": {
+            "CHECK_PERMISSIONS": "checking_permissions",
+            "LOGIN_REQUIRED": "login_for_download",
+            "CANCEL": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "tracking_error": {
+          "description": "Error tracking download event",
+          "on": {
+            "RETRY": "webhook_tracking",
+            "SKIP_TRACKING": "data_retrieval"
+          }
+        },
+        "data_retrieval_error": {
+          "description": "Error retrieving component data",
+          "on": {
+            "RETRY": "data_retrieval",
+            "TRY_CACHED": "trying_cached_download",
+            "CANCEL": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "metadata_processing_error": {
+          "description": "Error processing download metadata",
+          "on": {
+            "RETRY": "metadata_processing",
+            "SKIP_METADATA": "download_options"
+          }
+        },
+        "direct_download_error": {
+          "description": "Error during direct download",
+          "on": {
+            "RETRY": "direct_download",
+            "TRY_ALTERNATIVE": "dependency_download",
+            "CANCEL": "download_options"
+          }
+        },
+        "dependency_download_error": {
+          "description": "Error downloading with dependencies",
+          "on": {
+            "RETRY": "dependency_download",
+            "TRY_DIRECT": "direct_download",
+            "PARTIAL_DOWNLOAD": "partial_dependency_download"
+          }
+        },
+        "documentation_download_error": {
+          "description": "Error downloading with documentation",
+          "on": {
+            "RETRY": "documentation_download",
+            "SKIP_DOCS": "direct_download"
+          }
+        },
+        "custom_download_error": {
+          "description": "Error during custom download",
+          "on": {
+            "RETRY": "custom_download",
+            "MODIFY_OPTIONS": "custom_download_options",
+            "TRY_STANDARD": "direct_download"
+          }
+        },
+        "installation_error": {
+          "description": "Error installing component",
+          "on": {
+            "RETRY": "installing_component",
+            "MANUAL_INSTALL": "manual_installation",
+            "SKIP_INSTALL": "download_completed"
+          }
+        },
+        "rating_error": {
+          "description": "Error rating component",
+          "on": {
+            "RETRY": "rating_component",
+            "SKIP_RATING": "download_completed"
+          }
+        },
+        "testing_error": {
+          "description": "Error testing installed component",
+          "on": {
+            "RETRY": "testing_installed_component",
+            "SKIP_TESTING": "installation_completed"
+          }
+        },
+        "checking_permissions": {
+          "description": "Checking download permissions",
+          "invoke": {
+            "src": "checkDownloadPermissions",
+            "onDone": {
+              "target": "webhook_tracking",
+              "actions": "confirmPermissions"
+            },
+            "onError": {
+              "target": "permissions_error",
+              "actions": "setPermissionsError"
+            }
+          }
+        },
+        "login_for_download": {
+          "description": "Login required for download",
+          "on": {
+            "LOGIN_SUCCESS": "access_validation",
+            "LOGIN_FAILED": "login_failed",
+            "CANCEL": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "trying_cached_download": {
+          "description": "Attempting cached download",
+          "invoke": {
+            "src": "tryCachedDownload",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "setCachedDownload"
+            },
+            "onError": {
+              "target": "cached_download_error",
+              "actions": "setCachedDownloadError"
+            }
+          }
+        },
+        "partial_dependency_download": {
+          "description": "Partial download of dependencies",
+          "invoke": {
+            "src": "downloadPartialDependencies",
+            "onDone": {
+              "target": "download_completed",
+              "actions": "setPartialDownload"
+            },
+            "onError": {
+              "target": "partial_download_error",
+              "actions": "setPartialDownloadError"
+            }
+          }
+        },
+        "manual_installation": {
+          "description": "Manual component installation",
+          "on": {
+            "INSTALLATION_COMPLETE": "installation_completed",
+            "INSTALLATION_FAILED": "installation_error"
+          }
+        },
+        "permissions_error": {
+          "description": "Permissions check failed",
+          "on": {
+            "CONTACT_SUPPORT": "contacting_support",
+            "TRY_DIFFERENT_COMPONENT": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "login_failed": {
+          "description": "Login failed for download",
+          "on": {
+            "RETRY_LOGIN": "login_for_download",
+            "GUEST_DOWNLOAD": "guest_download_attempt",
+            "CANCEL": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "cached_download_error": {
+          "description": "Cached download failed",
+          "on": {
+            "TRY_FRESH": "data_retrieval",
+            "CANCEL": "#store_marketplace_workflow.browsing"
+          }
+        },
+        "partial_download_error": {
+          "description": "Partial dependency download failed",
+          "on": {
+            "RETRY": "partial_dependency_download",
+            "TRY_MINIMAL": "direct_download"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "browsing"
+      }
+    },
+    "account_management": {
+      "description": "User account and component management",
+      "initial": "account_overview",
+      "states": {
+        "account_overview": {
+          "description": "User account overview with statistics",
+          "invoke": {
+            "src": "loadAccountOverview",
+            "onDone": {
+              "target": "displaying_account_overview",
+              "actions": "setAccountOverview"
+            },
+            "onError": {
+              "target": "account_overview_error",
+              "actions": "setAccountOverviewError"
+            }
+          }
+        },
+        "displaying_account_overview": {
+          "description": "Showing account statistics and options",
+          "on": {
+            "VIEW_UPLOADED": "viewing_uploaded_components",
+            "VIEW_DOWNLOADED": "viewing_downloaded_components",
+            "VIEW_LIKED": "viewing_liked_components",
+            "ACCOUNT_SETTINGS": "account_settings",
+            "API_KEY_MANAGEMENT": "api_key_management"
+          }
+        },
+        "viewing_uploaded_components": {
+          "description": "Viewing user's uploaded components",
+          "invoke": {
+            "src": "loadUploadedComponents",
+            "onDone": {
+              "target": "displaying_uploaded_components",
+              "actions": "setUploadedComponents"
+            },
+            "onError": {
+              "target": "uploaded_components_error",
+              "actions": "setUploadedComponentsError"
+            }
+          }
+        },
+        "displaying_uploaded_components": {
+          "description": "Showing uploaded components with management options",
+          "on": {
+            "EDIT_COMPONENT": "editing_component",
+            "DELETE_COMPONENT": "deleting_component",
+            "VIEW_ANALYTICS": "viewing_component_analytics",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "viewing_downloaded_components": {
+          "description": "Viewing user's download history",
+          "invoke": {
+            "src": "loadDownloadHistory",
+            "onDone": {
+              "target": "displaying_download_history",
+              "actions": "setDownloadHistory"
+            },
+            "onError": {
+              "target": "download_history_error",
+              "actions": "setDownloadHistoryError"
+            }
+          }
+        },
+        "displaying_download_history": {
+          "description": "Showing download history with re-download options",
+          "on": {
+            "RE_DOWNLOAD": "re_downloading_component",
+            "RATE_COMPONENT": "rating_downloaded_component",
+            "REMOVE_FROM_HISTORY": "removing_from_history",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "viewing_liked_components": {
+          "description": "Viewing user's liked components",
+          "invoke": {
+            "src": "loadLikedComponents",
+            "onDone": {
+              "target": "displaying_liked_components",
+              "actions": "setLikedComponents"
+            },
+            "onError": {
+              "target": "liked_components_error",
+              "actions": "setLikedComponentsError"
+            }
+          }
+        },
+        "displaying_liked_components": {
+          "description": "Showing liked components with management options",
+          "on": {
+            "UNLIKE_COMPONENT": "unliking_liked_component",
+            "DOWNLOAD_LIKED": "downloading_liked_component",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "account_settings": {
+          "description": "Account settings management",
+          "on": {
+            "UPDATE_PROFILE": "updating_profile",
+            "CHANGE_PASSWORD": "changing_password",
+            "PRIVACY_SETTINGS": "privacy_settings",
+            "NOTIFICATION_SETTINGS": "notification_settings",
+            "DELETE_ACCOUNT": "deleting_account"
+          }
+        },
+        "api_key_management": {
+          "description": "API key management",
+          "invoke": {
+            "src": "loadApiKeys",
+            "onDone": {
+              "target": "displaying_api_keys",
+              "actions": "setApiKeys"
+            },
+            "onError": {
+              "target": "api_keys_error",
+              "actions": "setApiKeysError"
+            }
+          }
+        },
+        "displaying_api_keys": {
+          "description": "Showing API keys with management options",
+          "on": {
+            "GENERATE_NEW_KEY": "generating_api_key",
+            "REVOKE_KEY": "revoking_api_key",
+            "REGENERATE_KEY": "regenerating_api_key",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "account_overview_error": {
+          "description": "Error loading account overview",
+          "on": {
+            "RETRY": "account_overview",
+            "CANCEL": "#store_marketplace_workflow.idle"
+          }
+        },
+        "uploaded_components_error": {
+          "description": "Error loading uploaded components",
+          "on": {
+            "RETRY": "viewing_uploaded_components",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "download_history_error": {
+          "description": "Error loading download history",
+          "on": {
+            "RETRY": "viewing_downloaded_components",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "liked_components_error": {
+          "description": "Error loading liked components",
+          "on": {
+            "RETRY": "viewing_liked_components",
+            "BACK": "displaying_account_overview"
+          }
+        },
+        "api_keys_error": {
+          "description": "Error loading API keys",
+          "on": {
+            "RETRY": "api_key_management",
+            "BACK": "displaying_account_overview"
+          }
+        }
+      },
+      "on": {
+        "BACK": "idle"
+      }
+    }
+  },
+  "services": {
+    "loadMarketplaceData": "Service to load marketplace connection and categories",
+    "filterByCategory": "Service to filter components by category (component vs flow)",
+    "applyComplexFilters": "Service to apply complex filter conditions",
+    "loadFeaturedComponents": "Service to load featured components",
+    "loadPopularComponents": "Service to load popular components by download count",
+    "loadRecentComponents": "Service to load recently added components",
+    "refineFilters": "Service to refine existing filters with additional criteria",
+    "applySorting": "Service to apply sorting options to component list",
+    "changeViewMode": "Service to change component display mode",
+    "loadMoreResults": "Service to load additional results with pagination",
+    "loadComponentDetails": "Service to load detailed component information with metadata",
+    "likeComponent": "Service to add component to user likes",
+    "unlikeComponent": "Service to remove component from user likes",
+    "findSimilarComponents": "Service to find similar components with relevance scoring",
+    "reportComponent": "Service to report component for policy violations",
+    "simplifyFilters": "Service to simplify complex filters that failed",
+    "performQuickSearch": "Service for name, description, tag, and author search",
+    "performAdvancedSearch": "Service for multi-tag AND/OR operations and complex filtering",
+    "searchById": "Service for direct component ID search",
+    "refineSearch": "Service to refine search query and parameters",
+    "sortSearchResults": "Service to sort search results by various criteria",
+    "filterSearchResults": "Service to apply additional filters to search results",
+    "loadMoreSearchResults": "Service to load additional search result pages",
+    "validateAuthentication": "Service for API key validation and user identification",
+    "selectComponentFile": "Service to select component file for upload",
+    "createNewComponent": "Service to create component from scratch",
+    "importFromUrl": "Service to import component from URL",
+    "processComponentData": "Service for component metadata extraction and validation",
+    "extractMetadata": "Service to extract component metadata with schema validation",
+    "processComponentTags": "Service for tag association and creation",
+    "validateComponent": "Service for component validation and compatibility checks",
+    "uploadToMarketplace": "Service for transactional component creation and upload",
+    "loadUploadedComponent": "Service to load newly uploaded component",
+    "shareComponent": "Service to share uploaded component",
+    "checkMarketplaceConnection": "Service to check marketplace connection",
+    "queueOfflineUpload": "Service to queue upload for when online",
+    "processUploadQueue": "Service to process queued uploads",
+    "prepareComponentDownload": "Service to prepare component for download",
+    "validateDownloadAccess": "Service for permission checking and rate limiting",
+    "trackDownloadEvent": "Service for download event recording",
+    "retrieveComponentData": "Service for component data fetching with metadata",
+    "processDownloadMetadata": "Service for dynamic metadata generation if needed",
+    "downloadComponent": "Service for direct component download",
+    "downloadWithDependencies": "Service to download with dependencies included",
+    "downloadWithDocumentation": "Service to download with documentation included",
+    "downloadCustom": "Service for custom configured download",
+    "installComponent": "Service to install downloaded component",
+    "rateComponent": "Service to rate downloaded component",
+    "testInstalledComponent": "Service to test installed component functionality",
+    "checkDownloadPermissions": "Service to check download permissions",
+    "tryCachedDownload": "Service to attempt cached download",
+    "downloadPartialDependencies": "Service for partial download of dependencies",
+    "loadAccountOverview": "Service to load user account overview with statistics",
+    "loadUploadedComponents": "Service to load user's uploaded components",
+    "loadDownloadHistory": "Service to load user's download history",
+    "loadLikedComponents": "Service to load user's liked components",
+    "loadApiKeys": "Service to load user's API keys"
+  },
+  "guards": {},
+  "actions": {
+    "setMarketplaceData": "Set marketplace connection and category data",
+    "setMarketplaceLoadError": "Set marketplace loading error",
+    "setCategoryFilterResults": "Set category filter results",
+    "setCategoryFilterError": "Set category filter error",
+    "setComplexFilterResults": "Set complex filter results",
+    "setComplexFilterError": "Set complex filter error",
+    "setFeaturedComponents": "Set featured components list",
+    "setFeaturedLoadError": "Set featured components loading error",
+    "setPopularComponents": "Set popular components list",
+    "setPopularLoadError": "Set popular components loading error",
+    "setRecentComponents": "Set recent components list",
+    "setRecentLoadError": "Set recent components loading error",
+    "setSelectedComponent": "Set currently selected component",
+    "setRefinedFilterResults": "Set refined filter results",
+    "setFilterRefinementError": "Set filter refinement error",
+    "setSortedResults": "Set sorted component results",
+    "setSortingError": "Set sorting error",
+    "setViewMode": "Set component display mode",
+    "setViewModeError": "Set view mode error",
+    "appendMoreResults": "Append additional results to list",
+    "setLoadMoreError": "Set load more results error",
+    "setComponentDetails": "Set detailed component information",
+    "setComponentDetailsError": "Set component details error",
+    "confirmComponentLiked": "Confirm component added to likes",
+    "setLikeError": "Set component like error",
+    "confirmComponentUnliked": "Confirm component removed from likes",
+    "setUnlikeError": "Set component unlike error",
+    "setSimilarComponents": "Set similar components list",
+    "setSimilarComponentsError": "Set similar components error",
+    "confirmComponentReported": "Confirm component reported",
+    "setReportError": "Set component report error",
+    "setSimplifiedFilterResults": "Set simplified filter results",
+    "setSimplificationError": "Set filter simplification error",
+    "setSearchQuery": "Set search query text",
+    "setQuickSearchResults": "Set quick search results",
+    "setQuickSearchError": "Set quick search error",
+    "setPrivacyFilter": "Set privacy filter (public vs private)",
+    "setUserFilter": "Set user filter for personal components",
+    "setTagFilter": "Set tag-based filter",
+    "setDateRange": "Set date range filter",
+    "setAdvancedSearchResults": "Set advanced search results",
+    "setAdvancedSearchError": "Set advanced search error",
+    "setIdSearchResult": "Set direct ID search result",
+    "setIdSearchError": "Set ID search error",
+    "setRefinedSearchResults": "Set refined search results",
+    "setSearchRefinementError": "Set search refinement error",
+    "setSortedSearchResults": "Set sorted search results",
+    "setSearchSortingError": "Set search sorting error",
+    "setFilteredSearchResults": "Set filtered search results",
+    "setSearchFilteringError": "Set search filtering error",
+    "appendMoreSearchResults": "Append additional search results",
+    "setSearchLoadMoreError": "Set search load more error",
+    "setAuthenticatedUser": "Set authenticated user data",
+    "setAuthenticationError": "Set authentication error",
+    "setSelectedFile": "Set selected component file",
+    "setFileSelectionError": "Set file selection error",
+    "setCreatedComponent": "Set newly created component",
+    "setComponentCreationError": "Set component creation error",
+    "setImportedComponent": "Set imported component data",
+    "setUrlImportError": "Set URL import error",
+    "setProcessedData": "Set processed component data",
+    "setDataProcessingError": "Set data processing error",
+    "setExtractedMetadata": "Set extracted component metadata",
+    "setMetadataExtractionError": "Set metadata extraction error",
+    "setProcessedTags": "Set processed component tags",
+    "setTagProcessingError": "Set tag processing error",
+    "setValidationResults": "Set component validation results",
+    "setValidationError": "Set component validation error",
+    "setPublicComponent": "Set component as public",
+    "setPrivateComponent": "Set component as private",
+    "setUnlistedComponent": "Set component as unlisted",
+    "setUploadResults": "Set upload operation results",
+    "setUploadError": "Set upload error",
+    "setUploadedComponent": "Set uploaded component data",
+    "setUploadedComponentError": "Set uploaded component error",
+    "confirmComponentShared": "Confirm component shared",
+    "setSharingError": "Set component sharing error",
+    "confirmConnectionOk": "Confirm marketplace connection OK",
+    "setConnectionError": "Set connection error",
+    "confirmUploadQueued": "Confirm upload queued for later",
+    "setQueueError": "Set upload queue error",
+    "setQueueProcessResults": "Set queue processing results",
+    "setQueueProcessingError": "Set queue processing error",
+    "setDownloadPreparation": "Set download preparation data",
+    "setDownloadPreparationError": "Set download preparation error",
+    "confirmDownloadAccess": "Confirm download access granted",
+    "setAccessValidationError": "Set access validation error",
+    "confirmEventTracked": "Confirm download event tracked",
+    "setTrackingError": "Set event tracking error",
+    "setRetrievedData": "Set retrieved component data",
+    "setDataRetrievalError": "Set data retrieval error",
+    "setProcessedMetadata": "Set processed download metadata",
+    "setMetadataProcessingError": "Set metadata processing error",
+    "setDownloadFormat": "Set download format selection",
+    "setSelectedComponents": "Set selected components for download",
+    "includeExamples": "Include examples in download",
+    "setDownloadedComponent": "Set downloaded component data",
+    "setDirectDownloadError": "Set direct download error",
+    "setDownloadedWithDependencies": "Set download with dependencies data",
+    "setDependencyDownloadError": "Set dependency download error",
+    "setDownloadedWithDocs": "Set download with documentation data",
+    "setDocumentationDownloadError": "Set documentation download error",
+    "setCustomDownload": "Set custom download data",
+    "setCustomDownloadError": "Set custom download error",
+    "confirmInstallation": "Confirm component installation",
+    "setInstallationError": "Set installation error",
+    "confirmRating": "Confirm component rating",
+    "setRatingError": "Set rating error",
+    "setTestResults": "Set component test results",
+    "setTestingError": "Set testing error",
+    "confirmPermissions": "Confirm download permissions",
+    "setPermissionsError": "Set permissions error",
+    "setCachedDownload": "Set cached download data",
+    "setCachedDownloadError": "Set cached download error",
+    "setPartialDownload": "Set partial download data",
+    "setPartialDownloadError": "Set partial download error",
+    "setAccountOverview": "Set account overview data",
+    "setAccountOverviewError": "Set account overview error",
+    "setUploadedComponents": "Set uploaded components list",
+    "setUploadedComponentsError": "Set uploaded components error",
+    "setDownloadHistory": "Set download history data",
+    "setDownloadHistoryError": "Set download history error",
+    "setLikedComponents": "Set liked components list",
+    "setLikedComponentsError": "Set liked components error",
+    "setApiKeys": "Set user API keys",
+    "setApiKeysError": "Set API keys error"
+  }
+}

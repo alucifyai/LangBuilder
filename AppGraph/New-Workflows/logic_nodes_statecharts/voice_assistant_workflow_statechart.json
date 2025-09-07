@@ -1,0 +1,1445 @@
+{
+  "id": "voice_assistant_workflow",
+  "initial": "idle",
+  "context": {
+    "user": null,
+    "sessionConfig": null,
+    "audioInput": null,
+    "audioOutput": null,
+    "vadState": null,
+    "openaiConnection": null,
+    "ttsProvider": "openai",
+    "voiceId": null,
+    "audioFormat": "24kHz_pcm",
+    "sampleRate": 24000,
+    "resampledRate": 16000,
+    "isRecording": false,
+    "isProcessing": false,
+    "isPlaying": false,
+    "bargeInEnabled": true,
+    "vadSensitivity": 0.5,
+    "messages": [],
+    "eventLog": [],
+    "errors": [],
+    "connectionStatus": "disconnected",
+    "flowIntegrationEnabled": false,
+    "currentFlowExecution": null
+  },
+  "states": {
+    "idle": {
+      "description": "Voice assistant ready for activation",
+      "on": {
+        "START_SESSION": "initializing",
+        "CONFIGURE_VOICE": "configuring",
+        "TEST_AUDIO": "testing_audio"
+      }
+    },
+    "initializing": {
+      "description": "Setting up voice assistant session",
+      "initial": "session_setup",
+      "states": {
+        "session_setup": {
+          "description": "Setting up per-session configuration",
+          "invoke": {
+            "src": "setupVoiceSession",
+            "onDone": {
+              "target": "websocket_connection",
+              "actions": "setSessionConfig"
+            },
+            "onError": {
+              "target": "session_setup_error",
+              "actions": "setSessionSetupError"
+            }
+          }
+        },
+        "websocket_connection": {
+          "description": "Establishing WebSocket connection for real-time audio",
+          "invoke": {
+            "src": "establishWebSocketConnection",
+            "onDone": {
+              "target": "openai_connection",
+              "actions": "setWebSocketConnection"
+            },
+            "onError": {
+              "target": "websocket_error",
+              "actions": "setWebSocketError"
+            }
+          }
+        },
+        "openai_connection": {
+          "description": "Establishing OpenAI real-time API streaming connection",
+          "invoke": {
+            "src": "establishOpenAIConnection",
+            "onDone": {
+              "target": "audio_setup",
+              "actions": "setOpenAIConnection"
+            },
+            "onError": {
+              "target": "openai_connection_error",
+              "actions": "setOpenAIConnectionError"
+            }
+          }
+        },
+        "audio_setup": {
+          "description": "Setting up audio processing pipeline",
+          "invoke": {
+            "src": "setupAudioPipeline",
+            "onDone": {
+              "target": "vad_initialization",
+              "actions": "setAudioPipeline"
+            },
+            "onError": {
+              "target": "audio_setup_error",
+              "actions": "setAudioSetupError"
+            }
+          }
+        },
+        "vad_initialization": {
+          "description": "Initializing Voice Activity Detection with WebRTC",
+          "invoke": {
+            "src": "initializeVAD",
+            "onDone": {
+              "target": "initialization_completed",
+              "actions": "setVADInitialized"
+            },
+            "onError": {
+              "target": "vad_error",
+              "actions": "setVADError"
+            }
+          }
+        },
+        "initialization_completed": {
+          "description": "Voice assistant initialization completed",
+          "on": {
+            "START_LISTENING": "#voice_assistant_workflow.listening",
+            "CONFIGURE_MORE": "#voice_assistant_workflow.configuring"
+          }
+        },
+        "session_setup_error": {
+          "description": "Error during session setup",
+          "on": {
+            "RETRY": "session_setup",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "websocket_error": {
+          "description": "WebSocket connection failed",
+          "on": {
+            "RETRY": "websocket_connection",
+            "TRY_ALTERNATIVE": "alternative_connection",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "openai_connection_error": {
+          "description": "OpenAI connection failed",
+          "on": {
+            "RETRY": "openai_connection",
+            "CHECK_API_KEY": "validating_api_key",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "audio_setup_error": {
+          "description": "Audio pipeline setup failed",
+          "on": {
+            "RETRY": "audio_setup",
+            "TRY_DIFFERENT_CONFIG": "alternative_audio_setup",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "vad_error": {
+          "description": "VAD initialization failed",
+          "on": {
+            "RETRY": "vad_initialization",
+            "SKIP_VAD": "initialization_completed",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "alternative_connection": {
+          "description": "Trying alternative connection method",
+          "invoke": {
+            "src": "establishAlternativeConnection",
+            "onDone": {
+              "target": "openai_connection",
+              "actions": "setAlternativeConnection"
+            },
+            "onError": {
+              "target": "alternative_connection_error",
+              "actions": "setAlternativeConnectionError"
+            }
+          }
+        },
+        "validating_api_key": {
+          "description": "Validating OpenAI API key",
+          "invoke": {
+            "src": "validateOpenAIApiKey",
+            "onDone": {
+              "target": "openai_connection",
+              "actions": "confirmApiKeyValid"
+            },
+            "onError": {
+              "target": "api_key_error",
+              "actions": "setApiKeyError"
+            }
+          }
+        },
+        "alternative_audio_setup": {
+          "description": "Alternative audio configuration",
+          "invoke": {
+            "src": "setupAlternativeAudio",
+            "onDone": {
+              "target": "vad_initialization",
+              "actions": "setAlternativeAudioConfig"
+            },
+            "onError": {
+              "target": "alternative_audio_error",
+              "actions": "setAlternativeAudioError"
+            }
+          }
+        },
+        "alternative_connection_error": {
+          "description": "Alternative connection failed",
+          "on": {
+            "RETRY": "websocket_connection",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "api_key_error": {
+          "description": "API key validation failed",
+          "on": {
+            "UPDATE_API_KEY": "updating_api_key",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "alternative_audio_error": {
+          "description": "Alternative audio setup failed",
+          "on": {
+            "RETRY": "audio_setup",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "updating_api_key": {
+          "description": "Updating OpenAI API key",
+          "on": {
+            "API_KEY_UPDATED": "validating_api_key",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "configuring": {
+      "description": "Voice assistant configuration management",
+      "initial": "configuration_menu",
+      "states": {
+        "configuration_menu": {
+          "description": "Configuration options interface",
+          "on": {
+            "CONFIGURE_TTS": "tts_configuration",
+            "CONFIGURE_VOICE": "voice_selection",
+            "CONFIGURE_AUDIO": "audio_configuration",
+            "CONFIGURE_BARGE_IN": "barge_in_configuration",
+            "CONFIGURE_API_KEYS": "api_key_configuration"
+          }
+        },
+        "tts_configuration": {
+          "description": "TTS provider configuration (OpenAI vs ElevenLabs)",
+          "on": {
+            "SELECT_OPENAI": {
+              "actions": "setTTSProviderOpenAI"
+            },
+            "SELECT_ELEVENLABS": {
+              "actions": "setTTSProviderElevenLabs"
+            },
+            "VALIDATE_TTS": "validating_tts_config",
+            "APPLY_TTS_CONFIG": "applying_tts_config"
+          }
+        },
+        "voice_selection": {
+          "description": "Voice ID management and validation",
+          "invoke": {
+            "src": "loadAvailableVoices",
+            "onDone": {
+              "target": "selecting_voice",
+              "actions": "setAvailableVoices"
+            },
+            "onError": {
+              "target": "voice_load_error",
+              "actions": "setVoiceLoadError"
+            }
+          }
+        },
+        "selecting_voice": {
+          "description": "Voice selection interface",
+          "on": {
+            "SELECT_VOICE": {
+              "actions": "setSelectedVoice"
+            },
+            "PREVIEW_VOICE": "previewing_voice",
+            "CONFIRM_VOICE": "applying_voice_config"
+          }
+        },
+        "previewing_voice": {
+          "description": "Voice preview with sample text",
+          "invoke": {
+            "src": "previewVoice",
+            "onDone": {
+              "target": "selecting_voice",
+              "actions": "setVoicePreview"
+            },
+            "onError": {
+              "target": "voice_preview_error",
+              "actions": "setVoicePreviewError"
+            }
+          }
+        },
+        "audio_configuration": {
+          "description": "Audio format and sample rate configuration",
+          "on": {
+            "SET_SAMPLE_RATE": {
+              "actions": "setSampleRate"
+            },
+            "SET_AUDIO_FORMAT": {
+              "actions": "setAudioFormat"
+            },
+            "TEST_AUDIO_CONFIG": "testing_audio_config",
+            "APPLY_AUDIO_CONFIG": "applying_audio_config"
+          }
+        },
+        "barge_in_configuration": {
+          "description": "Interrupt handling and VAD sensitivity configuration",
+          "on": {
+            "ENABLE_BARGE_IN": {
+              "actions": "enableBargeIn"
+            },
+            "DISABLE_BARGE_IN": {
+              "actions": "disableBargeIn"
+            },
+            "SET_VAD_SENSITIVITY": {
+              "actions": "setVADSensitivity"
+            },
+            "TEST_VAD": "testing_vad_config",
+            "APPLY_BARGE_IN_CONFIG": "applying_barge_in_config"
+          }
+        },
+        "api_key_configuration": {
+          "description": "API key management and validation",
+          "on": {
+            "UPDATE_OPENAI_KEY": "updating_openai_key",
+            "UPDATE_ELEVENLABS_KEY": "updating_elevenlabs_key",
+            "VALIDATE_KEYS": "validating_api_keys",
+            "APPLY_KEY_CONFIG": "applying_key_config"
+          }
+        },
+        "validating_tts_config": {
+          "description": "Validating TTS configuration",
+          "invoke": {
+            "src": "validateTTSConfig",
+            "onDone": {
+              "target": "tts_configuration",
+              "actions": "setTTSValidationResults"
+            },
+            "onError": {
+              "target": "tts_validation_error",
+              "actions": "setTTSValidationError"
+            }
+          }
+        },
+        "applying_tts_config": {
+          "description": "Applying TTS configuration",
+          "invoke": {
+            "src": "applyTTSConfig",
+            "onDone": {
+              "target": "configuration_menu",
+              "actions": "confirmTTSConfigApplied"
+            },
+            "onError": {
+              "target": "tts_apply_error",
+              "actions": "setTTSApplyError"
+            }
+          }
+        },
+        "applying_voice_config": {
+          "description": "Applying voice selection",
+          "invoke": {
+            "src": "applyVoiceConfig",
+            "onDone": {
+              "target": "configuration_menu",
+              "actions": "confirmVoiceConfigApplied"
+            },
+            "onError": {
+              "target": "voice_apply_error",
+              "actions": "setVoiceApplyError"
+            }
+          }
+        },
+        "testing_audio_config": {
+          "description": "Testing audio configuration",
+          "invoke": {
+            "src": "testAudioConfig",
+            "onDone": {
+              "target": "audio_configuration",
+              "actions": "setAudioTestResults"
+            },
+            "onError": {
+              "target": "audio_test_error",
+              "actions": "setAudioTestError"
+            }
+          }
+        },
+        "applying_audio_config": {
+          "description": "Applying audio configuration",
+          "invoke": {
+            "src": "applyAudioConfig",
+            "onDone": {
+              "target": "configuration_menu",
+              "actions": "confirmAudioConfigApplied"
+            },
+            "onError": {
+              "target": "audio_apply_error",
+              "actions": "setAudioApplyError"
+            }
+          }
+        },
+        "testing_vad_config": {
+          "description": "Testing VAD configuration",
+          "invoke": {
+            "src": "testVADConfig",
+            "onDone": {
+              "target": "barge_in_configuration",
+              "actions": "setVADTestResults"
+            },
+            "onError": {
+              "target": "vad_test_error",
+              "actions": "setVADTestError"
+            }
+          }
+        },
+        "applying_barge_in_config": {
+          "description": "Applying barge-in configuration",
+          "invoke": {
+            "src": "applyBargeInConfig",
+            "onDone": {
+              "target": "configuration_menu",
+              "actions": "confirmBargeInConfigApplied"
+            },
+            "onError": {
+              "target": "barge_in_apply_error",
+              "actions": "setBargeInApplyError"
+            }
+          }
+        },
+        "updating_openai_key": {
+          "description": "Updating OpenAI API key",
+          "on": {
+            "KEY_UPDATED": "validating_api_keys",
+            "CANCEL": "api_key_configuration"
+          }
+        },
+        "updating_elevenlabs_key": {
+          "description": "Updating ElevenLabs API key",
+          "on": {
+            "KEY_UPDATED": "validating_api_keys",
+            "CANCEL": "api_key_configuration"
+          }
+        },
+        "validating_api_keys": {
+          "description": "Validating API keys",
+          "invoke": {
+            "src": "validateApiKeys",
+            "onDone": {
+              "target": "api_key_configuration",
+              "actions": "setKeyValidationResults"
+            },
+            "onError": {
+              "target": "key_validation_error",
+              "actions": "setKeyValidationError"
+            }
+          }
+        },
+        "applying_key_config": {
+          "description": "Applying API key configuration",
+          "invoke": {
+            "src": "applyKeyConfig",
+            "onDone": {
+              "target": "configuration_menu",
+              "actions": "confirmKeyConfigApplied"
+            },
+            "onError": {
+              "target": "key_apply_error",
+              "actions": "setKeyApplyError"
+            }
+          }
+        },
+        "voice_load_error": {
+          "description": "Error loading available voices",
+          "on": {
+            "RETRY": "voice_selection",
+            "CANCEL": "configuration_menu"
+          }
+        },
+        "voice_preview_error": {
+          "description": "Error previewing voice",
+          "on": {
+            "RETRY": "previewing_voice",
+            "SKIP": "selecting_voice"
+          }
+        },
+        "tts_validation_error": {
+          "description": "TTS validation error",
+          "on": {
+            "FIX_CONFIG": "tts_configuration",
+            "CANCEL": "configuration_menu"
+          }
+        },
+        "tts_apply_error": {
+          "description": "Error applying TTS configuration",
+          "on": {
+            "RETRY": "applying_tts_config",
+            "CANCEL": "tts_configuration"
+          }
+        },
+        "voice_apply_error": {
+          "description": "Error applying voice configuration",
+          "on": {
+            "RETRY": "applying_voice_config",
+            "CANCEL": "selecting_voice"
+          }
+        },
+        "audio_test_error": {
+          "description": "Audio configuration test error",
+          "on": {
+            "RETRY": "testing_audio_config",
+            "SKIP": "audio_configuration"
+          }
+        },
+        "audio_apply_error": {
+          "description": "Error applying audio configuration",
+          "on": {
+            "RETRY": "applying_audio_config",
+            "CANCEL": "audio_configuration"
+          }
+        },
+        "vad_test_error": {
+          "description": "VAD configuration test error",
+          "on": {
+            "RETRY": "testing_vad_config",
+            "SKIP": "barge_in_configuration"
+          }
+        },
+        "barge_in_apply_error": {
+          "description": "Error applying barge-in configuration",
+          "on": {
+            "RETRY": "applying_barge_in_config",
+            "CANCEL": "barge_in_configuration"
+          }
+        },
+        "key_validation_error": {
+          "description": "API key validation error",
+          "on": {
+            "FIX_KEYS": "api_key_configuration",
+            "CANCEL": "configuration_menu"
+          }
+        },
+        "key_apply_error": {
+          "description": "Error applying API key configuration",
+          "on": {
+            "RETRY": "applying_key_config",
+            "CANCEL": "api_key_configuration"
+          }
+        }
+      },
+      "on": {
+        "START_SESSION": "initializing",
+        "CANCEL": "idle"
+      }
+    },
+    "testing_audio": {
+      "description": "Audio system testing and validation",
+      "initial": "audio_test_setup",
+      "states": {
+        "audio_test_setup": {
+          "description": "Setting up audio test environment",
+          "invoke": {
+            "src": "setupAudioTest",
+            "onDone": {
+              "target": "running_audio_tests",
+              "actions": "setAudioTestSetup"
+            },
+            "onError": {
+              "target": "audio_test_setup_error",
+              "actions": "setAudioTestSetupError"
+            }
+          }
+        },
+        "running_audio_tests": {
+          "description": "Running comprehensive audio tests",
+          "invoke": {
+            "src": "runAudioTests",
+            "onDone": {
+              "target": "audio_test_results",
+              "actions": "setAudioTestResults"
+            },
+            "onError": {
+              "target": "audio_test_execution_error",
+              "actions": "setAudioTestExecutionError"
+            }
+          }
+        },
+        "audio_test_results": {
+          "description": "Displaying audio test results",
+          "on": {
+            "RUN_MICROPHONE_TEST": "testing_microphone",
+            "RUN_SPEAKER_TEST": "testing_speakers",
+            "RUN_VAD_TEST": "testing_vad_system",
+            "EXPORT_TEST_RESULTS": "exporting_audio_test_results",
+            "BACK_TO_MENU": "#voice_assistant_workflow.idle"
+          }
+        },
+        "testing_microphone": {
+          "description": "Testing microphone input and quality",
+          "invoke": {
+            "src": "testMicrophone",
+            "onDone": {
+              "target": "audio_test_results",
+              "actions": "setMicrophoneTestResults"
+            },
+            "onError": {
+              "target": "microphone_test_error",
+              "actions": "setMicrophoneTestError"
+            }
+          }
+        },
+        "testing_speakers": {
+          "description": "Testing speaker output and quality",
+          "invoke": {
+            "src": "testSpeakers",
+            "onDone": {
+              "target": "audio_test_results",
+              "actions": "setSpeakerTestResults"
+            },
+            "onError": {
+              "target": "speaker_test_error",
+              "actions": "setSpeakerTestError"
+            }
+          }
+        },
+        "testing_vad_system": {
+          "description": "Testing VAD system functionality",
+          "invoke": {
+            "src": "testVADSystem",
+            "onDone": {
+              "target": "audio_test_results",
+              "actions": "setVADSystemTestResults"
+            },
+            "onError": {
+              "target": "vad_system_test_error",
+              "actions": "setVADSystemTestError"
+            }
+          }
+        },
+        "exporting_audio_test_results": {
+          "description": "Exporting audio test results",
+          "invoke": {
+            "src": "exportAudioTestResults",
+            "onDone": {
+              "target": "audio_test_results",
+              "actions": "confirmAudioTestResultsExported"
+            },
+            "onError": {
+              "target": "audio_test_export_error",
+              "actions": "setAudioTestExportError"
+            }
+          }
+        },
+        "audio_test_setup_error": {
+          "description": "Error setting up audio tests",
+          "on": {
+            "RETRY": "audio_test_setup",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "audio_test_execution_error": {
+          "description": "Error executing audio tests",
+          "on": {
+            "RETRY": "running_audio_tests",
+            "PARTIAL_RESULTS": "audio_test_results",
+            "CANCEL": "#voice_assistant_workflow.idle"
+          }
+        },
+        "microphone_test_error": {
+          "description": "Microphone test error",
+          "on": {
+            "RETRY": "testing_microphone",
+            "SKIP": "audio_test_results"
+          }
+        },
+        "speaker_test_error": {
+          "description": "Speaker test error",
+          "on": {
+            "RETRY": "testing_speakers",
+            "SKIP": "audio_test_results"
+          }
+        },
+        "vad_system_test_error": {
+          "description": "VAD system test error",
+          "on": {
+            "RETRY": "testing_vad_system",
+            "SKIP": "audio_test_results"
+          }
+        },
+        "audio_test_export_error": {
+          "description": "Audio test export error",
+          "on": {
+            "RETRY": "exporting_audio_test_results",
+            "SKIP": "audio_test_results"
+          }
+        }
+      },
+      "on": {
+        "CANCEL": "idle"
+      }
+    },
+    "listening": {
+      "description": "Active voice listening and processing",
+      "initial": "waiting_for_input",
+      "states": {
+        "waiting_for_input": {
+          "description": "Waiting for voice input with VAD monitoring",
+          "invoke": {
+            "src": "monitorVoiceActivity",
+            "onDone": {
+              "target": "voice_detected",
+              "actions": "setVoiceActivityDetected"
+            },
+            "onError": {
+              "target": "vad_monitoring_error",
+              "actions": "setVADMonitoringError"
+            }
+          },
+          "on": {
+            "MANUAL_START": "recording",
+            "CONFIGURE": "#voice_assistant_workflow.configuring",
+            "STOP_LISTENING": "#voice_assistant_workflow.idle"
+          }
+        },
+        "voice_detected": {
+          "description": "Voice activity detected, starting recording",
+          "entry": "startRecording",
+          "on": {
+            "START_RECORDING": "recording"
+          }
+        },
+        "recording": {
+          "description": "Recording 24kHz PCM audio chunks via WebSocket",
+          "invoke": {
+            "src": "recordAudioChunks",
+            "onDone": {
+              "target": "processing_audio",
+              "actions": "setRecordedAudio"
+            },
+            "onError": {
+              "target": "recording_error",
+              "actions": "setRecordingError"
+            }
+          },
+          "on": {
+            "STOP_RECORDING": "processing_audio",
+            "BARGE_IN_DETECTED": {
+              "target": "handling_barge_in",
+              "cond": "bargeInEnabled"
+            }
+          }
+        },
+        "processing_audio": {
+          "description": "Processing recorded audio through pipeline",
+          "initial": "resampling_audio",
+          "states": {
+            "resampling_audio": {
+              "description": "24kHz to 16kHz conversion for VAD analysis",
+              "invoke": {
+                "src": "resampleAudio",
+                "onDone": {
+                  "target": "openai_processing",
+                  "actions": "setResampledAudio"
+                },
+                "onError": {
+                  "target": "resampling_error",
+                  "actions": "setResamplingError"
+                }
+              }
+            },
+            "openai_processing": {
+              "description": "OpenAI real-time API streaming connection processing",
+              "invoke": {
+                "src": "processWithOpenAI",
+                "onDone": {
+                  "target": "response_generation",
+                  "actions": "setOpenAIResponse"
+                },
+                "onError": {
+                  "target": "openai_processing_error",
+                  "actions": "setOpenAIProcessingError"
+                }
+              }
+            },
+            "response_generation": {
+              "description": "Text-to-speech response generation",
+              "invoke": {
+                "src": "generateSpeechResponse",
+                "onDone": {
+                  "target": "audio_processing_completed",
+                  "actions": "setSpeechResponse"
+                },
+                "onError": {
+                  "target": "response_generation_error",
+                  "actions": "setResponseGenerationError"
+                }
+              }
+            },
+            "audio_processing_completed": {
+              "description": "Audio processing pipeline completed",
+              "on": {
+                "PLAY_RESPONSE": "#voice_assistant_workflow.listening.playing_response",
+                "CHECK_FLOW_INTEGRATION": "checking_flow_integration"
+              }
+            },
+            "checking_flow_integration": {
+              "description": "Checking for LangBuilder flow integration calls",
+              "invoke": {
+                "src": "checkFlowIntegration",
+                "onDone": [
+                  {
+                    "target": "executing_flow",
+                    "cond": "hasFlowCall",
+                    "actions": "setFlowCallData"
+                  },
+                  {
+                    "target": "#voice_assistant_workflow.listening.playing_response",
+                    "actions": "confirmNoFlowCall"
+                  }
+                ],
+                "onError": {
+                  "target": "flow_integration_error",
+                  "actions": "setFlowIntegrationError"
+                }
+              }
+            },
+            "executing_flow": {
+              "description": "Executing LangBuilder flow via function call",
+              "invoke": {
+                "src": "executeLangBuilderFlow",
+                "onDone": {
+                  "target": "flow_execution_completed",
+                  "actions": "setFlowExecutionResults"
+                },
+                "onError": {
+                  "target": "flow_execution_error",
+                  "actions": "setFlowExecutionError"
+                }
+              }
+            },
+            "flow_execution_completed": {
+              "description": "Flow execution completed, incorporating results",
+              "invoke": {
+                "src": "incorporateFlowResults",
+                "onDone": {
+                  "target": "#voice_assistant_workflow.listening.playing_response",
+                  "actions": "setIncorporatedResponse"
+                },
+                "onError": {
+                  "target": "flow_result_incorporation_error",
+                  "actions": "setFlowResultIncorporationError"
+                }
+              }
+            },
+            "resampling_error": {
+              "description": "Audio resampling error",
+              "on": {
+                "RETRY": "resampling_audio",
+                "SKIP_RESAMPLING": "openai_processing",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            },
+            "openai_processing_error": {
+              "description": "OpenAI processing error",
+              "on": {
+                "RETRY": "openai_processing",
+                "USE_FALLBACK": "fallback_processing",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            },
+            "response_generation_error": {
+              "description": "Speech response generation error",
+              "on": {
+                "RETRY": "response_generation",
+                "USE_TEXT_RESPONSE": "text_response_fallback",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            },
+            "flow_integration_error": {
+              "description": "Flow integration check error",
+              "on": {
+                "RETRY": "checking_flow_integration",
+                "SKIP_FLOW": "#voice_assistant_workflow.listening.playing_response",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            },
+            "flow_execution_error": {
+              "description": "Flow execution error",
+              "on": {
+                "RETRY": "executing_flow",
+                "REPORT_ERROR": "reporting_flow_error",
+                "CONTINUE_WITHOUT_FLOW": "#voice_assistant_workflow.listening.playing_response"
+              }
+            },
+            "flow_result_incorporation_error": {
+              "description": "Error incorporating flow results",
+              "on": {
+                "RETRY": "flow_execution_completed",
+                "USE_ORIGINAL_RESPONSE": "#voice_assistant_workflow.listening.playing_response"
+              }
+            },
+            "fallback_processing": {
+              "description": "Fallback processing when OpenAI fails",
+              "invoke": {
+                "src": "processFallback",
+                "onDone": {
+                  "target": "response_generation",
+                  "actions": "setFallbackResponse"
+                },
+                "onError": {
+                  "target": "fallback_processing_error",
+                  "actions": "setFallbackProcessingError"
+                }
+              }
+            },
+            "text_response_fallback": {
+              "description": "Text response when TTS fails",
+              "invoke": {
+                "src": "generateTextResponse",
+                "onDone": {
+                  "target": "audio_processing_completed",
+                  "actions": "setTextResponse"
+                },
+                "onError": {
+                  "target": "text_fallback_error",
+                  "actions": "setTextFallbackError"
+                }
+              }
+            },
+            "reporting_flow_error": {
+              "description": "Reporting flow execution error",
+              "invoke": {
+                "src": "reportFlowError",
+                "onDone": {
+                  "target": "#voice_assistant_workflow.listening.playing_response",
+                  "actions": "confirmFlowErrorReported"
+                },
+                "onError": {
+                  "target": "flow_error_report_error",
+                  "actions": "setFlowErrorReportError"
+                }
+              }
+            },
+            "fallback_processing_error": {
+              "description": "Fallback processing also failed",
+              "on": {
+                "USE_CACHED_RESPONSE": "cached_response",
+                "REPORT_CRITICAL_ERROR": "reporting_critical_error",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            },
+            "text_fallback_error": {
+              "description": "Text fallback also failed",
+              "on": {
+                "USE_DEFAULT_RESPONSE": "default_response",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            },
+            "flow_error_report_error": {
+              "description": "Error reporting flow error",
+              "on": {
+                "CONTINUE": "#voice_assistant_workflow.listening.playing_response",
+                "CANCEL": "#voice_assistant_workflow.listening.waiting_for_input"
+              }
+            }
+          }
+        },
+        "playing_response": {
+          "description": "Audio streaming back to client",
+          "invoke": {
+            "src": "streamAudioResponse",
+            "onDone": {
+              "target": "response_completed",
+              "actions": "confirmResponsePlayed"
+            },
+            "onError": {
+              "target": "audio_playback_error",
+              "actions": "setAudioPlaybackError"
+            }
+          },
+          "on": {
+            "BARGE_IN_DETECTED": {
+              "target": "handling_barge_in",
+              "cond": "bargeInEnabled"
+            }
+          }
+        },
+        "handling_barge_in": {
+          "description": "Handling voice interruption during playback",
+          "invoke": {
+            "src": "handleBargeIn",
+            "onDone": {
+              "target": "recording",
+              "actions": "setBargeInHandled"
+            },
+            "onError": {
+              "target": "barge_in_error",
+              "actions": "setBargeInError"
+            }
+          }
+        },
+        "response_completed": {
+          "description": "Response playback completed, ready for next input",
+          "invoke": {
+            "src": "logInteraction",
+            "onDone": {
+              "target": "waiting_for_input",
+              "actions": "setInteractionLogged"
+            },
+            "onError": {
+              "target": "logging_error",
+              "actions": "setLoggingError"
+            }
+          }
+        },
+        "vad_monitoring_error": {
+          "description": "VAD monitoring error",
+          "on": {
+            "RETRY": "waiting_for_input",
+            "MANUAL_MODE": "manual_voice_mode",
+            "STOP": "#voice_assistant_workflow.idle"
+          }
+        },
+        "recording_error": {
+          "description": "Audio recording error",
+          "on": {
+            "RETRY": "recording",
+            "CHECK_AUDIO_PERMISSIONS": "checking_audio_permissions",
+            "STOP": "#voice_assistant_workflow.idle"
+          }
+        },
+        "audio_playback_error": {
+          "description": "Audio playback error",
+          "on": {
+            "RETRY": "playing_response",
+            "USE_TEXT_OUTPUT": "text_output_fallback",
+            "CONTINUE": "response_completed"
+          }
+        },
+        "barge_in_error": {
+          "description": "Barge-in handling error",
+          "on": {
+            "RETRY": "handling_barge_in",
+            "DISABLE_BARGE_IN": "disabling_barge_in",
+            "CONTINUE": "waiting_for_input"
+          }
+        },
+        "logging_error": {
+          "description": "Interaction logging error",
+          "on": {
+            "RETRY": "response_completed",
+            "SKIP_LOGGING": "waiting_for_input"
+          }
+        },
+        "manual_voice_mode": {
+          "description": "Manual voice activation mode",
+          "on": {
+            "START_RECORDING": "recording",
+            "ENABLE_VAD": "waiting_for_input",
+            "STOP": "#voice_assistant_workflow.idle"
+          }
+        },
+        "checking_audio_permissions": {
+          "description": "Checking audio recording permissions",
+          "invoke": {
+            "src": "checkAudioPermissions",
+            "onDone": {
+              "target": "waiting_for_input",
+              "actions": "confirmAudioPermissions"
+            },
+            "onError": {
+              "target": "audio_permissions_error",
+              "actions": "setAudioPermissionsError"
+            }
+          }
+        },
+        "text_output_fallback": {
+          "description": "Text output when audio playback fails",
+          "invoke": {
+            "src": "outputTextResponse",
+            "onDone": {
+              "target": "response_completed",
+              "actions": "confirmTextOutput"
+            },
+            "onError": {
+              "target": "text_output_error",
+              "actions": "setTextOutputError"
+            }
+          }
+        },
+        "disabling_barge_in": {
+          "description": "Disabling barge-in due to errors",
+          "invoke": {
+            "src": "disableBargeInFeature",
+            "onDone": {
+              "target": "waiting_for_input",
+              "actions": "confirmBargeInDisabled"
+            },
+            "onError": {
+              "target": "barge_in_disable_error",
+              "actions": "setBargeInDisableError"
+            }
+          }
+        },
+        "audio_permissions_error": {
+          "description": "Audio permissions not granted",
+          "on": {
+            "REQUEST_PERMISSIONS": "requesting_audio_permissions",
+            "USE_TEXT_MODE": "text_only_mode",
+            "STOP": "#voice_assistant_workflow.idle"
+          }
+        },
+        "text_output_error": {
+          "description": "Text output also failed",
+          "on": {
+            "RETRY": "text_output_fallback",
+            "CONTINUE": "waiting_for_input"
+          }
+        },
+        "barge_in_disable_error": {
+          "description": "Error disabling barge-in",
+          "on": {
+            "RETRY": "disabling_barge_in",
+            "CONTINUE": "waiting_for_input"
+          }
+        },
+        "requesting_audio_permissions": {
+          "description": "Requesting microphone permissions",
+          "invoke": {
+            "src": "requestAudioPermissions",
+            "onDone": {
+              "target": "waiting_for_input",
+              "actions": "confirmPermissionsGranted"
+            },
+            "onError": {
+              "target": "permissions_request_error",
+              "actions": "setPermissionsRequestError"
+            }
+          }
+        },
+        "text_only_mode": {
+          "description": "Text-only interaction mode",
+          "on": {
+            "ENABLE_VOICE": "waiting_for_input",
+            "STOP": "#voice_assistant_workflow.idle"
+          }
+        },
+        "permissions_request_error": {
+          "description": "Permission request failed",
+          "on": {
+            "TRY_AGAIN": "requesting_audio_permissions",
+            "USE_TEXT_MODE": "text_only_mode",
+            "STOP": "#voice_assistant_workflow.idle"
+          }
+        }
+      },
+      "on": {
+        "STOP_SESSION": "terminating",
+        "RECONFIGURE": "configuring"
+      }
+    },
+    "terminating": {
+      "description": "Terminating voice assistant session",
+      "initial": "cleanup_connections",
+      "states": {
+        "cleanup_connections": {
+          "description": "Cleaning up WebSocket and OpenAI connections",
+          "invoke": {
+            "src": "cleanupConnections",
+            "onDone": {
+              "target": "cleanup_audio",
+              "actions": "confirmConnectionsCleanup"
+            },
+            "onError": {
+              "target": "connection_cleanup_error",
+              "actions": "setConnectionCleanupError"
+            }
+          }
+        },
+        "cleanup_audio": {
+          "description": "Cleaning up audio resources and VAD",
+          "invoke": {
+            "src": "cleanupAudioResources",
+            "onDone": {
+              "target": "save_session_data",
+              "actions": "confirmAudioCleanup"
+            },
+            "onError": {
+              "target": "audio_cleanup_error",
+              "actions": "setAudioCleanupError"
+            }
+          }
+        },
+        "save_session_data": {
+          "description": "Saving session data and conversation history",
+          "invoke": {
+            "src": "saveSessionData",
+            "onDone": {
+              "target": "termination_completed",
+              "actions": "confirmSessionDataSaved"
+            },
+            "onError": {
+              "target": "session_save_error",
+              "actions": "setSessionSaveError"
+            }
+          }
+        },
+        "termination_completed": {
+          "description": "Voice assistant session terminated successfully",
+          "on": {
+            "START_NEW_SESSION": "#voice_assistant_workflow.initializing",
+            "FINISH": "#voice_assistant_workflow.idle"
+          }
+        },
+        "connection_cleanup_error": {
+          "description": "Error cleaning up connections",
+          "on": {
+            "FORCE_CLEANUP": "force_cleanup_connections",
+            "CONTINUE": "cleanup_audio"
+          }
+        },
+        "audio_cleanup_error": {
+          "description": "Error cleaning up audio resources",
+          "on": {
+            "FORCE_CLEANUP": "force_cleanup_audio",
+            "CONTINUE": "save_session_data"
+          }
+        },
+        "session_save_error": {
+          "description": "Error saving session data",
+          "on": {
+            "RETRY": "save_session_data",
+            "SKIP_SAVE": "termination_completed"
+          }
+        },
+        "force_cleanup_connections": {
+          "description": "Force cleanup of connections",
+          "invoke": {
+            "src": "forceCleanupConnections",
+            "onDone": {
+              "target": "cleanup_audio",
+              "actions": "confirmForceConnectionCleanup"
+            },
+            "onError": {
+              "target": "force_connection_cleanup_error",
+              "actions": "setForceConnectionCleanupError"
+            }
+          }
+        },
+        "force_cleanup_audio": {
+          "description": "Force cleanup of audio resources",
+          "invoke": {
+            "src": "forceCleanupAudio",
+            "onDone": {
+              "target": "save_session_data",
+              "actions": "confirmForceAudioCleanup"
+            },
+            "onError": {
+              "target": "force_audio_cleanup_error",
+              "actions": "setForceAudioCleanupError"
+            }
+          }
+        },
+        "force_connection_cleanup_error": {
+          "description": "Force connection cleanup also failed",
+          "on": {
+            "CONTINUE": "cleanup_audio",
+            "ABORT": "termination_completed"
+          }
+        },
+        "force_audio_cleanup_error": {
+          "description": "Force audio cleanup also failed",
+          "on": {
+            "CONTINUE": "save_session_data",
+            "ABORT": "termination_completed"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "setupVoiceSession": "Service to setup per-session voice configuration",
+    "establishWebSocketConnection": "Service to establish WebSocket connection for real-time audio",
+    "establishOpenAIConnection": "Service to establish OpenAI real-time API streaming connection",
+    "setupAudioPipeline": "Service to setup audio processing pipeline",
+    "initializeVAD": "Service to initialize Voice Activity Detection with WebRTC",
+    "establishAlternativeConnection": "Service to establish alternative connection method",
+    "validateOpenAIApiKey": "Service to validate OpenAI API key",
+    "setupAlternativeAudio": "Service to setup alternative audio configuration",
+    "loadAvailableVoices": "Service to load available TTS voices",
+    "previewVoice": "Service to preview voice with sample text",
+    "validateTTSConfig": "Service to validate TTS configuration",
+    "applyTTSConfig": "Service to apply TTS configuration",
+    "applyVoiceConfig": "Service to apply voice selection",
+    "testAudioConfig": "Service to test audio configuration",
+    "applyAudioConfig": "Service to apply audio configuration",
+    "testVADConfig": "Service to test VAD configuration",
+    "applyBargeInConfig": "Service to apply barge-in configuration",
+    "validateApiKeys": "Service to validate API keys",
+    "applyKeyConfig": "Service to apply API key configuration",
+    "setupAudioTest": "Service to setup audio test environment",
+    "runAudioTests": "Service to run comprehensive audio tests",
+    "testMicrophone": "Service to test microphone input and quality",
+    "testSpeakers": "Service to test speaker output and quality",
+    "testVADSystem": "Service to test VAD system functionality",
+    "exportAudioTestResults": "Service to export audio test results",
+    "monitorVoiceActivity": "Service to monitor voice activity with VAD",
+    "recordAudioChunks": "Service to record 24kHz PCM audio chunks via WebSocket",
+    "resampleAudio": "Service for 24kHz to 16kHz conversion for VAD analysis",
+    "processWithOpenAI": "Service for OpenAI real-time API streaming connection processing",
+    "generateSpeechResponse": "Service for text-to-speech response generation",
+    "checkFlowIntegration": "Service to check for LangBuilder flow integration calls",
+    "executeLangBuilderFlow": "Service to execute LangBuilder flow via function call",
+    "incorporateFlowResults": "Service to incorporate flow execution results",
+    "processFallback": "Service for fallback processing when OpenAI fails",
+    "generateTextResponse": "Service to generate text response when TTS fails",
+    "reportFlowError": "Service to report flow execution error",
+    "streamAudioResponse": "Service for audio streaming back to client",
+    "handleBargeIn": "Service to handle voice interruption during playback",
+    "logInteraction": "Service to log voice interaction",
+    "checkAudioPermissions": "Service to check audio recording permissions",
+    "outputTextResponse": "Service for text output when audio playback fails",
+    "disableBargeInFeature": "Service to disable barge-in due to errors",
+    "requestAudioPermissions": "Service to request microphone permissions",
+    "cleanupConnections": "Service to cleanup WebSocket and OpenAI connections",
+    "cleanupAudioResources": "Service to cleanup audio resources and VAD",
+    "saveSessionData": "Service to save session data and conversation history",
+    "forceCleanupConnections": "Service to force cleanup connections",
+    "forceCleanupAudio": "Service to force cleanup audio resources"
+  },
+  "guards": {
+    "bargeInEnabled": "Check if barge-in is enabled",
+    "hasFlowCall": "Check if response contains LangBuilder flow call"
+  },
+  "actions": {
+    "setSessionConfig": "Set voice session configuration",
+    "setSessionSetupError": "Set session setup error",
+    "setWebSocketConnection": "Set WebSocket connection data",
+    "setWebSocketError": "Set WebSocket connection error",
+    "setOpenAIConnection": "Set OpenAI connection data",
+    "setOpenAIConnectionError": "Set OpenAI connection error",
+    "setAudioPipeline": "Set audio processing pipeline",
+    "setAudioSetupError": "Set audio setup error",
+    "setVADInitialized": "Set VAD initialization data",
+    "setVADError": "Set VAD initialization error",
+    "setAlternativeConnection": "Set alternative connection data",
+    "setAlternativeConnectionError": "Set alternative connection error",
+    "confirmApiKeyValid": "Confirm API key is valid",
+    "setApiKeyError": "Set API key validation error",
+    "setAlternativeAudioConfig": "Set alternative audio configuration",
+    "setAlternativeAudioError": "Set alternative audio error",
+    "setTTSProviderOpenAI": "Set TTS provider to OpenAI",
+    "setTTSProviderElevenLabs": "Set TTS provider to ElevenLabs",
+    "setAvailableVoices": "Set available TTS voices",
+    "setVoiceLoadError": "Set voice loading error",
+    "setSelectedVoice": "Set selected voice ID",
+    "setVoicePreview": "Set voice preview data",
+    "setVoicePreviewError": "Set voice preview error",
+    "setSampleRate": "Set audio sample rate",
+    "setAudioFormat": "Set audio format",
+    "enableBargeIn": "Enable barge-in functionality",
+    "disableBargeIn": "Disable barge-in functionality",
+    "setVADSensitivity": "Set VAD sensitivity level",
+    "setTTSValidationResults": "Set TTS validation results",
+    "setTTSValidationError": "Set TTS validation error",
+    "confirmTTSConfigApplied": "Confirm TTS configuration applied",
+    "setTTSApplyError": "Set TTS configuration apply error",
+    "confirmVoiceConfigApplied": "Confirm voice configuration applied",
+    "setVoiceApplyError": "Set voice configuration apply error",
+    "setAudioTestResults": "Set audio test results",
+    "setAudioTestError": "Set audio test error",
+    "confirmAudioConfigApplied": "Confirm audio configuration applied",
+    "setAudioApplyError": "Set audio configuration apply error",
+    "setVADTestResults": "Set VAD test results",
+    "setVADTestError": "Set VAD test error",
+    "confirmBargeInConfigApplied": "Confirm barge-in configuration applied",
+    "setBargeInApplyError": "Set barge-in configuration apply error",
+    "setKeyValidationResults": "Set API key validation results",
+    "setKeyValidationError": "Set API key validation error",
+    "confirmKeyConfigApplied": "Confirm API key configuration applied",
+    "setKeyApplyError": "Set API key configuration apply error",
+    "setAudioTestSetup": "Set audio test setup data",
+    "setAudioTestSetupError": "Set audio test setup error",
+    "setAudioTestResults": "Set comprehensive audio test results",
+    "setAudioTestExecutionError": "Set audio test execution error",
+    "setMicrophoneTestResults": "Set microphone test results",
+    "setMicrophoneTestError": "Set microphone test error",
+    "setSpeakerTestResults": "Set speaker test results",
+    "setSpeakerTestError": "Set speaker test error",
+    "setVADSystemTestResults": "Set VAD system test results",
+    "setVADSystemTestError": "Set VAD system test error",
+    "confirmAudioTestResultsExported": "Confirm audio test results exported",
+    "setAudioTestExportError": "Set audio test export error",
+    "setVoiceActivityDetected": "Set voice activity detection data",
+    "setVADMonitoringError": "Set VAD monitoring error",
+    "startRecording": "Start audio recording",
+    "setRecordedAudio": "Set recorded audio data",
+    "setRecordingError": "Set audio recording error",
+    "setResampledAudio": "Set resampled audio data",
+    "setResamplingError": "Set audio resampling error",
+    "setOpenAIResponse": "Set OpenAI processing response",
+    "setOpenAIProcessingError": "Set OpenAI processing error",
+    "setSpeechResponse": "Set TTS speech response",
+    "setResponseGenerationError": "Set speech response generation error",
+    "setFlowCallData": "Set LangBuilder flow call data",
+    "confirmNoFlowCall": "Confirm no flow call needed",
+    "setFlowIntegrationError": "Set flow integration error",
+    "setFlowExecutionResults": "Set flow execution results",
+    "setFlowExecutionError": "Set flow execution error",
+    "setIncorporatedResponse": "Set response with incorporated flow results",
+    "setFlowResultIncorporationError": "Set flow result incorporation error",
+    "setFallbackResponse": "Set fallback processing response",
+    "setFallbackProcessingError": "Set fallback processing error",
+    "setTextResponse": "Set text response when TTS fails",
+    "setTextFallbackError": "Set text fallback error",
+    "confirmFlowErrorReported": "Confirm flow error reported",
+    "setFlowErrorReportError": "Set flow error report error",
+    "confirmResponsePlayed": "Confirm audio response played",
+    "setAudioPlaybackError": "Set audio playback error",
+    "setBargeInHandled": "Set barge-in handling data",
+    "setBargeInError": "Set barge-in handling error",
+    "setInteractionLogged": "Set interaction logging data",
+    "setLoggingError": "Set interaction logging error",
+    "confirmAudioPermissions": "Confirm audio permissions granted",
+    "setAudioPermissionsError": "Set audio permissions error",
+    "confirmTextOutput": "Confirm text output displayed",
+    "setTextOutputError": "Set text output error",
+    "confirmBargeInDisabled": "Confirm barge-in disabled",
+    "setBargeInDisableError": "Set barge-in disable error",
+    "confirmPermissionsGranted": "Confirm microphone permissions granted",
+    "setPermissionsRequestError": "Set permissions request error",
+    "confirmConnectionsCleanup": "Confirm connections cleaned up",
+    "setConnectionCleanupError": "Set connection cleanup error",
+    "confirmAudioCleanup": "Confirm audio resources cleaned up",
+    "setAudioCleanupError": "Set audio cleanup error",
+    "confirmSessionDataSaved": "Confirm session data saved",
+    "setSessionSaveError": "Set session data save error",
+    "confirmForceConnectionCleanup": "Confirm force connection cleanup",
+    "setForceConnectionCleanupError": "Set force connection cleanup error",
+    "confirmForceAudioCleanup": "Confirm force audio cleanup",
+    "setForceAudioCleanupError": "Set force audio cleanup error"
+  }
+}
