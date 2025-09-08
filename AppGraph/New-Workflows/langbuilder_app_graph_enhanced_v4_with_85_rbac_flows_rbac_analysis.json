@@ -1,0 +1,1958 @@
+{
+  "total_rbac_nodes": 249,
+  "total_rbac_edges": 192,
+  "connectivity_stats": {
+    "context_aware_permission_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "install_component_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "header_component_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_entity": {
+      "outgoing": 6,
+      "incoming": 4,
+      "total": 10,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "read_flow_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "export_flow_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_folder_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "assign_user_role_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "chat_input_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "resource_access_analyzer_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "message_list_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_backup_restore_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_viewer_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "join_workspace_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "api_permission_tester_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "service_account_management_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_conflict_resolver_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "playground_interface_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_grid_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "data_access_pattern_analysis_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "configuration_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "invite_to_workspace_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_hierarchy_validation_flow": {
+      "outgoing": 1,
+      "incoming": 0,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_delegation_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "sso_rbac_integration_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_report_scheduling_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_access_control_tests": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "test_nodes",
+      "subsystem": "user_experience_interaction"
+    },
+    "temporal_access_manager_ui_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_change_audit_flow": {
+      "outgoing": 3,
+      "incoming": 0,
+      "total": 3,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_alert_generation_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_api_key_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_migration_wizard_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_permission_entity": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_configuration_backup_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "import_flow_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "update_component_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "export_import_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "service_account_token_generation_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "api_key_entity_rbac_enhanced_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "view_user_permissions_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "move_folder_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "login_page_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "telemetry_analytics_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "list_api_keys_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "restore_system_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "temporal_role_assignment_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_template_library_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_migration_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "template_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_health_monitor_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_hierarchy_manager": {
+      "outgoing": 1,
+      "incoming": 7,
+      "total": 8,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "backup_restore_operations_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "api_versioning_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "admin_page_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_user_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_incident_correlation_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "system_maintenance_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_workspace_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "review_store_item_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_access_control": {
+      "outgoing": 0,
+      "incoming": 2,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "platform_infrastructure"
+    },
+    "api_key_entity": {
+      "outgoing": 2,
+      "incoming": 1,
+      "total": 3,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_entity": {
+      "outgoing": 2,
+      "incoming": 7,
+      "total": 9,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_event_logging_flow": {
+      "outgoing": 1,
+      "incoming": 0,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_viewer": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_matrix_editor_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "duplicate_flow_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "job_queue_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "store_page_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "update_flow_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "auth_guard": {
+      "outgoing": 3,
+      "incoming": 0,
+      "total": 3,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_assignment_audit_flow": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "integration_webhook_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "access_control_panel": {
+      "outgoing": 8,
+      "incoming": 1,
+      "total": 9,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "publish_component_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "group_management_interface_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "view_audit_logs_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_search_and_filter_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_request_workflow_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_metrics_aggregation_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_variable_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_baseline_monitoring_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "io_modal_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rename_folder_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_system_health_monitor_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_hierarchy_manager_flow": {
+      "outgoing": 2,
+      "incoming": 6,
+      "total": 8,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "start_mcp_server_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_user_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_enforcement_engine_flow": {
+      "outgoing": 5,
+      "incoming": 5,
+      "total": 10,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_compliance_validation_flow": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "notification_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_scope_validation_flow": {
+      "outgoing": 1,
+      "incoming": 0,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "group_based_role_assignment_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_variable_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "reactflow_canvas": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "interface_nodes",
+      "subsystem": "flow_authoring_execution"
+    },
+    "role_assignment_flow": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "emergency_access_override_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "update_user_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "access_control_panel_flow": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "voice_mode_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "update_variable_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "revoke_api_tokens_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_middleware": {
+      "outgoing": 3,
+      "incoming": 1,
+      "total": 4,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_assignment_entity": {
+      "outgoing": 2,
+      "incoming": 4,
+      "total": 6,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "emergency_access_panel_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "backup_system_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "deployment_orchestration_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_configuration_validator_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "session_management_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "compliance_data_collection_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_api_key_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "real_time_event_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rate_limiting_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "user_entity_rbac_enhanced_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "user_role_assignment_ui": {
+      "outgoing": 2,
+      "incoming": 1,
+      "total": 3,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_flow_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_enforcement_engine": {
+      "outgoing": 2,
+      "incoming": 30,
+      "total": 32,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "execute_mcp_tool_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "context_based_access_editor_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "user_role_assignment_ui_flow": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "authentication_system_rbac_enhanced_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "manage_workspace_permissions_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_recording_flow": {
+      "outgoing": 3,
+      "incoming": 1,
+      "total": 4,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "websocket_sse_communication_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "plugin_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "content_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_toolbar_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_export_flow": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "access_validator_flow": {
+      "outgoing": 5,
+      "incoming": 6,
+      "total": 11,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "administrative_action_audit_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_entity_creation_flow": {
+      "outgoing": 3,
+      "incoming": 1,
+      "total": 4,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_entity": {
+      "outgoing": 3,
+      "incoming": 4,
+      "total": 7,
+      "node_type": "schema_nodes",
+      "subsystem": "flow_authoring_execution"
+    },
+    "service_account_management_flow": {
+      "outgoing": 3,
+      "incoming": 1,
+      "total": 4,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "compliance_report_generator_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "notification_system_ui_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "voice_assistant_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "workspace_switcher": {
+      "outgoing": 3,
+      "incoming": 0,
+      "total": 3,
+      "node_type": "interface_nodes",
+      "subsystem": "platform_infrastructure"
+    },
+    "download_from_store_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "resource_permission_calculator_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "bulk_user_import_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "threat_detection_integration_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "configure_voice_provider_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "process_voice_input_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "settings_page_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "generate_api_tokens_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "mcp_server_tab_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_analytics_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "store_integration_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_entity_rbac_enhanced_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "service_account_entity": {
+      "outgoing": 2,
+      "incoming": 2,
+      "total": 4,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_template_management_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "service_account_management_ui": {
+      "outgoing": 3,
+      "incoming": 0,
+      "total": 3,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "dynamic_permission_evaluation_flow": {
+      "outgoing": 4,
+      "incoming": 2,
+      "total": 6,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "testing_quality_assurance_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "access_attempt_logging_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "compliance_reporting_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_component_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "validation_engine_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "collaboration_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "file_management_page_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "api_keys_settings_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "manage_store_content_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "enable_voice_mode_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_hierarchy_visualizer_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "dependency_injection_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "search_indexing_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "generate_voice_output_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "user_activity_session_tracking_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "execute_flow_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_inheritance_resolution_flow": {
+      "outgoing": 0,
+      "incoming": 2,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "logging_monitoring_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_retention_management_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "component_grid_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_flow_rbac_protected": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_editor_ui_flow": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "database_operations_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "health_check_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_component_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "share_flow_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_management_ui": {
+      "outgoing": 5,
+      "incoming": 1,
+      "total": 6,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "share_file_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "discover_mcp_tools_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_cache_manager_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_conflict_resolution_flow": {
+      "outgoing": 4,
+      "incoming": 2,
+      "total": 6,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "bulk_permission_validator_flow": {
+      "outgoing": 0,
+      "incoming": 1,
+      "total": 1,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "view_system_health_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rate_store_item_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "privileged_operation_audit_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "workspace_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "configure_mcp_server_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "graph_state_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "mcp_integration_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "authentication_authorization_tests": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "test_nodes",
+      "subsystem": "user_experience_interaction"
+    },
+    "permission_cache_manager": {
+      "outgoing": 2,
+      "incoming": 3,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "component_sidebar_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "upload_file_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_dashboard_metrics_flow": {
+      "outgoing": 2,
+      "incoming": 0,
+      "total": 2,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "component_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_dashboard_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_execution_engine_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "flow_editor_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "environment_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_analytics_dashboard_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "real_time_security_monitoring_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "api_endpoint_protection_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "manage_service_accounts_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "update_workspace_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_permission_mapping_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "sso_configuration_panel_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_logger_flow": {
+      "outgoing": 2,
+      "incoming": 4,
+      "total": 6,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "caching_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "session_permission_loader_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "create_folder_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "manage_system_config_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "frontend_state_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "workspace_switcher_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "export_audit_logs_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_editor_ui": {
+      "outgoing": 5,
+      "incoming": 1,
+      "total": 6,
+      "node_type": "interface_nodes",
+      "subsystem": "security_administration"
+    },
+    "access_validator": {
+      "outgoing": 1,
+      "incoming": 4,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "project_management_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "folder_sidebar_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_usage_analytics_ui_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "revoke_user_role_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "update_api_key_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "reactflow_canvas_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "stop_mcp_server_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "browse_store_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "leave_workspace_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_integrity_verification_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "authentication_system": {
+      "outgoing": 1,
+      "incoming": 2,
+      "total": 3,
+      "node_type": "logic_nodes",
+      "subsystem": "platform_infrastructure"
+    },
+    "permission_resolver": {
+      "outgoing": 1,
+      "incoming": 12,
+      "total": 13,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_file_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "security_event_forwarding_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "file_management_system_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "role_management_ui_flow": {
+      "outgoing": 4,
+      "incoming": 1,
+      "total": 5,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "global_variables_settings_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_logger": {
+      "outgoing": 4,
+      "incoming": 29,
+      "total": 33,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "rbac_middleware_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "audit_log_anonymization_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_entity_definition_flow": {
+      "outgoing": 3,
+      "incoming": 1,
+      "total": 4,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "application_lifecycle_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "publish_to_store_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "permission_entity": {
+      "outgoing": 6,
+      "incoming": 5,
+      "total": 11,
+      "node_type": "schema_nodes",
+      "subsystem": "security_administration"
+    },
+    "delete_workspace_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "cross_system_audit_correlation_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "user_entity": {
+      "outgoing": 5,
+      "incoming": 9,
+      "total": 14,
+      "node_type": "schema_nodes",
+      "subsystem": "data_management_storage"
+    },
+    "permission_resolver_flow": {
+      "outgoing": 5,
+      "incoming": 6,
+      "total": 11,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "search_interface_rbac_flow": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "view_variable_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    },
+    "download_file_rbac_protected": {
+      "outgoing": 0,
+      "incoming": 0,
+      "total": 0,
+      "node_type": "logic_nodes",
+      "subsystem": "security_administration"
+    }
+  },
+  "integration_patterns": {
+    "edge_types": {
+      "schema_relationship": 7,
+      "data_operation": 44,
+      "test_validation": 2,
+      "interface_composition": 31,
+      "logic_dependency": 77,
+      "interface_logic": 16,
+      "ui_data_binding": 11,
+      "cross_subsystem_integration": 4
+    },
+    "subsystem_edges": {
+      "unknown": 39,
+      "security_administration": 137
+    },
+    "cross_subsystem_edges": 16
+  },
+  "coverage_analysis": {
+    "connected_nodes": 69,
+    "isolated_nodes": 180,
+    "isolated_node_list": [
+      "install_component_rbac_protected",
+      "header_component_rbac_flow",
+      "read_flow_rbac_protected",
+      "delete_folder_rbac_protected",
+      "assign_user_role_rbac_protected",
+      "chat_input_rbac_flow",
+      "resource_access_analyzer_ui_flow",
+      "message_list_rbac_flow",
+      "rbac_backup_restore_flow",
+      "join_workspace_rbac_protected",
+      "api_permission_tester_ui_flow",
+      "service_account_management_ui_flow",
+      "permission_conflict_resolver_ui_flow",
+      "playground_interface_rbac_flow",
+      "flow_grid_rbac_flow",
+      "data_access_pattern_analysis_flow",
+      "configuration_management_rbac_flow",
+      "invite_to_workspace_rbac_protected",
+      "permission_delegation_flow",
+      "sso_rbac_integration_flow",
+      "audit_report_scheduling_flow",
+      "security_access_control_tests",
+      "security_alert_generation_flow",
+      "delete_api_key_rbac_protected",
+      "rbac_migration_wizard_flow",
+      "role_permission_entity",
+      "rbac_configuration_backup_ui_flow",
+      "update_component_rbac_protected",
+      "export_import_rbac_flow",
+      "service_account_token_generation_flow",
+      "api_key_entity_rbac_enhanced_flow",
+      "view_user_permissions_rbac_protected",
+      "move_folder_rbac_protected",
+      "login_page_rbac_flow",
+      "telemetry_analytics_system_rbac_flow",
+      "list_api_keys_rbac_protected",
+      "restore_system_rbac_protected",
+      "role_template_library_flow",
+      "permission_migration_flow",
+      "template_system_rbac_flow",
+      "rbac_health_monitor_flow",
+      "backup_restore_operations_rbac_flow",
+      "api_versioning_system_rbac_flow",
+      "admin_page_rbac_flow",
+      "security_incident_correlation_flow",
+      "system_maintenance_rbac_flow",
+      "create_workspace_rbac_protected",
+      "review_store_item_rbac_protected",
+      "permission_matrix_editor_flow",
+      "duplicate_flow_rbac_protected",
+      "job_queue_system_rbac_flow",
+      "store_page_rbac_flow",
+      "integration_webhook_rbac_flow",
+      "publish_component_rbac_protected",
+      "group_management_interface_flow",
+      "audit_log_search_and_filter_flow",
+      "permission_request_workflow_ui_flow",
+      "security_metrics_aggregation_flow",
+      "create_variable_rbac_protected",
+      "security_baseline_monitoring_flow",
+      "io_modal_rbac_flow",
+      "rename_folder_rbac_protected",
+      "rbac_system_health_monitor_ui_flow",
+      "start_mcp_server_rbac_protected",
+      "notification_system_rbac_flow",
+      "group_based_role_assignment_flow",
+      "delete_variable_rbac_protected",
+      "voice_mode_system_rbac_flow",
+      "update_variable_rbac_protected",
+      "revoke_api_tokens_rbac_protected",
+      "emergency_access_panel_flow",
+      "backup_system_rbac_protected",
+      "deployment_orchestration_rbac_flow",
+      "rbac_configuration_validator_flow",
+      "session_management_system_rbac_flow",
+      "compliance_data_collection_flow",
+      "create_api_key_rbac_protected",
+      "real_time_event_system_rbac_flow",
+      "rate_limiting_rbac_flow",
+      "user_entity_rbac_enhanced_flow",
+      "execute_mcp_tool_rbac_protected",
+      "context_based_access_editor_flow",
+      "authentication_system_rbac_enhanced_flow",
+      "websocket_sse_communication_rbac_flow",
+      "plugin_system_rbac_flow",
+      "content_management_rbac_flow",
+      "flow_toolbar_rbac_flow",
+      "administrative_action_audit_flow",
+      "compliance_report_generator_ui_flow",
+      "notification_system_ui_rbac_flow",
+      "voice_assistant_rbac_flow",
+      "download_from_store_rbac_protected",
+      "resource_permission_calculator_flow",
+      "bulk_user_import_rbac_flow",
+      "threat_detection_integration_flow",
+      "configure_voice_provider_rbac_protected",
+      "process_voice_input_rbac_protected",
+      "settings_page_rbac_flow",
+      "generate_api_tokens_rbac_protected",
+      "mcp_server_tab_rbac_flow",
+      "permission_analytics_flow",
+      "store_integration_system_rbac_flow",
+      "flow_entity_rbac_enhanced_flow",
+      "testing_quality_assurance_rbac_flow",
+      "access_attempt_logging_flow",
+      "compliance_reporting_flow",
+      "create_component_rbac_protected",
+      "validation_engine_rbac_flow",
+      "collaboration_rbac_flow",
+      "file_management_page_rbac_flow",
+      "api_keys_settings_rbac_flow",
+      "manage_store_content_rbac_protected",
+      "enable_voice_mode_rbac_protected",
+      "role_hierarchy_visualizer_flow",
+      "dependency_injection_system_rbac_flow",
+      "search_indexing_rbac_flow",
+      "generate_voice_output_rbac_protected",
+      "user_activity_session_tracking_flow",
+      "logging_monitoring_system_rbac_flow",
+      "audit_log_retention_management_flow",
+      "component_grid_rbac_flow",
+      "database_operations_rbac_flow",
+      "health_check_rbac_flow",
+      "delete_component_rbac_protected",
+      "share_flow_rbac_protected",
+      "share_file_rbac_protected",
+      "discover_mcp_tools_rbac_protected",
+      "permission_cache_manager_flow",
+      "view_system_health_rbac_protected",
+      "rate_store_item_rbac_protected",
+      "privileged_operation_audit_flow",
+      "workspace_management_rbac_flow",
+      "configure_mcp_server_rbac_protected",
+      "graph_state_management_rbac_flow",
+      "mcp_integration_system_rbac_flow",
+      "authentication_authorization_tests",
+      "component_sidebar_rbac_flow",
+      "upload_file_rbac_protected",
+      "component_management_rbac_flow",
+      "flow_dashboard_rbac_flow",
+      "flow_execution_engine_rbac_flow",
+      "flow_editor_rbac_flow",
+      "environment_management_rbac_flow",
+      "rbac_analytics_dashboard_flow",
+      "real_time_security_monitoring_flow",
+      "api_endpoint_protection_rbac_flow",
+      "manage_service_accounts_rbac_protected",
+      "update_workspace_rbac_protected",
+      "role_permission_mapping_flow",
+      "sso_configuration_panel_flow",
+      "caching_system_rbac_flow",
+      "session_permission_loader_flow",
+      "create_folder_rbac_protected",
+      "manage_system_config_rbac_protected",
+      "frontend_state_management_rbac_flow",
+      "workspace_switcher_rbac_flow",
+      "export_audit_logs_rbac_protected",
+      "project_management_rbac_flow",
+      "folder_sidebar_rbac_flow",
+      "permission_usage_analytics_ui_flow",
+      "revoke_user_role_rbac_protected",
+      "update_api_key_rbac_protected",
+      "reactflow_canvas_rbac_flow",
+      "stop_mcp_server_rbac_protected",
+      "browse_store_rbac_protected",
+      "leave_workspace_rbac_protected",
+      "audit_log_integrity_verification_flow",
+      "delete_file_rbac_protected",
+      "security_event_forwarding_flow",
+      "file_management_system_rbac_flow",
+      "global_variables_settings_rbac_flow",
+      "rbac_middleware_flow",
+      "audit_log_anonymization_flow",
+      "application_lifecycle_rbac_flow",
+      "publish_to_store_rbac_protected",
+      "delete_workspace_rbac_protected",
+      "cross_system_audit_correlation_flow",
+      "search_interface_rbac_flow",
+      "view_variable_rbac_protected",
+      "download_file_rbac_protected"
+    ],
+    "connection_coverage": 27.710843373493976,
+    "node_type_breakdown": {
+      "schema_nodes": 9,
+      "interface_nodes": 9,
+      "logic_nodes": 229
+    }
+  }
+}
