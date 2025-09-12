@@ -102,6 +102,11 @@ src/frontend/rbac/
 - Create comprehensive database schema with migrations
 - Implement basic testing framework foundation
 
+### **AppGraph v7.1 Cross-References:**
+- **Primary Subsystem**: `Security & Administration Subsystem (RBAC Complete)`
+- **Secondary Subsystem**: `User Experience & Interaction Subsystem` (for core entities)
+- **Validation Subsystem**: `Complete Gherkin BDD Validation Subsystem`
+
 ### **1.1 Database Schema & Models Implementation**
 
 **Core Models to Implement:**
@@ -119,6 +124,22 @@ src/backend/rbac/models/
 ├── audit_log.py          # Immutable compliance audit trail
 └── sso_configuration.py  # SSO provider configurations
 ```
+
+**AppGraph Node Mappings:**
+
+| Implementation File | AppGraph Node ID | Node Name | Subsystem |
+|-------------------|------------------|-----------|-----------|
+| `workspace.py` | `workspace_entity` | Workspace | User Experience & Interaction |
+| `project.py` | `project_entity` | Project | User Experience & Interaction |
+| `environment.py` | `environment_entity` | Environment | User Experience & Interaction |
+| `role.py` | `role_entity` | Role | Security & Administration (RBAC) |
+| `permission.py` | `permission_entity` | Permission | Security & Administration (RBAC) |
+| `role_assignment.py` | `role_assignment_entity` | RoleAssignment | Security & Administration (RBAC) |
+| `user_group.py` | `user_group_entity` | UserGroup | Security & Administration (RBAC) |
+| `service_account.py` | `service_account_entity` | ServiceAccount | Security & Administration (RBAC) |
+| `audit_log.py` | `audit_log_entity` | AuditLog | Security & Administration (RBAC) |
+| `sso_configuration.py` | `sso_integration_entity` | SSOIntegration | Security & Administration (RBAC) |
+| `user.py` (enhanced) | `user_entity` | User | User Experience & Interaction |
 
 **Key Implementation Details:**
 
@@ -223,6 +244,18 @@ src/backend/rbac/api/graphql/
 └── resolvers/            # Resolver implementations (Phase 2)
 ```
 
+**AppGraph GraphQL Schema Cross-References:**
+
+| GraphQL Type File | AppGraph Node ID | GraphQL Schema Source | Implementation Notes |
+|-------------------|------------------|----------------------|---------------------|
+| `workspace.py` | `workspace_entity` | `workspace_entity.graphql_schema_physical` | Use existing workspace schema as base |
+| `role.py` | `role_entity` | `role_entity.graphql_schema_physical` | Implement role hierarchy and permissions |
+| `assignment.py` | `role_assignment_entity` | `role_assignment_entity.graphql_schema_physical` | Support hierarchical scope assignments |
+| `audit.py` | `audit_log_entity` | `audit_log_entity.graphql_schema_physical` | Immutable audit trail with compliance fields |
+| `user.py` | `user_entity` | `user_entity.graphql_schema_physical` | Enhanced with RBAC relationships |
+| `service_account.py` | `service_account_entity` | `service_account_entity.graphql_schema_physical` | Token-based authentication support |
+| `sso.py` | `sso_integration_entity` | `sso_integration_entity.graphql_schema_physical` | Multi-protocol SSO configuration |
+
 **Type-Safe Schema Implementation:**
 ```python
 # api/graphql/types/role.py - Enhanced with v7.1 specifications
@@ -306,6 +339,11 @@ def validate_role_hierarchy(parent_role_id: str, role_name: str) -> None:
 - Create intelligent caching layer for permission decisions
 - Establish comprehensive audit logging for all permission checks
 
+### **AppGraph v7.1 Cross-References:**
+- **Primary Subsystem**: `Security & Administration Subsystem (RBAC Complete)`
+- **Logic Nodes**: Permission evaluation and caching components
+- **Integration Points**: Cross-subsystem permission enforcement
+
 ### **2.1 Permission Engine Architecture**
 
 **Service Layer Structure:**
@@ -318,6 +356,28 @@ src/backend/rbac/services/
 ├── role_service.py           # Role management operations
 └── policy_engine.py          # Future: Policy-based permissions (v2)
 ```
+
+**AppGraph Logic Node Mappings:**
+
+| Service Implementation | AppGraph Node ID | Node Name | Implementation Focus |
+|----------------------|------------------|-----------|---------------------|
+| `permission_engine.py` | `rbac_enforcement_engine` | RBACEnforcementEngine | Core permission evaluation orchestrator |
+| `scope_resolver.py` | `permission_inheritance_resolution_flow` | Permission Inheritance Resolution Flow | Hierarchical scope inheritance logic |
+| `permission_cache.py` | `permission_cache_manager` | PermissionCacheManager | Redis-based intelligent caching |
+| `audit_service.py` | `audit_logger` | AuditLogger | Immutable audit trail service |
+| `role_service.py` | `role_hierarchy_manager` | RoleHierarchyManager | Role management and hierarchy |
+| Access validation | `access_validator` | AccessValidator | Permission validation logic |
+| Permission resolution | `permission_resolver` | PermissionResolver | Permission lookup and resolution |
+
+**Related Logic Flows:**
+
+| Implementation Component | AppGraph Flow ID | Flow Name | Purpose |
+|-------------------------|------------------|-----------|---------|
+| Role creation | `role_entity_creation_flow` | Role Entity Creation Flow | Role lifecycle management |
+| Permission definition | `permission_entity_definition_flow` | Permission Entity Definition Flow | Permission catalog management |
+| Role assignment | `role_assignment_flow` | Role Assignment Flow | User/group role assignments |
+| Audit logging | `audit_log_recording_flow` | Audit Log Recording Flow | Comprehensive audit trail |
+| Hierarchy validation | `role_hierarchy_validation_flow` | Role Hierarchy Validation Flow | Role inheritance validation |
 
 **Core Permission Engine Implementation:**
 ```python
@@ -569,6 +629,11 @@ class PermissionCache:
 - Create secure session management with JWT tokens
 - Integrate with major enterprise identity providers
 
+### **AppGraph v7.1 Cross-References:**
+- **Primary Subsystem**: `Security & Administration Subsystem (RBAC Complete)`
+- **Integration Subsystem**: `Integration & Communication Subsystem`
+- **Related Flows**: SSO authentication and SCIM provisioning flows
+
 ### **3.1 SSO & Authentication Implementation**
 
 **SSO Provider Support:**
@@ -576,6 +641,26 @@ class PermissionCache:
 - **Okta**: SAML 2.0 + SCIM 2.0  
 - **Google Workspace**: OAuth 2.0 + Directory API
 - **Generic OIDC/SAML**: Any compliant provider
+
+**AppGraph Integration Node Mappings:**
+
+| Implementation Component | AppGraph Node ID | Node Name | Integration Focus |
+|-------------------------|------------------|-----------|------------------|
+| SSO Service | `sso_authentication_service` | SSO Authentication Service | Multi-protocol SSO implementation |
+| SCIM Service | `scim_provisioning_service` | SCIM Provisioning Service | User/group provisioning automation |
+| Identity Integration | `sso_integration_entity` | SSOIntegration | SSO provider configuration |
+| User Provisioning | `user_entity_rbac_enhanced_flow` | User Entity RBAC Enhanced | Enhanced user management with RBAC |
+| Group Synchronization | `user_group_entity` | UserGroup | User group management with SCIM sync |
+
+**Related Authentication Flows:**
+
+| SSO Process | AppGraph Flow ID | Flow Name | Implementation Notes |
+|-------------|------------------|-----------|---------------------|
+| OIDC Authentication | `oidc_authentication_flow` | OIDC Authentication Flow | OpenID Connect login flow |
+| SAML Authentication | `saml_authentication_flow` | SAML Authentication Flow | SAML 2.0 assertion processing |
+| SCIM User Sync | `scim_user_synchronization_flow` | SCIM User Synchronization Flow | Automated user provisioning |
+| JWT Token Management | `jwt_token_management_flow` | JWT Token Management Flow | Session token lifecycle |
+| Group Membership Sync | `group_membership_sync_flow` | Group Membership Sync Flow | Real-time group updates |
 
 **Key Features:**
 ```python
@@ -633,12 +718,37 @@ class SSOService:
 - Build comprehensive REST API with OpenAPI documentation
 - Establish rate limiting, validation, and security headers
 
+### **AppGraph v7.1 Cross-References:**
+- **Primary Subsystem**: `Security & Administration Subsystem (RBAC Complete)`
+- **API Integration**: Cross-subsystem API enforcement points
+- **Middleware Components**: RBAC enforcement and validation logic
+
 ### **4.1 GraphQL Resolvers Implementation**
 
 **Complete Resolver Set:**
 - **Query Resolvers**: 50+ queries for all RBAC entities with filtering/pagination
 - **Mutation Resolvers**: 30+ mutations for CRUD operations with validation
 - **Subscription Resolvers**: Real-time updates for role changes and audit events
+
+**AppGraph API Integration Mappings:**
+
+| API Component | AppGraph Node ID | Node Name | Integration Purpose |
+|---------------|------------------|-----------|-------------------|
+| RBAC Middleware | `rbac_middleware` | RBACMiddleware | Request-level permission enforcement |
+| API Security Enforcer | `api_security_enforcer` | API Security Enforcer | Cross-API permission validation |
+| Permission Validation | `access_validator` | AccessValidator | Request permission checking |
+| Audit Middleware | `audit_logger` | AuditLogger | API request audit logging |
+| Rate Limiting | `rate_limiting_middleware` | Rate Limiting Middleware | API abuse prevention |
+
+**Cross-Subsystem Integration Points:**
+
+| Integration Point | Source Subsystem | Target Node ID | Purpose |
+|------------------|------------------|----------------|---------|
+| Flow API Protection | Flow Authoring & Execution | `flow_entity` | Protect flow operations with RBAC |
+| User API Protection | User Experience & Interaction | `user_entity` | Secure user management operations |
+| Workspace API Protection | User Experience & Interaction | `workspace_entity` | Secure workspace operations |
+| Data API Protection | Data Management & Storage | All storage entities | Secure data access with RBAC |
+| Integration API Protection | Integration & Communication | All integration endpoints | Secure external integrations |
 
 **Key Features:**
 ```python
@@ -727,6 +837,23 @@ async def assign_role(
 - **SSO Configuration**: Identity provider setup with test connections
 - **Audit & Compliance**: Real-time audit viewer and compliance reports
 
+#### **Phase 5 - AppGraph v7.1 Cross-References:**
+
+| Component/Feature | AppGraph Node ID | Node Name | Subsystem |
+|-------------------|------------------|-----------|-----------|
+| **React Components** |  |  |  |
+| Role Management UI | `role_management_ui` | RoleManagementUI | Security & Administration Subsystem (RBAC) |
+| User Role Assignment | `user_role_assignment_ui` | UserRoleAssignmentUI | Security & Administration Subsystem (RBAC) |
+| Service Account UI | `service_account_management_ui` | ServiceAccountManagementUI | Security & Administration Subsystem (RBAC) |
+| Compliance Dashboard | `compliance_dashboard` | Compliance Dashboard | Security & Administration Subsystem (RBAC) |
+| Frontend State Mgmt | `frontend_state_management` | Frontend State Management | User Experience & Interaction Subsystem |
+| Flow Dashboard | `flow_dashboard` | FlowDashboard | User Experience & Interaction Subsystem |
+| **UI Flows** |  |  |  |
+| Role Management Flow | `role_management_ui_flow` | Role Management UI Flow | User Experience & Interaction Subsystem |
+| User Assignment Flow | `user_role_assignment_ui_flow` | UserRoleAssignmentUI Flow | User Experience & Interaction Subsystem |
+| Service Account Flow | `service_account_management_ui_flow` | ServiceAccountManagementUI Flow | User Experience & Interaction Subsystem |
+| Permission Editor Flow | `permission_editor_ui_flow` | Permission Editor UI Flow | User Experience & Interaction Subsystem |
+
 **Frontend Deliverables:**
 - ✅ 25+ reusable TypeScript React components
 - ✅ 8 complete admin interface pages
@@ -745,6 +872,23 @@ async def assign_role(
 - **Performance Tests**: Load testing for 1000+ RPS with <100ms p95
 - **Security Tests**: OWASP Top 10 vulnerability scanning
 - **Compliance Tests**: SOC2 control validation and audit trail verification
+
+#### **Phase 6 - AppGraph v7.1 Cross-References:**
+
+| Test Category | AppGraph Node ID | Node Name | Subsystem |
+|---------------|------------------|-----------|-----------|
+| **BDD Testing** |  |  |  |
+| Gherkin Validation System | `gherkin_validation_subsystem` | Gherkin Validation Subsystem | Testing & Validation Subsystem |
+| Validation Engine | `validation_engine` | Validation Engine | Core System & Processing Subsystem |
+| Role Hierarchy Validation | `role_hierarchy_validation_flow` | Role Hierarchy Validation Flow | Security & Administration Subsystem (RBAC) |
+| Permission Scope Validation | `permission_scope_validation_flow` | Permission Scope Validation Flow | Security & Administration Subsystem (RBAC) |
+| Audit Compliance Validation | `audit_compliance_validation_flow` | Audit Compliance Validation Flow | Security & Administration Subsystem (RBAC) |
+| RBAC Validation Engine | `validation_engine_rbac_flow` | RBAC Validation Engine Flow | Security & Administration Subsystem (RBAC) |
+| **State Management Testing** |  |  |  |
+| Validation Engine Statechart | `validationEngineStatechart` | Validation Engine Statechart | Core System & Processing Subsystem |
+| Role Hierarchy Statechart | `rolehierarchyvalidationflowStatechart` | Role Hierarchy Validation Statechart | Security & Administration Subsystem (RBAC) |
+| Permission Scope Statechart | `permissionscopevalidationflowStatechart` | Permission Scope Validation Statechart | Security & Administration Subsystem (RBAC) |
+| Audit Compliance Statechart | `auditcompliancevalidationflowStatechart` | Audit Compliance Validation Statechart | Security & Administration Subsystem (RBAC) |
 
 **Test Deliverables:**
 - ✅ Complete BDD test suite with pytest-bdd
@@ -771,6 +915,22 @@ async def assign_role(
 - **Break-glass Access**: Emergency access with approval workflows
 - **Privacy Controls**: GDPR/CCPA data subject rights automation
 
+#### **Phase 7 - AppGraph v7.1 Cross-References:**
+
+| Security/Compliance Feature | AppGraph Node ID | Node Name | Subsystem |
+|----------------------------|------------------|-----------|-----------|
+| **Audit & Security** |  |  |  |
+| Audit Log Entity | `audit_log_entity` | AuditLog Entity | Security & Administration Subsystem (RBAC) |
+| Audit Entity | `audit_entity` | Audit Entity | Security & Administration Subsystem (RBAC) |
+| Audit Log Viewer | `audit_log_viewer` | Audit Log Viewer | Security & Administration Subsystem (RBAC) |
+| Compliance Dashboard | `compliance_dashboard` | Compliance Dashboard | Security & Administration Subsystem (RBAC) |
+| **Data Security** |  |  |  |
+| API Key Management | `api_key_management` | API Key Management | Security & Administration Subsystem (RBAC) |
+| Variable Management | `variable_management` | Variable Management | Security & Administration Subsystem (RBAC) |
+| **Validation & Controls** |  |  |  |
+| Audit Compliance Validation | `audit_compliance_validation_flow` | Audit Compliance Validation Flow | Security & Administration Subsystem (RBAC) |
+| Security Administration | `security_administration` | Security & Administration Subsystem | Security & Administration Subsystem (RBAC) |
+
 **Security Deliverables:**
 - ✅ Complete security hardening implementation
 - ✅ SOC2/ISO27001 control implementation
@@ -795,6 +955,24 @@ async def assign_role(
 - **Developer Guides**: Integration guides and SDK documentation
 - **Operations Runbooks**: Troubleshooting and incident response guides
 - **Compliance Documentation**: Audit-ready compliance documentation
+
+#### **Phase 8 - AppGraph v7.1 Cross-References:**
+
+| Deployment/Infrastructure Feature | AppGraph Node ID | Node Name | Subsystem |
+|----------------------------------|------------------|-----------|-----------|
+| **Configuration & Environment** |  |  |  |
+| RBAC Configuration Validator | `rbac_configuration_validator_flow` | RBAC Configuration Validator Flow | Security & Administration Subsystem (RBAC) |
+| SSO Configuration Panel | `sso_configuration_panel_flow` | SSO Configuration Panel Flow | Security & Administration Subsystem (RBAC) |
+| RBAC Configuration Backup | `rbac_configuration_backup_ui_flow` | RBAC Configuration Backup UI Flow | Security & Administration Subsystem (RBAC) |
+| Component Lifecycle Management | `component_lifecycle_management` | Component Lifecycle Management | Core System & Processing Subsystem |
+| Application Lifecycle Management | `application_lifecycle_management` | Application Lifecycle Management | Core System & Processing Subsystem |
+| **Monitoring & Operations** |  |  |  |
+| Process Monitoring | `process_monitoring` | Process Monitoring | Core System & Processing Subsystem |
+| Variable Management | `variable_management` | Variable Management | Security & Administration Subsystem (RBAC) |
+| API Key Management | `api_key_management` | API Key Management | Security & Administration Subsystem (RBAC) |
+| **State Management** |  |  |  |
+| RBAC Config Validator Statechart | `rbacconfigurationvalidatorflowStatechart` | RBAC Configuration Validator Statechart | Security & Administration Subsystem (RBAC) |
+| SSO Config Panel Statechart | `ssoconfigurationpanelflowStatechart` | SSO Configuration Panel Statechart | Security & Administration Subsystem (RBAC) |
 
 **Deployment Deliverables:**
 - ✅ Production-ready Kubernetes deployment
