@@ -38,10 +38,23 @@ We have decided to not go with the GraphQL implementation but stay with FastAPI 
 Prompt #6: 
 
 Now that you have fully removed GraphQL implementation in Phase 1, and we have decided the implementation of the   │
-│   new features in LangBuilder should follow existing codebase and architecture codebase and be fully compliant, I    │
+│   new features in LangBuilder should follow existing codebase and architecture patterns and be fully compliant, I    │
 │   need you to update the implementation plan in RBAC_IMPLEMENTATION_PLAN.md. We want to use AppGraph and the         │
 │   GraphQL layer to understand the data layer and overall semantic and syntactic architecture of the system,          │
 │   especially the design of the new features, i.e. RBAC, to be integrated into LangBuilder. However, in the           │
 │   implementation plan, make sure the steps cover architecture design and implementation fully compliant with the     │
 │   existing LangBuilder system. Update RBAC_IMPLEMENTATION_PLAN.md according to this critical requirement. Use this   │
 │   opportunity to also fully audit your implementation of Phase 1 again.
+
+
+Prompt #7:
+
+Don't change anything yet. I am just asking. The code you generated cannot pass precommit check script. Do you     │
+│   know how to write code that respect the code sanity rules?
+
+
+Prompt #8: 
+
+Yes please go ahead to do all the steps necessary to make sure the code you generate fully comply with the rules   │
+│   in pre-commit-config.yaml. Do deep analysis for all the RBAC codes you have generated and ensure all of them   |
+|   can pass the rules in pre-commit-config.
