@@ -1,0 +1,821 @@
+git --no-optional-locks -c color.branch=false -c color.diff=false -c color.status=false -c diff.mnemonicprefix=false -c core.quotepath=false -c credential.helper=sourcetree commit -q -F /var/folders/y5/vyrrr3kd3jx0pdk20jtpkxj00000gp/T/SourceTreeTemp.coRqd9 -- src/backend/base/langflow/services/database/models/api_key/model.py src/backend/base/langflow/services/database/models/flow/model.py src/backend/base/langflow/services/database/models/rbac/audit_log.py src/backend/base/langflow/services/database/models/rbac/environment.py src/backend/base/langflow/services/database/models/rbac/permission.py src/backend/base/langflow/services/database/models/rbac/project.py src/backend/base/langflow/services/database/models/rbac/role.py src/backend/base/langflow/services/database/models/rbac/role_assignment.py src/backend/base/langflow/services/database/models/rbac/service_account.py src/backend/base/langflow/services/database/models/rbac/sso_configuration.py src/backend/base/langflow/services/database/models/rbac/user_group.py src/backend/base/langflow/services/database/models/rbac/workspace.py src/backend/base/langflow/services/database/models/user/model.py src/backend/base/langflow/services/database/models/variable/model.py
+[WARNING] Unstaged files detected.
+[INFO] Stashing unstaged files to /Users/xyu/.cache/pre-commit/patch1758045060-88964.
+check for case conflicts.................................................Passed
+fix end of files.........................................................Passed
+mixed line ending........................................................Passed
+trim trailing whitespace.................................................Passed
+ruff check...............................................................Failed
+- hook id: ruff
+- exit code: 1
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:67:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+65 |     def validate_name(cls, v: str) -> str:
+66 |         if not v or not v.strip():
+67 |             raise ValueError("Service account name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+68 |         if len(v) > 255:
+69 |             raise ValueError("Service account name cannot exceed 255 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:67:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+65 |     def validate_name(cls, v: str) -> str:
+66 |         if not v or not v.strip():
+67 |             raise ValueError("Service account name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+68 |         if len(v) > 255:
+69 |             raise ValueError("Service account name cannot exceed 255 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:68:21: PLR2004 Magic value used in comparison, consider replacing `255` with a constant variable
+   |
+66 |         if not v or not v.strip():
+67 |             raise ValueError("Service account name cannot be empty")
+68 |         if len(v) > 255:
+   |                     ^^^ PLR2004
+69 |             raise ValueError("Service account name cannot exceed 255 characters")
+70 |         # Validate service account name format
+   |
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:69:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+67 |             raise ValueError("Service account name cannot be empty")
+68 |         if len(v) > 255:
+69 |             raise ValueError("Service account name cannot exceed 255 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+70 |         # Validate service account name format
+71 |         import re
+   |
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:69:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+67 |             raise ValueError("Service account name cannot be empty")
+68 |         if len(v) > 255:
+69 |             raise ValueError("Service account name cannot exceed 255 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+70 |         # Validate service account name format
+71 |         import re
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:74:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+73 |         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+74 |             raise ValueError("Service account name must contain only letters, numbers, hyphens, and underscores")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+75 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:74:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+73 |         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+74 |             raise ValueError("Service account name must contain only letters, numbers, hyphens, and underscores")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+75 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/service_account.py:168:32: S105 Possible hardcoded password assigned to: "token_prefix"
+    |
+166 |     service_type: str | None = "api"
+167 |     integration_name: str | None = None
+168 |     token_prefix: str | None = "sa_"
+    |                                ^^^^^ S105
+169 |     max_tokens: int = 5
+170 |     token_expiry_days: int | None = 365
+    |
+
+src/backend/base/langflow/services/database/models/rbac/user_group.py:12:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+10 | from sqlmodel import Field, Relationship, SQLModel
+11 |
+12 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+13 |
+14 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/user_group.py:63:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+61 |     def validate_name(cls, v: str) -> str:
+62 |         if not v or not v.strip():
+63 |             raise ValueError("Group name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+64 |         if len(v) > 255:
+65 |             raise ValueError("Group name cannot exceed 255 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/user_group.py:63:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+61 |     def validate_name(cls, v: str) -> str:
+62 |         if not v or not v.strip():
+63 |             raise ValueError("Group name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+64 |         if len(v) > 255:
+65 |             raise ValueError("Group name cannot exceed 255 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/user_group.py:64:21: PLR2004 Magic value used in comparison, consider replacing `255` with a constant variable
+   |
+62 |         if not v or not v.strip():
+63 |             raise ValueError("Group name cannot be empty")
+64 |         if len(v) > 255:
+   |                     ^^^ PLR2004
+65 |             raise ValueError("Group name cannot exceed 255 characters")
+66 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/user_group.py:65:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+63 |             raise ValueError("Group name cannot be empty")
+64 |         if len(v) > 255:
+65 |             raise ValueError("Group name cannot exceed 255 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+66 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/user_group.py:65:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+63 |             raise ValueError("Group name cannot be empty")
+64 |         if len(v) > 255:
+65 |             raise ValueError("Group name cannot exceed 255 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+66 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+Found 14 errors.
+No fixes available (6 hidden fixes can be enabled with the `--unsafe-fixes` option).
+src/backend/base/langflow/services/database/models/rbac/permission.py:12:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+10 | from sqlmodel import Field, Relationship, SQLModel
+11 |
+12 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+13 |
+14 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:57:14: S105 Possible hardcoded password assigned to: "SECRET"
+   |
+55 |     COMPONENT = "component"
+56 |     VARIABLE = "variable"
+57 |     SECRET = "secret"
+   |              ^^^^^^^^ S105
+58 |     API_KEY = "api_key"
+59 |     USER = "user"
+   |
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:95:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+93 |     def validate_name(cls, v: str) -> str:
+94 |         if not v or not v.strip():
+95 |             raise ValueError("Permission name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+96 |         if len(v) > 200:
+97 |             raise ValueError("Permission name cannot exceed 200 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:95:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+93 |     def validate_name(cls, v: str) -> str:
+94 |         if not v or not v.strip():
+95 |             raise ValueError("Permission name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+96 |         if len(v) > 200:
+97 |             raise ValueError("Permission name cannot exceed 200 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:96:21: PLR2004 Magic value used in comparison, consider replacing `200` with a constant variable
+   |
+94 |         if not v or not v.strip():
+95 |             raise ValueError("Permission name cannot be empty")
+96 |         if len(v) > 200:
+   |                     ^^^ PLR2004
+97 |             raise ValueError("Permission name cannot exceed 200 characters")
+98 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:97:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+95 |             raise ValueError("Permission name cannot be empty")
+96 |         if len(v) > 200:
+97 |             raise ValueError("Permission name cannot exceed 200 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+98 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:97:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+95 |             raise ValueError("Permission name cannot be empty")
+96 |         if len(v) > 200:
+97 |             raise ValueError("Permission name cannot exceed 200 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+98 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:109:19: TRY003 Avoid specifying long messages outside the exception class
+    |
+108 |         if not re.match(r"^[\w\*\?\[\]\-\./]+$", v):
+109 |             raise ValueError("Invalid scope pattern")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+110 |         return v
+    |
+
+src/backend/base/langflow/services/database/models/rbac/permission.py:109:30: EM101 Exception must not use a string literal, assign to variable first
+    |
+108 |         if not re.match(r"^[\w\*\?\[\]\-\./]+$", v):
+109 |             raise ValueError("Invalid scope pattern")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^ EM101
+110 |         return v
+    |
+    = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/role.py:12:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+10 | from sqlmodel import Field, Relationship, SQLModel
+11 |
+12 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+13 |
+14 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/role.py:65:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+63 |     def validate_name(cls, v: str) -> str:
+64 |         if not v or not v.strip():
+65 |             raise ValueError("Role name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+66 |         if len(v) > 100:
+67 |             raise ValueError("Role name cannot exceed 100 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role.py:65:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+63 |     def validate_name(cls, v: str) -> str:
+64 |         if not v or not v.strip():
+65 |             raise ValueError("Role name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+66 |         if len(v) > 100:
+67 |             raise ValueError("Role name cannot exceed 100 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/role.py:66:21: PLR2004 Magic value used in comparison, consider replacing `100` with a constant variable
+   |
+64 |         if not v or not v.strip():
+65 |             raise ValueError("Role name cannot be empty")
+66 |         if len(v) > 100:
+   |                     ^^^ PLR2004
+67 |             raise ValueError("Role name cannot exceed 100 characters")
+68 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role.py:67:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+65 |             raise ValueError("Role name cannot be empty")
+66 |         if len(v) > 100:
+67 |             raise ValueError("Role name cannot exceed 100 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+68 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role.py:67:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+65 |             raise ValueError("Role name cannot be empty")
+66 |         if len(v) > 100:
+67 |             raise ValueError("Role name cannot exceed 100 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+68 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/role.py:73:25: PLR2004 Magic value used in comparison, consider replacing `1000` with a constant variable
+   |
+71 |     @classmethod
+72 |     def validate_priority(cls, v: int) -> int:
+73 |         if v < 0 or v > 1000:
+   |                         ^^^^ PLR2004
+74 |             raise ValueError("Priority must be between 0 and 1000")
+75 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role.py:74:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+72 |     def validate_priority(cls, v: int) -> int:
+73 |         if v < 0 or v > 1000:
+74 |             raise ValueError("Priority must be between 0 and 1000")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+75 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role.py:74:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+72 |     def validate_priority(cls, v: int) -> int:
+73 |         if v < 0 or v > 1000:
+74 |             raise ValueError("Priority must be between 0 and 1000")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+75 |         return v
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/user/model.py:11:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+ 9 | from sqlmodel import Field, Relationship, SQLModel
+10 |
+11 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+12 |
+13 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+Found 19 errors.
+No fixes available (9 hidden fixes can be enabled with the `--unsafe-fixes` option).
+src/backend/base/langflow/services/database/models/rbac/environment.py:12:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+10 | from sqlmodel import Field, Relationship, SQLModel
+11 |
+12 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+13 |
+14 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:75:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+73 |     def validate_name(cls, v: str) -> str:
+74 |         if not v or not v.strip():
+75 |             raise ValueError("Environment name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+76 |         if len(v) > 100:
+77 |             raise ValueError("Environment name cannot exceed 100 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:75:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+73 |     def validate_name(cls, v: str) -> str:
+74 |         if not v or not v.strip():
+75 |             raise ValueError("Environment name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+76 |         if len(v) > 100:
+77 |             raise ValueError("Environment name cannot exceed 100 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:76:21: PLR2004 Magic value used in comparison, consider replacing `100` with a constant variable
+   |
+74 |         if not v or not v.strip():
+75 |             raise ValueError("Environment name cannot be empty")
+76 |         if len(v) > 100:
+   |                     ^^^ PLR2004
+77 |             raise ValueError("Environment name cannot exceed 100 characters")
+78 |         # Validate environment name format (lowercase, hyphens)
+   |
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:77:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+75 |             raise ValueError("Environment name cannot be empty")
+76 |         if len(v) > 100:
+77 |             raise ValueError("Environment name cannot exceed 100 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+78 |         # Validate environment name format (lowercase, hyphens)
+79 |         import re
+   |
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:77:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+75 |             raise ValueError("Environment name cannot be empty")
+76 |         if len(v) > 100:
+77 |             raise ValueError("Environment name cannot exceed 100 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+78 |         # Validate environment name format (lowercase, hyphens)
+79 |         import re
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:82:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+81 |         if not re.match(r"^[a-z0-9-]+$", v):
+82 |             raise ValueError("Environment name must be lowercase alphanumeric with hyphens")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+83 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:82:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+81 |         if not re.match(r"^[a-z0-9-]+$", v):
+82 |             raise ValueError("Environment name must be lowercase alphanumeric with hyphens")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+83 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:88:25: PLR2004 Magic value used in comparison, consider replacing `100` with a constant variable
+   |
+86 |     @classmethod
+87 |     def validate_max_instances(cls, v: int) -> int:
+88 |         if v < 0 or v > 100:
+   |                         ^^^ PLR2004
+89 |             raise ValueError("Max instances must be between 0 and 100")
+90 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:89:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+87 |     def validate_max_instances(cls, v: int) -> int:
+88 |         if v < 0 or v > 100:
+89 |             raise ValueError("Max instances must be between 0 and 100")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+90 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/environment.py:89:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+87 |     def validate_max_instances(cls, v: int) -> int:
+88 |         if v < 0 or v > 100:
+89 |             raise ValueError("Max instances must be between 0 and 100")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+90 |         return v
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/project.py:11:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+ 9 | from sqlmodel import Field, Relationship, SQLModel
+10 |
+11 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+12 |
+13 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/project.py:51:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+49 |     def validate_name(cls, v: str) -> str:
+50 |         if not v or not v.strip():
+51 |             raise ValueError("Project name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+52 |         if len(v) > 255:
+53 |             raise ValueError("Project name cannot exceed 255 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/project.py:51:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+49 |     def validate_name(cls, v: str) -> str:
+50 |         if not v or not v.strip():
+51 |             raise ValueError("Project name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+52 |         if len(v) > 255:
+53 |             raise ValueError("Project name cannot exceed 255 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/project.py:52:21: PLR2004 Magic value used in comparison, consider replacing `255` with a constant variable
+   |
+50 |         if not v or not v.strip():
+51 |             raise ValueError("Project name cannot be empty")
+52 |         if len(v) > 255:
+   |                     ^^^ PLR2004
+53 |             raise ValueError("Project name cannot exceed 255 characters")
+54 |         # Validate project name format (alphanumeric, hyphens, underscores)
+   |
+
+src/backend/base/langflow/services/database/models/rbac/project.py:53:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+51 |             raise ValueError("Project name cannot be empty")
+52 |         if len(v) > 255:
+53 |             raise ValueError("Project name cannot exceed 255 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+54 |         # Validate project name format (alphanumeric, hyphens, underscores)
+55 |         import re
+   |
+
+src/backend/base/langflow/services/database/models/rbac/project.py:53:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+51 |             raise ValueError("Project name cannot be empty")
+52 |         if len(v) > 255:
+53 |             raise ValueError("Project name cannot exceed 255 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+54 |         # Validate project name format (alphanumeric, hyphens, underscores)
+55 |         import re
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/project.py:58:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+57 |         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+58 |             raise ValueError("Project name must contain only letters, numbers, hyphens, and underscores")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+59 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/project.py:58:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+57 |         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+58 |             raise ValueError("Project name must contain only letters, numbers, hyphens, and underscores")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+59 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/project.py:131:25: F821 Undefined name `BaseModel`
+    |
+131 | class ProjectStatistics(BaseModel):
+    |                         ^^^^^^^^^ F821
+132 |     """Project statistics and metrics."""
+    |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:11:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+ 9 | from sqlmodel import Field, Relationship, SQLModel
+10 |
+11 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+12 |
+13 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:36:36: F821 Undefined name `Any`
+   |
+34 |     ip_allowlist: list[str] = []
+35 |     features_enabled: dict[str, bool] = {}
+36 |     compliance_settings: dict[str, Any] = {}
+   |                                    ^^^ F821
+   |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:64:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+62 |     def validate_name(cls, v: str) -> str:
+63 |         if not v or not v.strip():
+64 |             raise ValueError("Workspace name cannot be empty")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+65 |         if len(v) > 255:
+66 |             raise ValueError("Workspace name cannot exceed 255 characters")
+   |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:64:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+62 |     def validate_name(cls, v: str) -> str:
+63 |         if not v or not v.strip():
+64 |             raise ValueError("Workspace name cannot be empty")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+65 |         if len(v) > 255:
+66 |             raise ValueError("Workspace name cannot exceed 255 characters")
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:65:21: PLR2004 Magic value used in comparison, consider replacing `255` with a constant variable
+   |
+63 |         if not v or not v.strip():
+64 |             raise ValueError("Workspace name cannot be empty")
+65 |         if len(v) > 255:
+   |                     ^^^ PLR2004
+66 |             raise ValueError("Workspace name cannot exceed 255 characters")
+67 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:66:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+64 |             raise ValueError("Workspace name cannot be empty")
+65 |         if len(v) > 255:
+66 |             raise ValueError("Workspace name cannot exceed 255 characters")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+67 |         return v.strip()
+   |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:66:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+64 |             raise ValueError("Workspace name cannot be empty")
+65 |         if len(v) > 255:
+66 |             raise ValueError("Workspace name cannot exceed 255 characters")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+67 |         return v.strip()
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:76:13: TRY004 Prefer `TypeError` exception for invalid type
+   |
+74 |         # Validate settings structure
+75 |         if not isinstance(v, dict):
+76 |             raise ValueError("Settings must be a dictionary")
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY004
+77 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:76:19: TRY003 Avoid specifying long messages outside the exception class
+   |
+74 |         # Validate settings structure
+75 |         if not isinstance(v, dict):
+76 |             raise ValueError("Settings must be a dictionary")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+77 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/workspace.py:76:30: EM101 Exception must not use a string literal, assign to variable first
+   |
+74 |         # Validate settings structure
+75 |         if not isinstance(v, dict):
+76 |             raise ValueError("Settings must be a dictionary")
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+77 |         return v
+   |
+   = help: Assign to variable; remove string literal
+
+Found 30 errors.
+No fixes available (13 hidden fixes can be enabled with the `--unsafe-fixes` option).
+src/backend/base/langflow/services/database/models/rbac/role_assignment.py:12:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+10 | from sqlmodel import Field, Relationship, SQLModel
+11 |
+12 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+13 |
+14 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/role_assignment.py:30:17: S105 Possible hardcoded password assigned to: "API_TOKEN"
+   |
+28 |     GROUP = "group"
+29 |     SERVICE_ACCOUNT = "service_account"
+30 |     API_TOKEN = "api_token"
+   |                 ^^^^^^^^^^^ S105
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role_assignment.py:78:23: TRY003 Avoid specifying long messages outside the exception class
+   |
+76 |             valid_from = values.get("valid_from")
+77 |             if valid_from and v <= valid_from:
+78 |                 raise ValueError("valid_until must be after valid_from")
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+79 |         return v
+   |
+
+src/backend/base/langflow/services/database/models/rbac/role_assignment.py:78:34: EM101 Exception must not use a string literal, assign to variable first
+   |
+76 |             valid_from = values.get("valid_from")
+77 |             if valid_from and v <= valid_from:
+78 |                 raise ValueError("valid_until must be after valid_from")
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+79 |         return v
+   |
+   = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/role_assignment.py:189:19: TRY003 Avoid specifying long messages outside the exception class
+    |
+187 |         non_null = [a for a in assignees if a is not None]
+188 |         if len(non_null) != 1:
+189 |             raise ValueError("Exactly one of user_id, group_id, or service_account_id must be provided")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+190 |         return v
+    |
+
+src/backend/base/langflow/services/database/models/rbac/role_assignment.py:189:30: EM101 Exception must not use a string literal, assign to variable first
+    |
+187 |         non_null = [a for a in assignees if a is not None]
+188 |         if len(non_null) != 1:
+189 |             raise ValueError("Exactly one of user_id, group_id, or service_account_id must be provided")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+190 |         return v
+    |
+    = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:14:39: TC001 Move application import `langflow.schema.serialize.UUIDstr` into a type-checking block
+   |
+12 | from sqlmodel import Field, Relationship, SQLModel
+13 |
+14 | from langflow.schema.serialize import UUIDstr
+   |                                       ^^^^^^^ TC001
+15 |
+16 | if TYPE_CHECKING:
+   |
+   = help: Move into type-checking block
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:148:19: TRY003 Avoid specifying long messages outside the exception class
+    |
+146 |     def validate_name(cls, v: str) -> str:
+147 |         if not v or not v.strip():
+148 |             raise ValueError("SSO configuration name cannot be empty")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+149 |         if len(v) > 255:
+150 |             raise ValueError("SSO configuration name cannot exceed 255 characters")
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:148:30: EM101 Exception must not use a string literal, assign to variable first
+    |
+146 |     def validate_name(cls, v: str) -> str:
+147 |         if not v or not v.strip():
+148 |             raise ValueError("SSO configuration name cannot be empty")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+149 |         if len(v) > 255:
+150 |             raise ValueError("SSO configuration name cannot exceed 255 characters")
+    |
+    = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:149:21: PLR2004 Magic value used in comparison, consider replacing `255` with a constant variable
+    |
+147 |         if not v or not v.strip():
+148 |             raise ValueError("SSO configuration name cannot be empty")
+149 |         if len(v) > 255:
+    |                     ^^^ PLR2004
+150 |             raise ValueError("SSO configuration name cannot exceed 255 characters")
+151 |         return v.strip()
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:150:19: TRY003 Avoid specifying long messages outside the exception class
+    |
+148 |             raise ValueError("SSO configuration name cannot be empty")
+149 |         if len(v) > 255:
+150 |             raise ValueError("SSO configuration name cannot exceed 255 characters")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+151 |         return v.strip()
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:150:30: EM101 Exception must not use a string literal, assign to variable first
+    |
+148 |             raise ValueError("SSO configuration name cannot be empty")
+149 |         if len(v) > 255:
+150 |             raise ValueError("SSO configuration name cannot exceed 255 characters")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+151 |         return v.strip()
+    |
+    = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:157:13: TRY004 Prefer `TypeError` exception for invalid type
+    |
+155 |     def validate_provider_config(cls, v: dict) -> dict:
+156 |         if not isinstance(v, dict):
+157 |             raise ValueError("Provider config must be a dictionary")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY004
+158 |         return v
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:157:19: TRY003 Avoid specifying long messages outside the exception class
+    |
+155 |     def validate_provider_config(cls, v: dict) -> dict:
+156 |         if not isinstance(v, dict):
+157 |             raise ValueError("Provider config must be a dictionary")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+158 |         return v
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:157:30: EM101 Exception must not use a string literal, assign to variable first
+    |
+155 |     def validate_provider_config(cls, v: dict) -> dict:
+156 |         if not isinstance(v, dict):
+157 |             raise ValueError("Provider config must be a dictionary")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+158 |         return v
+    |
+    = help: Assign to variable; remove string literal
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:164:13: TRY004 Prefer `TypeError` exception for invalid type
+    |
+162 |     def validate_mapping_configs(cls, v: dict) -> dict:
+163 |         if not isinstance(v, dict):
+164 |             raise ValueError("Mapping configuration must be a dictionary")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY004
+165 |         return v
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:164:19: TRY003 Avoid specifying long messages outside the exception class
+    |
+162 |     def validate_mapping_configs(cls, v: dict) -> dict:
+163 |         if not isinstance(v, dict):
+164 |             raise ValueError("Mapping configuration must be a dictionary")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TRY003
+165 |         return v
+    |
+
+src/backend/base/langflow/services/database/models/rbac/sso_configuration.py:164:30: EM101 Exception must not use a string literal, assign to variable first
+    |
+162 |     def validate_mapping_configs(cls, v: dict) -> dict:
+163 |         if not isinstance(v, dict):
+164 |             raise ValueError("Mapping configuration must be a dictionary")
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ EM101
+165 |         return v
+    |
+    = help: Assign to variable; remove string literal
+
+Found 18 errors.
+No fixes available (8 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+ruff format..............................................................Passed
+biome check..........................................(no files to check)Skipped
+Validate Starter Project Templates...................(no files to check)Skipped
+[INFO] Restored changes from /Users/xyu/.cache/pre-commit/patch1758045060-88964.
+Completed with errors, see above
