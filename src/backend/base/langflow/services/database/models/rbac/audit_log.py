@@ -222,9 +222,9 @@ class ComplianceReport(SQLModel):
 
     # Report sections
     access_summary: dict | None = Field(default=None, sa_column=Column(JSON))
-    permission_changes: list[dict] | None = None
-    security_incidents: list[dict] | None = None
-    data_access_logs: list[dict] | None = None
+    permission_changes: list[dict] | None = Field(default=None, sa_column=Column(JSON))
+    security_incidents: list[dict] | None = Field(default=None, sa_column=Column(JSON))
+    data_access_logs: list[dict] | None = Field(default=None, sa_column=Column(JSON))
     user_activity: dict | None = Field(default=None, sa_column=Column(JSON))
 
     # Compliance metrics
