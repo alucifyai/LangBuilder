@@ -148,7 +148,7 @@ class EnvironmentCreate(SQLModel):
     project_id: UUID
     api_endpoint: str | None = None
     deployment_url: str | None = None
-    config: dict | None = None
+    config: dict | None = Field(default=None, sa_column=Column(JSON))
     max_instances: int = 1
     max_memory_mb: int = 512
     max_cpu_cores: float = 0.5
@@ -176,8 +176,8 @@ class EnvironmentUpdate(SQLModel):
     description: str | None = None
     api_endpoint: str | None = None
     deployment_url: str | None = None
-    config: dict | None = None
-    secrets: dict | None = None
+    config: dict | None = Field(default=None, sa_column=Column(JSON))
+    secrets: dict | None = Field(default=None, sa_column=Column(JSON))
     max_instances: int | None = None
     max_memory_mb: int | None = None
     max_cpu_cores: float | None = None

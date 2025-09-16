@@ -48,7 +48,7 @@ class FlowBase(SQLModel):
     icon: str | None = Field(default=None, nullable=True)
     icon_bg_color: str | None = Field(default=None, nullable=True)
     gradient: str | None = Field(default=None, nullable=True)
-    data: dict | None = Field(default=None, nullable=True)
+    data: dict | None = Field(default=None, nullable=True, sa_column=Column(JSON))
     is_component: bool | None = Field(default=False, nullable=True)
     updated_at: datetime | None = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=True)
     webhook: bool | None = Field(default=False, nullable=True, description="Can be used on the webhook endpoint")
@@ -258,7 +258,7 @@ class FlowHeader(BaseModel):
     is_component: bool | None = Field(None, description="Flag indicating whether the flow is a component")
     endpoint_name: str | None = Field(None, description="The name of the endpoint associated with this flow")
     description: str | None = Field(None, description="A description of the flow")
-    data: dict | None = Field(None, description="The data of the component, if is_component is True")
+    data: dict | None = Field(None, description="The data of the component, if is_component is True", sa_column=Column(JSON))
     access_type: AccessTypeEnum | None = Field(None, description="The access type of the flow")
     tags: list[str] | None = Field(None, description="The tags of the flow")
     mcp_enabled: bool | None = Field(None, description="Flag indicating whether the flow is exposed in the MCP server")
@@ -276,7 +276,7 @@ class FlowHeader(BaseModel):
 class FlowUpdate(SQLModel):
     name: str | None = None
     description: str | None = None
-    data: dict | None = None
+    data: dict | None = Field(default=None, sa_column=Column(JSON))
     folder_id: UUID | None = None
     endpoint_name: str | None = None
     mcp_enabled: bool | None = None

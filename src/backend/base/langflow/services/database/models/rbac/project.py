@@ -102,7 +102,7 @@ class ProjectCreate(SQLModel):
     repository_url: str | None = None
     documentation_url: str | None = None
     tags: list[str] | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_deploy_enabled: bool = False
     retention_days: int = 30
 
@@ -126,7 +126,7 @@ class ProjectUpdate(SQLModel):
     repository_url: str | None = None
     documentation_url: str | None = None
     tags: list[str] | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     default_environment_id: UUID | None = None
     auto_deploy_enabled: bool | None = None
     retention_days: int | None = None

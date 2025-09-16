@@ -237,7 +237,7 @@ class PermissionCreate(SQLModel):
     resource_type: ResourceType
     action: PermissionAction
     scope: str | None = "*"
-    conditions: dict | None = None
+    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
     category: str | None = None
     is_dangerous: bool = False
     requires_mfa: bool = False
@@ -258,4 +258,4 @@ class PermissionCheck(SQLModel):
     resource_type: ResourceType
     resource_id: UUID | None = None
     action: PermissionAction
-    context: dict | None = None
+    context: dict | None = Field(default=None, sa_column=Column(JSON))

@@ -59,4 +59,4 @@ class FolderUpdate(SQLModel):
     parent_id: UUID | None = None
     components: list[UUID] = Field(default_factory=list)
     flows: list[UUID] = Field(default_factory=list)
-    auth_settings: dict | None = None
+    auth_settings: dict | None = Field(default=None, sa_column=Column(JSON))

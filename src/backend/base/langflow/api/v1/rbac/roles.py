@@ -9,7 +9,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
-from langflow.api.utils import get_current_user, get_session
+from langflow.api.utils import get_session
+from langflow.services.auth.utils import get_current_active_user as get_current_user
 from langflow.api.v1.rbac.dependencies import (
     check_role_permission,
     check_workspace_permission,

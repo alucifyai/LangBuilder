@@ -187,7 +187,7 @@ class RoleCreate(SQLModel):
     priority: int = 0
     scope_type: str | None = "workspace"
     scope_id: UUID | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
 
 
@@ -211,7 +211,7 @@ class RoleUpdate(SQLModel):
     priority: int | None = None
     scope_type: str | None = None
     scope_id: UUID | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
     is_default: bool | None = None

@@ -9,7 +9,8 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, Path, status
 from sqlmodel import Session
 
-from langflow.api.utils import get_current_user, get_session
+from langflow.api.utils import get_session
+from langflow.services.auth.utils import get_current_active_user as get_current_user
 
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow

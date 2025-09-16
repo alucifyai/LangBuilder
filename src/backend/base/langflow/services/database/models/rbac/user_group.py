@@ -159,10 +159,10 @@ class UserGroupCreate(SQLModel):
     parent_group_id: UUID | None = None
     external_id: str | None = None
     external_provider: str | None = None
-    membership_rules: dict | None = None
+    membership_rules: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_assign_roles: list[str] | None = None
     max_members: int | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
 
 
@@ -183,10 +183,10 @@ class UserGroupUpdate(SQLModel):
     name: str | None = None
     description: str | None = None
     parent_group_id: UUID | None = None
-    membership_rules: dict | None = None
+    membership_rules: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_assign_roles: list[str] | None = None
     max_members: int | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
 
@@ -225,4 +225,4 @@ class UserGroupSync(SQLModel):
     name: str
     description: str | None = None
     members: list[str]  # External user IDs
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))

@@ -195,9 +195,9 @@ class SSOConfigurationCreate(SQLModel):
     ldap_bind_password: str | None = None
 
     # Configuration
-    user_mapping: dict | None = None
-    group_mapping: dict | None = None
-    role_mapping: dict | None = None
+    user_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
+    group_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
+    role_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
     allowed_domains: list[str] | None = None
     auto_provision_users: bool = True
     auto_create_groups: bool = True
@@ -259,7 +259,7 @@ class SSOConfigurationUpdate(SQLModel):
 
     name: str | None = None
     status: SSOStatus | None = None
-    provider_config: dict | None = None
+    provider_config: dict | None = Field(default=None, sa_column=Column(JSON))
 
     # Provider fields
     client_id: str | None = None
@@ -284,9 +284,9 @@ class SSOConfigurationUpdate(SQLModel):
     ldap_bind_password: str | None = None
 
     # Mappings
-    user_mapping: dict | None = None
-    group_mapping: dict | None = None
-    role_mapping: dict | None = None
+    user_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
+    group_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
+    role_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
 
     # Settings
     allowed_domains: list[str] | None = None
@@ -316,7 +316,7 @@ class SSOTestResult(SQLModel):
     provider_type: SSOProviderType
     test_timestamp: datetime
     response_time_ms: float | None = None
-    user_info: dict | None = None
+    user_info: dict | None = Field(default=None, sa_column=Column(JSON))
     groups: list[str] | None = None
     errors: list[str] | None = None
     warnings: list[str] | None = None

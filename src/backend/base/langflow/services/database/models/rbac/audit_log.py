@@ -221,11 +221,11 @@ class ComplianceReport(SQLModel):
     workspace_id: UUID | None = None
 
     # Report sections
-    access_summary: dict | None = None
+    access_summary: dict | None = Field(default=None, sa_column=Column(JSON))
     permission_changes: list[dict] | None = None
     security_incidents: list[dict] | None = None
     data_access_logs: list[dict] | None = None
-    user_activity: dict | None = None
+    user_activity: dict | None = Field(default=None, sa_column=Column(JSON))
 
     # Compliance metrics
     total_logins: int = 0

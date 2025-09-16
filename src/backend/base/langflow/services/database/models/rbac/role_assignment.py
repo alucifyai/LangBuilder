@@ -169,9 +169,9 @@ class RoleAssignmentCreate(SQLModel):
     # Optional fields
     valid_from: datetime | None = None
     valid_until: datetime | None = None
-    conditions: dict | None = None
+    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
     ip_restrictions: list[str] | None = None
-    time_restrictions: dict | None = None
+    time_restrictions: dict | None = Field(default=None, sa_column=Column(JSON))
     reason: str | None = None
 
     @field_validator("user_id")
@@ -228,9 +228,9 @@ class RoleAssignmentUpdate(SQLModel):
     is_active: bool | None = None
     valid_from: datetime | None = None
     valid_until: datetime | None = None
-    conditions: dict | None = None
+    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
     ip_restrictions: list[str] | None = None
-    time_restrictions: dict | None = None
+    time_restrictions: dict | None = Field(default=None, sa_column=Column(JSON))
     reason: str | None = None
     approved_by_id: UUID | None = None
     approval_date: datetime | None = None
@@ -242,5 +242,5 @@ class RoleAssignmentApproval(SQLModel):
     assignment_id: UUID
     approved: bool
     reason: str | None = None
-    conditions: dict | None = None
+    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
     valid_until: datetime | None = None

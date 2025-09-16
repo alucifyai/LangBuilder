@@ -129,8 +129,8 @@ class WorkspaceCreate(SQLModel):
     name: str
     description: str | None = None
     organization: str | None = None
-    settings: dict | None = None
-    metadata: dict | None = None
+    settings: dict | None = Field(default=None, sa_column=Column(JSON))
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
 
 
@@ -150,8 +150,8 @@ class WorkspaceUpdate(SQLModel):
     name: str | None = None
     description: str | None = None
     organization: str | None = None
-    settings: dict | None = None
-    metadata: dict | None = None
+    settings: dict | None = Field(default=None, sa_column=Column(JSON))
+    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
 
