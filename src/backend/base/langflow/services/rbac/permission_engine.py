@@ -4,23 +4,28 @@ Provides fast permission checking with caching and hierarchical scope resolution
 Target: <100ms p95 latency for permission checks.
 """
 
+from __future__ import annotations
+
 import asyncio
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import redis
 from sqlmodel import Session
 
-from langflow.services.database.models.user.model import User
-from langflow.services.database.models.rbac.permission import Permission, PermissionAction, ResourceType
-from langflow.services.database.models.rbac.role import Role
-from langflow.services.database.models.rbac.role_assignment import RoleAssignment, AssignmentScope
-from langflow.services.database.models.rbac.workspace import Workspace
-from langflow.services.database.models.rbac.project import Project
-from langflow.services.database.models.rbac.environment import Environment
 from langflow.services.database.models.flow.model import Flow
+from langflow.services.database.models.rbac.environment import Environment
+from langflow.services.database.models.rbac.permission import Permission, PermissionAction, ResourceType
+from langflow.services.database.models.rbac.project import Project
+from langflow.services.database.models.rbac.role import Role
+from langflow.services.database.models.rbac.role_assignment import AssignmentScope, RoleAssignment
+from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.database.models.user.model import User
+
+if TYPE_CHECKING:
+    pass
 
 
 class PermissionResult:
@@ -31,33 +36,36 @@ class PermissionResult:
         granted: bool,
         reason: str,
         cached: bool = False,
-        scope_path: Optional[List[str]] = None,
-        applicable_roles: Optional[List[str]] = None,
-        check_duration_ms: Optional[float] = None
-    ):
+        scope_path: list[str] | None = None,
+        applicable_roles: list[str] | None = None,
+        check_duration_ms: float | None = None,
+    ) -> None:
+        """Initialize permission result."""
         self.granted = granted
         self.reason = reason
         self.cached = cached
         self.scope_path = scope_path or []
         self.applicable_roles = applicable_roles or []
         self.check_duration_ms = check_duration_ms
-    
+
     def __bool__(self) -> bool:
+        """Return granted status as boolean."""
         return self.granted
 
 
 class PermissionEngine:
     """High-performance permission engine with caching and scope resolution."""
-    
-    def __init__(self, redis_client: Optional[redis.Redis] = None):
+
+    def __init__(self, redis_client: redis.Redis | None = None) -> None:
+        """Initialize permission engine with optional Redis client."""
         self.redis = redis_client
         self.cache_ttl = 300  # 5 minutes
         self.scope_hierarchy = [
             AssignmentScope.WORKSPACE,
-            AssignmentScope.PROJECT, 
+            AssignmentScope.PROJECT,
             AssignmentScope.ENVIRONMENT,
             AssignmentScope.FLOW,
-            AssignmentScope.COMPONENT
+            AssignmentScope.COMPONENT,
         ]
     
     async def check_permission(
@@ -66,11 +74,11 @@ class PermissionEngine:
         user: User,
         resource_type: ResourceType,
         action: PermissionAction,
-        resource_id: Optional[UUID] = None,
-        context: Optional[Dict[str, Any]] = None
+        resource_id: UUID | None = None,
+        context: dict[str, Any] | None = None,
     ) -> PermissionResult:
         """Check if user has permission for the specified action on resource.
-        
+
         Args:
             session: Database session
             user: User requesting permission
@@ -78,7 +86,7 @@ class PermissionEngine:
             action: Action being performed
             resource_id: Specific resource ID (optional for type-level permissions)
             context: Additional context for conditional permissions
-            
+
         Returns:
             PermissionResult with granted status and metadata
         """

@@ -1,19 +1,26 @@
 """RBAC dependencies for FastAPI endpoints."""
 
+from __future__ import annotations
+
 from functools import wraps
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Path, status
 from sqlmodel import Session
 
-from langflow.api.utils import get_session, get_current_user
-from langflow.services.database.models.user.model import User
+from langflow.api.utils import get_current_user, get_session
+
+if TYPE_CHECKING:
+    from langflow.services.database.models.flow.model import Flow
+    from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.rbac.project import Project
+    from langflow.services.database.models.rbac.role import Role
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.user.model import User
+
+# Import for runtime use
 from langflow.services.database.models.rbac.workspace import Workspace
-from langflow.services.database.models.rbac.project import Project
-from langflow.services.database.models.rbac.environment import Environment
-from langflow.services.database.models.rbac.role import Role
-from langflow.services.database.models.flow.model import Flow
 
 
 def get_workspace_by_id(
@@ -25,7 +32,7 @@ def get_workspace_by_id(
     if not workspace or workspace.is_deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Workspace not found"
+            detail="Workspace not found",
         )
     return workspace
 

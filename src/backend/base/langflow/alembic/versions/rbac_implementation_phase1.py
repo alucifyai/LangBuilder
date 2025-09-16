@@ -1,4 +1,4 @@
-"""Add RBAC tables for Phase 1 implementation
+"""Add RBAC tables for Phase 1 implementation.
 
 Revision ID: rbac_phase1_001
 Revises: latest
@@ -14,39 +14,42 @@ This migration adds all RBAC-related tables for the Phase 1 implementation:
 - Updates to existing tables (User, Flow, ApiKey, Variable)
 """
 
-from alembic import op
-import sqlalchemy as sa
-import sqlmodel
-from sqlalchemy.dialects import postgresql
+from __future__ import annotations
+
 from uuid import uuid4
 
+import sqlalchemy as sa
+import sqlmodel
+from alembic import op
+from sqlalchemy.dialects import postgresql
+
 # revision identifiers
-revision = 'rbac_phase1_001'
+revision = "rbac_phase1_001"
 down_revision = None  # Will be set to the latest migration
 branch_labels = None
 depends_on = None
 
-def upgrade():
+
+def upgrade() -> None:
     """Create RBAC tables and update existing tables."""
-    
     # Create Workspace table
     op.create_table(
-        'workspace',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-        sa.Column('name', sa.String(255), nullable=False, index=True),
-        sa.Column('description', sa.Text(), nullable=True),
-        sa.Column('organization', sa.String(255), nullable=True, index=True),
-        sa.Column('owner_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-        sa.Column('settings', sa.JSON(), nullable=True),
-        sa.Column('metadata', sa.JSON(), nullable=True),
-        sa.Column('tags', sa.JSON(), nullable=True),
-        sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
-        sa.Column('is_deleted', sa.Boolean(), default=False, nullable=False),
-        sa.Column('deletion_requested_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
-        sa.ForeignKeyConstraint(['owner_id'], ['user.id'], name='fk_workspace_owner'),
-        sa.UniqueConstraint('owner_id', 'name', name='unique_workspace_name_per_owner')
+        "workspace",
+        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+        sa.Column("name", sa.String(255), nullable=False, index=True),
+        sa.Column("description", sa.Text(), nullable=True),
+        sa.Column("organization", sa.String(255), nullable=True, index=True),
+        sa.Column("owner_id", postgresql.UUID(as_uuid=True), nullable=False, index=True),
+        sa.Column("settings", sa.JSON(), nullable=True),
+        sa.Column("metadata", sa.JSON(), nullable=True),
+        sa.Column("tags", sa.JSON(), nullable=True),
+        sa.Column("is_active", sa.Boolean(), default=True, nullable=False, index=True),
+        sa.Column("is_deleted", sa.Boolean(), default=False, nullable=False),
+        sa.Column("deletion_requested_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.ForeignKeyConstraint(["owner_id"], ["user.id"], name="fk_workspace_owner"),
+        sa.UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),
     )
     
     # Create Project table

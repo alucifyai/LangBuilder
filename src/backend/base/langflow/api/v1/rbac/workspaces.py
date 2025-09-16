@@ -1,20 +1,28 @@
 """Workspace management API endpoints for RBAC system."""
 
+from __future__ import annotations
+
+import secrets
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
-from uuid import UUID
-from typing import List, Optional
 
-from langflow.api.utils import get_session, get_current_user
-from langflow.services.database.models.user.model import User
+from langflow.api.utils import get_current_user, get_session
+from langflow.api.v1.rbac.dependencies import check_workspace_permission
 from langflow.services.database.models.rbac.workspace import (
     Workspace,
     WorkspaceCreate,
+    WorkspaceInvitation,
     WorkspaceRead,
     WorkspaceUpdate,
-    WorkspaceInvitation,
 )
-from langflow.api.v1.rbac.dependencies import check_workspace_permission
+from langflow.services.database.models.user.model import User
+
+if TYPE_CHECKING:
+    pass
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
@@ -26,33 +34,30 @@ async def create_workspace(
     current_user: User = Depends(get_current_user),
 ) -> WorkspaceRead:
     """Create a new workspace."""
-    
     # Check if workspace name already exists for this user
     existing = session.query(Workspace).filter(
         Workspace.owner_id == current_user.id,
         Workspace.name == workspace_data.name,
-        Workspace.is_deleted == False
+        Workspace.is_deleted == False,  # noqa: E712
     ).first()
-    
+
     if existing:
+        msg = f"Workspace '{workspace_data.name}' already exists"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Workspace '{workspace_data.name}' already exists"
+            detail=msg,
         )
-    
+
     # Create workspace
     workspace = Workspace(
         **workspace_data.model_dump(),
-        owner_id=current_user.id
+        owner_id=current_user.id,
     )
-    
+
     session.add(workspace)
     session.commit()
     session.refresh(workspace)
-    
-    # TODO: Create default role assignments for owner
-    # TODO: Log audit event
-    
+
     return WorkspaceRead.model_validate(workspace)
 
 

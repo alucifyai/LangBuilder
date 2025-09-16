@@ -1,15 +1,18 @@
 """Unit tests for Workspace model."""
 
-import pytest
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from langflow.services.database.models.rbac.workspace import (
     Workspace,
     WorkspaceCreate,
     WorkspaceRead,
-    WorkspaceUpdate,
     WorkspaceSettings,
+    WorkspaceUpdate,
 )
 from langflow.services.database.models.user.model import User
 

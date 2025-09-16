@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, field_validator
-from sqlalchemy import JSON, Column, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Column, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
@@ -20,7 +22,7 @@ if TYPE_CHECKING:
 
 class WorkspaceSettings(BaseModel):
     """Workspace-specific settings and configurations."""
-    
+
     sso_enabled: bool = False
     sso_provider: str | None = None
     scim_enabled: bool = False
@@ -36,21 +38,21 @@ class WorkspaceSettings(BaseModel):
 
 class WorkspaceBase(SQLModel):
     """Base workspace model for RBAC hierarchical organization."""
-    
+
     name: str = Field(index=True, sa_column_kwargs={"unique": False})
     description: str | None = Field(default=None, sa_column=Column(Text))
     organization: str | None = Field(default=None, index=True)
-    
+
     # Settings and metadata
     settings: dict | None = Field(default_factory=lambda: WorkspaceSettings().model_dump(), sa_column=Column(JSON))
     metadata: dict | None = Field(default={}, sa_column=Column(JSON))
     tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
-    
+
     # Status and lifecycle
     is_active: bool = Field(default=True, index=True)
     is_deleted: bool = Field(default=False)
     deletion_requested_at: datetime | None = Field(default=None)
-    
+
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -58,64 +60,67 @@ class WorkspaceBase(SQLModel):
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
+        """Validate workspace name is not empty and within length limits."""
         if not v or not v.strip():
-            raise ValueError("Workspace name cannot be empty")
+            msg = "Workspace name cannot be empty"
+            raise ValueError(msg)
         if len(v) > 255:
-            raise ValueError("Workspace name cannot exceed 255 characters")
+            msg = "Workspace name cannot exceed 255 characters"
+            raise ValueError(msg)
         return v.strip()
-    
+
     @field_validator("settings", mode="before")
     @classmethod
     def validate_settings(cls, v: dict | None) -> dict:
+        """Validate and normalize workspace settings."""
         if v is None:
             return WorkspaceSettings().model_dump()
         # Validate settings structure
         if not isinstance(v, dict):
-            raise ValueError("Settings must be a dictionary")
+            msg = "Settings must be a dictionary"
+            raise ValueError(msg)
         return v
 
 
 class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
     """Workspace table for multi-tenant RBAC system."""
-    
+
     __tablename__ = "workspace"
-    
+
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
-    
+
     # Owner relationship
     owner_id: UUIDstr = Field(foreign_key="user.id", index=True)
-    owner: "User" = Relationship(back_populates="owned_workspaces")
-    
+    owner: User = Relationship(back_populates="owned_workspaces")
+
     # Relationships
-    projects: list["Project"] = Relationship(
+    projects: list[Project] = Relationship(
         back_populates="workspace",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    roles: list["Role"] = Relationship(
+    roles: list[Role] = Relationship(
         back_populates="workspace",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    role_assignments: list["RoleAssignment"] = Relationship(
+    role_assignments: list[RoleAssignment] = Relationship(
         back_populates="workspace",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    audit_logs: list["AuditLog"] = Relationship(
+    audit_logs: list[AuditLog] = Relationship(
         back_populates="workspace",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    user_groups: list["UserGroup"] = Relationship(
+    user_groups: list[UserGroup] = Relationship(
         back_populates="workspace",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    service_accounts: list["ServiceAccount"] = Relationship(
+    service_accounts: list[ServiceAccount] = Relationship(
         back_populates="workspace",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    
+
     # Unique constraints
-    __table_args__ = (
-        UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),
-    )
+    __table_args__ = (UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),)
 
 
 class WorkspaceCreate(SQLModel):
