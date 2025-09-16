@@ -48,7 +48,7 @@ class FlowBase(SQLModel):
     icon: str | None = Field(default=None, nullable=True)
     icon_bg_color: str | None = Field(default=None, nullable=True)
     gradient: str | None = Field(default=None, nullable=True)
-    data: dict | None = Field(default=None, nullable=True, sa_column=Column(JSON))
+    data: dict | None = Field(default=None, sa_column=Column(JSON, nullable=True))
     is_component: bool | None = Field(default=False, nullable=True)
     updated_at: datetime | None = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=True)
     webhook: bool | None = Field(default=False, nullable=True, description="Can be used on the webhook endpoint")
