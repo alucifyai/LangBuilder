@@ -25,7 +25,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers
 revision = "rbac_phase1_001"
-down_revision = None  # Will be set to the latest migration
+down_revision = "3162e83e485f"
 branch_labels = None
 depends_on = None
 
@@ -51,7 +51,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["owner_id"], ["user.id"], name="fk_workspace_owner"),
         sa.UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),
     )
-    
+
     # Create Project table
     op.create_table(
         'project',
@@ -76,7 +76,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['owner_id'], ['user.id'], name='fk_project_owner'),
         sa.UniqueConstraint('workspace_id', 'name', name='unique_project_name_per_workspace')
     )
-    
+
     # Create Environment table
     op.create_table(
         'environment',
@@ -113,7 +113,7 @@ def upgrade() -> None:
         sa.UniqueConstraint('project_id', 'name', name='unique_environment_name_per_project'),
         sa.UniqueConstraint('project_id', 'type', name='unique_environment_type_per_project')
     )
-    
+
     # Create Role table
     op.create_table(
         'role',
@@ -140,7 +140,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['parent_role_id'], ['role.id'], name='fk_role_parent'),
         sa.UniqueConstraint('workspace_id', 'name', name='unique_role_name_per_workspace')
     )
-    
+
     # Create Permission table
     op.create_table(
         'permission',
@@ -160,7 +160,7 @@ def upgrade() -> None:
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.UniqueConstraint('resource_type', 'action', 'scope', name='unique_permission_definition')
     )
-    
+
     # Create RolePermission junction table
     op.create_table(
         'role_permission',
@@ -178,7 +178,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['granted_by_id'], ['user.id'], name='fk_role_permission_granted_by'),
         sa.UniqueConstraint('role_id', 'permission_id', name='unique_role_permission')
     )
-    
+
     # Create UserGroup table
     op.create_table(
         'user_group',
@@ -207,7 +207,7 @@ def upgrade() -> None:
         sa.UniqueConstraint('workspace_id', 'name', name='unique_group_name_per_workspace'),
         sa.UniqueConstraint('external_id', 'external_provider', name='unique_external_group')
     )
-    
+
     # Create UserGroupMembership junction table
     op.create_table(
         'user_group_membership',
@@ -225,7 +225,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['added_by_id'], ['user.id'], name='fk_group_membership_added_by'),
         sa.UniqueConstraint('user_id', 'group_id', name='unique_user_group_membership')
     )
-    
+
     # Create ServiceAccount table
     op.create_table(
         'service_account',
@@ -260,7 +260,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['created_by_id'], ['user.id'], name='fk_service_account_created_by'),
         sa.UniqueConstraint('workspace_id', 'name', name='unique_service_account_name_per_workspace')
     )
-    
+
     # Create ServiceAccountToken table
     op.create_table(
         'service_account_token',
@@ -287,7 +287,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], name='fk_token_revoked_by'),
         sa.UniqueConstraint('service_account_id', 'name', name='unique_token_name_per_service_account')
     )
-    
+
     # Create RoleAssignment table
     op.create_table(
         'role_assignment',
@@ -326,14 +326,14 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['flow_id'], ['flow.id'], name='fk_assignment_flow'),
         sa.ForeignKeyConstraint(['assigned_by_id'], ['user.id'], name='fk_assignment_assigned_by'),
         sa.ForeignKeyConstraint(['approved_by_id'], ['user.id'], name='fk_assignment_approved_by'),
-        sa.UniqueConstraint('role_id', 'user_id', 'workspace_id', 'project_id', 'environment_id', 
+        sa.UniqueConstraint('role_id', 'user_id', 'workspace_id', 'project_id', 'environment_id',
                            'flow_id', 'component_id', name='unique_role_assignment'),
         sa.Index('idx_user_workspace', 'user_id', 'workspace_id'),
         sa.Index('idx_user_project', 'user_id', 'project_id'),
         sa.Index('idx_group_workspace', 'group_id', 'workspace_id'),
         sa.Index('idx_active_assignments', 'is_active', 'assignment_type')
     )
-    
+
     # Create AuditLog table
     op.create_table(
         'audit_log',
@@ -371,7 +371,7 @@ def upgrade() -> None:
         sa.Index('idx_audit_event', 'event_type', 'outcome'),
         sa.Index('idx_audit_compliance', 'retention_required', 'sensitive_data_accessed')
     )
-    
+
     # Create EnvironmentDeployment table
     op.create_table(
         'environment_deployment',
@@ -390,7 +390,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['environment_id'], ['environment.id'], name='fk_deployment_environment'),
         sa.ForeignKeyConstraint(['deployed_by_id'], ['user.id'], name='fk_deployment_user')
     )
-    
+
     # Create WorkspaceInvitation table
     op.create_table(
         'workspace_invitation',
@@ -410,7 +410,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['invited_by_id'], ['user.id'], name='fk_invitation_invited_by'),
         sa.ForeignKeyConstraint(['accepted_by_id'], ['user.id'], name='fk_invitation_accepted_by')
     )
-    
+
     # Update existing Flow table to add RBAC relationships
     op.add_column('flow', sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True))
     op.add_column('flow', sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=True))
@@ -418,7 +418,7 @@ def upgrade() -> None:
     op.create_index('idx_flow_environment', 'flow', ['environment_id'])
     op.create_foreign_key('fk_flow_project', 'flow', 'project', ['project_id'], ['id'])
     op.create_foreign_key('fk_flow_environment', 'flow', 'environment', ['environment_id'], ['id'])
-    
+
     # Update existing ApiKey table to add service account relationships
     op.add_column('api_key', sa.Column('service_account_id', postgresql.UUID(as_uuid=True), nullable=True))
     op.add_column('api_key', sa.Column('scoped_permissions', sa.JSON(), nullable=True))
@@ -429,7 +429,7 @@ def upgrade() -> None:
     op.create_index('idx_api_key_workspace', 'api_key', ['workspace_id'])
     op.create_foreign_key('fk_api_key_service_account', 'api_key', 'service_account', ['service_account_id'], ['id'])
     op.create_foreign_key('fk_api_key_workspace', 'api_key', 'workspace', ['workspace_id'], ['id'])
-    
+
     # Update existing Variable table to add environment relationships
     op.add_column('variable', sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=True))
     op.create_index('idx_variable_environment', 'variable', ['environment_id'])
@@ -438,12 +438,12 @@ def upgrade() -> None:
 
 def downgrade():
     """Remove RBAC tables and restore original table structure."""
-    
+
     # Remove foreign keys and columns from existing tables
     op.drop_constraint('fk_variable_environment', 'variable', type_='foreignkey')
     op.drop_index('idx_variable_environment', 'variable')
     op.drop_column('variable', 'environment_id')
-    
+
     op.drop_constraint('fk_api_key_workspace', 'api_key', type_='foreignkey')
     op.drop_constraint('fk_api_key_service_account', 'api_key', type_='foreignkey')
     op.drop_index('idx_api_key_workspace', 'api_key')
@@ -453,14 +453,14 @@ def downgrade():
     op.drop_column('api_key', 'scope_type')
     op.drop_column('api_key', 'scoped_permissions')
     op.drop_column('api_key', 'service_account_id')
-    
+
     op.drop_constraint('fk_flow_environment', 'flow', type_='foreignkey')
     op.drop_constraint('fk_flow_project', 'flow', type_='foreignkey')
     op.drop_index('idx_flow_environment', 'flow')
     op.drop_index('idx_flow_project', 'flow')
     op.drop_column('flow', 'environment_id')
     op.drop_column('flow', 'project_id')
-    
+
     # Drop all RBAC tables
     op.drop_table('workspace_invitation')
     op.drop_table('environment_deployment')

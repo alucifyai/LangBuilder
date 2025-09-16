@@ -180,6 +180,25 @@ class PermissionChecker:
 
         return False
 
+    def has_role_permission(self, role: Role, permission: str) -> bool:
+        """Check if user has permission on role."""
+        # Super admin has all permissions
+        if self.user.is_superuser:
+            return True
+
+        # Role creator has all permissions
+        if role.created_by_id == self.user.id:
+            return True
+
+        # Check workspace-level permissions
+        workspace = self.session.get(Workspace, role.workspace_id)
+        if workspace and self.has_workspace_permission(workspace, permission):
+            return True
+
+        # TODO: Implement proper role-based permission checking
+
+        return False
+
 
 def check_workspace_permission(permission: str):
     """Dependency factory for workspace permission checking."""
@@ -249,6 +268,24 @@ def check_flow_permission(permission: str):
                 detail=f"Insufficient permissions: {permission}"
             )
         return flow
+
+    return dependency
+
+
+def check_role_permission(permission: str):
+    """Dependency factory for role permission checking."""
+    def dependency(
+        role: Role = Depends(get_role_by_id),
+        session: Session = Depends(get_session),
+        current_user: User = Depends(get_current_user),
+    ) -> Role:
+        checker = PermissionChecker(session, current_user)
+        if not checker.has_role_permission(role, permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions: {permission}"
+            )
+        return role
 
     return dependency
 
