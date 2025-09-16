@@ -3,12 +3,14 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from pydantic import field_validator
+from sqlalchemy import JSON
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
 
 from langflow.schema.serialize import UUIDstr
 
 if TYPE_CHECKING:
     from langflow.services.database.models.user.model import User
+    from langflow.services.database.models.rbac.service_account import ServiceAccount
 
 
 def utc_now():
@@ -34,6 +36,16 @@ class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]
     user: "User" = Relationship(
         back_populates="api_keys",
     )
+    
+    # RBAC - Service account relationship (for service account tokens)
+    service_account_id: UUIDstr | None = Field(default=None, foreign_key="service_account.id", nullable=True, index=True)
+    service_account: "ServiceAccount" | None = Relationship(back_populates="api_keys")
+    
+    # Token scoping for RBAC
+    scoped_permissions: list[str] | None = Field(default=[], sa_column=Column(JSON))
+    scope_type: str | None = Field(default=None)  # workspace, project, environment, flow, component
+    scope_id: UUIDstr | None = Field(default=None)  # ID of the scoped resource
+    workspace_id: UUIDstr | None = Field(default=None, foreign_key="workspace.id", nullable=True, index=True)
 
 
 class ApiKeyCreate(ApiKeyBase):

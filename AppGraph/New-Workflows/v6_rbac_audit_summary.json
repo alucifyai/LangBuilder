@@ -1,0 +1,410 @@
+{
+  "audit_timestamp": "2025-09-10T01:51:07.294223",
+  "original_statistics": {
+    "total_nodes": 413,
+    "total_edges": 2679,
+    "orphaned_nodes": 39,
+    "phantom_references": 3,
+    "connected_components": 56
+  },
+  "fixes_applied": {
+    "phantom_edges_fixed": 195,
+    "suggested_edges_added": 13,
+    "graph_connectivity_improved": true
+  },
+  "orphaned_nodes_details": [
+    {
+      "id": "api_keys_settings",
+      "name": "ApiKeysSettings",
+      "type": "interface",
+      "description": "API key management interface with creation, deletion, usage tracking, and security controls - CONCEP",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "global_variables_settings",
+      "name": "GlobalVariablesSettings",
+      "type": "interface",
+      "description": "Global variable management with encryption, scoping, and environment-specific configurations - CONCE",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "error_boundary",
+      "name": "ErrorBoundary",
+      "type": "interface",
+      "description": "Application-wide error handling with user-friendly error displays and recovery options - CONCEPTUAL:",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "analytics_reporting_rbac_protected",
+      "name": "Analytics Reporting RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for analytics reporting operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "backup_restore_rbac_protected",
+      "name": "Backup Restore RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for backup restore operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "clone_flow_rbac_protected",
+      "name": "Clone Flow RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for clone flow operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "compliance_reporting_rbac_protected",
+      "name": "Compliance Reporting RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for compliance reporting operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "component_library_management_rbac_protected",
+      "name": "Component Library Management RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for component library management operations with comprehensive permission va",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "database_migration_rbac_protected",
+      "name": "Database Migration RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for database migration operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "debug_flow_rbac_protected",
+      "name": "Debug Flow RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for debug flow operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "error_reporting_rbac_protected",
+      "name": "Error Reporting RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for error reporting operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "health_check_rbac_protected",
+      "name": "Health Check RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for health check operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "llm_provider_management_rbac_protected",
+      "name": "Llm Provider Management RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for llm provider management operations with comprehensive permission validat",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "manage_folders_rbac_protected",
+      "name": "Manage Folders RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for manage folders operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "monitoring_dashboard_rbac_protected",
+      "name": "Monitoring Dashboard RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for monitoring dashboard operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "run_flow_rbac_protected",
+      "name": "Run Flow RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for run flow operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "security_scanning_rbac_protected",
+      "name": "Security Scanning RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for security scanning operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "store_management_rbac_protected",
+      "name": "Store Management RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for store management operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "system_configuration_rbac_protected",
+      "name": "System Configuration RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for system configuration operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "telemetry_collection_rbac_protected",
+      "name": "Telemetry Collection RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for telemetry collection operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "user_profile_management_rbac_protected",
+      "name": "User Profile Management RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for user profile management operations with comprehensive permission validat",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "validate_flow_rbac_protected",
+      "name": "Validate Flow RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for validate flow operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "version_management_rbac_protected",
+      "name": "Version Management RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for version management operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "workspace_management_rbac_protected",
+      "name": "Workspace Management RBAC Protection Flow",
+      "type": "logic",
+      "description": "RBAC protection wrapper for workspace management operations with comprehensive permission validation",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "configuration_service",
+      "name": "Configuration Service",
+      "type": "logic",
+      "description": "Centralized configuration management service for application settings and runtime parameters",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "websocket_service",
+      "name": "WebSocket Service",
+      "type": "logic",
+      "description": "Real-time communication service for live updates and bidirectional messaging",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "role_assignment_page",
+      "name": "RoleAssignmentPage",
+      "type": "interface",
+      "description": "Assign roles to users, groups, and service accounts with hierarchical scope selection",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "user_group_management_page",
+      "name": "UserGroupManagementPage",
+      "type": "interface",
+      "description": "Create and manage user groups for batch role assignments with SSO/SCIM integration",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "service_account_management_page",
+      "name": "ServiceAccountManagementPage",
+      "type": "interface",
+      "description": "Create and manage service accounts with scoped tokens for automated systems",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "sso_configuration_page",
+      "name": "SSOConfigurationPage",
+      "type": "interface",
+      "description": "Configure Single Sign-On with OIDC/SAML providers and security settings",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "audit_log_page",
+      "name": "AuditLogPage",
+      "type": "interface",
+      "description": "View, filter, and export comprehensive audit logs for compliance and security monitoring",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "compliance_reports_page",
+      "name": "ComplianceReportsPage",
+      "type": "interface",
+      "description": "Generate and export compliance reports for SOC2, ISO27001, and regulatory requirements",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "role_management_service",
+      "name": "Role Management Service",
+      "type": "logic",
+      "description": "CRUD operations for roles with permission validation, versioning, and audit logging",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "role_assignment_service",
+      "name": "Role Assignment Service",
+      "type": "logic",
+      "description": "Manage role assignments to users, groups, and service accounts with scope validation and inheritance",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "sso_authentication_service",
+      "name": "SSO Authentication Service",
+      "type": "logic",
+      "description": "Handle OIDC and SAML authentication flows with security validations, attribute mapping, and break-gl",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "scim_provisioning_service",
+      "name": "SCIM Provisioning Service",
+      "type": "logic",
+      "description": "Automated user and group provisioning from identity providers with conflict resolution and sync trac",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "service_account_service",
+      "name": "Service Account Service",
+      "type": "logic",
+      "description": "Manage service accounts and their scoped authentication tokens with least-privilege enforcement",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "compliance_reporting_service",
+      "name": "Compliance Reporting Service",
+      "type": "logic",
+      "description": "Generate compliance reports and data exports for SOC2, ISO27001, and regulatory requirements",
+      "subsystem": "unknown"
+    },
+    {
+      "id": "token_scope_validator",
+      "name": "Token Scope Validator",
+      "type": "logic",
+      "description": "Validate API token scopes and enforce least-privilege access with violation detection",
+      "subsystem": "unknown"
+    }
+  ],
+  "suggested_edges_details": [
+    {
+      "id": "edge_suggested_1",
+      "source": "workspace_entity",
+      "target": "audit_log_entity",
+      "type": "generates",
+      "description": "Workspace activities generate audit logs",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_2",
+      "source": "project_entity",
+      "target": "role_assignment_entity",
+      "type": "scope_for",
+      "description": "Projects are scope for role assignments",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_3",
+      "source": "environment_entity",
+      "target": "role_assignment_entity",
+      "type": "scope_for",
+      "description": "Environments are scope for role assignments",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_4",
+      "source": "rbac_permission_engine",
+      "target": "role_entity",
+      "type": "evaluates",
+      "description": "Permission engine evaluates roles",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_5",
+      "source": "rbac_permission_engine",
+      "target": "audit_logging_service",
+      "type": "triggers",
+      "description": "Permission checks trigger audit logs",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_6",
+      "source": "sso_authentication_service",
+      "target": "user_entity",
+      "type": "authenticates",
+      "description": "SSO authenticates users",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_7",
+      "source": "scim_provisioning_service",
+      "target": "user_entity",
+      "type": "provisions",
+      "description": "SCIM provisions users",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_8",
+      "source": "scim_provisioning_service",
+      "target": "user_group_entity",
+      "type": "syncs",
+      "description": "SCIM syncs user groups",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_9",
+      "source": "role_management_page",
+      "target": "role_management_service",
+      "type": "uses",
+      "description": "UI uses role management service",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_10",
+      "source": "audit_log_page",
+      "target": "audit_logging_service",
+      "type": "displays",
+      "description": "UI displays audit logs",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_11",
+      "source": "service_account_management_page",
+      "target": "service_account_service",
+      "type": "manages",
+      "description": "UI manages service accounts",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_12",
+      "source": "rbac_middleware",
+      "target": "token_scope_validator",
+      "type": "delegates",
+      "description": "Middleware delegates token validation",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    },
+    {
+      "id": "edge_suggested_13",
+      "source": "rbac_middleware",
+      "target": "audit_logging_service",
+      "type": "logs_to",
+      "description": "Middleware logs access attempts",
+      "reason": "Missing critical relationship",
+      "priority": "high"
+    }
+  ],
+  "implementation_readiness": "Graph cleaned and ready for implementation"
+}

@@ -9,6 +9,7 @@ from langflow.services.variable.constants import CREDENTIAL_TYPE
 
 if TYPE_CHECKING:
     from langflow.services.database.models.user.model import User
+    from langflow.services.database.models.rbac.environment import Environment
 
 
 def utc_now():
@@ -43,6 +44,10 @@ class Variable(VariableBase, table=True):  # type: ignore[call-arg]
     # foreign key to user table
     user_id: UUID = Field(description="User ID associated with this variable", foreign_key="user.id")
     user: "User" = Relationship(back_populates="variables")
+    
+    # RBAC - Environment scoped variables
+    environment_id: UUID | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
+    environment: "Environment" | None = Relationship(back_populates="variables")
 
 
 class VariableCreate(VariableBase):

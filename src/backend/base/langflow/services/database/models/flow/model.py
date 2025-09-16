@@ -25,6 +25,9 @@ from langflow.schema.data import Data
 if TYPE_CHECKING:
     from langflow.services.database.models.folder.model import Folder
     from langflow.services.database.models.user.model import User
+    from langflow.services.database.models.rbac.project import Project
+    from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
 
 HEX_COLOR_LENGTH = 7
 
@@ -199,6 +202,18 @@ class Flow(FlowBase, table=True):  # type: ignore[call-arg]
     folder_id: UUID | None = Field(default=None, foreign_key="folder.id", nullable=True, index=True)
     fs_path: str | None = Field(default=None, nullable=True)
     folder: Optional["Folder"] = Relationship(back_populates="flows")
+    
+    # RBAC relationships
+    project_id: UUID | None = Field(default=None, foreign_key="project.id", nullable=True, index=True)
+    project: Optional["Project"] = Relationship(back_populates="flows")
+    
+    environment_id: UUID | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
+    environment: Optional["Environment"] = Relationship(back_populates="flows")
+    
+    role_assignments: list["RoleAssignment"] = Relationship(
+        back_populates="flow",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
     def to_data(self):
         serialized = self.model_dump()

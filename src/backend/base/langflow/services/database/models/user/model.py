@@ -13,6 +13,13 @@ if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow
     from langflow.services.database.models.folder.model import Folder
     from langflow.services.database.models.variable.model import Variable
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.rbac.project import Project
+    from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.rbac.role import Role
+    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+    from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
+    from langflow.services.database.models.rbac.service_account import ServiceAccount
 
 
 class UserOptin(BaseModel):
@@ -48,6 +55,48 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     )
     optins: dict[str, Any] | None = Field(
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
+    )
+    
+    # RBAC relationships
+    owned_workspaces: list["Workspace"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
+    owned_projects: list["Project"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
+    owned_environments: list["Environment"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
+    created_roles: list["Role"] = Relationship(
+        back_populates="created_by",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
+    role_assignments: list["RoleAssignment"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={
+            "cascade": "delete",
+            "foreign_keys": "[RoleAssignment.user_id]",
+            "primaryjoin": "RoleAssignment.user_id == User.id"
+        }
+    )
+    group_memberships: list["UserGroupMembership"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={
+            "cascade": "delete",
+            "foreign_keys": "[UserGroupMembership.user_id]",
+            "primaryjoin": "UserGroupMembership.user_id == User.id"
+        }
+    )
+    created_groups: list["UserGroup"] = Relationship(
+        back_populates="created_by",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
+    created_service_accounts: list["ServiceAccount"] = Relationship(
+        back_populates="created_by",
+        sa_relationship_kwargs={"cascade": "delete"}
     )
 
 
