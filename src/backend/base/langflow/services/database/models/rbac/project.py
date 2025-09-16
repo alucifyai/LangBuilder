@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -18,30 +20,30 @@ if TYPE_CHECKING:
 
 class ProjectBase(SQLModel):
     """Base project model for organizing flows within a workspace."""
-    
+
     name: str = Field(index=True)
     description: str | None = Field(default=None, sa_column=Column(Text))
-    
+
     # Project metadata
     repository_url: str | None = Field(default=None)
     documentation_url: str | None = Field(default=None)
     tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
     metadata: dict | None = Field(default={}, sa_column=Column(JSON))
-    
+
     # Project settings
     default_environment_id: UUIDstr | None = Field(default=None)
     auto_deploy_enabled: bool = Field(default=False)
     retention_days: int = Field(default=30)  # Data retention policy
-    
+
     # Status
     is_active: bool = Field(default=True, index=True)
     is_archived: bool = Field(default=False)
     archived_at: datetime | None = Field(default=None)
-    
+
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -58,19 +60,19 @@ class ProjectBase(SQLModel):
 
 class Project(ProjectBase, table=True):  # type: ignore[call-arg]
     """Project table for organizing flows and environments."""
-    
+
     __tablename__ = "project"
-    
+
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
-    
+
     # Workspace relationship
     workspace_id: UUIDstr = Field(foreign_key="workspace.id", index=True)
     workspace: "Workspace" = Relationship(back_populates="projects")
-    
+
     # Owner relationship
     owner_id: UUIDstr = Field(foreign_key="user.id", index=True)
     owner: "User" = Relationship(back_populates="owned_projects")
-    
+
     # Relationships
     environments: list["Environment"] = Relationship(
         back_populates="project",
@@ -84,7 +86,7 @@ class Project(ProjectBase, table=True):  # type: ignore[call-arg]
         back_populates="project",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    
+
     # Unique constraints
     __table_args__ = (
         UniqueConstraint("workspace_id", "name", name="unique_project_name_per_workspace"),
@@ -93,7 +95,7 @@ class Project(ProjectBase, table=True):  # type: ignore[call-arg]
 
 class ProjectCreate(SQLModel):
     """Schema for creating a project."""
-    
+
     name: str
     description: str | None = None
     workspace_id: UUID
@@ -107,7 +109,7 @@ class ProjectCreate(SQLModel):
 
 class ProjectRead(ProjectBase):
     """Schema for reading project data."""
-    
+
     id: UUID
     workspace_id: UUID
     owner_id: UUID
@@ -118,7 +120,7 @@ class ProjectRead(ProjectBase):
 
 class ProjectUpdate(SQLModel):
     """Schema for updating project data."""
-    
+
     name: str | None = None
     description: str | None = None
     repository_url: str | None = None
@@ -134,7 +136,7 @@ class ProjectUpdate(SQLModel):
 
 class ProjectStatistics(BaseModel):
     """Project statistics and metrics."""
-    
+
     project_id: UUID
     total_flows: int = 0
     active_flows: int = 0

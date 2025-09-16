@@ -4,6 +4,8 @@ This module implements a comprehensive RBAC system with hierarchical scoping,
 supporting workspaces, projects, environments, flows, and components.
 """
 
+from __future__ import annotations
+
 from .audit_log import (
     ActorType,
     AuditEventType,

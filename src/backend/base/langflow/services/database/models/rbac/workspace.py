@@ -56,7 +56,7 @@ class WorkspaceBase(SQLModel):
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -125,7 +125,7 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
 
 class WorkspaceCreate(SQLModel):
     """Schema for creating a workspace."""
-    
+
     name: str
     description: str | None = None
     organization: str | None = None
@@ -136,7 +136,7 @@ class WorkspaceCreate(SQLModel):
 
 class WorkspaceRead(WorkspaceBase):
     """Schema for reading workspace data."""
-    
+
     id: UUID
     owner_id: UUID
     project_count: int | None = None
@@ -146,7 +146,7 @@ class WorkspaceRead(WorkspaceBase):
 
 class WorkspaceUpdate(SQLModel):
     """Schema for updating workspace data."""
-    
+
     name: str | None = None
     description: str | None = None
     organization: str | None = None
@@ -158,27 +158,27 @@ class WorkspaceUpdate(SQLModel):
 
 class WorkspaceInvitation(SQLModel, table=True):  # type: ignore[call-arg]
     """Workspace invitation model for user onboarding."""
-    
+
     __tablename__ = "workspace_invitation"
-    
+
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
     workspace_id: UUIDstr = Field(foreign_key="workspace.id", index=True)
     email: str = Field(index=True)
     role_id: UUIDstr | None = Field(foreign_key="role.id")
-    
+
     # Invitation details
     invited_by_id: UUIDstr = Field(foreign_key="user.id")
     invitation_code: str = Field(index=True, unique=True)
     expires_at: datetime = Field()
-    
+
     # Status
     is_accepted: bool = Field(default=False)
     accepted_at: datetime | None = Field(default=None)
     accepted_by_id: UUIDstr | None = Field(foreign_key="user.id", default=None)
-    
+
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    
+
     # Relationships
     workspace: "Workspace" = Relationship()
     role: Optional["Role"] = Relationship()
@@ -188,7 +188,7 @@ class WorkspaceInvitation(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "WorkspaceInvitation.invited_by_id == User.id"
         }
     )
-    accepted_by: Optional["User"] = Relationship(
+    accepted_by: User | None = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[WorkspaceInvitation.accepted_by_id]",
             "primaryjoin": "WorkspaceInvitation.accepted_by_id == User.id"
