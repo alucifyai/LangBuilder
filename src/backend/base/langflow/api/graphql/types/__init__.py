@@ -1,1 +1,0 @@
-"""GraphQL types for RBAC entities."""

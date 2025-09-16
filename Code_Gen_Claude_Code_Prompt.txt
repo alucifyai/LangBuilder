@@ -25,3 +25,11 @@ Please audit your Phase I implementaion. Make sure you have fully delivered all 
 Prompt #4:
 
 Please do a 2nd pass of audting, and include the remaining gaps in the report.
+
+
+Prompt #5:
+
+We have decided to not go with the GraphQL implementation but stay with FastAPI for RBAC. We want the new RBAC     │
+│   implementation to be compliant with the existing system. GraphQL is irrelevant in the implementation though we     │
+│   use it in the logical representation in the AppGraph. Please remove all implementation related to GraphQL. Audit   │
+│   again to make sure Phase 1 if completely covered and aligned with LangBuilder. Generate a new audit report.  
