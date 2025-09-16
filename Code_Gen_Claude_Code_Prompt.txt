@@ -1,0 +1,27 @@
+Prompt #1:
+
+Now I think we are ready to get into the code generation for RBAC. Take the inputs including                       │
+│   AppGraph/New-Workflows/langbuilder_app_graph_v7_1_complete_implementation.json, AppGraph/New-Workflows/PRD\ _\     │
+│   Granular\ Access\ Control\ \&\ RBAC\ –\ LangBuilder.md, and the LangBuilder codebase, follow the implementation    │
+│   plan articulated in RBAC_IMPLEMENTATION_PLAN.md, and start generating implementation code for Phase 1: Foundation  │
+│   & Data Models. Make sure you follow the details of Phase 1 carefully and completely, cover all the Core Models     │
+│   to Implement, follow all the Implementation Details, create all the testing cases under Testing Strategies, and    │
+│   implement everything under Phase 1 Deliverables and Phase 1 GraphQL Deliverables.
+
+
+Prompt #2:
+
+During your implementation of RBAC Phase 1, what inputs and information have you used for code generation?
+
+
+Prompt #3: 
+
+Please audit your Phase I implementaion. Make sure you have fully delivered all the deliverables in Phase 1        │
+│   listed in RBAC_IMPLEMENTATION_PLAN.md. You have fully and accurately covered all the details in Phase 1. The       │
+│   implementation is fully aligned with the PRD. The entity schemas, logic flows, and interfaces in the scope of      │
+│   Phase 1 are fully aligned with AppGraph v7_1.
+
+
+Prompt #4:
+
+Please do a 2nd pass of audting, and include the remaining gaps in the report.
