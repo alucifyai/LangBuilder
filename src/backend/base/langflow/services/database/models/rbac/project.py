@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from pydantic import field_validator
+from pydantic import BaseModel, field_validator
 from sqlalchemy import JSON, Column, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -28,7 +28,7 @@ class ProjectBase(SQLModel):
     repository_url: str | None = Field(default=None)
     documentation_url: str | None = Field(default=None)
     tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
-    metadata: dict | None = Field(default={}, sa_column=Column(JSON))
+    project_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
 
     # Project settings
     default_environment_id: UUIDstr | None = Field(default=None)
@@ -102,7 +102,7 @@ class ProjectCreate(SQLModel):
     repository_url: str | None = None
     documentation_url: str | None = None
     tags: list[str] | None = None
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    project_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_deploy_enabled: bool = False
     retention_days: int = 30
 
@@ -126,7 +126,7 @@ class ProjectUpdate(SQLModel):
     repository_url: str | None = None
     documentation_url: str | None = None
     tags: list[str] | None = None
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    project_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     default_environment_id: UUID | None = None
     auto_deploy_enabled: bool | None = None
     retention_days: int | None = None

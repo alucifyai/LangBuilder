@@ -45,7 +45,7 @@ class WorkspaceBase(SQLModel):
 
     # Settings and metadata
     settings: dict | None = Field(default_factory=lambda: WorkspaceSettings().model_dump(), sa_column=Column(JSON))
-    metadata: dict | None = Field(default={}, sa_column=Column(JSON))
+    workspace_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
     tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
 
     # Status and lifecycle
@@ -130,7 +130,7 @@ class WorkspaceCreate(SQLModel):
     description: str | None = None
     organization: str | None = None
     settings: dict | None = Field(default=None, sa_column=Column(JSON))
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    workspace_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
 
 
@@ -151,7 +151,7 @@ class WorkspaceUpdate(SQLModel):
     description: str | None = None
     organization: str | None = None
     settings: dict | None = Field(default=None, sa_column=Column(JSON))
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    workspace_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
 

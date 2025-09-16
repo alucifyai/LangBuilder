@@ -119,7 +119,7 @@ class AuditLogBase(SQLModel):
 
     # Additional data
     error_message: str | None = Field(default=None, sa_column=Column(Text))
-    metadata: dict | None = Field(default={}, sa_column=Column(JSON))
+    event_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
 
     # Compliance fields
     retention_required: bool = Field(default=True)  # For compliance retention

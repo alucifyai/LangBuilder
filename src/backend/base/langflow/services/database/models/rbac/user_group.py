@@ -48,7 +48,7 @@ class UserGroupBase(SQLModel):
     max_members: int | None = Field(default=None)
 
     # Metadata
-    metadata: dict | None = Field(default={}, sa_column=Column(JSON))
+    group_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
     tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
 
     # Timestamps
@@ -162,7 +162,7 @@ class UserGroupCreate(SQLModel):
     membership_rules: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_assign_roles: list[str] | None = None
     max_members: int | None = None
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    group_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
 
 
@@ -186,7 +186,7 @@ class UserGroupUpdate(SQLModel):
     membership_rules: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_assign_roles: list[str] | None = None
     max_members: int | None = None
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    group_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
 
@@ -225,4 +225,4 @@ class UserGroupSync(SQLModel):
     name: str
     description: str | None = None
     members: list[str]  # External user IDs
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    group_metadata: dict | None = Field(default=None, sa_column=Column(JSON))

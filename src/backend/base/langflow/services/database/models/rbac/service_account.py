@@ -53,7 +53,7 @@ class ServiceAccountBase(SQLModel):
     usage_count: int = Field(default=0)
 
     # Metadata
-    metadata: dict | None = Field(default={}, sa_column=Column(JSON))
+    service_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
     tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
 
     # Timestamps
@@ -180,7 +180,7 @@ class ServiceAccountCreate(SQLModel):
     default_scope_type: str | None = "workspace"
     default_scope_id: UUID | None = None
     allowed_permissions: list[str] | None = None
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    service_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     expires_at: datetime | None = None
 
@@ -211,7 +211,7 @@ class ServiceAccountUpdate(SQLModel):
     default_scope_type: str | None = None
     default_scope_id: UUID | None = None
     allowed_permissions: list[str] | None = None
-    metadata: dict | None = Field(default=None, sa_column=Column(JSON))
+    service_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
     expires_at: datetime | None = None
