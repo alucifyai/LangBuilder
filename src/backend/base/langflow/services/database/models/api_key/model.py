@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -9,8 +11,8 @@ from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
 from langflow.schema.serialize import UUIDstr
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
     from langflow.services.database.models.rbac.service_account import ServiceAccount
+    from langflow.services.database.models.user.model import User
 
 
 def utc_now():
@@ -33,14 +35,16 @@ class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]
     # User relationship
     # Delete API keys when user is deleted
     user_id: UUIDstr = Field(index=True, foreign_key="user.id")
-    user: "User" = Relationship(
+    user: User = Relationship(
         back_populates="api_keys",
     )
-    
+
     # RBAC - Service account relationship (for service account tokens)
-    service_account_id: UUIDstr | None = Field(default=None, foreign_key="service_account.id", nullable=True, index=True)
-    service_account: "ServiceAccount" | None = Relationship(back_populates="api_keys")
-    
+    service_account_id: UUIDstr | None = Field(
+        default=None, foreign_key="service_account.id", nullable=True, index=True
+    )
+    service_account: ServiceAccount | None = Relationship(back_populates="api_keys")
+
     # Token scoping for RBAC
     scoped_permissions: list[str] | None = Field(default=[], sa_column=Column(JSON))
     scope_type: str | None = Field(default=None)  # workspace, project, environment, flow, component

@@ -1,4 +1,5 @@
-from typing import Optional
+from __future__ import annotations
+
 from uuid import UUID, uuid4
 
 from sqlalchemy import Text, UniqueConstraint
@@ -22,11 +23,11 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
     id: UUID | None = Field(default_factory=uuid4, primary_key=True)
     parent_id: UUID | None = Field(default=None, foreign_key="folder.id")
 
-    parent: Optional["Folder"] = Relationship(
+    parent: Folder | None = Relationship(
         back_populates="children",
         sa_relationship_kwargs={"remote_side": "Folder.id"},
     )
-    children: list["Folder"] = Relationship(back_populates="parent")
+    children: list[Folder] = Relationship(back_populates="parent")
     user_id: UUID | None = Field(default=None, foreign_key="user.id")
     user: User = Relationship(back_populates="folders")
     flows: list[Flow] = Relationship(

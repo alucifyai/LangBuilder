@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -8,8 +10,8 @@ from sqlmodel import JSON, Column, DateTime, Field, Relationship, SQLModel, func
 from langflow.services.variable.constants import CREDENTIAL_TYPE
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
     from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.user.model import User
 
 
 def utc_now():
@@ -43,11 +45,11 @@ class Variable(VariableBase, table=True):  # type: ignore[call-arg]
     default_fields: list[str] | None = Field(sa_column=Column(JSON))
     # foreign key to user table
     user_id: UUID = Field(description="User ID associated with this variable", foreign_key="user.id")
-    user: "User" = Relationship(back_populates="variables")
-    
+    user: User = Relationship(back_populates="variables")
+
     # RBAC - Environment scoped variables
     environment_id: UUID | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
-    environment: "Environment" | None = Relationship(back_populates="variables")
+    environment: Environment | None = Relationship(back_populates="variables")
 
 
 class VariableCreate(VariableBase):

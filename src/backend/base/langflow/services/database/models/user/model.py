@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
@@ -12,14 +14,14 @@ if TYPE_CHECKING:
     from langflow.services.database.models.api_key.model import ApiKey
     from langflow.services.database.models.flow.model import Flow
     from langflow.services.database.models.folder.model import Folder
-    from langflow.services.database.models.variable.model import Variable
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.rbac.project import Project
     from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.rbac.project import Project
     from langflow.services.database.models.rbac.role import Role
     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
     from langflow.services.database.models.rbac.service_account import ServiceAccount
+    from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.variable.model import Variable
 
 
 class UserOptin(BaseModel):
@@ -39,64 +41,54 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: datetime | None = Field(default=None, nullable=True)
-    api_keys: list["ApiKey"] = Relationship(
+    api_keys: list[ApiKey] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
     store_api_key: str | None = Field(default=None, nullable=True)
-    flows: list["Flow"] = Relationship(back_populates="user")
-    variables: list["Variable"] = Relationship(
+    flows: list[Flow] = Relationship(back_populates="user")
+    variables: list[Variable] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
-    folders: list["Folder"] = Relationship(
+    folders: list[Folder] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
     optins: dict[str, Any] | None = Field(
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
     )
-    
+
     # RBAC relationships
-    owned_workspaces: list["Workspace"] = Relationship(
-        back_populates="owner",
-        sa_relationship_kwargs={"cascade": "delete"}
+    owned_workspaces: list[Workspace] = Relationship(
+        back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    owned_projects: list["Project"] = Relationship(
-        back_populates="owner",
-        sa_relationship_kwargs={"cascade": "delete"}
+    owned_projects: list[Project] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+    owned_environments: list[Environment] = Relationship(
+        back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    owned_environments: list["Environment"] = Relationship(
-        back_populates="owner",
-        sa_relationship_kwargs={"cascade": "delete"}
-    )
-    created_roles: list["Role"] = Relationship(
-        back_populates="created_by",
-        sa_relationship_kwargs={"cascade": "delete"}
-    )
-    role_assignments: list["RoleAssignment"] = Relationship(
+    created_roles: list[Role] = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
+    role_assignments: list[RoleAssignment] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
             "foreign_keys": "[RoleAssignment.user_id]",
-            "primaryjoin": "RoleAssignment.user_id == User.id"
-        }
+            "primaryjoin": "RoleAssignment.user_id == User.id",
+        },
     )
-    group_memberships: list["UserGroupMembership"] = Relationship(
+    group_memberships: list[UserGroupMembership] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
             "foreign_keys": "[UserGroupMembership.user_id]",
-            "primaryjoin": "UserGroupMembership.user_id == User.id"
-        }
+            "primaryjoin": "UserGroupMembership.user_id == User.id",
+        },
     )
-    created_groups: list["UserGroup"] = Relationship(
-        back_populates="created_by",
-        sa_relationship_kwargs={"cascade": "delete"}
+    created_groups: list[UserGroup] = Relationship(
+        back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_service_accounts: list["ServiceAccount"] = Relationship(
-        back_populates="created_by",
-        sa_relationship_kwargs={"cascade": "delete"}
+    created_service_accounts: list[ServiceAccount] = Relationship(
+        back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
 
 
