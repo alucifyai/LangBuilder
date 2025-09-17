@@ -58,3 +58,23 @@ Prompt #8:
 Yes please go ahead to do all the steps necessary to make sure the code you generate fully comply with the rules   │
 │   in pre-commit-config.yaml. Do deep analysis for all the RBAC codes you have generated and ensure all of them   |
 |   can pass the rules in pre-commit-config.
+
+
+Prompt #9:
+
+You need to implement Phase 2: FastAPI REST API Foundation in RBAC_IMPLEMENTATION_PLAN.md. Read the                │
+│   implementation plan carefully, take                                                                                │
+│   AppGraph/New-Workflows/langbuilder_app_graph_v7_1_complete_implementation.json, and AppGraph/New-Workflows/PRD\    │
+│   _\    Granular\ Access\ Control\ \&\ RBAC\ –\ LangBuilder.md as references to understand the design and feature    │
+│   contexts. Fully cover all the details in the implementation plan, and ensure you implement everything in the plan  │
+│   and fully deliver all the items in Phase 2 Deliverables. When you generate code, ensure you respect all the        │
+│   rules in pre-commit-config and all the code can pass the hooks and checks. All the implementation has to be fully  │
+│   compliant with the existing LangBuilder system patterns.
+
+
+Prompt #10:
+
+Please audit the phase 2 implementation and produce an audit report. Make sure all phase 2 deliverables have been  │
+│   carefully implemented in the context of the AppGraph, the PRD, and fully compliant to the LangBuilder codebase.    │
+│   Make sure all the code pass pre-commit-config.
+
