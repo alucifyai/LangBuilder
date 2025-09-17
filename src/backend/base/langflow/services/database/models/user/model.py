@@ -41,17 +41,17 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: datetime | None = Field(default=None, nullable=True)
-    api_keys = Relationship(
+    api_keys: Any = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
     store_api_key: str | None = Field(default=None, nullable=True)
-    flows = Relationship(back_populates="user")
-    variables = Relationship(
+    flows: Any = Relationship(back_populates="user")
+    variables: Any = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
-    folders = Relationship(
+    folders: Any = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
@@ -60,15 +60,15 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     )
 
     # RBAC relationships
-    owned_workspaces = Relationship(
+    owned_workspaces: Any = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    owned_projects = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
-    owned_environments = Relationship(
+    owned_projects: Any = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+    owned_environments: Any = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_roles = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
-    role_assignments = Relationship(
+    created_roles: Any = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
+    role_assignments: Any = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
@@ -76,7 +76,7 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "RoleAssignment.user_id == User.id",
         },
     )
-    group_memberships = Relationship(
+    group_memberships: Any = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
@@ -84,10 +84,10 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "UserGroupMembership.user_id == User.id",
         },
     )
-    created_groups = Relationship(
+    created_groups: Any = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_service_accounts = Relationship(
+    created_service_accounts: Any = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
 
