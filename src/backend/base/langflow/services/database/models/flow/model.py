@@ -6,6 +6,9 @@ import re
 from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 from uuid import UUID, uuid4
 
 import emoji
@@ -212,9 +215,9 @@ class Flow(FlowBase, table=True):  # type: ignore[call-arg]
     environment_id: UUID | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
     environment: Environment | None = Relationship(back_populates="flows")
 
-    role_assignments = Relationship(
+    role_assignments: Sequence = Relationship(
         back_populates="flow", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    )  # type: ignore
+    )
 
     def to_data(self):
         serialized = self.model_dump()

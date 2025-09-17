@@ -4,6 +4,9 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 from pydantic import BaseModel, field_validator
 from sqlalchemy import JSON, Column, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
@@ -94,30 +97,30 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
     owner: User = Relationship(back_populates="owned_workspaces")
 
     # Relationships
-    projects = Relationship(
+    projects: Sequence = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )  # type: ignore
-    roles = Relationship(
+    )
+    roles: Sequence = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )  # type: ignore
-    role_assignments = Relationship(
+    )
+    role_assignments: Sequence = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )  # type: ignore
-    audit_logs = Relationship(
+    )
+    audit_logs: Sequence = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )  # type: ignore
-    user_groups = Relationship(
+    )
+    user_groups: Sequence = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )  # type: ignore
-    service_accounts = Relationship(
+    )
+    service_accounts: Sequence = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )  # type: ignore
+    )
 
     # Unique constraints
     __table_args__ = (UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),)

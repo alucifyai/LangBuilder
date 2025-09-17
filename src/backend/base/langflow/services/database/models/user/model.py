@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
@@ -41,55 +44,55 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: datetime | None = Field(default=None, nullable=True)
-    api_keys = Relationship(
+    api_keys: Sequence = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
-    )  # type: ignore
+    )
     store_api_key: str | None = Field(default=None, nullable=True)
-    flows = Relationship(back_populates="user")  # type: ignore
-    variables = Relationship(
+    flows: Sequence = Relationship(back_populates="user")
+    variables: Sequence = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
-    )  # type: ignore
-    folders = Relationship(
+    )
+    folders: Sequence = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
-    )  # type: ignore
+    )
     optins: dict[str, Any] | None = Field(
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
     )
 
     # RBAC relationships
-    owned_workspaces = Relationship(
+    owned_workspaces: Sequence = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
-    )  # type: ignore
-    owned_projects = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})  # type: ignore
-    owned_environments = Relationship(
+    )
+    owned_projects: Sequence = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+    owned_environments: Sequence = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
-    )  # type: ignore
-    created_roles = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})  # type: ignore
-    role_assignments = Relationship(
+    )
+    created_roles: Sequence = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
+    role_assignments: Sequence = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
             "foreign_keys": "[RoleAssignment.user_id]",
             "primaryjoin": "RoleAssignment.user_id == User.id",
         },
-    )  # type: ignore
-    group_memberships = Relationship(
+    )
+    group_memberships: Sequence = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
             "foreign_keys": "[UserGroupMembership.user_id]",
             "primaryjoin": "UserGroupMembership.user_id == User.id",
         },
-    )  # type: ignore
-    created_groups = Relationship(
+    )
+    created_groups: Sequence = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
-    )  # type: ignore
-    created_service_accounts = Relationship(
+    )
+    created_service_accounts: Sequence = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
-    )  # type: ignore
+    )
 
 
 class UserCreate(SQLModel):
