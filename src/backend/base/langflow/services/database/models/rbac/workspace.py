@@ -94,27 +94,27 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
     owner: User = Relationship(back_populates="owned_workspaces")
 
     # Relationships
-    projects: list[Project] = Relationship(
+    projects: list["Project"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    roles: list[Role] = Relationship(
+    roles: list["Role"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    role_assignments: list[RoleAssignment] = Relationship(
+    role_assignments: list["RoleAssignment"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    audit_logs: list[AuditLog] = Relationship(
+    audit_logs: list["AuditLog"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    user_groups: list[UserGroup] = Relationship(
+    user_groups: list["UserGroup"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    service_accounts: list[ServiceAccount] = Relationship(
+    service_accounts: list["ServiceAccount"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )

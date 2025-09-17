@@ -212,7 +212,7 @@ class Flow(FlowBase, table=True):  # type: ignore[call-arg]
     environment_id: UUID | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
     environment: Environment | None = Relationship(back_populates="flows")
 
-    role_assignments: list[RoleAssignment] = Relationship(
+    role_assignments: list["RoleAssignment"] = Relationship(
         back_populates="flow", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
