@@ -1,8 +1,8 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
@@ -11,11 +11,11 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.rbac.permission import RolePermission
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.rbac.permission import RolePermission
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.user.model import User
 
 
 class RoleType(str, Enum):
@@ -35,7 +35,7 @@ class RoleBase(SQLModel):
     type: RoleType = Field(default=RoleType.CUSTOM, index=True)
 
     # Role hierarchy
-    parent_role_id: UUIDstr | None = Field(default=None)
+    parent_role_id: UUIDstr | None = Field(default=None, foreign_key="role.id")
     priority: int = Field(default=0)  # Higher priority overrides lower
 
     # Role configuration
@@ -84,17 +84,17 @@ class Role(RoleBase, table=True):  # type: ignore[call-arg]
 
     # Workspace relationship (null for system roles)
     workspace_id: UUIDstr | None = Field(foreign_key="workspace.id", index=True, nullable=True)
-    workspace: Optional["Workspace"] = Relationship(back_populates="roles")
+    workspace: Union["Workspace", None] = Relationship(back_populates="roles")
 
     # Creator relationship
     created_by_id: UUIDstr = Field(foreign_key="user.id", index=True)
     created_by: "User" = Relationship(back_populates="created_roles")
 
     # Parent role relationship (for hierarchy)
-    parent_role: Optional["Role"] = Relationship(
+    parent_role: Union["Role", None] = Relationship(
         sa_relationship_kwargs={
             "remote_side": "Role.id",
-            "foreign_keys": "[Role.parent_role_id]"
+#            "foreign_keys": "[Role.parent_role_id]"
         }
     )
 
@@ -182,11 +182,11 @@ class RoleCreate(SQLModel):
     name: str
     description: str | None = None
     type: RoleType = RoleType.CUSTOM
-    workspace_id: UUID | None = None
-    parent_role_id: UUID | None = None
+    workspace_id: UUIDstr | None = None
+    parent_role_id: UUIDstr | None = None
     priority: int = 0
     scope_type: str | None = "workspace"
-    scope_id: UUID | None = None
+    scope_id: UUIDstr | None = None
     role_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
 
@@ -194,9 +194,9 @@ class RoleCreate(SQLModel):
 class RoleRead(RoleBase):
     """Schema for reading role data."""
 
-    id: UUID
-    workspace_id: UUID | None
-    created_by_id: UUID
+    id: UUIDstr
+    workspace_id: UUIDstr | None
+    created_by_id: UUIDstr
     permission_count: int | None = None
     assignment_count: int | None = None
     is_inherited: bool | None = None
@@ -207,10 +207,10 @@ class RoleUpdate(SQLModel):
 
     name: str | None = None
     description: str | None = None
-    parent_role_id: UUID | None = None
+    parent_role_id: UUIDstr | None = None
     priority: int | None = None
     scope_type: str | None = None
-    scope_id: UUID | None = None
+    scope_id: UUIDstr | None = None
     role_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
     tags: list[str] | None = None
     is_active: bool | None = None
@@ -220,10 +220,10 @@ class RoleUpdate(SQLModel):
 class RoleHierarchy(SQLModel):
     """Role hierarchy for inheritance calculation."""
 
-    role_id: UUID
+    role_id: UUIDstr
     role_name: str
-    parent_role_id: UUID | None
+    parent_role_id: UUIDstr | None
     depth: int
-    path: list[UUID]
+    path: list[UUIDstr]
     inherited_permissions: list[str]
     effective_priority: int

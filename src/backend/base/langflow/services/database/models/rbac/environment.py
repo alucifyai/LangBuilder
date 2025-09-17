@@ -1,8 +1,8 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
@@ -11,12 +11,12 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.project import Project
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.flow.model import Flow
-    from langflow.services.database.models.variable.model import Variable
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.project import Project
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.flow.model import Flow
+#     from langflow.services.database.models.variable.model import Variable
+#     from langflow.services.database.models.user.model import User
 
 
 class EnvironmentType(str, Enum):
@@ -119,13 +119,13 @@ class Environment(EnvironmentBase, table=True):  # type: ignore[call-arg]
     )
 
     # User relationships for tracking
-    locked_by: "User" | None = Relationship(
+    locked_by: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[Environment.locked_by_id]",
             "primaryjoin": "Environment.locked_by_id == User.id"
         }
     )
-    last_deployed_by: "User" | None = Relationship(
+    last_deployed_by: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[Environment.last_deployed_by_id]",
             "primaryjoin": "Environment.last_deployed_by_id == User.id"
@@ -145,7 +145,7 @@ class EnvironmentCreate(SQLModel):
     name: str
     description: str | None = None
     type: EnvironmentType
-    project_id: UUID
+    project_id: UUIDstr
     api_endpoint: str | None = None
     deployment_url: str | None = None
     config: dict | None = Field(default=None, sa_column=Column(JSON))
@@ -161,9 +161,9 @@ class EnvironmentCreate(SQLModel):
 class EnvironmentRead(EnvironmentBase):
     """Schema for reading environment data."""
 
-    id: UUID
-    project_id: UUID
-    owner_id: UUID
+    id: UUIDstr
+    project_id: UUIDstr
+    owner_id: UUIDstr
     flow_count: int | None = None
     variable_count: int | None = None
     is_deployed: bool | None = None

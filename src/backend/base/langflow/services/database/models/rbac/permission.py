@@ -1,8 +1,8 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
@@ -11,8 +11,8 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.role import Role
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.role import Role
 
 
 class PermissionAction(str, Enum):
@@ -246,7 +246,7 @@ class PermissionCreate(SQLModel):
 class PermissionRead(PermissionBase):
     """Schema for reading permission data."""
 
-    id: UUID
+    id: UUIDstr
     code: str
     role_count: int | None = None
 
@@ -254,8 +254,8 @@ class PermissionRead(PermissionBase):
 class PermissionCheck(SQLModel):
     """Schema for permission check requests."""
 
-    user_id: UUID
+    user_id: UUIDstr
     resource_type: ResourceType
-    resource_id: UUID | None = None
+    resource_id: UUIDstr | None = None
     action: PermissionAction
     context: dict | None = Field(default=None, sa_column=Column(JSON))

@@ -1,8 +1,8 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
@@ -11,14 +11,14 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.rbac.project import Project
-    from langflow.services.database.models.rbac.environment import Environment
-    from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.user_group import UserGroup
-    from langflow.services.database.models.user.model import User
-    from langflow.services.database.models.flow.model import Flow
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.rbac.project import Project
+#     from langflow.services.database.models.rbac.environment import Environment
+#     from langflow.services.database.models.rbac.role import Role
+#     from langflow.services.database.models.rbac.user_group import UserGroup
+#     from langflow.services.database.models.user.model import User
+#     from langflow.services.database.models.flow.model import Flow
 
 
 class AssignmentType(str, Enum):
@@ -106,17 +106,18 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
     assigned_by_id: UUIDstr = Field(foreign_key="user.id")
 
     # Relationships
-    user: User | None = Relationship(
+    user: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[RoleAssignment.user_id]",
             "primaryjoin": "RoleAssignment.user_id == User.id"
         }
     )
-    group: UserGroup | None = Relationship(back_populates="role_assignments")
-    workspace: Workspace | None = Relationship(back_populates="role_assignments")
-    project: Project | None = Relationship(back_populates="role_assignments")
-    environment: Environment | None = Relationship(back_populates="role_assignments")
-    flow: Flow | None = Relationship(back_populates="role_assignments")
+    group: Union["UserGroup", None] = Relationship(back_populates="role_assignments")
+    service_account: Union["ServiceAccount", None] = Relationship(back_populates="role_assignments")
+    workspace: Union["Workspace", None] = Relationship(back_populates="role_assignments")
+    project: Union["Project", None] = Relationship(back_populates="role_assignments")
+    environment: Union["Environment", None] = Relationship(back_populates="role_assignments")
+    flow: Union["Flow", None] = Relationship(back_populates="role_assignments")
 
     assigned_by: "User" = Relationship(
         sa_relationship_kwargs={
@@ -124,7 +125,7 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
             "primaryjoin": "RoleAssignment.assigned_by_id == User.id"
         }
     )
-    approved_by: User | None = Relationship(
+    approved_by: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[RoleAssignment.approved_by_id]",
             "primaryjoin": "RoleAssignment.approved_by_id == User.id"
@@ -150,21 +151,21 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
 class RoleAssignmentCreate(SQLModel):
     """Schema for creating a role assignment."""
 
-    role_id: UUID
+    role_id: UUIDstr
     assignment_type: AssignmentType
     scope_type: AssignmentScope
 
     # Assignee (one of these must be provided)
-    user_id: UUID | None = None
-    group_id: UUID | None = None
-    service_account_id: UUID | None = None
+    user_id: UUIDstr | None = None
+    group_id: UUIDstr | None = None
+    service_account_id: UUIDstr | None = None
 
     # Scope (based on scope_type)
-    workspace_id: UUID | None = None
-    project_id: UUID | None = None
-    environment_id: UUID | None = None
-    flow_id: UUID | None = None
-    component_id: UUID | None = None
+    workspace_id: UUIDstr | None = None
+    project_id: UUIDstr | None = None
+    environment_id: UUIDstr | None = None
+    flow_id: UUIDstr | None = None
+    component_id: UUIDstr | None = None
 
     # Optional fields
     valid_from: datetime | None = None
@@ -192,33 +193,33 @@ class RoleAssignmentCreate(SQLModel):
 class RoleAssignmentRead(RoleAssignmentBase):
     """Schema for reading role assignment data."""
 
-    id: UUID
-    role_id: UUID
+    id: UUIDstr
+    role_id: UUIDstr
     role_name: str | None = None
 
     # Assignee
-    user_id: UUID | None
+    user_id: UUIDstr | None
     user_name: str | None = None
-    group_id: UUID | None
+    group_id: UUIDstr | None
     group_name: str | None = None
-    service_account_id: UUID | None
+    service_account_id: UUIDstr | None
     service_account_name: str | None = None
 
     # Scope
-    workspace_id: UUID | None
+    workspace_id: UUIDstr | None
     workspace_name: str | None = None
-    project_id: UUID | None
+    project_id: UUIDstr | None
     project_name: str | None = None
-    environment_id: UUID | None
+    environment_id: UUIDstr | None
     environment_name: str | None = None
-    flow_id: UUID | None
+    flow_id: UUIDstr | None
     flow_name: str | None = None
-    component_id: UUID | None
+    component_id: UUIDstr | None
 
     # Assignment info
-    assigned_by_id: UUID
+    assigned_by_id: UUIDstr
     assigned_by_name: str | None = None
-    approved_by_id: UUID | None
+    approved_by_id: UUIDstr | None
     approved_by_name: str | None = None
 
 
@@ -232,14 +233,14 @@ class RoleAssignmentUpdate(SQLModel):
     ip_restrictions: list[str] | None = None
     time_restrictions: dict | None = Field(default=None, sa_column=Column(JSON))
     reason: str | None = None
-    approved_by_id: UUID | None = None
+    approved_by_id: UUIDstr | None = None
     approval_date: datetime | None = None
 
 
 class RoleAssignmentApproval(SQLModel):
     """Schema for approving a role assignment."""
 
-    assignment_id: UUID
+    assignment_id: UUIDstr
     approved: bool
     reason: str | None = None
     conditions: dict | None = Field(default=None, sa_column=Column(JSON))
