@@ -94,30 +94,30 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
     owner: User = Relationship(back_populates="owned_workspaces")
 
     # Relationships
-    projects: Any = Relationship(
+    projects = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-    roles: Any = Relationship(
+    )  # type: ignore
+    roles = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-    role_assignments: Any = Relationship(
+    )  # type: ignore
+    role_assignments = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-    audit_logs: Any = Relationship(
+    )  # type: ignore
+    audit_logs = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-    user_groups: Any = Relationship(
+    )  # type: ignore
+    user_groups = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-    service_accounts: Any = Relationship(
+    )  # type: ignore
+    service_accounts = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
+    )  # type: ignore
 
     # Unique constraints
     __table_args__ = (UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),)
