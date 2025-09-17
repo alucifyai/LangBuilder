@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 from sqlalchemy import Text, UniqueConstraint
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
@@ -31,10 +28,10 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
         back_populates="children",
         sa_relationship_kwargs={"remote_side": "Folder.id"},
     )
-    children: Sequence = Relationship(back_populates="parent")
+    children: list["Folder"] = Relationship(back_populates="parent")
     user_id: UUID | None = Field(default=None, foreign_key="user.id")
     user: User = Relationship(back_populates="folders")
-    flows: Sequence = Relationship(
+    flows: list["Flow"] = Relationship(
         back_populates="folder", sa_relationship_kwargs={"cascade": "all, delete, delete-orphan"}
     )
 

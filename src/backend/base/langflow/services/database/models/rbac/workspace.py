@@ -4,8 +4,6 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 from pydantic import BaseModel, field_validator
 from sqlalchemy import JSON, Column, Text, UniqueConstraint
@@ -97,27 +95,27 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
     owner: User = Relationship(back_populates="owned_workspaces")
 
     # Relationships
-    projects: Sequence = Relationship(
+    projects: list["Project"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    roles: Sequence = Relationship(
+    roles: list["Role"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    role_assignments: Sequence = Relationship(
+    role_assignments: list["RoleAssignment"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    audit_logs: Sequence = Relationship(
+    audit_logs: list["AuditLog"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    user_groups: Sequence = Relationship(
+    user_groups: list["UserGroup"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    service_accounts: Sequence = Relationship(
+    service_accounts: list["ServiceAccount"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
