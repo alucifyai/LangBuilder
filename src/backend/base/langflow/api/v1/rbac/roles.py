@@ -7,14 +7,16 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import Session
+from sqlmodel import select, func
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.api.utils import get_session
-from langflow.services.auth.utils import get_current_active_user as get_current_user
+from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.services.rbac.permission_engine import PermissionEngine
 from langflow.api.v1.rbac.dependencies import (
     check_role_permission,
     check_workspace_permission,
     get_workspace_by_id,
+    get_permission_engine,
 )
 from langflow.services.database.models.rbac.permission import (
     Permission,
@@ -31,26 +33,35 @@ from langflow.services.database.models.rbac.role import (
     SYSTEM_ROLES,
 )
 from langflow.services.database.models.rbac.workspace import Workspace
-from langflow.services.database.models.user.model import User
 
 if TYPE_CHECKING:
-    pass
+    from langflow.services.database.models.user.model import User
 
-router = APIRouter(prefix="/roles", tags=["roles"])
+router = APIRouter(
+    prefix="/roles",
+    tags=["RBAC", "Roles"],
+    responses={
+        401: {"description": "Unauthorized - Invalid or missing authentication"},
+        403: {"description": "Forbidden - Insufficient permissions"},
+        404: {"description": "Not Found - Resource does not exist"},
+        422: {"description": "Validation Error - Invalid request data"},
+    },
+)
 
 
 @router.post("/", response_model=RoleRead, status_code=status.HTTP_201_CREATED)
 async def create_role(
     role_data: RoleCreate,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> RoleRead:
     """Create a new role."""
 
     # Validate workspace if specified
     workspace = None
     if role_data.workspace_id:
-        workspace = session.get(Workspace, role_data.workspace_id)
+        workspace = await session.get(Workspace, role_data.workspace_id)
         if not workspace or workspace.is_deleted:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -58,12 +69,19 @@ async def create_role(
             )
 
         # Check workspace permissions
-        from langflow.api.v1.rbac.dependencies import PermissionChecker
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_workspace_permission(workspace, "role:create"):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="workspace",
+            action="create_role",
+            resource_id=role_data.workspace_id,
+            workspace_id=role_data.workspace_id,
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions to create roles in this workspace"
+                detail=f"Insufficient permissions to create roles in this workspace: {result.reason}"
             )
     else:
         # System-level role creation requires superuser
@@ -74,11 +92,13 @@ async def create_role(
             )
 
     # Check if role name already exists in workspace/system
-    existing = session.query(Role).filter(
+    statement = select(Role).where(
         Role.workspace_id == role_data.workspace_id,
         Role.name == role_data.name,
         Role.is_active == True
-    ).first()
+    )
+    result = await session.exec(statement)
+    existing = result.first()
 
     if existing:
         scope = "workspace" if role_data.workspace_id else "system"
@@ -89,7 +109,7 @@ async def create_role(
 
     # Validate parent role if specified
     if role_data.parent_role_id:
-        parent_role = session.get(Role, role_data.parent_role_id)
+        parent_role = await session.get(Role, role_data.parent_role_id)
         if not parent_role or not parent_role.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -110,8 +130,8 @@ async def create_role(
     )
 
     session.add(role)
-    session.commit()
-    session.refresh(role)
+    await session.commit()
+    await session.refresh(role)
 
     # TODO: Log audit event
 
@@ -120,6 +140,9 @@ async def create_role(
 
 @router.get("/", response_model=list[RoleRead])
 async def list_roles(
+    session: DbSession,
+    current_user: CurrentActiveUser,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
     workspace_id: UUID | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -127,16 +150,14 @@ async def list_roles(
     type: str | None = None,  # noqa: A002
     is_system: bool | None = None,
     is_active: bool | None = None,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
 ) -> list[RoleRead]:
     """List roles accessible to current user."""
 
-    query = session.query(Role)
+    statement = select(Role)
 
     # Filter by workspace if specified
     if workspace_id:
-        workspace = session.get(Workspace, workspace_id)
+        workspace = await session.get(Workspace, workspace_id)
         if not workspace:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -144,15 +165,22 @@ async def list_roles(
             )
 
         # Check workspace access
-        from langflow.api.v1.rbac.dependencies import PermissionChecker
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_workspace_permission(workspace, "workspace:read"):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="workspace",
+            action="read",
+            resource_id=workspace_id,
+            workspace_id=workspace_id,
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied to this workspace"
+                detail=f"Access denied to this workspace: {result.reason}"
             )
 
-        query = query.filter(Role.workspace_id == workspace_id)
+        statement = statement.where(Role.workspace_id == workspace_id)
     else:
         # Filter by user's accessible workspaces + system roles
         if current_user.is_superuser:
@@ -160,34 +188,37 @@ async def list_roles(
             pass
         else:
             # Regular users can see roles in their workspaces + system roles
-            accessible_workspace_ids = session.query(Workspace.id).filter(
+            accessible_workspace_subquery = select(Workspace.id).where(
                 Workspace.owner_id == current_user.id,
                 Workspace.is_deleted == False
-            ).subquery()
+            )
 
-            query = query.filter(
-                (Role.workspace_id.in_(accessible_workspace_ids)) |
+            statement = statement.where(
+                (Role.workspace_id.in_(accessible_workspace_subquery)) |
                 (Role.workspace_id.is_(None))  # System roles
             )
 
     # Apply additional filters
     if search:
-        query = query.filter(
-            Role.name.ilike(f"%{search}%") |
-            Role.description.ilike(f"%{search}%")
+        statement = statement.where(
+            (Role.name.ilike(f"%{search}%")) |
+            (Role.description.ilike(f"%{search}%"))
         )
 
     if type:
-        query = query.filter(Role.type == type)
+        statement = statement.where(Role.type == type)
 
     if is_system is not None:
-        query = query.filter(Role.is_system == is_system)
+        statement = statement.where(Role.is_system == is_system)
 
     if is_active is not None:
-        query = query.filter(Role.is_active == is_active)
+        statement = statement.where(Role.is_active == is_active)
 
     # Apply pagination
-    roles = query.offset(skip).limit(limit).all()
+    statement = statement.offset(skip).limit(limit)
+    
+    result = await session.exec(statement)
+    roles = result.all()
 
     return [RoleRead.model_validate(role) for role in roles]
 
@@ -195,8 +226,8 @@ async def list_roles(
 @router.get("/{role_id}", response_model=RoleRead)
 async def get_role(
     role_id: UUID,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ) -> RoleRead:
     """Get role by ID."""
 
@@ -232,8 +263,8 @@ async def get_role(
 async def update_role(
     role_id: UUID,
     role_data: RoleUpdate,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ) -> RoleRead:
     """Update role."""
 
@@ -302,8 +333,8 @@ async def update_role(
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
     role_id: UUID,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ):
     """Delete role (deactivate)."""
 
@@ -363,8 +394,8 @@ async def delete_role(
 @router.get("/{role_id}/permissions", response_model=list[PermissionRead])
 async def list_role_permissions(
     role_id: UUID,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ) -> list[PermissionRead]:
     """List permissions assigned to role."""
 
@@ -394,8 +425,8 @@ async def list_role_permissions(
 async def assign_permission_to_role(
     role_id: UUID,
     permission_data: dict,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ) -> dict:
     """Assign permission to role."""
 
@@ -458,8 +489,8 @@ async def assign_permission_to_role(
 async def remove_permission_from_role(
     role_id: UUID,
     permission_id: UUID,
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ):
     """Remove permission from role."""
 
@@ -482,8 +513,8 @@ async def remove_permission_from_role(
 
 @router.post("/initialize-system-roles", status_code=status.HTTP_201_CREATED)
 async def initialize_system_roles(
-    session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ) -> dict:
     """Initialize system roles and permissions."""
 

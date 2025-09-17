@@ -1,512 +1,674 @@
-"""Permission engine for RBAC system.
+"""High-performance permission engine for RBAC system.
 
-Provides fast permission checking with caching and hierarchical scope resolution.
-Target: <100ms p95 latency for permission checks.
+This module provides a caching-enabled permission evaluation engine designed to handle
+<100ms p95 latency requirements for permission checks.
 """
 
 from __future__ import annotations
 
-import asyncio
-import time
+import hashlib
+import json
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from uuid import UUID
 
-import redis
-from sqlmodel import Session
-
-from langflow.services.database.models.flow.model import Flow
-from langflow.services.database.models.rbac.environment import Environment
-from langflow.services.database.models.rbac.permission import Permission, PermissionAction, ResourceType
-from langflow.services.database.models.rbac.project import Project
-from langflow.services.database.models.rbac.role import Role
-from langflow.services.database.models.rbac.role_assignment import AssignmentScope, RoleAssignment
-from langflow.services.database.models.rbac.workspace import Workspace
-from langflow.services.database.models.user.model import User
+from pydantic import BaseModel
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 if TYPE_CHECKING:
-    pass
+    from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.rbac.permission import PermissionAction, ResourceType
+    from langflow.services.database.models.rbac.project import Project
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.user.model import User
 
 
+class PermissionDecision(str, Enum):
+    """Permission decision outcomes."""
+    
+    ALLOW = "allow"
+    DENY = "deny"
+    NOT_APPLICABLE = "not_applicable"
+
+
+@dataclass
 class PermissionResult:
-    """Result of a permission check."""
+    """Result of a permission check operation."""
+    
+    decision: PermissionDecision
+    reason: str
+    cached: bool = False
+    evaluation_time_ms: float = 0.0
+    resource_hierarchy: list[str] | None = None
+    applied_roles: list[str] | None = None
+    
+    @property
+    def allowed(self) -> bool:
+        """Check if permission is allowed."""
+        return self.decision == PermissionDecision.ALLOW
 
-    def __init__(
-        self,
-        granted: bool,
-        reason: str,
-        cached: bool = False,
-        scope_path: list[str] | None = None,
-        applicable_roles: list[str] | None = None,
-        check_duration_ms: float | None = None,
-    ) -> None:
-        """Initialize permission result."""
-        self.granted = granted
-        self.reason = reason
-        self.cached = cached
-        self.scope_path = scope_path or []
-        self.applicable_roles = applicable_roles or []
-        self.check_duration_ms = check_duration_ms
 
-    def __bool__(self) -> bool:
-        """Return granted status as boolean."""
-        return self.granted
+class PermissionContext(BaseModel):
+    """Context for permission evaluation."""
+    
+    user_id: UUID
+    resource_type: str
+    resource_id: UUID | None = None
+    action: str
+    workspace_id: UUID | None = None
+    project_id: UUID | None = None
+    environment_id: UUID | None = None
+    additional_context: dict[str, Any] | None = None
+    
+    def cache_key(self) -> str:
+        """Generate cache key for this permission context."""
+        key_data = {
+            "user_id": str(self.user_id),
+            "resource_type": self.resource_type,
+            "resource_id": str(self.resource_id) if self.resource_id else None,
+            "action": self.action,
+            "workspace_id": str(self.workspace_id) if self.workspace_id else None,
+            "project_id": str(self.project_id) if self.project_id else None,
+            "environment_id": str(self.environment_id) if self.environment_id else None,
+        }
+        key_json = json.dumps(key_data, sort_keys=True)
+        return f"rbac:perm:{hashlib.sha256(key_json.encode()).hexdigest()[:16]}"
 
 
 class PermissionEngine:
-    """High-performance permission engine with caching and scope resolution."""
-
-    def __init__(self, redis_client: redis.Redis | None = None) -> None:
-        """Initialize permission engine with optional Redis client."""
-        self.redis = redis_client
-        self.cache_ttl = 300  # 5 minutes
-        self.scope_hierarchy = [
-            AssignmentScope.WORKSPACE,
-            AssignmentScope.PROJECT,
-            AssignmentScope.ENVIRONMENT,
-            AssignmentScope.FLOW,
-            AssignmentScope.COMPONENT,
-        ]
-
+    """High-performance permission evaluation engine with Redis caching.
+    
+    This engine provides <100ms p95 latency for permission checks by:
+    1. In-memory caching of frequently accessed permissions
+    2. Optimized database queries with proper indexing
+    3. Hierarchical permission resolution (workspace -> project -> environment)
+    4. Bulk role evaluation for groups and service accounts
+    """
+    
+    def __init__(self, redis_client: Any = None, cache_ttl: int = 300):
+        """Initialize permission engine.
+        
+        Args:
+            redis_client: Optional Redis client for distributed caching
+            cache_ttl: Cache TTL in seconds (default: 5 minutes)
+        """
+        self.redis_client = redis_client
+        self.cache_ttl = cache_ttl
+        self._memory_cache: dict[str, tuple[PermissionResult, datetime]] = {}
+        self._cache_max_size = 10000  # Prevent memory bloat
+    
     async def check_permission(
         self,
-        session: Session,
-        user: User,
-        resource_type: ResourceType,
-        action: PermissionAction,
-        resource_id: UUID | None = None,
-        context: dict[str, Any] | None = None,
+        session: AsyncSession,
+        user: "User",
+        resource_type: str,
+        action: str,
+        resource_id: Optional[UUID] = None,
+        workspace_id: Optional[UUID] = None,
+        project_id: Optional[UUID] = None,
+        environment_id: Optional[UUID] = None,
+        use_cache: bool = True,
     ) -> PermissionResult:
         """Check if user has permission for the specified action on resource.
-
+        
         Args:
             session: Database session
             user: User requesting permission
-            resource_type: Type of resource being accessed
-            action: Action being performed
-            resource_id: Specific resource ID (optional for type-level permissions)
-            context: Additional context for conditional permissions
-
+            resource_type: Type of resource (workspace, project, environment, etc.)
+            action: Action being performed (create, read, update, delete, etc.)
+            resource_id: Specific resource ID (optional)
+            workspace_id: Workspace context (optional)
+            project_id: Project context (optional) 
+            environment_id: Environment context (optional)
+            use_cache: Whether to use caching (default: True)
+            
         Returns:
-            PermissionResult with granted status and metadata
+            PermissionResult with decision and metadata
         """
-        start_time = time.time()
-
-        try:
-            # Check cache first
-            cache_key = self._build_cache_key(user.id, resource_type, action, resource_id)
-            if self.redis:
-                cached_result = await self._get_cached_permission(cache_key)
-                if cached_result is not None:
-                    cached_result.check_duration_ms = (time.time() - start_time) * 1000
-                    return cached_result
-
-            # Super admin bypass
-            if user.is_superuser:
-                result = PermissionResult(
-                    granted=True,
-                    reason="Super admin access",
-                    scope_path=["system"],
-                    applicable_roles=["super_admin"]
-                )
-                await self._cache_permission(cache_key, result)
-                result.check_duration_ms = (time.time() - start_time) * 1000
-                return result
-
-            # Get resource scope path
-            scope_path = await self._resolve_resource_scope(session, resource_type, resource_id)
-
-            # Find applicable role assignments
-            role_assignments = await self._get_user_role_assignments(session, user.id, scope_path)
-
-            # Check permissions for each role assignment
-            for assignment in role_assignments:
-                role = await self._get_role_with_permissions(session, assignment.role_id)
-                if not role:
-                    continue
-
-                # Check if role has required permission
-                permission_granted = await self._check_role_permission(
-                    session, role, resource_type, action, context
-                )
-
-                if permission_granted:
-                    reason = f"Permission granted via role '{role.name}' in scope '{assignment.scope_type}'"
-                    result = PermissionResult(
-                        granted=True,
-                        reason=reason,
-                        scope_path=scope_path,
-                        applicable_roles=[role.name],
-                    )
-                    await self._cache_permission(cache_key, result)
-                    result.check_duration_ms = (time.time() - start_time) * 1000
-                    return result
-
-            # Permission denied
-            applicable_roles = [
-                assignment.role.name for assignment in role_assignments if assignment.role
-            ]
-            result = PermissionResult(
-                granted=False,
-                reason="No applicable permissions found",
-                scope_path=scope_path,
-                applicable_roles=applicable_roles,
-            )
-            # Cache denials for 1 minute
-            await self._cache_permission(cache_key, result, ttl=60)
-            result.check_duration_ms = (time.time() - start_time) * 1000
-            return result
-
-        except Exception as e:
-            # Log error and deny by default
-            result = PermissionResult(
-                granted=False,
-                reason=f"Permission check failed: {e!s}",
-                scope_path=[],
-                applicable_roles=[],
-            )
-            result.check_duration_ms = (time.time() - start_time) * 1000
-            return result
-
-    async def check_bulk_permissions(
-        self,
-        session: Session,
-        user: User,
-        permission_requests: list[tuple[ResourceType, PermissionAction, UUID | None]],
-    ) -> dict[tuple[ResourceType, PermissionAction, UUID | None], PermissionResult]:
-        """Check multiple permissions efficiently."""
-        results = {}
-
-        # Check cache for all requests
-        cache_keys = []
-        for resource_type, action, resource_id in permission_requests:
-            cache_key = self._build_cache_key(user.id, resource_type, action, resource_id)
-            cache_keys.append(cache_key)
-
-        if self.redis:
-            cached_results = await self._get_cached_permissions_bulk(cache_keys)
-        else:
-            cached_results = {}
-
-        # Process uncached requests
-        uncached_requests = []
-        for i, request in enumerate(permission_requests):
-            if cache_keys[i] in cached_results:
-                results[request] = cached_results[cache_keys[i]]
-            else:
-                uncached_requests.append(request)
-
-        # Process uncached requests in parallel
-        if uncached_requests:
-            tasks = []
-            for resource_type, action, resource_id in uncached_requests:
-                task = self.check_permission(session, user, resource_type, action, resource_id)
-                tasks.append(task)
-
-            uncached_results = await asyncio.gather(*tasks)
-            for i, request in enumerate(uncached_requests):
-                results[request] = uncached_results[i]
-
-        return results
-
-    async def get_user_permissions(
-        self,
-        session: Session,
-        user_id: UUID,
-        scope_type: AssignmentScope | None = None,
-        scope_id: UUID | None = None,
-    ) -> list[dict[str, Any]]:
-        """Get all permissions for a user in a given scope."""
-
-        # Get user role assignments
-        query = session.query(RoleAssignment).filter(
-            RoleAssignment.user_id == user_id,
-            RoleAssignment.is_active == True
+        start_time = datetime.now(timezone.utc)
+        
+        # Create permission context
+        context = PermissionContext(
+            user_id=user.id,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            action=action,
+            workspace_id=workspace_id,
+            project_id=project_id,
+            environment_id=environment_id,
         )
-
-        if scope_type:
-            query = query.filter(RoleAssignment.scope_type == scope_type)
-
-        if scope_id:
-            scope_field = getattr(RoleAssignment, f"{scope_type.value}_id")
-            query = query.filter(scope_field == scope_id)
-
-        assignments = query.all()
-
-        # Collect all permissions
-        permissions = []
-        for assignment in assignments:
-            role = session.get(Role, assignment.role_id)
-            if role and role.is_active:
-                role_permissions = session.query(Permission).join(
-                    RolePermission,
-                    Permission.id == RolePermission.permission_id
-                ).filter(
-                    RolePermission.role_id == role.id,
-                    RolePermission.is_granted == True
-                ).all()
-
-                for perm in role_permissions:
-                    permissions.append({
-                        "permission_id": str(perm.id),
-                        "permission_code": perm.code,
-                        "permission_name": perm.name,
-                        "resource_type": perm.resource_type,
-                        "action": perm.action,
-                        "role_id": str(role.id),
-                        "role_name": role.name,
-                        "scope_type": assignment.scope_type,
-                        "scope_id": getattr(assignment, f"{assignment.scope_type.value}_id"),
-                        "granted_at": assignment.assigned_at.isoformat()
-                    })
-
-        return permissions
-
-    async def _resolve_resource_scope(
+        
+        # Check cache first
+        if use_cache:
+            cached_result = await self._get_cached_result(context)
+            if cached_result:
+                cached_result.evaluation_time_ms = (
+                    datetime.now(timezone.utc) - start_time
+                ).total_seconds() * 1000
+                return cached_result
+        
+        # Evaluate permission
+        result = await self._evaluate_permission(session, user, context)
+        
+        # Calculate evaluation time
+        result.evaluation_time_ms = (
+            datetime.now(timezone.utc) - start_time
+        ).total_seconds() * 1000
+        
+        # Cache result
+        if use_cache and result.decision != PermissionDecision.NOT_APPLICABLE:
+            await self._cache_result(context, result)
+        
+        return result
+    
+    async def _evaluate_permission(
         self,
-        session: Session,
-        resource_type: ResourceType,
-        resource_id: UUID | None,
-    ) -> list[str]:
-        """Resolve the full scope path for a resource."""
-        if not resource_id:
-            return [resource_type.value]
-
-        scope_path = []
-
-        if resource_type == ResourceType.WORKSPACE:
-            workspace = session.get(Workspace, resource_id)
-            if workspace:
-                scope_path = [f"workspace:{workspace.id}"]
-
-        elif resource_type == ResourceType.PROJECT:
-            project = session.get(Project, resource_id)
-            if project:
-                scope_path = [
-                    f"workspace:{project.workspace_id}",
-                    f"project:{project.id}"
-                ]
-
-        elif resource_type == ResourceType.ENVIRONMENT:
-            environment = session.get(Environment, resource_id)
-            if environment:
-                project = session.get(Project, environment.project_id)
-                if project:
-                    scope_path = [
-                        f"workspace:{project.workspace_id}",
-                        f"project:{project.id}",
-                        f"environment:{environment.id}"
-                    ]
-
-        elif resource_type == ResourceType.FLOW:
-            flow = session.get(Flow, resource_id)
-            if flow:
-                if flow.environment_id:
-                    environment = session.get(Environment, flow.environment_id)
-                    if environment:
-                        project = session.get(Project, environment.project_id)
-                        if project:
-                            scope_path = [
-                                f"workspace:{project.workspace_id}",
-                                f"project:{project.id}",
-                                f"environment:{environment.id}",
-                                f"flow:{flow.id}"
-                            ]
-                elif flow.project_id:
-                    project = session.get(Project, flow.project_id)
-                    if project:
-                        scope_path = [
-                            f"workspace:{project.workspace_id}",
-                            f"project:{project.id}",
-                            f"flow:{flow.id}"
-                        ]
-
-        return scope_path
-
-    async def _get_user_role_assignments(
+        session: AsyncSession,
+        user: "User",
+        context: PermissionContext,
+    ) -> PermissionResult:
+        """Evaluate permission using hierarchical rules."""
+        
+        # Superuser check - highest priority
+        if user.is_superuser:
+            return PermissionResult(
+                decision=PermissionDecision.ALLOW,
+                reason="User is superuser",
+                applied_roles=["superuser"],
+            )
+        
+        # Resource owner checks
+        if context.resource_id:
+            owner_result = await self._check_resource_ownership(session, user, context)
+            if owner_result.decision == PermissionDecision.ALLOW:
+                return owner_result
+        
+        # Role-based permission checks
+        role_result = await self._check_role_permissions(session, user, context)
+        if role_result.decision == PermissionDecision.ALLOW:
+            return role_result
+        
+        # Group membership checks  
+        group_result = await self._check_group_permissions(session, user, context)
+        if group_result.decision == PermissionDecision.ALLOW:
+            return group_result
+        
+        # Default deny
+        return PermissionResult(
+            decision=PermissionDecision.DENY,
+            reason="No applicable permissions found",
+        )
+    
+    async def batch_check_permissions(
         self,
-        session: Session,
-        user_id: UUID,
-        scope_path: list[str],
-    ) -> list[RoleAssignment]:
-        """Get all role assignments that apply to the given scope path."""
-        assignments = []
-
-        # Extract scope IDs from path
-        scope_ids = {}
-        for scope_item in scope_path:
-            if ":" in scope_item:
-                scope_type, scope_id = scope_item.split(":", 1)
-                scope_ids[scope_type] = UUID(scope_id)
-
-        # Check assignments at each scope level (inheritance)
-        for scope_type in self.scope_hierarchy:
-            scope_field = f"{scope_type.value}_id"
-
-            if scope_type.value in scope_ids:
-                # Direct assignment at this scope
-                direct_assignments = session.query(RoleAssignment).filter(
-                    RoleAssignment.user_id == user_id,
-                    RoleAssignment.is_active == True,
-                    getattr(RoleAssignment, scope_field) == scope_ids[scope_type.value]
-                ).all()
-                assignments.extend(direct_assignments)
-
-                # Inherited assignments from parent scopes
-                if scope_type == AssignmentScope.PROJECT and "workspace" in scope_ids:
-                    workspace_assignments = session.query(RoleAssignment).filter(
-                        RoleAssignment.user_id == user_id,
-                        RoleAssignment.is_active == True,
-                        RoleAssignment.workspace_id == scope_ids["workspace"],
-                        RoleAssignment.project_id.is_(None)
-                    ).all()
-                    assignments.extend(workspace_assignments)
-
-                # Similar inheritance logic for other scope levels...
-
-        return assignments
-
-    async def _get_role_with_permissions(self, session: Session, role_id: UUID) -> Role | None:
-        """Get role with its permissions loaded."""
-        return session.get(Role, role_id)
-
-    async def _check_role_permission(
-        self,
-        session: Session,
-        role: Role,
-        resource_type: ResourceType,
-        action: PermissionAction,
-        context: dict[str, Any] | None = None,
-    ) -> bool:
-        """Check if role has specific permission."""
-        from langflow.services.database.models.rbac.permission import RolePermission
-
-        # Look for exact permission match
-        permission_code = f"{resource_type.value}:{action.value}"
-
-        role_permission = session.query(RolePermission).join(Permission).filter(
-            RolePermission.role_id == role.id,
-            RolePermission.is_granted == True,
-            Permission.code == permission_code
-        ).first()
-
-        if role_permission:
-            # Check temporal constraints
-            if role_permission.expires_at:
-                if datetime.now(timezone.utc) > role_permission.expires_at:
-                    return False
-
-            # Check conditional constraints
-            if role_permission.conditions and context:
-                # TODO: Implement condition evaluation
-                pass
-
-            return True
-
-        # Check for wildcard permissions
-        wildcard_code = f"{resource_type.value}:*"
-        wildcard_permission = session.query(RolePermission).join(Permission).filter(
-            RolePermission.role_id == role.id,
-            RolePermission.is_granted == True,
-            Permission.code == wildcard_code
-        ).first()
-
-        return wildcard_permission is not None
-
-    def _build_cache_key(
-        self,
-        user_id: UUID,
-        resource_type: ResourceType,
-        action: PermissionAction,
-        resource_id: UUID | None,
-    ) -> str:
-        """Build cache key for permission check."""
-        resource_part = f"{resource_id}" if resource_id else "type"
-        return f"perm:{user_id}:{resource_type.value}:{action.value}:{resource_part}"
-
-    async def _get_cached_permission(self, cache_key: str) -> PermissionResult | None:
-        """Get cached permission result."""
-        if not self.redis:
-            return None
-
-        try:
-            cached_data = await self.redis.get(cache_key)
-            if cached_data:
-                import json
-                data = json.loads(cached_data)
-                return PermissionResult(
-                    granted=data["granted"],
-                    reason=data["reason"],
-                    cached=True,
-                    scope_path=data.get("scope_path", []),
-                    applicable_roles=data.get("applicable_roles", [])
+        session: AsyncSession,
+        user: "User",
+        permission_requests: List[Dict[str, Any]]
+    ) -> List[PermissionResult]:
+        """Check multiple permissions efficiently."""
+        results = []
+        
+        for request in permission_requests:
+            try:
+                result = await self.check_permission(
+                    session=session,
+                    user=user,
+                    resource_type=request.get("resource_type"),
+                    action=request.get("action"),
+                    resource_id=request.get("resource_id"),
+                    workspace_id=request.get("workspace_id"),
+                    project_id=request.get("project_id"),
+                    environment_id=request.get("environment_id"),
                 )
-        except Exception:
-            pass
-
-        return None
-
-    async def _cache_permission(
+                results.append(result)
+            except Exception as e:
+                results.append(PermissionResult(
+                    allowed=False,
+                    reason=f"Error checking permission: {str(e)}",
+                    source="error",
+                    cached=False
+                ))
+        
+        return results
+    
+    async def _resolve_hierarchical_permissions(
+        self,
+        session: AsyncSession,
+        user: "User",
+        context: PermissionContext,
+    ) -> PermissionResult:
+        """Resolve permissions through hierarchy (workspace -> project -> environment -> flow)."""
+        # Check direct permissions first
+        direct_result = await self._check_role_permissions(session, user, context)
+        if direct_result.decision == PermissionDecision.ALLOW:
+            return direct_result
+        
+        # Check parent resource permissions
+        if context.project_id and context.resource_type != "workspace":
+            # Check workspace-level permissions for project access
+            workspace_context = PermissionContext(
+                resource_type="workspace",
+                action=context.action,
+                resource_id=context.workspace_id,
+                workspace_id=context.workspace_id,
+            )
+            workspace_result = await self._check_role_permissions(session, user, workspace_context)
+            if workspace_result.decision == PermissionDecision.ALLOW:
+                return PermissionResult(
+                    allowed=True,
+                    reason="Inherited from workspace permissions",
+                    source="hierarchical_permission",
+                    cached=False
+                )
+        
+        return PermissionResult(
+            allowed=False,
+            reason="No hierarchical permissions found",
+            source="hierarchical_permission",
+            cached=False
+        )
+    
+    async def _get_user_roles(
+        self,
+        session: AsyncSession,
+        user: "User",
+        workspace_id: UUID | None = None,
+        project_id: UUID | None = None,
+    ) -> List["Role"]:
+        """Get all roles assigned to user in given scope."""
+        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+        from langflow.services.database.models.rbac.role import Role
+        
+        # Build query for role assignments
+        statement = select(Role).join(RoleAssignment).where(
+            RoleAssignment.user_id == user.id,
+            RoleAssignment.is_active == True,
+            Role.is_active == True
+        )
+        
+        # Add scope filters
+        if workspace_id:
+            statement = statement.where(
+                (RoleAssignment.workspace_id == workspace_id) |
+                (RoleAssignment.workspace_id.is_(None))  # Include system roles
+            )
+        
+        if project_id:
+            statement = statement.where(
+                (RoleAssignment.project_id == project_id) |
+                (RoleAssignment.project_id.is_(None))  # Include broader scope roles
+            )
+        
+        result = await session.exec(statement)
+        return result.all()
+    
+    async def _get_role_permissions(
+        self,
+        session: AsyncSession,
+        role: "Role",
+    ) -> List["Permission"]:
+        """Get all permissions granted to a role."""
+        from langflow.services.database.models.rbac.permission import Permission, RolePermission
+        
+        statement = select(Permission).join(RolePermission).where(
+            RolePermission.role_id == role.id,
+            RolePermission.is_granted == True
+        )
+        
+        result = await session.exec(statement)
+        return result.all()
+    
+    async def _check_cached_permission(
         self,
         cache_key: str,
-        result: PermissionResult,
-        ttl: int | None = None,
-    ) -> None:
-        """Cache permission result."""
-        if not self.redis:
-            return
-
+    ) -> PermissionResult | None:
+        """Check if permission result is cached."""
         try:
-            import json
-            cache_data = {
-                "granted": result.granted,
-                "reason": result.reason,
-                "scope_path": result.scope_path,
-                "applicable_roles": result.applicable_roles,
-                "cached_at": datetime.now(timezone.utc).isoformat()
-            }
-
-            await self.redis.setex(
-                cache_key,
-                ttl or self.cache_ttl,
-                json.dumps(cache_data)
-            )
-        except Exception:
-            pass
-
-    async def _get_cached_permissions_bulk(self, cache_keys: list[str]) -> dict[str, PermissionResult]:
-        """Get multiple cached permissions."""
-        results = {}
-        if not self.redis:
-            return results
-
-        try:
-            cached_values = await self.redis.mget(cache_keys)
-            for i, cached_data in enumerate(cached_values):
-                if cached_data:
-                    import json
-                    data = json.loads(cached_data)
-                    results[cache_keys[i]] = PermissionResult(
-                        granted=data["granted"],
-                        reason=data["reason"],
+            if self.cache:
+                cached_result = await self.cache.get(cache_key)
+                if cached_result:
+                    return PermissionResult(
+                        allowed=cached_result.get("allowed", False),
+                        reason=cached_result.get("reason", "Cached result"),
+                        source=cached_result.get("source", "cache"),
                         cached=True,
-                        scope_path=data.get("scope_path", []),
-                        applicable_roles=data.get("applicable_roles", [])
+                        evaluated_at=datetime.fromisoformat(cached_result.get("evaluated_at", datetime.now(timezone.utc).isoformat()))
                     )
         except Exception:
+            # Cache errors should not break permission checking
             pass
-
-        return results
-
-    async def invalidate_user_permissions(self, user_id: UUID) -> None:
+        
+        return None
+    
+    async def _check_resource_ownership(
+        self,
+        session: AsyncSession,
+        user: "User",
+        context: PermissionContext,
+    ) -> PermissionResult:
+        """Check if user owns the resource."""
+        from langflow.services.database.models.rbac.workspace import Workspace
+        from langflow.services.database.models.rbac.project import Project
+        from langflow.services.database.models.rbac.environment import Environment
+        
+        if context.resource_type == "workspace" and context.resource_id:
+            workspace = await session.get(Workspace, context.resource_id)
+            if workspace and workspace.owner_id == user.id:
+                return PermissionResult(
+                    decision=PermissionDecision.ALLOW,
+                    reason="User owns workspace",
+                    applied_roles=["workspace_owner"],
+                )
+        
+        elif context.resource_type == "project" and context.resource_id:
+            project = await session.get(Project, context.resource_id)
+            if project and project.owner_id == user.id:
+                return PermissionResult(
+                    decision=PermissionDecision.ALLOW,
+                    reason="User owns project",
+                    applied_roles=["project_owner"],
+                )
+        
+        elif context.resource_type == "environment" and context.resource_id:
+            environment = await session.get(Environment, context.resource_id)
+            if environment and environment.owner_id == user.id:
+                return PermissionResult(
+                    decision=PermissionDecision.ALLOW,
+                    reason="User owns environment",
+                    applied_roles=["environment_owner"],
+                )
+        
+        return PermissionResult(
+            decision=PermissionDecision.NOT_APPLICABLE,
+            reason="User does not own resource",
+        )
+    
+    async def _check_role_permissions(
+        self,
+        session: AsyncSession,
+        user: "User",
+        context: PermissionContext,
+    ) -> PermissionResult:
+        """Check user's direct role assignments."""
+        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+        from langflow.services.database.models.rbac.role import Role
+        from langflow.services.database.models.rbac.permission import RolePermission, Permission
+        
+        # Get user's active role assignments in relevant scope
+        role_query = select(RoleAssignment).where(
+            RoleAssignment.user_id == user.id,
+            RoleAssignment.is_active == True,
+        )
+        
+        # Filter by scope hierarchy
+        if context.workspace_id:
+            role_query = role_query.where(
+                (RoleAssignment.workspace_id == context.workspace_id) |
+                (RoleAssignment.workspace_id.is_(None))  # System-wide roles
+            )
+        
+        if context.project_id:
+            role_query = role_query.where(
+                (RoleAssignment.project_id == context.project_id) |
+                (RoleAssignment.project_id.is_(None))
+            )
+        
+        if context.environment_id:
+            role_query = role_query.where(
+                (RoleAssignment.environment_id == context.environment_id) |
+                (RoleAssignment.environment_id.is_(None))
+            )
+        
+        result = await session.exec(role_query)
+        role_assignments = result.all()
+        
+        if not role_assignments:
+            return PermissionResult(
+                decision=PermissionDecision.NOT_APPLICABLE,
+                reason="No role assignments found",
+            )
+        
+        # Check each role's permissions
+        applied_roles = []
+        for assignment in role_assignments:
+            role = await session.get(Role, assignment.role_id)
+            if not role or not role.is_active:
+                continue
+            
+            applied_roles.append(role.name)
+            
+            # Check role permissions
+            perm_query = select(RolePermission).join(Permission).where(
+                RolePermission.role_id == role.id,
+                RolePermission.is_granted == True,
+                Permission.resource_type == context.resource_type,
+                Permission.action == context.action,
+            )
+            
+            perm_result = await session.exec(perm_query)
+            permissions = perm_result.all()
+            
+            if permissions:
+                return PermissionResult(
+                    decision=PermissionDecision.ALLOW,
+                    reason=f"Permission granted via role: {role.name}",
+                    applied_roles=applied_roles,
+                )
+        
+        return PermissionResult(
+            decision=PermissionDecision.DENY,
+            reason="No matching permissions in assigned roles",
+            applied_roles=applied_roles,
+        )
+    
+    async def _check_group_permissions(
+        self,
+        session: AsyncSession,
+        user: "User",
+        context: PermissionContext,
+    ) -> PermissionResult:
+        """Check permissions via group membership."""
+        from langflow.services.database.models.rbac.user_group import UserGroupMembership
+        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+        
+        # Get user's active group memberships
+        group_query = select(UserGroupMembership).where(
+            UserGroupMembership.user_id == user.id,
+            UserGroupMembership.is_active == True,
+        )
+        
+        result = await session.exec(group_query)
+        memberships = result.all()
+        
+        if not memberships:
+            return PermissionResult(
+                decision=PermissionDecision.NOT_APPLICABLE,
+                reason="No group memberships found",
+            )
+        
+        # Check role assignments for each group
+        group_ids = [m.group_id for m in memberships]
+        
+        role_query = select(RoleAssignment).where(
+            RoleAssignment.group_id.in_(group_ids),
+            RoleAssignment.is_active == True,
+        )
+        
+        # Apply scope filters
+        if context.workspace_id:
+            role_query = role_query.where(
+                (RoleAssignment.workspace_id == context.workspace_id) |
+                (RoleAssignment.workspace_id.is_(None))
+            )
+        
+        result = await session.exec(role_query)
+        group_assignments = result.all()
+        
+        if group_assignments:
+            # For group permissions, we create a new context and check role permissions
+            # This reuses the role permission logic
+            for assignment in group_assignments:
+                # Create a temporary user context with the group's role
+                role_result = await self._check_specific_role_permission(
+                    session, assignment.role_id, context
+                )
+                if role_result.decision == PermissionDecision.ALLOW:
+                    role_result.reason = f"Permission granted via group role assignment"
+                    return role_result
+        
+        return PermissionResult(
+            decision=PermissionDecision.NOT_APPLICABLE,
+            reason="No applicable group permissions",
+        )
+    
+    async def _check_specific_role_permission(
+        self,
+        session: AsyncSession,
+        role_id: UUID,
+        context: PermissionContext,
+    ) -> PermissionResult:
+        """Check if a specific role has the required permission."""
+        from langflow.services.database.models.rbac.role import Role
+        from langflow.services.database.models.rbac.permission import RolePermission, Permission
+        
+        role = await session.get(Role, role_id)
+        if not role or not role.is_active:
+            return PermissionResult(
+                decision=PermissionDecision.NOT_APPLICABLE,
+                reason="Role not found or inactive",
+            )
+        
+        # Check role permissions
+        perm_query = select(RolePermission).join(Permission).where(
+            RolePermission.role_id == role_id,
+            RolePermission.is_granted == True,
+            Permission.resource_type == context.resource_type,
+            Permission.action == context.action,
+        )
+        
+        result = await session.exec(perm_query)
+        permissions = result.all()
+        
+        if permissions:
+            return PermissionResult(
+                decision=PermissionDecision.ALLOW,
+                reason=f"Permission granted via role: {role.name}",
+                applied_roles=[role.name],
+            )
+        
+        return PermissionResult(
+            decision=PermissionDecision.NOT_APPLICABLE,
+            reason=f"Role {role.name} does not have required permission",
+        )
+    
+    async def _get_cached_result(self, context: PermissionContext) -> PermissionResult | None:
+        """Get cached permission result."""
+        cache_key = context.cache_key()
+        
+        # Check memory cache first
+        if cache_key in self._memory_cache:
+            result, timestamp = self._memory_cache[cache_key]
+            if (datetime.now(timezone.utc) - timestamp).seconds < self.cache_ttl:
+                result.cached = True
+                return result
+            else:
+                # Remove expired entry
+                del self._memory_cache[cache_key]
+        
+        # Check Redis cache if available
+        if self.redis_client:
+            try:
+                cached_data = await self.redis_client.get(cache_key)
+                if cached_data:
+                    # Deserialize result
+                    data = json.loads(cached_data)
+                    result = PermissionResult(
+                        decision=PermissionDecision(data["decision"]),
+                        reason=data["reason"],
+                        cached=True,
+                        applied_roles=data.get("applied_roles"),
+                    )
+                    return result
+            except Exception:
+                # Cache miss or error - continue with evaluation
+                pass
+        
+        return None
+    
+    async def _cache_result(self, context: PermissionContext, result: PermissionResult) -> None:
+        """Cache permission result."""
+        cache_key = context.cache_key()
+        
+        # Memory cache
+        if len(self._memory_cache) >= self._cache_max_size:
+            # Remove oldest entries
+            oldest_keys = sorted(
+                self._memory_cache.keys(),
+                key=lambda k: self._memory_cache[k][1]
+            )[:100]
+            for key in oldest_keys:
+                del self._memory_cache[key]
+        
+        self._memory_cache[cache_key] = (result, datetime.now(timezone.utc))
+        
+        # Redis cache if available
+        if self.redis_client:
+            try:
+                cache_data = {
+                    "decision": result.decision.value,
+                    "reason": result.reason,
+                    "applied_roles": result.applied_roles,
+                }
+                await self.redis_client.setex(
+                    cache_key,
+                    self.cache_ttl,
+                    json.dumps(cache_data)
+                )
+            except Exception:
+                # Cache write failure - not critical
+                pass
+    
+    async def invalidate_user_cache(self, user_id: UUID) -> None:
         """Invalidate all cached permissions for a user."""
-        if not self.redis:
-            return
-
-        try:
-            pattern = f"perm:{user_id}:*"
-            keys = await self.redis.keys(pattern)
-            if keys:
-                await self.redis.delete(*keys)
-        except Exception:
-            pass
+        # Remove from memory cache
+        keys_to_remove = [
+            key for key in self._memory_cache.keys()
+            if f"user_id\":\"{user_id}\"" in key
+        ]
+        for key in keys_to_remove:
+            del self._memory_cache[key]
+        
+        # Remove from Redis cache if available
+        if self.redis_client:
+            try:
+                pattern = f"rbac:perm:*{user_id}*"
+                keys = await self.redis_client.keys(pattern)
+                if keys:
+                    await self.redis_client.delete(*keys)
+            except Exception:
+                # Cache invalidation failure - not critical
+                pass
+    
+    async def invalidate_resource_cache(self, resource_type: str, resource_id: UUID) -> None:
+        """Invalidate all cached permissions for a specific resource."""
+        # Remove from memory cache
+        keys_to_remove = [
+            key for key in self._memory_cache.keys()
+            if f"resource_type\":\"{resource_type}\"" in key and f"resource_id\":\"{resource_id}\"" in key
+        ]
+        for key in keys_to_remove:
+            del self._memory_cache[key]
+        
+        # Remove from Redis cache if available
+        if self.redis_client:
+            try:
+                pattern = f"rbac:perm:*{resource_type}*{resource_id}*"
+                keys = await self.redis_client.keys(pattern)
+                if keys:
+                    await self.redis_client.delete(*keys)
+            except Exception:
+                # Cache invalidation failure - not critical
+                pass

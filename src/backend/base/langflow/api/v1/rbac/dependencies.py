@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Callable
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Path, status
-from sqlmodel import Session
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.api.utils import get_session
-from langflow.services.auth.utils import get_current_active_user as get_current_user
+from langflow.api.utils import get_session, CurrentActiveUser, DbSession
+from langflow.services.auth.utils import get_current_active_user
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow
@@ -22,14 +23,18 @@ if TYPE_CHECKING:
 
 # Import for runtime use
 from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.database.models.rbac.project import Project  
+from langflow.services.database.models.rbac.environment import Environment
+from langflow.services.database.models.rbac.role import Role
+from langflow.services.database.models.flow.model import Flow
 
 
-def get_workspace_by_id(
+async def get_workspace_by_id(
     workspace_id: UUID = Path(...),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> Workspace:
     """Get workspace by ID or raise 404."""
-    workspace = session.get(Workspace, workspace_id)
+    workspace = await session.get(Workspace, workspace_id)
     if not workspace or workspace.is_deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -38,12 +43,12 @@ def get_workspace_by_id(
     return workspace
 
 
-def get_project_by_id(
+async def get_project_by_id(
     project_id: UUID = Path(...),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> Project:
     """Get project by ID or raise 404."""
-    project = session.get(Project, project_id)
+    project = await session.get(Project, project_id)
     if not project or not project.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -52,12 +57,12 @@ def get_project_by_id(
     return project
 
 
-def get_environment_by_id(
+async def get_environment_by_id(
     environment_id: UUID = Path(...),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> Environment:
     """Get environment by ID or raise 404."""
-    environment = session.get(Environment, environment_id)
+    environment = await session.get(Environment, environment_id)
     if not environment or not environment.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -66,12 +71,12 @@ def get_environment_by_id(
     return environment
 
 
-def get_role_by_id(
+async def get_role_by_id(
     role_id: UUID = Path(...),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> Role:
     """Get role by ID or raise 404."""
-    role = session.get(Role, role_id)
+    role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -80,12 +85,12 @@ def get_role_by_id(
     return role
 
 
-def get_flow_by_id(
+async def get_flow_by_id(
     flow_id: UUID = Path(...),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> Flow:
     """Get flow by ID or raise 404."""
-    flow = session.get(Flow, flow_id)
+    flow = await session.get(Flow, flow_id)
     if not flow:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -94,124 +99,36 @@ def get_flow_by_id(
     return flow
 
 
-class PermissionChecker:
-    """Permission checker for RBAC system."""
+# Permission engine instance (singleton)
+_permission_engine = PermissionEngine()
 
-    def __init__(self, session: Session, user: User):
-        self.session = session
-        self.user = user
 
-    def has_workspace_permission(self, workspace: Workspace, permission: str) -> bool:
-        """Check if user has permission on workspace."""
-        # Super admin has all permissions
-        if self.user.is_superuser:
-            return True
-
-        # Workspace owner has all permissions
-        if workspace.owner_id == self.user.id:
-            return True
-
-        # TODO: Implement proper role-based permission checking
-        # This is a placeholder implementation
-
-        return False
-
-    def has_project_permission(self, project: Project, permission: str) -> bool:
-        """Check if user has permission on project."""
-        # Super admin has all permissions
-        if self.user.is_superuser:
-            return True
-
-        # Project owner has all permissions
-        if project.owner_id == self.user.id:
-            return True
-
-        # Check workspace-level permissions
-        workspace = self.session.get(Workspace, project.workspace_id)
-        if workspace and self.has_workspace_permission(workspace, permission):
-            return True
-
-        # TODO: Implement proper role-based permission checking
-
-        return False
-
-    def has_environment_permission(self, environment: Environment, permission: str) -> bool:
-        """Check if user has permission on environment."""
-        # Super admin has all permissions
-        if self.user.is_superuser:
-            return True
-
-        # Environment owner has all permissions
-        if environment.owner_id == self.user.id:
-            return True
-
-        # Check project-level permissions
-        project = self.session.get(Project, environment.project_id)
-        if project and self.has_project_permission(project, permission):
-            return True
-
-        # TODO: Implement proper role-based permission checking
-
-        return False
-
-    def has_flow_permission(self, flow: Flow, permission: str) -> bool:
-        """Check if user has permission on flow."""
-        # Super admin has all permissions
-        if self.user.is_superuser:
-            return True
-
-        # Flow owner has all permissions
-        if flow.user_id == self.user.id:
-            return True
-
-        # Check environment-level permissions if flow is in environment
-        if flow.environment_id:
-            environment = self.session.get(Environment, flow.environment_id)
-            if environment and self.has_environment_permission(environment, permission):
-                return True
-
-        # Check project-level permissions if flow is in project
-        if flow.project_id:
-            project = self.session.get(Project, flow.project_id)
-            if project and self.has_project_permission(project, permission):
-                return True
-
-        # TODO: Implement proper role-based permission checking
-
-        return False
-
-    def has_role_permission(self, role: Role, permission: str) -> bool:
-        """Check if user has permission on role."""
-        # Super admin has all permissions
-        if self.user.is_superuser:
-            return True
-
-        # Role creator has all permissions
-        if role.created_by_id == self.user.id:
-            return True
-
-        # Check workspace-level permissions
-        workspace = self.session.get(Workspace, role.workspace_id)
-        if workspace and self.has_workspace_permission(workspace, permission):
-            return True
-
-        # TODO: Implement proper role-based permission checking
-
-        return False
+async def get_permission_engine() -> PermissionEngine:
+    """Get the permission engine instance."""
+    return _permission_engine
 
 
 def check_workspace_permission(permission: str):
     """Dependency factory for workspace permission checking."""
-    def dependency(
+    async def dependency(
         workspace: Workspace = Depends(get_workspace_by_id),
-        session: Session = Depends(get_session),
-        current_user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+        current_user = Depends(get_current_active_user),
+        permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> Workspace:
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_workspace_permission(workspace, permission):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="workspace",
+            action=permission.split(":")[-1],
+            resource_id=workspace.id,
+            workspace_id=workspace.id,
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions: {permission}"
+                detail=f"Insufficient permissions: {permission}. Reason: {result.reason}"
             )
         return workspace
 
@@ -220,16 +137,26 @@ def check_workspace_permission(permission: str):
 
 def check_project_permission(permission: str):
     """Dependency factory for project permission checking."""
-    def dependency(
+    async def dependency(
         project: Project = Depends(get_project_by_id),
-        session: Session = Depends(get_session),
-        current_user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+        current_user = Depends(get_current_active_user),
+        permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> Project:
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_project_permission(project, permission):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="project",
+            action=permission.split(":")[-1],
+            resource_id=project.id,
+            workspace_id=project.workspace_id,
+            project_id=project.id,
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions: {permission}"
+                detail=f"Insufficient permissions: {permission}. Reason: {result.reason}"
             )
         return project
 
@@ -238,16 +165,27 @@ def check_project_permission(permission: str):
 
 def check_environment_permission(permission: str):
     """Dependency factory for environment permission checking."""
-    def dependency(
+    async def dependency(
         environment: Environment = Depends(get_environment_by_id),
-        session: Session = Depends(get_session),
-        current_user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+        current_user = Depends(get_current_active_user),
+        permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> Environment:
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_environment_permission(environment, permission):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="environment",
+            action=permission.split(":")[-1],
+            resource_id=environment.id,
+            workspace_id=environment.project.workspace_id if environment.project else None,
+            project_id=environment.project_id,
+            environment_id=environment.id,
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions: {permission}"
+                detail=f"Insufficient permissions: {permission}. Reason: {result.reason}"
             )
         return environment
 
@@ -256,16 +194,27 @@ def check_environment_permission(permission: str):
 
 def check_flow_permission(permission: str):
     """Dependency factory for flow permission checking."""
-    def dependency(
+    async def dependency(
         flow: Flow = Depends(get_flow_by_id),
-        session: Session = Depends(get_session),
-        current_user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+        current_user = Depends(get_current_active_user),
+        permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> Flow:
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_flow_permission(flow, permission):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="flow",
+            action=permission.split(":")[-1],
+            resource_id=flow.id,
+            workspace_id=getattr(flow, 'workspace_id', None),
+            project_id=getattr(flow, 'project_id', None),
+            environment_id=getattr(flow, 'environment_id', None),
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions: {permission}"
+                detail=f"Insufficient permissions: {permission}. Reason: {result.reason}"
             )
         return flow
 
@@ -274,16 +223,25 @@ def check_flow_permission(permission: str):
 
 def check_role_permission(permission: str):
     """Dependency factory for role permission checking."""
-    def dependency(
+    async def dependency(
         role: Role = Depends(get_role_by_id),
-        session: Session = Depends(get_session),
-        current_user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+        current_user = Depends(get_current_active_user),
+        permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> Role:
-        checker = PermissionChecker(session, current_user)
-        if not checker.has_role_permission(role, permission):
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="role",
+            action=permission.split(":")[-1],
+            resource_id=role.id,
+            workspace_id=role.workspace_id,
+        )
+        
+        if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions: {permission}"
+                detail=f"Insufficient permissions: {permission}. Reason: {result.reason}"
             )
         return role
 
@@ -307,7 +265,7 @@ async def check_api_key_permissions(
     permission: str,
     resource_type: str,
     resource_id: UUID | None = None,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> bool:
     """Check if API key has required permissions for resource."""
     from langflow.services.database.models.api_key.model import ApiKey
