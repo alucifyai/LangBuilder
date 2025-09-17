@@ -213,6 +213,7 @@ class Flow(FlowBase, table=True):  # type: ignore[call-arg]
     environment_id: UUIDstr | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
     environment: Union["Environment", None] = Relationship(back_populates="flows")
 
+    # FIXME: missing role_assignment_id, need get clarity of role assignment relationship with flow
     role_assignments: list["RoleAssignment"] = Relationship(
         back_populates="flow", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
