@@ -41,17 +41,17 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: datetime | None = Field(default=None, nullable=True)
-    api_keys: list["ApiKey"] = Relationship(
+    api_keys = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
     store_api_key: str | None = Field(default=None, nullable=True)
-    flows: list["Flow"] = Relationship(back_populates="user")
-    variables: list["Variable"] = Relationship(
+    flows = Relationship(back_populates="user")
+    variables = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
-    folders: list["Folder"] = Relationship(
+    folders = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
@@ -60,15 +60,15 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     )
 
     # RBAC relationships
-    owned_workspaces: list["Workspace"] = Relationship(
+    owned_workspaces = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    owned_projects: list["Project"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
-    owned_environments: list["Environment"] = Relationship(
+    owned_projects = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+    owned_environments = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_roles: list["Role"] = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
-    role_assignments: list["RoleAssignment"] = Relationship(
+    created_roles = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
+    role_assignments = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
@@ -76,7 +76,7 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "RoleAssignment.user_id == User.id",
         },
     )
-    group_memberships: list["UserGroupMembership"] = Relationship(
+    group_memberships = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
@@ -84,10 +84,10 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "UserGroupMembership.user_id == User.id",
         },
     )
-    created_groups: list["UserGroup"] = Relationship(
+    created_groups = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_service_accounts: list["ServiceAccount"] = Relationship(
+    created_service_accounts = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
 
