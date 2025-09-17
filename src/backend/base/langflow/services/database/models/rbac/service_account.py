@@ -1,7 +1,7 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
@@ -10,11 +10,11 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.api_key.model import ApiKey
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.api_key.model import ApiKey
+#     from langflow.services.database.models.user.model import User
 
 
 class ServiceAccountBase(SQLModel):
@@ -150,7 +150,7 @@ class ServiceAccountToken(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "ServiceAccountToken.created_by_id == User.id"
         }
     )
-    revoked_by: "User" | None = Relationship(
+    revoked_by: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[ServiceAccountToken.revoked_by_id]",
             "primaryjoin": "ServiceAccountToken.revoked_by_id == User.id"

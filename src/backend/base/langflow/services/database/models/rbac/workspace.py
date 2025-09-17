@@ -1,7 +1,7 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Union, Any
 from uuid import UUID, uuid4
 
 
@@ -11,14 +11,14 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.project import Project
-    from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.rbac.audit_log import AuditLog
-    from langflow.services.database.models.rbac.user_group import UserGroup
-    from langflow.services.database.models.rbac.service_account import ServiceAccount
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.project import Project
+#     from langflow.services.database.models.rbac.role import Role
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.rbac.audit_log import AuditLog
+#     from langflow.services.database.models.rbac.user_group import UserGroup
+#     from langflow.services.database.models.rbac.service_account import ServiceAccount
+#     from langflow.services.database.models.user.model import User
 
 
 class WorkspaceSettings(BaseModel):
@@ -92,7 +92,7 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
 
     # Owner relationship
     owner_id: UUIDstr = Field(foreign_key="user.id", index=True)
-    owner: User = Relationship(back_populates="owned_workspaces")
+    owner: "User" = Relationship(back_populates="owned_workspaces")
 
     # Relationships
     projects: list["Project"] = Relationship(
@@ -182,14 +182,14 @@ class WorkspaceInvitation(SQLModel, table=True):  # type: ignore[call-arg]
 
     # Relationships
     workspace: "Workspace" = Relationship()
-    role: Optional["Role"] = Relationship()
+    role: Union["Role", None] = Relationship()
     invited_by: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[WorkspaceInvitation.invited_by_id]",
             "primaryjoin": "WorkspaceInvitation.invited_by_id == User.id"
         }
     )
-    accepted_by: User | None = Relationship(
+    accepted_by: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[WorkspaceInvitation.accepted_by_id]",
             "primaryjoin": "WorkspaceInvitation.accepted_by_id == User.id"

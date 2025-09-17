@@ -1,6 +1,6 @@
-from __future__ import annotations
+# from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 from uuid import UUID, uuid4
 
 from sqlalchemy import Text, UniqueConstraint
@@ -8,6 +8,7 @@ from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 from langflow.services.database.models.flow.model import Flow, FlowRead
 from langflow.services.database.models.user.model import User
+from langflow.schema.serialize import UUIDstr
 
 
 class FolderBase(SQLModel):
@@ -24,12 +25,12 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
     id: UUID | None = Field(default_factory=uuid4, primary_key=True)
     parent_id: UUID | None = Field(default=None, foreign_key="folder.id")
 
-    parent: Folder | None = Relationship(
+    parent: Union["Folder", None] = Relationship(
         back_populates="children",
         sa_relationship_kwargs={"remote_side": "Folder.id"},
     )
     children: list["Folder"] = Relationship(back_populates="parent")
-    user_id: UUID | None = Field(default=None, foreign_key="user.id")
+    user_id: UUIDstr | None = Field(default=None, foreign_key="user.id")
     user: User = Relationship(back_populates="folders")
     flows: list["Flow"] = Relationship(
         back_populates="folder", sa_relationship_kwargs={"cascade": "all, delete, delete-orphan"}

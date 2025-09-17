@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
@@ -10,12 +10,18 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.rbac.environment import Environment
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.flow.model import Flow
-    from langflow.services.database.models.user.model import User
+# from langflow.services.database.models.rbac.workspace import Workspace
+# from langflow.services.database.models.rbac.environment import Environment
+# from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+# from langflow.services.database.models.flow.model import Flow
+# from langflow.services.database.models.user.model import User
+
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.rbac.environment import Environment
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.flow.model import Flow
+#     from langflow.services.database.models.user.model import User
 
 
 class ProjectBase(SQLModel):
@@ -98,7 +104,7 @@ class ProjectCreate(SQLModel):
 
     name: str
     description: str | None = None
-    workspace_id: UUID
+    workspace_id: UUIDstr
     repository_url: str | None = None
     documentation_url: str | None = None
     tags: list[str] | None = None
@@ -110,9 +116,9 @@ class ProjectCreate(SQLModel):
 class ProjectRead(ProjectBase):
     """Schema for reading project data."""
 
-    id: UUID
-    workspace_id: UUID
-    owner_id: UUID
+    id: UUIDstr
+    workspace_id: UUIDstr
+    owner_id: UUIDstr
     environment_count: int | None = None
     flow_count: int | None = None
     last_deployed_at: datetime | None = None
@@ -127,7 +133,7 @@ class ProjectUpdate(SQLModel):
     documentation_url: str | None = None
     tags: list[str] | None = None
     project_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
-    default_environment_id: UUID | None = None
+    default_environment_id: UUIDstr | None = None
     auto_deploy_enabled: bool | None = None
     retention_days: int | None = None
     is_active: bool | None = None
@@ -137,7 +143,7 @@ class ProjectUpdate(SQLModel):
 class ProjectStatistics(BaseModel):
     """Project statistics and metrics."""
 
-    project_id: UUID
+    project_id: UUIDstr
     total_flows: int = 0
     active_flows: int = 0
     total_environments: int = 0

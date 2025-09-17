@@ -1,6 +1,6 @@
 """SSO Configuration model for enterprise identity provider integration."""
 
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
@@ -13,9 +13,9 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.user.model import User
 
 
 class SSOProviderType(str, Enum):
@@ -170,7 +170,7 @@ class SSOConfigurationCreate(SQLModel):
 
     name: str
     provider_type: SSOProviderType
-    workspace_id: UUID
+    workspace_id: UUIDstr
     provider_config: dict
 
     # Optional provider-specific fields
@@ -201,7 +201,7 @@ class SSOConfigurationCreate(SQLModel):
     allowed_domains: list[str] | None = None
     auto_provision_users: bool = True
     auto_create_groups: bool = True
-    default_role_id: UUID | None = None
+    default_role_id: UUIDstr | None = None
 
     # SCIM
     scim_enabled: bool = False
@@ -213,11 +213,11 @@ class SSOConfigurationCreate(SQLModel):
 class SSOConfigurationRead(SQLModel):
     """Schema for reading SSO configuration (excludes secrets)."""
 
-    id: UUID
+    id: UUIDstr
     name: str
     provider_type: SSOProviderType
     status: SSOStatus
-    workspace_id: UUID
+    workspace_id: UUIDstr
 
     # Non-sensitive configuration
     client_id: str | None
@@ -249,7 +249,7 @@ class SSOConfigurationRead(SQLModel):
     last_used_at: datetime | None
 
     # Audit
-    created_by_id: UUID
+    created_by_id: UUIDstr
     created_at: datetime
     updated_at: datetime
 
@@ -292,7 +292,7 @@ class SSOConfigurationUpdate(SQLModel):
     allowed_domains: list[str] | None = None
     auto_provision_users: bool | None = None
     auto_create_groups: bool | None = None
-    default_role_id: UUID | None = None
+    default_role_id: UUIDstr | None = None
     session_timeout_minutes: int | None = None
 
     # SCIM

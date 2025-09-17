@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
@@ -6,23 +6,24 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
-from sqlalchemy import JSON, Column
+from sqlalchemy import JSON, Column, CHAR
+# from sqlalchemy.orm import Mapped, relationship
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.api_key.model import ApiKey
-    from langflow.services.database.models.flow.model import Flow
-    from langflow.services.database.models.folder.model import Folder
-    from langflow.services.database.models.rbac.environment import Environment
-    from langflow.services.database.models.rbac.project import Project
-    from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.rbac.service_account import ServiceAccount
-    from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.variable.model import Variable
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.api_key.model import ApiKey
+#     from langflow.services.database.models.flow.model import Flow
+#     from langflow.services.database.models.folder.model import Folder
+#     from langflow.services.database.models.rbac.environment import Environment
+#     from langflow.services.database.models.rbac.project import Project
+#     from langflow.services.database.models.rbac.role import Role
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.rbac.service_account import ServiceAccount
+#     from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.variable.model import Variable
 
 
 class UserOptin(BaseModel):
@@ -34,6 +35,7 @@ class UserOptin(BaseModel):
 
 class User(SQLModel, table=True):  # type: ignore[call-arg]
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True)
+#    id: UUIDstr = Field(default_factory=uuid4, sa_column=Column(CHAR(32), primary_key=True, unique=True, nullable=False))
     username: str = Field(index=True, unique=True)
     password: str = Field()
     profile_image: str | None = Field(default=None, nullable=True)

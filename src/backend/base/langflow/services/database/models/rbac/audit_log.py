@@ -1,8 +1,8 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 from uuid import UUID, uuid4
 
 from sqlalchemy import JSON, Column, Index, Text
@@ -10,9 +10,9 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.user.model import User
 
 
 class AuditEventType(str, Enum):
@@ -105,7 +105,7 @@ class AuditLogBase(SQLModel):
     resource_name: str | None = Field(default=None)
 
     # Context
-    workspace_id: UUIDstr | None = Field(default=None, index=True)
+    workspace_id: UUIDstr | None = Field(default=None, foreign_key="workspace.id", index=True)
     project_id: UUIDstr | None = Field(default=None, index=True)
     environment_id: UUIDstr | None = Field(default=None)
 
@@ -138,18 +138,15 @@ class AuditLog(AuditLogBase, table=True):  # type: ignore[call-arg]
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
 
     # Relationships (nullable for system events)
-    user: User | None = Relationship(
+    user: Union["User", None] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[AuditLog.actor_id]",
             "primaryjoin": "and_(AuditLog.actor_id == User.id, AuditLog.actor_type == 'user')"
         }
     )
 
-    workspace: Workspace | None = Relationship(
-        back_populates="audit_logs",
-        sa_relationship_kwargs={
-            "foreign_keys": "[AuditLog.workspace_id]"
-        }
+    workspace: Union["Workspace", None] = Relationship(
+        back_populates="audit_logs"
     )
 
     # Indexes for performance

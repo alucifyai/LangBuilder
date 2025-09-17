@@ -1,11 +1,11 @@
 # Path: src/backend/langflow/services/database/models/flow/model.py
 
-from __future__ import annotations
+# from __future__ import annotations
 
 import re
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 from uuid import UUID, uuid4
 
 import emoji
@@ -23,13 +23,14 @@ from sqlalchemy import Text, UniqueConstraint, text
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 from langflow.schema.data import Data
+from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.folder.model import Folder
-    from langflow.services.database.models.rbac.environment import Environment
-    from langflow.services.database.models.rbac.project import Project
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.folder.model import Folder
+#     from langflow.services.database.models.rbac.environment import Environment
+#     from langflow.services.database.models.rbac.project import Project
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.user.model import User
 
 HEX_COLOR_LENGTH = 7
 
@@ -196,22 +197,23 @@ class FlowBase(SQLModel):
 class Flow(FlowBase, table=True):  # type: ignore[call-arg]
     id: UUID = Field(default_factory=uuid4, primary_key=True, unique=True)
     data: dict | None = Field(default=None, sa_column=Column(JSON))
-    user_id: UUID | None = Field(index=True, foreign_key="user.id", nullable=True)
-    user: User = Relationship(back_populates="flows")
+    user_id: UUIDstr | None = Field(index=True, foreign_key="user.id", nullable=True)
+    user: "User" = Relationship(back_populates="flows")
     icon: str | None = Field(default=None, nullable=True)
     tags: list[str] | None = Field(sa_column=Column(JSON), default=[])
     locked: bool | None = Field(default=False, nullable=True)
     folder_id: UUID | None = Field(default=None, foreign_key="folder.id", nullable=True, index=True)
     fs_path: str | None = Field(default=None, nullable=True)
-    folder: Folder | None = Relationship(back_populates="flows")
+    folder: Union["Folder", None] = Relationship(back_populates="flows")
 
     # RBAC relationships
-    project_id: UUID | None = Field(default=None, foreign_key="project.id", nullable=True, index=True)
-    project: Project | None = Relationship(back_populates="flows")
+    project_id: UUIDstr | None = Field(default=None, foreign_key="project.id", nullable=True, index=True)
+    project: Union["Project", None] = Relationship(back_populates="flows")
 
-    environment_id: UUID | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
-    environment: Environment | None = Relationship(back_populates="flows")
+    environment_id: UUIDstr | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)
+    environment: Union["Environment", None] = Relationship(back_populates="flows")
 
+    # FIXME: missing role_assignment_id, need get clarity of role assignment relationship with flow
     role_assignments: list["RoleAssignment"] = Relationship(
         back_populates="flow", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )

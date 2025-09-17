@@ -1,8 +1,8 @@
-from __future__ import annotations
+ #from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from uuid import UUID, uuid4
 
 from pydantic import field_validator
@@ -11,10 +11,10 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.workspace import Workspace
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    from langflow.services.database.models.user.model import User
+# if TYPE_CHECKING:
+#     from langflow.services.database.models.rbac.workspace import Workspace
+#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+#     from langflow.services.database.models.user.model import User
 
 
 class GroupType(str, Enum):
@@ -93,7 +93,7 @@ class UserGroup(UserGroupBase, table=True):  # type: ignore[call-arg]
 
     # Parent group for nested groups
     parent_group_id: UUIDstr | None = Field(foreign_key="user_group.id", default=None)
-    parent_group: Optional["UserGroup"] = Relationship(
+    parent_group: Union["UserGroup", None] = Relationship(
         sa_relationship_kwargs={
             "remote_side": "UserGroup.id",
             "foreign_keys": "[UserGroup.parent_group_id]"
@@ -155,8 +155,8 @@ class UserGroupCreate(SQLModel):
     name: str
     description: str | None = None
     type: GroupType = GroupType.LOCAL
-    workspace_id: UUID
-    parent_group_id: UUID | None = None
+    workspace_id: UUIDstr
+    parent_group_id: UUIDstr | None = None
     external_id: str | None = None
     external_provider: str | None = None
     membership_rules: dict | None = Field(default=None, sa_column=Column(JSON))
@@ -169,10 +169,10 @@ class UserGroupCreate(SQLModel):
 class UserGroupRead(UserGroupBase):
     """Schema for reading user group data."""
 
-    id: UUID
-    workspace_id: UUID
-    created_by_id: UUID
-    parent_group_id: UUID | None
+    id: UUIDstr
+    workspace_id: UUIDstr
+    created_by_id: UUIDstr
+    parent_group_id: UUIDstr | None
     member_count: int | None = None
     role_assignment_count: int | None = None
 
@@ -182,7 +182,7 @@ class UserGroupUpdate(SQLModel):
 
     name: str | None = None
     description: str | None = None
-    parent_group_id: UUID | None = None
+    parent_group_id: UUIDstr | None = None
     membership_rules: dict | None = Field(default=None, sa_column=Column(JSON))
     auto_assign_roles: list[str] | None = None
     max_members: int | None = None
@@ -194,8 +194,8 @@ class UserGroupUpdate(SQLModel):
 class UserGroupMembershipCreate(SQLModel):
     """Schema for adding a user to a group."""
 
-    user_id: UUID
-    group_id: UUID
+    user_id: UUIDstr
+    group_id: UUIDstr
     role: str | None = None
     expires_at: datetime | None = None
 
@@ -203,16 +203,16 @@ class UserGroupMembershipCreate(SQLModel):
 class UserGroupMembershipRead(SQLModel):
     """Schema for reading group membership."""
 
-    id: UUID
-    user_id: UUID
+    id: UUIDstr
+    user_id: UUIDstr
     user_name: str | None = None
-    group_id: UUID
+    group_id: UUIDstr
     group_name: str | None = None
     role: str | None
     is_active: bool
     joined_at: datetime
     expires_at: datetime | None
-    added_by_id: UUID
+    added_by_id: UUIDstr
     added_by_name: str | None = None
     added_via: str | None
 
