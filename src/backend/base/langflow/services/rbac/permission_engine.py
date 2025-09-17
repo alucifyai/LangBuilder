@@ -226,9 +226,8 @@ class PermissionEngine:
                 results.append(result)
             except Exception as e:
                 results.append(PermissionResult(
-                    allowed=False,
+                    decision=PermissionDecision.DENY,
                     reason=f"Error checking permission: {str(e)}",
-                    source="error",
                     cached=False
                 ))
         
@@ -258,16 +257,14 @@ class PermissionEngine:
             workspace_result = await self._check_role_permissions(session, user, workspace_context)
             if workspace_result.decision == PermissionDecision.ALLOW:
                 return PermissionResult(
-                    allowed=True,
+                    decision=PermissionDecision.ALLOW,
                     reason="Inherited from workspace permissions",
-                    source="hierarchical_permission",
                     cached=False
                 )
         
         return PermissionResult(
-            allowed=False,
+            decision=PermissionDecision.DENY,
             reason="No hierarchical permissions found",
-            source="hierarchical_permission",
             cached=False
         )
     
@@ -327,15 +324,14 @@ class PermissionEngine:
     ) -> PermissionResult | None:
         """Check if permission result is cached."""
         try:
-            if self.cache:
-                cached_result = await self.cache.get(cache_key)
+            if self.redis_client:
+                cached_result = await self.redis_client.get(cache_key)
                 if cached_result:
+                    decision = PermissionDecision.ALLOW if cached_result.get("allowed", False) else PermissionDecision.DENY
                     return PermissionResult(
-                        allowed=cached_result.get("allowed", False),
+                        decision=decision,
                         reason=cached_result.get("reason", "Cached result"),
-                        source=cached_result.get("source", "cache"),
-                        cached=True,
-                        evaluated_at=datetime.fromisoformat(cached_result.get("evaluated_at", datetime.now(timezone.utc).isoformat()))
+                        cached=True
                     )
         except Exception:
             # Cache errors should not break permission checking

@@ -1,11 +1,11 @@
 """Workspace management API endpoints for RBAC system."""
 
-from __future__ import annotations
+# NO future annotations per Phase 1 requirements
+# from __future__ import annotations
 
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select
@@ -13,13 +13,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.api.v1.rbac.dependencies import check_workspace_permission
-from langflow.services.database.models.rbac.workspace import (
-    Workspace,
-    WorkspaceCreate,
-    WorkspaceInvitation,
-    WorkspaceRead,
-    WorkspaceUpdate,
-)
+from langflow.schema.serialize import UUIDstr
 if TYPE_CHECKING:
     from langflow.services.database.models.user.model import User
 
@@ -35,13 +29,15 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=WorkspaceRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model="WorkspaceRead", status_code=status.HTTP_201_CREATED)
 async def create_workspace(
-    workspace_data: WorkspaceCreate,
+    workspace_data: "WorkspaceCreate",
     session: DbSession,
     current_user: CurrentActiveUser,
-) -> WorkspaceRead:
+) -> "WorkspaceRead":
     """Create a new workspace."""
+    from langflow.services.database.models.rbac.workspace import Workspace, WorkspaceCreate, WorkspaceRead
+    
     # Check if workspace name already exists for this user
     statement = select(Workspace).where(
         Workspace.owner_id == current_user.id,

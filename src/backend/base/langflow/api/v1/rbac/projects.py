@@ -1,10 +1,11 @@
 """Project management API endpoints for RBAC system."""
 
-from __future__ import annotations
+# NO future annotations per Phase 1 requirements
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
-from uuid import UUID
+from langflow.schema.serialize import UUIDstr
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select, func
@@ -110,7 +111,7 @@ async def list_projects(
     session: DbSession,
     current_user: CurrentActiveUser,
     permission_engine: PermissionEngine = Depends(get_permission_engine),
-    workspace_id: UUID | None = Query(None),
+    workspace_id: UUIDstr | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     search: str | None = None,
@@ -180,7 +181,7 @@ async def list_projects(
 
 @router.get("/{project_id}", response_model=ProjectRead)
 async def get_project(
-    project_id: UUID,
+    project_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
     project: Project = Depends(check_project_permission("read")),
@@ -191,7 +192,7 @@ async def get_project(
 
 @router.put("/{project_id}", response_model=ProjectRead)
 async def update_project(
-    project_id: UUID,
+    project_id: UUIDstr,
     project_data: ProjectUpdate,
     session: DbSession,
     current_user: CurrentActiveUser,
@@ -231,7 +232,7 @@ async def update_project(
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(
-    project_id: UUID,
+    project_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
     project: Project = Depends(check_project_permission("delete")),
@@ -250,7 +251,7 @@ async def delete_project(
 
 @router.get("/{project_id}/environments", response_model=list[dict])
 async def list_project_environments(
-    project_id: UUID,
+    project_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
     project: Project = Depends(check_project_permission("read")),
@@ -286,7 +287,7 @@ async def list_project_environments(
 
 @router.get("/{project_id}/flows", response_model=list[dict])
 async def list_project_flows(
-    project_id: UUID,
+    project_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
     project: Project = Depends(check_project_permission("read")),
@@ -320,7 +321,7 @@ async def list_project_flows(
 
 @router.get("/{project_id}/stats", response_model=ProjectStatistics)
 async def get_project_statistics(
-    project_id: UUID,
+    project_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
     project: Project = Depends(check_project_permission("read")),

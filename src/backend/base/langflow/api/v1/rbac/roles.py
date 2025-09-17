@@ -1,10 +1,10 @@
 """Role management API endpoints for RBAC system."""
 
-from __future__ import annotations
+# NO future annotations per Phase 1 requirements
+# from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select, func
@@ -18,21 +18,7 @@ from langflow.api.v1.rbac.dependencies import (
     get_workspace_by_id,
     get_permission_engine,
 )
-from langflow.services.database.models.rbac.permission import (
-    Permission,
-    PermissionRead,
-    RolePermission,
-    SYSTEM_PERMISSIONS,
-)
-from langflow.services.database.models.rbac.role import (
-    Role,
-    RoleCreate,
-    RoleHierarchy,
-    RoleRead,
-    RoleUpdate,
-    SYSTEM_ROLES,
-)
-from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.schema.serialize import UUIDstr
 
 if TYPE_CHECKING:
     from langflow.services.database.models.user.model import User
@@ -143,7 +129,7 @@ async def list_roles(
     session: DbSession,
     current_user: CurrentActiveUser,
     permission_engine: PermissionEngine = Depends(get_permission_engine),
-    workspace_id: UUID | None = Query(None),
+    workspace_id: UUIDstr | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     search: str | None = None,
@@ -225,13 +211,14 @@ async def list_roles(
 
 @router.get("/{role_id}", response_model=RoleRead)
 async def get_role(
-    role_id: UUID,
+    role_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
-) -> RoleRead:
+) -> "RoleRead":
     """Get role by ID."""
+    from langflow.services.database.models.rbac.role import Role, RoleRead
 
-    role = session.get(Role, role_id)
+    role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -240,15 +227,13 @@ async def get_role(
 
     # Check access permissions
     if role.workspace_id:
-        workspace = session.get(Workspace, role.workspace_id)
-        if workspace:
-            from langflow.api.v1.rbac.dependencies import PermissionChecker
-            checker = PermissionChecker(session, current_user)
-            if not checker.has_workspace_permission(workspace, "workspace:read"):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Access denied to this role"
-                )
+        from langflow.services.database.models.rbac.workspace import Workspace
+        workspace = await session.get(Workspace, role.workspace_id)
+        if workspace and workspace.owner_id != current_user.id and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied to this role"
+            )
     elif not current_user.is_superuser:
         # System roles can only be viewed by superusers
         raise HTTPException(
@@ -261,14 +246,15 @@ async def get_role(
 
 @router.put("/{role_id}", response_model=RoleRead)
 async def update_role(
-    role_id: UUID,
-    role_data: RoleUpdate,
+    role_id: UUIDstr,
+    role_data: "RoleUpdate",
     session: DbSession,
     current_user: CurrentActiveUser,
-) -> RoleRead:
+) -> "RoleRead":
     """Update role."""
+    from langflow.services.database.models.rbac.role import Role, RoleRead, RoleUpdate
 
-    role = session.get(Role, role_id)
+    role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -284,15 +270,13 @@ async def update_role(
 
     # Check permissions
     if role.workspace_id:
-        workspace = session.get(Workspace, role.workspace_id)
-        if workspace:
-            from langflow.api.v1.rbac.dependencies import PermissionChecker
-            checker = PermissionChecker(session, current_user)
-            if not checker.has_workspace_permission(workspace, "role:update"):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Insufficient permissions to update this role"
-                )
+        from langflow.services.database.models.rbac.workspace import Workspace
+        workspace = await session.get(Workspace, role.workspace_id)
+        if workspace and workspace.owner_id != current_user.id and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions to update this role"
+            )
     elif not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -301,12 +285,14 @@ async def update_role(
 
     # Check name uniqueness if changing name
     if role_data.name and role_data.name != role.name:
-        existing = session.query(Role).filter(
+        statement = select(Role).where(
             Role.workspace_id == role.workspace_id,
             Role.name == role_data.name,
             Role.id != role_id,
             Role.is_active == True
-        ).first()
+        )
+        result = await session.exec(statement)
+        existing = result.first()
 
         if existing:
             scope = "workspace" if role.workspace_id else "system"
@@ -316,14 +302,13 @@ async def update_role(
             )
 
     # Update role fields
-    from datetime import datetime, timezone
     for field, value in role_data.model_dump(exclude_unset=True).items():
         setattr(role, field, value)
 
     role.updated_at = datetime.now(timezone.utc)
     role.version += 1
-    session.commit()
-    session.refresh(role)
+    await session.commit()
+    await session.refresh(role)
 
     # TODO: Log audit event
 
@@ -332,13 +317,14 @@ async def update_role(
 
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
-    role_id: UUID,
+    role_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
 ):
     """Delete role (deactivate)."""
+    from langflow.services.database.models.rbac.role import Role
 
-    role = session.get(Role, role_id)
+    role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -354,15 +340,13 @@ async def delete_role(
 
     # Check permissions
     if role.workspace_id:
-        workspace = session.get(Workspace, role.workspace_id)
-        if workspace:
-            from langflow.api.v1.rbac.dependencies import PermissionChecker
-            checker = PermissionChecker(session, current_user)
-            if not checker.has_workspace_permission(workspace, "role:delete"):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Insufficient permissions to delete this role"
-                )
+        from langflow.services.database.models.rbac.workspace import Workspace
+        workspace = await session.get(Workspace, role.workspace_id)
+        if workspace and workspace.owner_id != current_user.id and not current_user.is_superuser:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions to delete this role"
+            )
     elif not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -371,10 +355,12 @@ async def delete_role(
 
     # Check if role has active assignments
     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-    active_assignments = session.query(RoleAssignment).filter(
+    statement = select(func.count(RoleAssignment.id)).where(
         RoleAssignment.role_id == role_id,
         RoleAssignment.is_active == True
-    ).count()
+    )
+    result = await session.exec(statement)
+    active_assignments = result.one()
 
     if active_assignments > 0:
         raise HTTPException(
@@ -383,38 +369,41 @@ async def delete_role(
         )
 
     # Deactivate role
-    from datetime import datetime, timezone
     role.is_active = False
     role.updated_at = datetime.now(timezone.utc)
-    session.commit()
+    await session.commit()
 
     # TODO: Log audit event
 
 
 @router.get("/{role_id}/permissions", response_model=list[PermissionRead])
 async def list_role_permissions(
-    role_id: UUID,
+    role_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
-) -> list[PermissionRead]:
+) -> list["PermissionRead"]:
     """List permissions assigned to role."""
+    from langflow.services.database.models.rbac.role import Role
+    from langflow.services.database.models.rbac.permission import Permission, PermissionRead, RolePermission
 
-    role = session.get(Role, role_id)
+    role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Role not found"
         )
 
-    # Get role permissions
-    role_permissions = session.query(RolePermission).filter(
+    # Get role permissions using async operations
+    statement = select(RolePermission).where(
         RolePermission.role_id == role_id,
         RolePermission.is_granted == True
-    ).all()
+    )
+    result = await session.exec(statement)
+    role_permissions = result.all()
 
     permissions = []
     for rp in role_permissions:
-        permission = session.get(Permission, rp.permission_id)
+        permission = await session.get(Permission, rp.permission_id)
         if permission:
             permissions.append(PermissionRead.model_validate(permission))
 
@@ -423,14 +412,16 @@ async def list_role_permissions(
 
 @router.post("/{role_id}/permissions", status_code=status.HTTP_201_CREATED)
 async def assign_permission_to_role(
-    role_id: UUID,
+    role_id: UUIDstr,
     permission_data: dict,
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> dict:
     """Assign permission to role."""
+    from langflow.services.database.models.rbac.role import Role
+    from langflow.services.database.models.rbac.permission import Permission, RolePermission
 
-    role = session.get(Role, role_id)
+    role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -444,7 +435,7 @@ async def assign_permission_to_role(
             detail="permission_id is required"
         )
 
-    permission = session.get(Permission, permission_id)
+    permission = await session.get(Permission, permission_id)
     if not permission:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -452,10 +443,12 @@ async def assign_permission_to_role(
         )
 
     # Check if assignment already exists
-    existing = session.query(RolePermission).filter(
+    statement = select(RolePermission).where(
         RolePermission.role_id == role_id,
         RolePermission.permission_id == permission_id
-    ).first()
+    )
+    result = await session.exec(statement)
+    existing = result.first()
 
     if existing:
         raise HTTPException(
@@ -464,7 +457,6 @@ async def assign_permission_to_role(
         )
 
     # Create role permission assignment
-    from datetime import datetime, timezone
     role_permission = RolePermission(
         role_id=role_id,
         permission_id=permission_id,
@@ -474,7 +466,7 @@ async def assign_permission_to_role(
     )
 
     session.add(role_permission)
-    session.commit()
+    await session.commit()
 
     # TODO: Log audit event
 
@@ -487,17 +479,20 @@ async def assign_permission_to_role(
 
 @router.delete("/{role_id}/permissions/{permission_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_permission_from_role(
-    role_id: UUID,
-    permission_id: UUID,
+    role_id: UUIDstr,
+    permission_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
 ):
     """Remove permission from role."""
+    from langflow.services.database.models.rbac.permission import RolePermission
 
-    role_permission = session.query(RolePermission).filter(
+    statement = select(RolePermission).where(
         RolePermission.role_id == role_id,
         RolePermission.permission_id == permission_id
-    ).first()
+    )
+    result = await session.exec(statement)
+    role_permission = result.first()
 
     if not role_permission:
         raise HTTPException(
@@ -505,8 +500,8 @@ async def remove_permission_from_role(
             detail="Permission assignment not found"
         )
 
-    session.delete(role_permission)
-    session.commit()
+    await session.delete(role_permission)
+    await session.commit()
 
     # TODO: Log audit event
 
@@ -528,10 +523,13 @@ async def initialize_system_roles(
     created_roles = 0
 
     # Create system permissions
+    from langflow.services.database.models.rbac.permission import Permission, SYSTEM_PERMISSIONS
+    from langflow.services.database.models.rbac.role import Role, SYSTEM_ROLES
+    
     for perm_data in SYSTEM_PERMISSIONS:
-        existing = session.query(Permission).filter(
-            Permission.code == perm_data["code"]
-        ).first()
+        statement = select(Permission).where(Permission.code == perm_data["code"])
+        result = await session.exec(statement)
+        existing = result.first()
 
         if not existing:
             permission = Permission(
@@ -543,10 +541,12 @@ async def initialize_system_roles(
 
     # Create system roles
     for role_key, role_data in SYSTEM_ROLES.items():
-        existing = session.query(Role).filter(
+        statement = select(Role).where(
             Role.name == role_data["name"],
             Role.workspace_id.is_(None)
-        ).first()
+        )
+        result = await session.exec(statement)
+        existing = result.first()
 
         if not existing:
             role = Role(
@@ -557,7 +557,7 @@ async def initialize_system_roles(
             session.add(role)
             created_roles += 1
 
-    session.commit()
+    await session.commit()
 
     return {
         "message": "System roles and permissions initialized",

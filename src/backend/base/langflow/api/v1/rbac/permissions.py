@@ -1,9 +1,10 @@
 """Permission management API endpoints for RBAC system."""
 
-from __future__ import annotations
+# NO future annotations per Phase 1 requirements
+# from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
+from langflow.schema.serialize import UUIDstr
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select
@@ -78,7 +79,7 @@ async def list_permissions(
 
 @router.get("/{permission_id}", response_model=PermissionRead)
 async def get_permission(
-    permission_id: UUID,
+    permission_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> PermissionRead:
@@ -129,18 +130,16 @@ async def check_permission(
         user=current_user,
         resource_type=resource_type,
         action=action,
-        resource_id=UUID(resource_id) if resource_id else None,
-        workspace_id=UUID(workspace_id) if workspace_id else None,
-        project_id=UUID(project_id) if project_id else None,
-        environment_id=UUID(environment_id) if environment_id else None,
+        resource_id=UUIDstr(resource_id) if resource_id else None,
+        workspace_id=UUIDstr(workspace_id) if workspace_id else None,
+        project_id=UUIDstr(project_id) if project_id else None,
+        environment_id=UUIDstr(environment_id) if environment_id else None,
     )
 
     return {
         "allowed": result.allowed,
         "reason": result.reason,
-        "source": result.source,
         "cached": result.cached,
-        "evaluated_at": result.evaluated_at.isoformat() if result.evaluated_at else None,
     }
 
 
@@ -173,9 +172,7 @@ async def batch_check_permissions(
             results.append({
                 "allowed": False,
                 "reason": "Invalid request: resource_type and action are required",
-                "source": "validation",
                 "cached": False,
-                "evaluated_at": None,
             })
             continue
 
@@ -186,26 +183,22 @@ async def batch_check_permissions(
                 user=current_user,
                 resource_type=resource_type,
                 action=action,
-                resource_id=UUID(resource_id) if resource_id else None,
-                workspace_id=UUID(workspace_id) if workspace_id else None,
-                project_id=UUID(project_id) if project_id else None,
-                environment_id=UUID(environment_id) if environment_id else None,
+                resource_id=UUIDstr(resource_id) if resource_id else None,
+                workspace_id=UUIDstr(workspace_id) if workspace_id else None,
+                project_id=UUIDstr(project_id) if project_id else None,
+                environment_id=UUIDstr(environment_id) if environment_id else None,
             )
 
             results.append({
                 "allowed": result.allowed,
                 "reason": result.reason,
-                "source": result.source,
                 "cached": result.cached,
-                "evaluated_at": result.evaluated_at.isoformat() if result.evaluated_at else None,
             })
         except Exception as e:
             results.append({
                 "allowed": False,
                 "reason": f"Error checking permission: {str(e)}",
-                "source": "error",
                 "cached": False,
-                "evaluated_at": None,
             })
 
     return results
