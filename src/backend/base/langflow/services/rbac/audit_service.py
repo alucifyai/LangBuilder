@@ -5,25 +5,21 @@ with immutable storage, compliance reporting, and performance optimization.
 """
 
 # NO future annotations per Phase 1 requirements
-from typing import TYPE_CHECKING
-
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
 
 from loguru import logger
 from pydantic import BaseModel
-from sqlmodel import select, func, and_, or_
+from sqlmodel import and_, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.services.base import Service
-from langflow.schema.serialize import UUIDstr
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
     from langflow.services.database.models.user.model import User
 
 
@@ -51,29 +47,29 @@ class ComplianceFramework(str, Enum):
 class AuditContext:
     """Context information for audit events."""
 
-    user_id: Optional[UUID] = None
-    session_id: Optional[str] = None
-    client_ip: Optional[str] = None
-    user_agent: Optional[str] = None
-    request_id: Optional[str] = None
-    workspace_id: Optional[UUID] = None
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    user_id: UUID | None = None
+    session_id: str | None = None
+    client_ip: str | None = None
+    user_agent: str | None = None
+    request_id: str | None = None
+    workspace_id: UUID | None = None
+    additional_data: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class AuditFilter:
     """Filter criteria for audit log queries."""
 
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    event_types: Optional[List[str]] = None
-    actor_types: Optional[List[str]] = None
-    actor_ids: Optional[List[UUID]] = None
-    workspace_ids: Optional[List[UUID]] = None
-    success_only: Optional[bool] = None
-    severity_levels: Optional[List[AuditSeverity]] = None
-    target_types: Optional[List[str]] = None
-    actions: Optional[List[str]] = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    event_types: list[str] | None = None
+    actor_types: list[str] | None = None
+    actor_ids: list[UUID] | None = None
+    workspace_ids: list[UUID] | None = None
+    success_only: bool | None = None
+    severity_levels: list[AuditSeverity] | None = None
+    target_types: list[str] | None = None
+    actions: list[str] | None = None
     limit: int = 1000
     offset: int = 0
 
@@ -83,7 +79,7 @@ class AuditSearchResult(BaseModel):
 
     total_count: int
     filtered_count: int
-    events: List[Dict[str, Any]]
+    events: list[dict[str, Any]]
     search_duration_ms: float
     has_more: bool
 
@@ -97,13 +93,13 @@ class ComplianceReport(BaseModel):
     period_start: datetime
     period_end: datetime
     total_events: int
-    events_by_type: Dict[str, int]
+    events_by_type: dict[str, int]
     security_events: int
     access_violations: int
     privileged_operations: int
     data_access_events: int
-    compliance_metrics: Dict[str, Any]
-    recommendations: List[str]
+    compliance_metrics: dict[str, Any]
+    recommendations: list[str]
 
 
 class AuditService(Service):
@@ -128,7 +124,7 @@ class AuditService(Service):
             "errors": 0,
             "avg_write_time_ms": 0.0,
         }
-        self._batch_buffer: List[Dict[str, Any]] = []
+        self._batch_buffer: list[dict[str, Any]] = []
         self._batch_size = 100
         self._high_volume_threshold = 1000  # Events per minute
 
@@ -139,7 +135,7 @@ class AuditService(Service):
         event_type: str,  # login, logout, failed_login, password_change, etc.
         success: bool,
         context: AuditContext,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> str:
         """Log authentication-related audit event.
 
@@ -154,7 +150,7 @@ class AuditService(Service):
         Returns:
             Audit event ID
         """
-        from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
+        from langflow.services.database.models.rbac.audit_log import ActorType, AuditEventType
 
         audit_data = {
             "event_type": AuditEventType.AUTHENTICATION,
@@ -190,10 +186,10 @@ class AuditService(Service):
         user: "User",
         action: str,
         resource_type: str,
-        resource_id: Optional[UUID],
+        resource_id: UUID | None,
         success: bool,
         context: AuditContext,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> str:
         """Log authorization/permission check audit event.
 
@@ -210,7 +206,7 @@ class AuditService(Service):
         Returns:
             Audit event ID
         """
-        from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
+        from langflow.services.database.models.rbac.audit_log import ActorType, AuditEventType
 
         audit_data = {
             "event_type": AuditEventType.AUTHORIZATION,
@@ -245,10 +241,10 @@ class AuditService(Service):
         session: AsyncSession,
         actor: "User",
         action: str,  # assign_role, revoke_role, create_role, update_role, delete_role
-        target_user_id: Optional[UUID],
+        target_user_id: UUID | None,
         role_id: UUID,
         context: AuditContext,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> str:
         """Log role management audit event.
 
@@ -264,7 +260,7 @@ class AuditService(Service):
         Returns:
             Audit event ID
         """
-        from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
+        from langflow.services.database.models.rbac.audit_log import ActorType, AuditEventType
 
         audit_data = {
             "event_type": AuditEventType.ROLE_MANAGEMENT,
@@ -297,10 +293,10 @@ class AuditService(Service):
         user: "User",
         action: str,
         data_type: str,
-        data_classification: Optional[str],
-        record_count: Optional[int],
+        data_classification: str | None,
+        record_count: int | None,
         context: AuditContext,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> str:
         """Log data access audit event for compliance.
 
@@ -317,7 +313,7 @@ class AuditService(Service):
         Returns:
             Audit event ID
         """
-        from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
+        from langflow.services.database.models.rbac.audit_log import ActorType, AuditEventType
 
         audit_data = {
             "event_type": AuditEventType.DATA_ACCESS,
@@ -355,8 +351,8 @@ class AuditService(Service):
         severity: AuditSeverity,
         description: str,
         context: AuditContext,
-        actor_id: Optional[UUID] = None,
-        details: Optional[Dict[str, Any]] = None,
+        actor_id: UUID | None = None,
+        details: dict[str, Any] | None = None,
     ) -> str:
         """Log security-related audit event.
 
@@ -372,7 +368,7 @@ class AuditService(Service):
         Returns:
             Audit event ID
         """
-        from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
+        from langflow.services.database.models.rbac.audit_log import ActorType, AuditEventType
 
         audit_data = {
             "event_type": AuditEventType.SECURITY,
@@ -500,7 +496,7 @@ class AuditService(Service):
         framework: ComplianceFramework,
         start_date: datetime,
         end_date: datetime,
-        workspace_ids: Optional[List[UUID]] = None,
+        workspace_ids: list[UUID] | None = None,
     ) -> ComplianceReport:
         """Generate compliance report for specified framework and period.
 
@@ -514,7 +510,7 @@ class AuditService(Service):
         Returns:
             Compliance report with metrics and recommendations
         """
-        from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType
+        from langflow.services.database.models.rbac.audit_log import AuditEventType, AuditLog
 
         report_id = str(uuid4())
 
@@ -541,7 +537,7 @@ class AuditService(Service):
 
         for event in events:
             # Count by event type
-            event_type = event.event_type.value if hasattr(event.event_type, 'value') else str(event.event_type)
+            event_type = event.event_type.value if hasattr(event.event_type, "value") else str(event.event_type)
             events_by_type[event_type] = events_by_type.get(event_type, 0) + 1
 
             # Count specific categories
@@ -669,7 +665,7 @@ class AuditService(Service):
                 "events": search_result.events,
             }, indent=2)
 
-        elif format == "csv":
+        if format == "csv":
             # Simple CSV export implementation
             lines = ["timestamp,event_type,actor_id,action,success,workspace_id,metadata"]
             for event in search_result.events:
@@ -679,10 +675,9 @@ class AuditService(Service):
                 lines.append(line)
             return "\n".join(lines)
 
-        else:
-            raise ValueError(f"Unsupported export format: {format}")
+        raise ValueError(f"Unsupported export format: {format}")
 
-    def get_audit_statistics(self) -> Dict[str, Any]:
+    def get_audit_statistics(self) -> dict[str, Any]:
         """Get current audit service statistics.
 
         Returns:
@@ -693,7 +688,7 @@ class AuditService(Service):
     async def _create_audit_event(
         self,
         session: AsyncSession,
-        audit_data: Dict[str, Any],
+        audit_data: dict[str, Any],
         severity: AuditSeverity,
     ) -> str:
         """Create audit event with performance tracking."""
@@ -737,7 +732,7 @@ class AuditService(Service):
         self,
         session: AsyncSession,
         retention_days: int = 2555,  # 7 years default for compliance
-        workspace_id: Optional[UUID] = None,
+        workspace_id: UUID | None = None,
     ) -> int:
         """Clean up audit logs older than retention period.
 

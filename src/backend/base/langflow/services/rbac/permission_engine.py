@@ -11,7 +11,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -19,10 +19,6 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.environment import Environment
-    from langflow.services.database.models.rbac.permission import PermissionAction, ResourceType
-    from langflow.services.database.models.rbac.project import Project
-    from langflow.services.database.models.rbac.workspace import Workspace
     from langflow.services.database.models.user.model import User
 
 
@@ -103,13 +99,13 @@ class PermissionEngine:
     async def check_permission(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         resource_type: str,
         action: str,
-        resource_id: Optional[UUID] = None,
-        workspace_id: Optional[UUID] = None,
-        project_id: Optional[UUID] = None,
-        environment_id: Optional[UUID] = None,
+        resource_id: UUID | None = None,
+        workspace_id: UUID | None = None,
+        project_id: UUID | None = None,
+        environment_id: UUID | None = None,
         use_cache: bool = True,
     ) -> PermissionResult:
         """Check if user has permission for the specified action on resource.
@@ -167,11 +163,10 @@ class PermissionEngine:
     async def _evaluate_permission(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         context: PermissionContext,
     ) -> PermissionResult:
         """Evaluate permission using hierarchical rules."""
-
         # Superuser check - highest priority
         if user.is_superuser:
             return PermissionResult(
@@ -205,9 +200,9 @@ class PermissionEngine:
     async def batch_check_permissions(
         self,
         session: AsyncSession,
-        user: "User",
-        permission_requests: List[Dict[str, Any]]
-    ) -> List[PermissionResult]:
+        user: User,
+        permission_requests: list[dict[str, Any]]
+    ) -> list[PermissionResult]:
         """Check multiple permissions efficiently."""
         results = []
 
@@ -227,7 +222,7 @@ class PermissionEngine:
             except Exception as e:
                 results.append(PermissionResult(
                     decision=PermissionDecision.DENY,
-                    reason=f"Error checking permission: {str(e)}",
+                    reason=f"Error checking permission: {e!s}",
                     cached=False
                 ))
 
@@ -236,7 +231,7 @@ class PermissionEngine:
     async def _resolve_hierarchical_permissions(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         context: PermissionContext,
     ) -> PermissionResult:
         """Resolve permissions through hierarchy (workspace -> project -> environment -> flow)."""
@@ -271,13 +266,13 @@ class PermissionEngine:
     async def _get_user_roles(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         workspace_id: UUID | None = None,
         project_id: UUID | None = None,
-    ) -> List["Role"]:
+    ) -> list[Role]:
         """Get all roles assigned to user in given scope."""
-        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
         from langflow.services.database.models.rbac.role import Role
+        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
 
         # Build query for role assignments
         statement = select(Role).join(RoleAssignment).where(
@@ -305,8 +300,8 @@ class PermissionEngine:
     async def _get_role_permissions(
         self,
         session: AsyncSession,
-        role: "Role",
-    ) -> List["Permission"]:
+        role: Role,
+    ) -> list[Permission]:
         """Get all permissions granted to a role."""
         from langflow.services.database.models.rbac.permission import Permission, RolePermission
 
@@ -342,13 +337,13 @@ class PermissionEngine:
     async def _check_resource_ownership(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         context: PermissionContext,
     ) -> PermissionResult:
         """Check if user owns the resource."""
-        from langflow.services.database.models.rbac.workspace import Workspace
-        from langflow.services.database.models.rbac.project import Project
         from langflow.services.database.models.rbac.environment import Environment
+        from langflow.services.database.models.rbac.project import Project
+        from langflow.services.database.models.rbac.workspace import Workspace
 
         if context.resource_type == "workspace" and context.resource_id:
             workspace = await session.get(Workspace, context.resource_id)
@@ -385,13 +380,13 @@ class PermissionEngine:
     async def _check_role_permissions(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         context: PermissionContext,
     ) -> PermissionResult:
         """Check user's direct role assignments."""
-        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+        from langflow.services.database.models.rbac.permission import Permission, RolePermission
         from langflow.services.database.models.rbac.role import Role
-        from langflow.services.database.models.rbac.permission import RolePermission, Permission
+        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
 
         # Get user's active role assignments in relevant scope
         role_query = select(RoleAssignment).where(
@@ -463,12 +458,12 @@ class PermissionEngine:
     async def _check_group_permissions(
         self,
         session: AsyncSession,
-        user: "User",
+        user: User,
         context: PermissionContext,
     ) -> PermissionResult:
         """Check permissions via group membership."""
-        from langflow.services.database.models.rbac.user_group import UserGroupMembership
         from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+        from langflow.services.database.models.rbac.user_group import UserGroupMembership
 
         # Get user's active group memberships
         group_query = select(UserGroupMembership).where(
@@ -512,7 +507,7 @@ class PermissionEngine:
                     session, assignment.role_id, context
                 )
                 if role_result.decision == PermissionDecision.ALLOW:
-                    role_result.reason = f"Permission granted via group role assignment"
+                    role_result.reason = "Permission granted via group role assignment"
                     return role_result
 
         return PermissionResult(
@@ -527,8 +522,8 @@ class PermissionEngine:
         context: PermissionContext,
     ) -> PermissionResult:
         """Check if a specific role has the required permission."""
+        from langflow.services.database.models.rbac.permission import Permission, RolePermission
         from langflow.services.database.models.rbac.role import Role
-        from langflow.services.database.models.rbac.permission import RolePermission, Permission
 
         role = await session.get(Role, role_id)
         if not role or not role.is_active:
@@ -570,9 +565,8 @@ class PermissionEngine:
             if (datetime.now(timezone.utc) - timestamp).seconds < self.cache_ttl:
                 result.cached = True
                 return result
-            else:
-                # Remove expired entry
-                del self._memory_cache[cache_key]
+            # Remove expired entry
+            del self._memory_cache[cache_key]
 
         # Check Redis cache if available
         if self.redis_client:
@@ -632,7 +626,7 @@ class PermissionEngine:
         # Remove from memory cache
         keys_to_remove = [
             key for key in self._memory_cache.keys()
-            if f"user_id\":\"{user_id}\"" in key
+            if f'user_id":"{user_id}"' in key
         ]
         for key in keys_to_remove:
             del self._memory_cache[key]
@@ -653,7 +647,7 @@ class PermissionEngine:
         # Remove from memory cache
         keys_to_remove = [
             key for key in self._memory_cache.keys()
-            if f"resource_type\":\"{resource_type}\"" in key and f"resource_id\":\"{resource_id}\"" in key
+            if f'resource_type":"{resource_type}"' in key and f'resource_id":"{resource_id}"' in key
         ]
         for key in keys_to_remove:
             del self._memory_cache[key]

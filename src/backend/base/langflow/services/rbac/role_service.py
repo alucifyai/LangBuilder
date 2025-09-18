@@ -5,26 +5,22 @@ validation following LangBuilder service patterns.
 """
 
 # NO future annotations per Phase 1 requirements
-from typing import TYPE_CHECKING
-
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from loguru import logger
 from pydantic import BaseModel
-from sqlmodel import select, and_, or_
+from sqlmodel import or_, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.services.base import Service
 from langflow.schema.serialize import UUIDstr
+from langflow.services.base import Service
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.permission import Permission
     from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
     from langflow.services.database.models.user.model import User
 
 
@@ -52,9 +48,9 @@ class RoleValidationResult:
     """Result of role validation operation."""
 
     is_valid: bool
-    errors: List[str]
-    warnings: List[str]
-    suggested_permissions: List[str] = None
+    errors: list[str]
+    warnings: list[str]
+    suggested_permissions: list[str] = None
 
 
 @dataclass
@@ -64,30 +60,30 @@ class RoleHierarchyNode:
     role_id: UUID
     role_name: str
     role_type: RoleType
-    parent_role_id: Optional[UUID]
-    children: List['RoleHierarchyNode']
-    permissions: Set[str]
-    inherited_permissions: Set[str]
+    parent_role_id: UUID | None
+    children: list["RoleHierarchyNode"]
+    permissions: set[str]
+    inherited_permissions: set[str]
     level: int  # Distance from root
 
 
 class RoleHierarchy(BaseModel):
     """Complete role hierarchy representation."""
 
-    root_roles: List[RoleHierarchyNode]
+    root_roles: list[RoleHierarchyNode]
     total_roles: int
     max_depth: int
-    circular_dependencies: List[str]
-    orphaned_roles: List[str]
+    circular_dependencies: list[str]
+    orphaned_roles: list[str]
 
 
 class PermissionInheritanceTrace(BaseModel):
     """Trace of permission inheritance through role hierarchy."""
 
     permission: str
-    inheritance_path: List[str]  # Role names in inheritance order
+    inheritance_path: list[str]  # Role names in inheritance order
     direct_grant: bool
-    inherited_from: Optional[str]
+    inherited_from: str | None
 
 
 class RoleService(Service):
@@ -106,8 +102,8 @@ class RoleService(Service):
 
     def __init__(self):
         """Initialize role service."""
-        self._hierarchy_cache: Optional[RoleHierarchy] = None
-        self._cache_expires_at: Optional[datetime] = None
+        self._hierarchy_cache: RoleHierarchy | None = None
+        self._cache_expires_at: datetime | None = None
         self._cache_ttl = 300  # 5 minutes
 
         # Built-in system roles
@@ -178,11 +174,11 @@ class RoleService(Service):
         session: AsyncSession,
         name: str,
         description: str,
-        permissions: List[str],
+        permissions: list[str],
         role_type: RoleType = RoleType.CUSTOM,
         scope: RoleScope = RoleScope.WORKSPACE,
-        parent_role_id: Optional[UUIDstr] = None,
-        workspace_id: Optional[UUIDstr] = None,
+        parent_role_id: UUIDstr | None = None,
+        workspace_id: UUIDstr | None = None,
         created_by: Optional["User"] = None,
     ) -> "Role":
         """Create new role with validation and hierarchy checking.
@@ -260,7 +256,7 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         role_id: UUIDstr,
-        permissions: List[str],
+        permissions: list[str],
         updated_by: Optional["User"] = None,
     ) -> "Role":
         """Update role permissions with validation.
@@ -274,8 +270,8 @@ class RoleService(Service):
         Returns:
             Updated role object
         """
-        from langflow.services.database.models.rbac.role import Role
         from langflow.services.database.models.rbac.permission import RolePermission
+        from langflow.services.database.models.rbac.role import Role
 
         role = await session.get(Role, role_id)
         if not role:
@@ -318,7 +314,7 @@ class RoleService(Service):
     async def get_role_hierarchy(
         self,
         session: AsyncSession,
-        workspace_id: Optional[UUIDstr] = None,
+        workspace_id: UUIDstr | None = None,
         refresh_cache: bool = False,
     ) -> RoleHierarchy:
         """Get complete role hierarchy with inheritance.
@@ -411,10 +407,10 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         user: "User",
-        workspace_id: Optional[UUIDstr] = None,
-        project_id: Optional[UUIDstr] = None,
-        environment_id: Optional[UUIDstr] = None,
-    ) -> Set[str]:
+        workspace_id: UUIDstr | None = None,
+        project_id: UUIDstr | None = None,
+        environment_id: UUIDstr | None = None,
+    ) -> set[str]:
         """Get effective permissions for user considering role hierarchy.
 
         Args:
@@ -478,7 +474,7 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         role_id: UUIDstr,
-    ) -> Set[str]:
+    ) -> set[str]:
         """Get effective permissions for role including inherited permissions.
 
         Args:
@@ -578,9 +574,9 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         name: str,
-        permissions: List[str],
-        parent_role_id: Optional[UUIDstr] = None,
-        workspace_id: Optional[UUIDstr] = None,
+        permissions: list[str],
+        parent_role_id: UUIDstr | None = None,
+        workspace_id: UUIDstr | None = None,
     ) -> RoleValidationResult:
         """Validate role creation parameters.
 
@@ -645,7 +641,7 @@ class RoleService(Service):
     async def validate_permissions(
         self,
         session: AsyncSession,
-        permissions: List[str],
+        permissions: list[str],
     ) -> RoleValidationResult:
         """Validate permission codes.
 
@@ -694,7 +690,7 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         role: "Role",
-        permissions: List[str],
+        permissions: list[str],
     ) -> None:
         """Assign permissions to role."""
         from langflow.services.database.models.rbac.permission import Permission, RolePermission
@@ -732,7 +728,7 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         role: "Role",
-    ) -> List[str]:
+    ) -> list[str]:
         """Get direct permissions for role."""
         from langflow.services.database.models.rbac.permission import RolePermission
 
@@ -749,8 +745,8 @@ class RoleService(Service):
     def _calculate_inheritance(
         self,
         node: RoleHierarchyNode,
-        visited: Set[UUID],
-        circular_deps: List[str],
+        visited: set[UUID],
+        circular_deps: list[str],
         level: int,
     ) -> int:
         """Calculate permission inheritance and detect circular dependencies."""
@@ -778,7 +774,7 @@ class RoleService(Service):
         self,
         session: AsyncSession,
         parent_role_id: UUIDstr,
-        child_role_id: Optional[UUIDstr],
+        child_role_id: UUIDstr | None,
     ) -> bool:
         """Check if role assignment would create circular dependency."""
         if not child_role_id:

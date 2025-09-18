@@ -132,5 +132,24 @@ Fix all the critical and medium issues and ensure phase 3 implementation can be 
 │   and phase 3 implementation documentation.
 
 
+Prompt #17:
+
+Now let us move on to phase 4. Read RBAC_IMPLEMENTATION_PLAN.md for the RBAC implementation plan of Phase 4: 
+  Integration & Middleware, understand the overall context in LangBuilder using AppGraph v7_1 and acceptanc criteria 
+  represented as validation node in Gherkin structures in the AppGraph, follow the implementation plan, and fully 
+  comply the implementation code with the existing LangBuilder business logic and service patterns in the 
+  implementation. Create test cases and validation scripts while you generate the codes. Ensure the code can pass 
+  pre-commit-config rules. This phase is about seamlessly integrating RBAC with existing LangBuilder middleware and 
+  authentication.
+
+
+Prompt #18:
+
+Please do a comprehensive audit of the phase 4 implementation. Ensure all the details and deliverables described in 
+  the implementation plan for phase 4 are completely fulfilled, implementation is fully compliant with the LangBuilder
+   system pattern, phase 4 is fully compatible with phases 1, 2 and 3, code passes pre-commit-config, all the relevant
+   requirements in the PRD are satisfied, and there is no logical gap between the implementation and the AppGraph. 
+  Ensure that all the integrations with LangBuilder flows, services, and data layer are complete, and integration 
+  tests have full coverage.
 
 

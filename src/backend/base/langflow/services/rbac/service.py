@@ -5,20 +5,18 @@ audit logging, and integration with existing LangBuilder services.
 """
 
 # NO future annotations per Phase 1 requirements
-from typing import TYPE_CHECKING
-
 import asyncio
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
 
 from loguru import logger
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from langflow.schema.serialize import UUIDstr
 from langflow.services.base import Service
 from langflow.services.rbac.permission_engine import PermissionEngine, PermissionResult
-from langflow.schema.serialize import UUIDstr
 
 if TYPE_CHECKING:
     from langflow.services.cache.service import CacheService
@@ -60,11 +58,11 @@ class RBACService(Service):
         user: "User",
         resource_type: str,
         action: str,
-        resource_id: Optional[UUIDstr] = None,
-        workspace_id: Optional[UUIDstr] = None,
-        project_id: Optional[UUIDstr] = None,
-        environment_id: Optional[UUIDstr] = None,
-        audit_context: Optional[Dict[str, Any]] = None,
+        resource_id: UUIDstr | None = None,
+        workspace_id: UUIDstr | None = None,
+        project_id: UUIDstr | None = None,
+        environment_id: UUIDstr | None = None,
+        audit_context: dict[str, Any] | None = None,
     ) -> PermissionResult:
         """Evaluate permission with audit logging and performance tracking.
 
@@ -119,7 +117,7 @@ class RBACService(Service):
             # Log audit event for error
             error_result = PermissionResult(
                 decision="deny",
-                reason=f"Permission evaluation error: {str(e)}",
+                reason=f"Permission evaluation error: {e!s}",
                 cached=False,
                 evaluation_time_ms=(datetime.now(timezone.utc) - start_time).total_seconds() * 1000,
             )
@@ -140,8 +138,8 @@ class RBACService(Service):
         self,
         session: AsyncSession,
         user: "User",
-        permission_requests: List[Dict[str, Any]],
-    ) -> List[PermissionResult]:
+        permission_requests: list[dict[str, Any]],
+    ) -> list[PermissionResult]:
         """Efficiently evaluate multiple permissions with batch optimization.
 
         Args:
@@ -174,7 +172,7 @@ class RBACService(Service):
                 result=result,
                 audit_context={"batch_operation": True},
             )
-            for req, result in zip(permission_requests, results)
+            for req, result in zip(permission_requests, results, strict=False)
         ]
 
         # Execute audit logging in parallel
@@ -188,9 +186,9 @@ class RBACService(Service):
         user_id: UUIDstr,
         role_id: UUIDstr,
         scope_type: str,
-        scope_id: Optional[UUIDstr] = None,
+        scope_id: UUIDstr | None = None,
         assigned_by: "User" = None,
-        valid_until: Optional[datetime] = None,
+        valid_until: datetime | None = None,
     ) -> "RoleAssignment":
         """Assign role to user with hierarchical scope validation.
 
@@ -206,8 +204,8 @@ class RBACService(Service):
         Returns:
             Created RoleAssignment object
         """
-        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
         from langflow.services.database.models.rbac.role import Role
+        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
         from langflow.services.database.models.user.model import User
 
         # Validate role exists and is active
@@ -350,7 +348,7 @@ class RBACService(Service):
         self,
         session: AsyncSession,
         user: "User",
-    ) -> List["Workspace"]:
+    ) -> list["Workspace"]:
         """Get all workspaces user has access to.
 
         Args:
@@ -360,8 +358,8 @@ class RBACService(Service):
         Returns:
             List of accessible workspaces
         """
-        from langflow.services.database.models.rbac.workspace import Workspace
         from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+        from langflow.services.database.models.rbac.workspace import Workspace
 
         # Get workspaces where user is owner
         owner_query = select(Workspace).where(
@@ -435,7 +433,7 @@ class RBACService(Service):
 
         return True
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get current performance metrics for monitoring.
 
         Returns:
@@ -454,7 +452,7 @@ class RBACService(Service):
         session: AsyncSession,
         role: "Role",
         scope_type: str,
-        scope_id: Optional[UUIDstr],
+        scope_id: UUIDstr | None,
     ) -> None:
         """Validate that role assignment scope is valid."""
         if scope_type == "workspace" and scope_id:
@@ -495,14 +493,14 @@ class RBACService(Service):
         user: "User",
         resource_type: str,
         action: str,
-        resource_id: Optional[UUIDstr],
-        workspace_id: Optional[UUIDstr],
+        resource_id: UUIDstr | None,
+        workspace_id: UUIDstr | None,
         result: PermissionResult,
-        audit_context: Optional[Dict[str, Any]] = None,
+        audit_context: dict[str, Any] | None = None,
     ) -> None:
         """Log permission check for audit trail."""
         try:
-            from langflow.services.database.models.rbac.audit_log import AuditLog, AuditEventType, ActorType
+            from langflow.services.database.models.rbac.audit_log import ActorType, AuditEventType, AuditLog
 
             audit_log = AuditLog(
                 event_type=AuditEventType.AUTHORIZATION,
