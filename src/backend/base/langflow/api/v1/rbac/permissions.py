@@ -102,7 +102,7 @@ async def get_permission(
     return PermissionRead.model_validate(permission)
 
 
-@router.post("/check", response_model=dict)
+@router.post("/check-permission", response_model=dict)
 async def check_permission(
     permission_check: dict,
     session: DbSession,
@@ -143,7 +143,7 @@ async def check_permission(
     }
 
 
-@router.post("/batch-check", response_model=list[dict])
+@router.post("/batch-check-permission", response_model=list[dict])
 async def batch_check_permissions(
     permission_checks: list[dict],
     session: DbSession,

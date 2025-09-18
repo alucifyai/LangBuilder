@@ -15,6 +15,7 @@ from langflow.api.v1 import (
     permissions_router,
     projects_router,
     rbac_projects_router,
+    rbac_router,
     roles_router,
     starter_projects_router,
     store_router,
@@ -52,7 +53,9 @@ router_v1.include_router(starter_projects_router)
 router_v1.include_router(mcp_router)
 router_v1.include_router(voice_mode_router)
 router_v1.include_router(mcp_projects_router)
-# RBAC routers
+# Unified RBAC router (includes all RBAC endpoints under /rbac prefix)
+router_v1.include_router(rbac_router)
+# Individual RBAC routers (for backwards compatibility)
 router_v1.include_router(workspaces_router)
 router_v1.include_router(rbac_projects_router)
 router_v1.include_router(roles_router)

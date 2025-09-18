@@ -6,6 +6,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select
@@ -14,6 +15,13 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.api.v1.rbac.dependencies import check_workspace_permission
 from langflow.schema.serialize import UUIDstr
+from langflow.services.database.models.rbac.workspace import (
+    Workspace,
+    WorkspaceCreate,
+    WorkspaceRead,
+    WorkspaceUpdate,
+    WorkspaceInvitation,
+)
 if TYPE_CHECKING:
     from langflow.services.database.models.user.model import User
 
@@ -110,12 +118,24 @@ async def list_workspaces(
 
 @router.get("/{workspace_id}", response_model=WorkspaceRead)
 async def get_workspace(
-    workspace_id: UUID,
+    workspace_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
-    workspace: Workspace = Depends(check_workspace_permission("read")),
 ) -> WorkspaceRead:
     """Get workspace by ID."""
+    from langflow.services.database.models.rbac.workspace import Workspace
+    
+    # Check workspace permission manually
+    await check_workspace_permission(session, current_user, workspace_id, "read")
+    
+    # Get workspace
+    workspace = await session.get(Workspace, workspace_id)
+    if not workspace:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workspace not found"
+        )
+    
     return WorkspaceRead.model_validate(workspace)
 
 

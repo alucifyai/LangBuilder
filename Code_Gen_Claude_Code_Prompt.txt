@@ -166,10 +166,40 @@ Time to work on phase 5. Read RBAC_IMPLEMENTATION_PLAN.md for the RBAC implement
 Prompt #20:
 
 Please do a comprehensive audit of the phase 5 implementation. Ensure all the details and deliverables described   │
-│   in the implementation plan for phase 4 are completely fulfilled, implementation is fully compliant with the        │
+│   in the implementation plan for phase 5 are completely fulfilled, implementation is fully compliant with the        │
 │   LangBuilder system pattern, phase 5 is fully compatible with phases 1, 2, 3 and 4, code passes pre-commit-config,  │
 │   all the relevant requirements in the PRD are satisfied, and there is no logical gap between the implementation     │
 │   and the AppGraph. Ensure that all the integrations with LangBuilder flows, services, and data layer are complete,  │
 │   and integration tests have full coverage. Produce documentation of the implementation and audit report. 
 
 
+Prompt #21:
+
+Please work on phase 6. Read RBAC_IMPLEMENTATION_PLAN.md for the RBAC implementation plan of Phase 6: Frontend 
+  Integration, understand the overall context in LangBuilder using AppGraph v7_1 and acceptance criteria       
+  represented as validation node in Gherkin structures in the AppGraph, follow the implementation plan, and fully  
+  comply the implementation code with the existing LangBuilder business logic and service patterns in the           
+  implementation. Create test cases and validation scripts while you generate the codes. Ensure the code can pass    
+  pre-commit-config rules. This phase is about creating RBAC admin interfaces using existing LangBuilder UI patterns.
+
+
+prompt #22:
+
+Please do a comprehensive audit of the phase 6 implementation. Ensure all the details and deliverables described 
+  in the implementation plan for phase 6 are completely fulfilled, implementation is fully compliant with the      
+  LangBuilder system pattern, phase 6 is fully compatible with phases 1, 2, 3, 4 and 5, code passes pre-commit-config,
+   all the relevant requirements in the PRD are satisfied, and there is no logical gap between the implementation and 
+  the AppGraph. Ensure that all the integrations with LangBuilder flows, services, and data layer are complete, and 
+  integration tests have full coverage. Produce documentation of the implementation and audit report.
+
+
+Prompt #23:
+
+RBAC backend implementation (Phases 1-5) have been completed. Do we need to deploy all the backend phases now?
+
+
+Prompt #24:
+
+Do we need to deploy the LangBuilder system before deploying the RBAC backend? Please produce a comprehensive      │
+│   document for deployment details, including LangBuilder system, new RBAC backend implementation, and new RBAC       │
+│   frontend implementation and integration, so that we can run the entire system with RBAC feature.

@@ -27,6 +27,82 @@ if TYPE_CHECKING:
 # Models will be imported inside functions where needed
 
 
+class PermissionChecker:
+    """Permission checking utility class for RBAC system."""
+    
+    def __init__(self, session: AsyncSession, user: "User"):
+        self.session = session
+        self.user = user
+    
+    def has_workspace_permission(self, workspace: "Workspace", action: str) -> bool:
+        """Check if user has permission on workspace."""
+        # Superuser always has access
+        if self.user.is_superuser:
+            return True
+        
+        # Owner has full access
+        if workspace.owner_id == self.user.id:
+            return True
+        
+        # For now, implement basic permission checking
+        # In a full implementation, this would check role assignments
+        return False
+    
+    def has_project_permission(self, project: "Project", action: str) -> bool:
+        """Check if user has permission on project."""
+        # Superuser always has access
+        if self.user.is_superuser:
+            return True
+        
+        # Check workspace permission (inherits from workspace)
+        from langflow.services.database.models.rbac.workspace import Workspace
+        if hasattr(project, 'workspace'):
+            workspace = project.workspace
+        else:
+            # Need to fetch workspace
+            return self.user.is_superuser
+        
+        return self.has_workspace_permission(workspace, action)
+    
+    def has_environment_permission(self, environment: "Environment", action: str) -> bool:
+        """Check if user has permission on environment."""
+        # Superuser always has access
+        if self.user.is_superuser:
+            return True
+        
+        # Check project permission (inherits from project)
+        if hasattr(environment, 'project'):
+            project = environment.project
+            return self.has_project_permission(project, action)
+        
+        return False
+    
+    def has_flow_permission(self, flow: "Flow", action: str) -> bool:
+        """Check if user has permission on flow."""
+        # Superuser always has access
+        if self.user.is_superuser:
+            return True
+        
+        # Flow owner has access
+        if hasattr(flow, 'user_id') and flow.user_id == self.user.id:
+            return True
+        
+        return False
+    
+    def has_role_permission(self, role: "Role", action: str) -> bool:
+        """Check if user has permission on role."""
+        # Superuser always has access
+        if self.user.is_superuser:
+            return True
+        
+        # Check workspace permission
+        if hasattr(role, 'workspace'):
+            workspace = role.workspace
+            return self.has_workspace_permission(workspace, action)
+        
+        return False
+
+
 async def get_workspace_by_id(
     workspace_id: UUIDstr = Path(...),
     session: AsyncSession = Depends(get_session),
@@ -318,3 +394,5 @@ async def check_api_key_permissions(
             return False
 
     return True
+
+
