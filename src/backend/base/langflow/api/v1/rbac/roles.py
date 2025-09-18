@@ -19,6 +19,17 @@ from langflow.api.v1.rbac.dependencies import (
     get_permission_engine,
 )
 from langflow.schema.serialize import UUIDstr
+from langflow.services.database.models.rbac.role import (
+    Role,
+    RoleCreate,
+    RoleRead,
+    RoleUpdate,
+    RoleType,
+)
+from langflow.services.database.models.rbac.permission import (
+    Permission,
+    PermissionRead,
+)
 
 if TYPE_CHECKING:
     from langflow.services.database.models.user.model import User

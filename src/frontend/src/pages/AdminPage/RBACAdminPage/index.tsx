@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import IconComponent from "@/components/common/genericIconComponent";
-import WorkspaceManagement from "./components/WorkspaceManagement";
-import RoleManagement from "./components/RoleManagement";
-import UserAssignment from "./components/UserAssignment";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ComplianceReporting from "./components/ComplianceReporting";
+import RoleManagement from "./components/RoleManagement";
 import SystemSettings from "./components/SystemSettings";
+import UserAssignment from "./components/UserAssignment";
+import WorkspaceManagement from "./components/WorkspaceManagement";
 
 export default function RBACAdminPage() {
   const [activeTab, setActiveTab] = useState("workspaces");
@@ -28,7 +28,11 @@ export default function RBACAdminPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-1 flex flex-col"
+      >
         <div className="border-b bg-muted/50">
           <TabsList className="grid w-full grid-cols-5 bg-transparent h-12">
             <TabsTrigger

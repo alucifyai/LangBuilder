@@ -5,12 +5,9 @@ Revises: rbac_implementation_phase1
 Create Date: 2024-09-17 15:00:00.000000
 
 """
-from datetime import datetime, timezone
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 from sqlalchemy import JSON, Text, Boolean, DateTime, String, ForeignKey
-from uuid import uuid4
 
 # revision identifiers, used by Alembic.
 revision = 'rbac_phase3_services'
@@ -25,7 +22,7 @@ def upgrade() -> None:
     # Create SSO Configuration table
     op.create_table(
         'sso_configuration',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
+        sa.Column('id', sa.String(length=32), primary_key=True),
         sa.Column('name', sa.String(length=255), nullable=False, index=True),
         sa.Column('protocol', sa.String(length=50), nullable=False),  # OIDC, OAUTH2, SAML2
         sa.Column('provider_url', sa.String(length=500), nullable=False),
@@ -36,7 +33,7 @@ def upgrade() -> None:
         sa.Column('is_active', sa.Boolean(), default=True, nullable=False),
         sa.Column('auto_provision_users', sa.Boolean(), default=False, nullable=False),
         sa.Column('enforce_sso', sa.Boolean(), default=False, nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
         sa.Column('created_by_id', sa.String(length=32), sa.ForeignKey('user.id'), nullable=False),
         sa.Column('metadata', JSON, nullable=True),
@@ -49,7 +46,7 @@ def upgrade() -> None:
     # Create SCIM Configuration table
     op.create_table(
         'scim_configuration',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
+        sa.Column('id', sa.String(length=32), primary_key=True),
         sa.Column('provider_name', sa.String(length=255), nullable=False, index=True),
         sa.Column('base_url', sa.String(length=500), nullable=False),
         sa.Column('bearer_token', sa.Text(), nullable=False),  # Encrypted
@@ -61,7 +58,7 @@ def upgrade() -> None:
         sa.Column('is_active', sa.Boolean(), default=True, nullable=False),
         sa.Column('user_attribute_mapping', JSON, nullable=True),
         sa.Column('group_attribute_mapping', JSON, nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
         sa.Column('created_by_id', sa.String(length=32), sa.ForeignKey('user.id'), nullable=False),
     )
@@ -73,7 +70,7 @@ def upgrade() -> None:
     # Create Enhanced Audit Log table for Phase 3
     op.create_table(
         'rbac_audit_log',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
+        sa.Column('id', sa.String(length=32), primary_key=True),
         sa.Column('event_id', sa.String(length=64), nullable=False, unique=True, index=True),
         sa.Column('event_type', sa.String(length=100), nullable=False, index=True),
         sa.Column('event_category', sa.String(length=50), nullable=False, index=True),  # authentication, authorization, role_management
@@ -94,7 +91,7 @@ def upgrade() -> None:
         sa.Column('after_state', JSON, nullable=True),
         sa.Column('additional_data', JSON, nullable=True),
         sa.Column('compliance_flags', JSON, nullable=True),  # SOC2, GDPR, etc.
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('workspace_id', sa.String(length=32), sa.ForeignKey('workspace.id'), nullable=True, index=True),
         sa.Column('project_id', sa.String(length=32), sa.ForeignKey('project.id'), nullable=True, index=True),
     )
@@ -106,26 +103,8 @@ def upgrade() -> None:
     op.create_index('ix_rbac_audit_log_workspace_time', 'rbac_audit_log', ['workspace_id', 'created_at'])
     op.create_index('ix_rbac_audit_log_category_time', 'rbac_audit_log', ['event_category', 'created_at'])
     
-    # Create Service Account Token table for advanced token management
-    op.create_table(
-        'service_account_token',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
-        sa.Column('service_account_id', sa.String(length=32), sa.ForeignKey('service_account.id'), nullable=False, index=True),
-        sa.Column('token_hash', sa.String(length=128), nullable=False, unique=True, index=True),
-        sa.Column('name', sa.String(length=255), nullable=False),
-        sa.Column('description', sa.Text(), nullable=True),
-        sa.Column('scoped_permissions', JSON, nullable=True),  # List of specific permissions
-        sa.Column('scope_type', sa.String(length=50), nullable=True),  # workspace, project, environment
-        sa.Column('scope_id', sa.String(length=32), nullable=True, index=True),
-        sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True, index=True),
-        sa.Column('last_used_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('usage_count', sa.Integer(), default=0, nullable=False),
-        sa.Column('is_active', sa.Boolean(), default=True, nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
-        sa.Column('created_by_id', sa.String(length=32), sa.ForeignKey('user.id'), nullable=False),
-        sa.Column('revoked_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('revoked_by_id', sa.String(length=32), sa.ForeignKey('user.id'), nullable=True),
-    )
+    # Service Account Token table already created in phase 1 migration
+    # Adding additional indexes and constraints if needed
     
     # Create indexes for token management
     op.create_index('ix_service_account_token_expires', 'service_account_token', ['expires_at'])
@@ -135,7 +114,7 @@ def upgrade() -> None:
     # Create SSO Session table for session management
     op.create_table(
         'sso_session',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
+        sa.Column('id', sa.String(length=32), primary_key=True),
         sa.Column('session_id', sa.String(length=128), nullable=False, unique=True, index=True),
         sa.Column('sso_config_id', sa.String(length=32), sa.ForeignKey('sso_configuration.id'), nullable=False),
         sa.Column('user_id', sa.String(length=32), sa.ForeignKey('user.id'), nullable=True, index=True),
@@ -148,7 +127,7 @@ def upgrade() -> None:
         sa.Column('user_agent', sa.Text(), nullable=True),
         sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False, index=True),
         sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('claims', JSON, nullable=True),  # Store SSO claims
         sa.Column('error_code', sa.String(length=100), nullable=True),
         sa.Column('error_message', sa.Text(), nullable=True),
@@ -162,7 +141,7 @@ def upgrade() -> None:
     # Create Break-Glass Access Log table
     op.create_table(
         'break_glass_access',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
+        sa.Column('id', sa.String(length=32), primary_key=True),
         sa.Column('user_id', sa.String(length=32), sa.ForeignKey('user.id'), nullable=False, index=True),
         sa.Column('justification', sa.Text(), nullable=False),
         sa.Column('target_resource_type', sa.String(length=50), nullable=False),
@@ -175,7 +154,7 @@ def upgrade() -> None:
         sa.Column('access_used_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('session_id', sa.String(length=64), nullable=True),
         sa.Column('ip_address', sa.String(length=45), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('workspace_id', sa.String(length=32), sa.ForeignKey('workspace.id'), nullable=True, index=True),
         sa.Column('additional_context', JSON, nullable=True),
     )
@@ -188,7 +167,7 @@ def upgrade() -> None:
     # Create Performance Metrics table for monitoring
     op.create_table(
         'rbac_performance_metrics',
-        sa.Column('id', sa.String(length=32), primary_key=True, default=lambda: str(uuid4()).replace('-', '')),
+        sa.Column('id', sa.String(length=32), primary_key=True),
         sa.Column('metric_type', sa.String(length=50), nullable=False, index=True),  # permission_check, cache_hit, etc.
         sa.Column('operation', sa.String(length=100), nullable=False, index=True),
         sa.Column('duration_ms', sa.Float(), nullable=False),
@@ -196,7 +175,7 @@ def upgrade() -> None:
         sa.Column('user_id', sa.String(length=32), nullable=True, index=True),
         sa.Column('resource_type', sa.String(length=50), nullable=True, index=True),
         sa.Column('workspace_id', sa.String(length=32), nullable=True, index=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('additional_data', JSON, nullable=True),
     )
     

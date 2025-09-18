@@ -1,6 +1,7 @@
 import { useState } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -9,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 
 export default function ComplianceReporting() {
   const [reportType, setReportType] = useState("");
@@ -30,7 +30,9 @@ export default function ComplianceReporting() {
               <SelectItem value="user-access">User Access Report</SelectItem>
               <SelectItem value="role-assignments">Role Assignments</SelectItem>
               <SelectItem value="audit-logs">Audit Logs</SelectItem>
-              <SelectItem value="permission-matrix">Permission Matrix</SelectItem>
+              <SelectItem value="permission-matrix">
+                Permission Matrix
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -57,11 +59,17 @@ export default function ComplianceReporting() {
 
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <IconComponent name="FileText" className="h-16 w-16 text-muted-foreground mx-auto" />
+          <IconComponent
+            name="FileText"
+            className="h-16 w-16 text-muted-foreground mx-auto"
+          />
           <div>
-            <h3 className="text-lg font-semibold">Compliance & Audit Reporting</h3>
+            <h3 className="text-lg font-semibold">
+              Compliance & Audit Reporting
+            </h3>
             <p className="text-muted-foreground">
-              Generate compliance reports and audit trails for governance requirements
+              Generate compliance reports and audit trails for governance
+              requirements
             </p>
           </div>
           <div className="space-y-2 text-sm text-muted-foreground">

@@ -17,7 +17,9 @@ export const useCreateWorkspace: useMutationFunctionType<
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function createWorkspace(workspaceData: CreateWorkspaceData): Promise<Workspace> {
+  async function createWorkspace(
+    workspaceData: CreateWorkspaceData,
+  ): Promise<Workspace> {
     const res = await api.post(`${getURL("RBAC")}/workspaces/`, workspaceData);
     if (res.status === 201) {
       return res.data;
@@ -25,11 +27,8 @@ export const useCreateWorkspace: useMutationFunctionType<
     throw new Error(`Failed to create workspace: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<Workspace, any, CreateWorkspaceData> = mutate(
-    ["useCreateWorkspace"],
-    createWorkspace,
-    options
-  );
+  const mutation: UseMutationResult<Workspace, any, CreateWorkspaceData> =
+    mutate(["useCreateWorkspace"], createWorkspace, options);
 
   return mutation;
 };

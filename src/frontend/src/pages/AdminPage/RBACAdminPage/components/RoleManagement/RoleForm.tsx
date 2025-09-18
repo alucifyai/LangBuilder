@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
+import LoadingComponent from "@/components/common/loadingComponent";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -11,14 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import IconComponent from "@/components/common/genericIconComponent";
-import LoadingComponent from "@/components/common/loadingComponent";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  useGetPermissions,
-  type Role,
-  type Workspace,
   type Permission,
+  type Role,
+  useGetPermissions,
+  type Workspace,
 } from "@/controllers/API/queries/rbac";
 
 interface RoleFormProps {
@@ -49,11 +49,14 @@ export default function RoleForm({
     is_active: true,
   });
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const [availablePermissions, setAvailablePermissions] = useState<Permission[]>([]);
+  const [availablePermissions, setAvailablePermissions] = useState<
+    Permission[]
+  >([]);
   const [permissionFilter, setPermissionFilter] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { mutate: getPermissions, isPending: isLoadingPermissions } = useGetPermissions();
+  const { mutate: getPermissions, isPending: isLoadingPermissions } =
+    useGetPermissions();
 
   useEffect(() => {
     loadPermissions();
@@ -90,7 +93,7 @@ export default function RoleForm({
         onError: () => {
           setAvailablePermissions([]);
         },
-      }
+      },
     );
   };
 
@@ -141,7 +144,7 @@ export default function RoleForm({
     setSelectedPermissions((prev) =>
       prev.includes(permissionCode)
         ? prev.filter((p) => p !== permissionCode)
-        : [...prev, permissionCode]
+        : [...prev, permissionCode],
     );
 
     if (errors.permissions) {
@@ -153,17 +156,22 @@ export default function RoleForm({
     (permission) =>
       permission.name.toLowerCase().includes(permissionFilter.toLowerCase()) ||
       permission.code.toLowerCase().includes(permissionFilter.toLowerCase()) ||
-      permission.resource_type.toLowerCase().includes(permissionFilter.toLowerCase())
+      permission.resource_type
+        .toLowerCase()
+        .includes(permissionFilter.toLowerCase()),
   );
 
-  const groupedPermissions = filteredPermissions.reduce((acc, permission) => {
-    const resource = permission.resource_type;
-    if (!acc[resource]) {
-      acc[resource] = [];
-    }
-    acc[resource].push(permission);
-    return acc;
-  }, {} as Record<string, Permission[]>);
+  const groupedPermissions = filteredPermissions.reduce(
+    (acc, permission) => {
+      const resource = permission.resource_type;
+      if (!acc[resource]) {
+        acc[resource] = [];
+      }
+      acc[resource].push(permission);
+      return acc;
+    },
+    {} as Record<string, Permission[]>,
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -196,7 +204,9 @@ export default function RoleForm({
               setFormData((prev) => ({ ...prev, workspace_id: value }))
             }
           >
-            <SelectTrigger className={errors.workspace_id ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.workspace_id ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Select workspace" />
             </SelectTrigger>
             <SelectContent>
@@ -267,52 +277,68 @@ export default function RoleForm({
             </div>
           ) : (
             <div className="p-4 space-y-4">
-              {Object.entries(groupedPermissions).map(([resource, permissions]) => (
-                <div key={resource} className="space-y-2">
-                  <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
-                    {resource}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {permissions.map((permission) => (
-                      <div
-                        key={permission.code}
-                        className="flex items-start space-x-2 p-2 rounded-md hover:bg-muted/50"
-                      >
-                        <Checkbox
-                          checked={selectedPermissions.includes(permission.code)}
-                          onCheckedChange={() => togglePermission(permission.code)}
-                          className="mt-0.5"
-                        />
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium">{permission.name}</span>
-                            {permission.is_dangerous && (
-                              <Badge variant="destructive" className="text-xs">
-                                Dangerous
-                              </Badge>
+              {Object.entries(groupedPermissions).map(
+                ([resource, permissions]) => (
+                  <div key={resource} className="space-y-2">
+                    <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
+                      {resource}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {permissions.map((permission) => (
+                        <div
+                          key={permission.code}
+                          className="flex items-start space-x-2 p-2 rounded-md hover:bg-muted/50"
+                        >
+                          <Checkbox
+                            checked={selectedPermissions.includes(
+                              permission.code,
                             )}
-                            {permission.requires_mfa && (
-                              <Badge variant="outline" className="text-xs">
-                                MFA
-                              </Badge>
-                            )}
+                            onCheckedChange={() =>
+                              togglePermission(permission.code)
+                            }
+                            className="mt-0.5"
+                          />
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium">
+                                {permission.name}
+                              </span>
+                              {permission.is_dangerous && (
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  Dangerous
+                                </Badge>
+                              )}
+                              {permission.requires_mfa && (
+                                <Badge variant="outline" className="text-xs">
+                                  MFA
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {permission.description || permission.code}
+                            </p>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            {permission.description || permission.code}
-                          </p>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           )}
         </div>
       </div>
 
       <div className="flex justify-end space-x-2 pt-4 border-t">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isLoading}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={isLoading}>
@@ -321,8 +347,10 @@ export default function RoleForm({
               <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
               {role ? "Updating..." : "Creating..."}
             </>
+          ) : role ? (
+            "Update Role"
           ) : (
-            role ? "Update Role" : "Create Role"
+            "Create Role"
           )}
         </Button>
       </div>

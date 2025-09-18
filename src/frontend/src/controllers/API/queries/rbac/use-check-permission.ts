@@ -25,7 +25,9 @@ export const useCheckPermission: useMutationFunctionType<
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function checkPermission(data: CheckPermissionData): Promise<PermissionResult> {
+  async function checkPermission(
+    data: CheckPermissionData,
+  ): Promise<PermissionResult> {
     const res = await api.post(`${getURL("RBAC")}/check-permission`, data);
     if (res.status === 200) {
       return res.data;
@@ -33,11 +35,11 @@ export const useCheckPermission: useMutationFunctionType<
     throw new Error(`Failed to check permission: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<PermissionResult, any, CheckPermissionData> = mutate(
-    ["useCheckPermission"],
-    checkPermission,
-    options
-  );
+  const mutation: UseMutationResult<
+    PermissionResult,
+    any,
+    CheckPermissionData
+  > = mutate(["useCheckPermission"], checkPermission, options);
 
   return mutation;
 };

@@ -24,18 +24,18 @@ export const useUpdateWorkspace: useMutationFunctionType<
     workspace_id,
     workspace,
   }: UpdateWorkspaceData): Promise<Workspace> {
-    const res = await api.patch(`${getURL("RBAC")}/workspaces/${workspace_id}`, workspace);
+    const res = await api.patch(
+      `${getURL("RBAC")}/workspaces/${workspace_id}`,
+      workspace,
+    );
     if (res.status === 200) {
       return res.data;
     }
     throw new Error(`Failed to update workspace: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<Workspace, any, UpdateWorkspaceData> = mutate(
-    ["useUpdateWorkspace"],
-    updateWorkspace,
-    options
-  );
+  const mutation: UseMutationResult<Workspace, any, UpdateWorkspaceData> =
+    mutate(["useUpdateWorkspace"], updateWorkspace, options);
 
   return mutation;
 };

@@ -1,5 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
+import LoadingComponent from "@/components/common/loadingComponent";
+import PaginatorComponent from "@/components/common/paginatorComponent";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -16,33 +28,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import IconComponent from "@/components/common/genericIconComponent";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import PaginatorComponent from "@/components/common/paginatorComponent";
-import LoadingComponent from "@/components/common/loadingComponent";
-import useAlertStore from "@/stores/alertStore";
-import {
-  useGetWorkspaces,
-  useGetRoleAssignments,
-  useCreateRoleAssignment,
-  useUpdateRoleAssignment,
-  useDeleteRoleAssignment,
-  useGetRoles,
-  type Workspace,
-  type RoleAssignment,
-  type Role,
-} from "@/controllers/API/queries/rbac";
 import { useGetUsers } from "@/controllers/API/queries/auth";
-import RoleAssignmentForm from "./RoleAssignmentForm";
+import {
+  type Role,
+  type RoleAssignment,
+  useCreateRoleAssignment,
+  useDeleteRoleAssignment,
+  useGetRoleAssignments,
+  useGetRoles,
+  useGetWorkspaces,
+  useUpdateRoleAssignment,
+  type Workspace,
+} from "@/controllers/API/queries/rbac";
+import useAlertStore from "@/stores/alertStore";
 import RoleAssignmentDetails from "./RoleAssignmentDetails";
+import RoleAssignmentForm from "./RoleAssignmentForm";
 
 export default function UserAssignment() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -53,7 +53,8 @@ export default function UserAssignment() {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
-  const [selectedAssignment, setSelectedAssignment] = useState<RoleAssignment | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<RoleAssignment | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -63,10 +64,14 @@ export default function UserAssignment() {
 
   const { mutate: getWorkspaces } = useGetWorkspaces();
   const { mutate: getRoles } = useGetRoles();
-  const { mutate: getRoleAssignments, isPending: isLoading } = useGetRoleAssignments();
-  const { mutate: createRoleAssignment, isPending: isCreating } = useCreateRoleAssignment();
-  const { mutate: updateRoleAssignment, isPending: isUpdating } = useUpdateRoleAssignment();
-  const { mutate: deleteRoleAssignment, isPending: isDeleting } = useDeleteRoleAssignment();
+  const { mutate: getRoleAssignments, isPending: isLoading } =
+    useGetRoleAssignments();
+  const { mutate: createRoleAssignment, isPending: isCreating } =
+    useCreateRoleAssignment();
+  const { mutate: updateRoleAssignment, isPending: isUpdating } =
+    useUpdateRoleAssignment();
+  const { mutate: deleteRoleAssignment, isPending: isDeleting } =
+    useDeleteRoleAssignment();
 
   useEffect(() => {
     loadWorkspaces();
@@ -90,7 +95,7 @@ export default function UserAssignment() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -107,7 +112,7 @@ export default function UserAssignment() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -130,7 +135,7 @@ export default function UserAssignment() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -159,7 +164,7 @@ export default function UserAssignment() {
 
   const handleUpdateAssignment = (
     assignmentId: string,
-    data: { expires_at?: string; is_active?: boolean }
+    data: { expires_at?: string; is_active?: boolean },
   ) => {
     updateRoleAssignment(
       { assignment_id: assignmentId, ...data },
@@ -177,7 +182,7 @@ export default function UserAssignment() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -195,7 +200,7 @@ export default function UserAssignment() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -226,13 +231,18 @@ export default function UserAssignment() {
   };
 
   const getWorkspaceName = (workspaceId: string) => {
-    return workspaces.find((workspace) => workspace.id === workspaceId)?.name || "Unknown Workspace";
+    return (
+      workspaces.find((workspace) => workspace.id === workspaceId)?.name ||
+      "Unknown Workspace"
+    );
   };
 
   const filteredAssignments = assignments.filter((assignment) => {
     if (!searchTerm) return true;
     return (
-      assignment.principal_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      assignment.principal_name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       assignment.role_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
@@ -250,11 +260,17 @@ export default function UserAssignment() {
               className="w-64"
             />
             <ShadTooltip content="Search by user name or role name">
-              <IconComponent name="Search" className="h-4 w-4 text-muted-foreground" />
+              <IconComponent
+                name="Search"
+                className="h-4 w-4 text-muted-foreground"
+              />
             </ShadTooltip>
           </div>
 
-          <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
+          <Select
+            value={selectedWorkspace}
+            onValueChange={setSelectedWorkspace}
+          >
             <SelectTrigger className="w-48">
               <SelectValue placeholder="All Workspaces" />
             </SelectTrigger>
@@ -271,7 +287,10 @@ export default function UserAssignment() {
 
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateForm} className="flex items-center space-x-2">
+            <Button
+              onClick={openCreateForm}
+              className="flex items-center space-x-2"
+            >
               <IconComponent name="UserPlus" className="h-4 w-4" />
               <span>Assign Role</span>
             </Button>
@@ -288,7 +307,8 @@ export default function UserAssignment() {
               roles={roles}
               onSubmit={
                 isEditing
-                  ? (data) => handleUpdateAssignment(selectedAssignment!.id, data)
+                  ? (data) =>
+                      handleUpdateAssignment(selectedAssignment!.id, data)
                   : handleCreateAssignment
               }
               onCancel={() => {
@@ -329,11 +349,17 @@ export default function UserAssignment() {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <IconComponent
-                            name={assignment.principal_type === "user" ? "User" : "Bot"}
+                            name={
+                              assignment.principal_type === "user"
+                                ? "User"
+                                : "Bot"
+                            }
                             className="h-4 w-4 text-muted-foreground"
                           />
                           <div>
-                            <span className="font-medium">{assignment.principal_name}</span>
+                            <span className="font-medium">
+                              {assignment.principal_name}
+                            </span>
                             <div className="text-xs text-muted-foreground">
                               {assignment.principal_type}
                             </div>
@@ -342,8 +368,13 @@ export default function UserAssignment() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <IconComponent name="Shield" className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{assignment.role_name}</span>
+                          <IconComponent
+                            name="Shield"
+                            className="h-4 w-4 text-muted-foreground"
+                          />
+                          <span className="font-medium">
+                            {assignment.role_name}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -366,12 +397,19 @@ export default function UserAssignment() {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Badge variant={assignment.is_active ? "default" : "secondary"}>
+                          <Badge
+                            variant={
+                              assignment.is_active ? "default" : "secondary"
+                            }
+                          >
                             {assignment.is_active ? "Active" : "Inactive"}
                           </Badge>
                           {assignment.expires_at && (
                             <div className="text-xs text-muted-foreground">
-                              Expires: {new Date(assignment.expires_at).toLocaleDateString()}
+                              Expires:{" "}
+                              {new Date(
+                                assignment.expires_at,
+                              ).toLocaleDateString()}
                             </div>
                           )}
                         </div>
@@ -393,17 +431,25 @@ export default function UserAssignment() {
                               size="sm"
                               onClick={() => openEditForm(assignment)}
                             >
-                              <IconComponent name="Pencil" className="h-4 w-4" />
+                              <IconComponent
+                                name="Pencil"
+                                className="h-4 w-4"
+                              />
                             </Button>
                           </ShadTooltip>
                           <ShadTooltip content="Delete Assignment">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteAssignment(assignment.id)}
+                              onClick={() =>
+                                handleDeleteAssignment(assignment.id)
+                              }
                               disabled={isDeleting}
                             >
-                              <IconComponent name="Trash2" className="h-4 w-4 text-destructive" />
+                              <IconComponent
+                                name="Trash2"
+                                className="h-4 w-4 text-destructive"
+                              />
                             </Button>
                           </ShadTooltip>
                         </div>
@@ -436,7 +482,9 @@ export default function UserAssignment() {
           {selectedAssignment && (
             <RoleAssignmentDetails
               assignment={selectedAssignment}
-              workspace={workspaces.find((w) => w.id === selectedAssignment.scope_id)}
+              workspace={workspaces.find(
+                (w) => w.id === selectedAssignment.scope_id,
+              )}
               role={roles.find((r) => r.id === selectedAssignment.role_id)}
               onClose={() => {
                 setIsDetailsOpen(false);

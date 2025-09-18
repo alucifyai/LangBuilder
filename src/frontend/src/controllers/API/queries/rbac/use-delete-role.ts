@@ -8,12 +8,15 @@ export interface DeleteRoleData {
   role_id: string;
 }
 
-export const useDeleteRole: useMutationFunctionType<{ success: boolean }, DeleteRoleData> = (
-  options?
-) => {
+export const useDeleteRole: useMutationFunctionType<
+  { success: boolean },
+  DeleteRoleData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function deleteRole({ role_id }: DeleteRoleData): Promise<{ success: boolean }> {
+  async function deleteRole({
+    role_id,
+  }: DeleteRoleData): Promise<{ success: boolean }> {
     const res = await api.delete(`${getURL("RBAC")}/roles/${role_id}`);
     if (res.status === 204) {
       return { success: true };
@@ -21,11 +24,8 @@ export const useDeleteRole: useMutationFunctionType<{ success: boolean }, Delete
     throw new Error(`Failed to delete role: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, DeleteRoleData> = mutate(
-    ["useDeleteRole"],
-    deleteRole,
-    options
-  );
+  const mutation: UseMutationResult<{ success: boolean }, any, DeleteRoleData> =
+    mutate(["useDeleteRole"], deleteRole, options);
 
   return mutation;
 };

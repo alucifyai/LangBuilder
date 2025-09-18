@@ -5,9 +5,11 @@ import {
   useCreateRole,
   useDeleteRole,
   useGetRoles,
-  useUpdateRole,
   useGetWorkspaces,
+  useUpdateRole,
 } from "@/controllers/API/queries/rbac";
+import type { Role } from "@/controllers/API/queries/rbac/use-get-roles";
+import type { Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
 import CustomLoader from "@/customization/components/custom-loader";
 import IconComponent from "../../../../components/common/genericIconComponent";
 import ShadTooltip from "../../../../components/common/shadTooltipComponent";
@@ -37,8 +39,6 @@ import {
 import { AuthContext } from "../../../../contexts/authContext";
 import ConfirmationModal from "../../../../modals/confirmationModal";
 import useAlertStore from "../../../../stores/alertStore";
-import type { Role } from "@/controllers/API/queries/rbac/use-get-roles";
-import type { Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
 import RoleManagementModal from "../components/RoleManagementModal";
 
 export default function RoleManagementPage() {
@@ -144,7 +144,7 @@ export default function RoleManagementPage() {
   function handleWorkspaceChange(workspaceId: string) {
     setSelectedWorkspace(workspaceId);
     setPageIndex(PAGINATION_PAGE);
-    
+
     mutateGetRoles(
       {
         workspace_id: workspaceId || undefined,
@@ -225,7 +225,13 @@ export default function RoleManagementPage() {
     );
   }
 
-  function handleNewRole(roleData: { name: string; description?: string; permissions: string[]; workspace_id: string; is_active?: boolean }) {
+  function handleNewRole(roleData: {
+    name: string;
+    description?: string;
+    permissions: string[];
+    workspace_id: string;
+    is_active?: boolean;
+  }) {
     mutateCreateRole(roleData, {
       onSuccess: () => {
         resetFilter();
@@ -258,7 +264,10 @@ export default function RoleManagementPage() {
           <div className="flex w-full justify-between px-4 mb-4">
             <div className="flex items-center gap-4">
               <div className="w-64">
-                <Select value={selectedWorkspace} onValueChange={handleWorkspaceChange}>
+                <Select
+                  value={selectedWorkspace}
+                  onValueChange={handleWorkspaceChange}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="All Workspaces" />
                   </SelectTrigger>
@@ -347,7 +356,9 @@ export default function RoleManagementPage() {
                       <TableHead className="h-10">Active</TableHead>
                       <TableHead className="h-10">Assignments</TableHead>
                       <TableHead className="h-10">Created At</TableHead>
-                      <TableHead className="h-10 w-[100px] text-right">Actions</TableHead>
+                      <TableHead className="h-10 w-[100px] text-right">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   {!isPending && (
@@ -356,11 +367,15 @@ export default function RoleManagementPage() {
                         <TableRow key={role.id}>
                           <TableCell className="truncate py-2 font-medium">
                             <ShadTooltip content={role.name}>
-                              <span className="cursor-default">{role.name}</span>
+                              <span className="cursor-default">
+                                {role.name}
+                              </span>
                             </ShadTooltip>
                           </TableCell>
                           <TableCell className="truncate py-2">
-                            <ShadTooltip content={role.description || "No description"}>
+                            <ShadTooltip
+                              content={role.description || "No description"}
+                            >
                               <span className="cursor-default">
                                 {role.description || "—"}
                               </span>
@@ -369,13 +384,17 @@ export default function RoleManagementPage() {
                           <TableCell className="truncate py-2">
                             <ShadTooltip content={role.permissions.join(", ")}>
                               <span className="cursor-default">
-                                {role.permissions.length} permission{role.permissions.length !== 1 ? "s" : ""}
+                                {role.permissions.length} permission
+                                {role.permissions.length !== 1 ? "s" : ""}
                               </span>
                             </ShadTooltip>
                           </TableCell>
                           <TableCell className="py-2">
                             {role.is_system_role ? (
-                              <IconComponent name="Shield" className="h-4 w-4 text-blue-500" />
+                              <IconComponent
+                                name="Shield"
+                                className="h-4 w-4 text-blue-500"
+                              />
                             ) : (
                               "—"
                             )}
@@ -393,12 +412,18 @@ export default function RoleManagementPage() {
                                 data={role}
                                 index={index}
                                 onConfirm={(index, role) => {
-                                  handleToggleActive(role.is_active, role.id, role);
+                                  handleToggleActive(
+                                    role.is_active,
+                                    role.id,
+                                    role,
+                                  );
                                 }}
                               >
                                 <ConfirmationModal.Content>
                                   <span>
-                                    Are you sure you want to {role.is_active ? "deactivate" : "activate"} this role?
+                                    Are you sure you want to{" "}
+                                    {role.is_active ? "deactivate" : "activate"}{" "}
+                                    this role?
                                   </span>
                                 </ConfirmationModal.Content>
                                 <ConfirmationModal.Trigger>
@@ -415,9 +440,11 @@ export default function RoleManagementPage() {
                             {role.assignment_count || 0}
                           </TableCell>
                           <TableCell className="truncate py-2">
-                            {new Date(role.created_at)
-                              .toISOString()
-                              .split("T")[0]}
+                            {
+                              new Date(role.created_at)
+                                .toISOString()
+                                .split("T")[0]
+                            }
                           </TableCell>
                           <TableCell className="flex w-[100px] py-2 text-right">
                             <div className="flex">
@@ -460,8 +487,9 @@ export default function RoleManagementPage() {
                                   >
                                     <ConfirmationModal.Content>
                                       <span>
-                                        Are you sure you want to delete this role?
-                                        This will remove all role assignments and cannot be undone.
+                                        Are you sure you want to delete this
+                                        role? This will remove all role
+                                        assignments and cannot be undone.
                                       </span>
                                     </ConfirmationModal.Content>
                                     <ConfirmationModal.Trigger>

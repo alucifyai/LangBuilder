@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import type { Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
 import IconComponent from "../../../../../components/common/genericIconComponent";
 import { Button } from "../../../../../components/ui/button";
+import { CheckBoxDiv } from "../../../../../components/ui/checkbox";
 import { Input } from "../../../../../components/ui/input";
 import { Label } from "../../../../../components/ui/label";
-import { CheckBoxDiv } from "../../../../../components/ui/checkbox";
 import { Textarea } from "../../../../../components/ui/textarea";
 import BaseModal from "../../../../../modals/baseModal";
-import type { Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
 
 export interface WorkspaceFormData {
   name: string;
@@ -110,26 +110,17 @@ export default function WorkspaceManagementModal({
           </div>
 
           <div className="flex items-center space-x-2">
-            <CheckBoxDiv
-              checked={isActive}
-              onChange={setIsActive}
-            />
+            <CheckBoxDiv checked={isActive} onChange={setIsActive} />
             <Label htmlFor="workspace-active" className="text-sm font-medium">
               Active workspace
             </Label>
           </div>
 
-          <div className="text-xs text-muted-foreground">
-            * Required fields
-          </div>
+          <div className="text-xs text-muted-foreground">* Required fields</div>
         </div>
       </BaseModal.Content>
       <BaseModal.Footer>
-        <Button
-          variant="outline"
-          onClick={() => setOpen(false)}
-          type="button"
-        >
+        <Button variant="outline" onClick={() => setOpen(false)} type="button">
           {cancelText}
         </Button>
         <Button

@@ -15,13 +15,15 @@ import PageLayout from "../../components/common/pageLayout";
 export default function SettingsPage(): JSX.Element {
   const autoLogin = useAuthStore((state) => state.autoLogin);
   const hasStore = useStoreStore((state) => state.hasStore);
-  const { canManageUsers, canViewRoles, canManageWorkspace } = useRBACPermissions();
+  const { canManageUsers, canViewRoles, canManageWorkspace } =
+    useRBACPermissions();
 
   // Hides the General settings if there is nothing to show
   const showGeneralSettings = ENABLE_PROFILE_ICONS || hasStore || !autoLogin;
 
   // Show RBAC admin if user has any RBAC management permissions
-  const showRBACAdmin = canManageUsers || canViewRoles || canManageWorkspace("");
+  const showRBACAdmin =
+    canManageUsers || canViewRoles || canManageWorkspace("");
 
   const sidebarNavItems: {
     href?: string;

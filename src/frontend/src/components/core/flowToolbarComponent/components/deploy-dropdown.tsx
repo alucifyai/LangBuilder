@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHref } from "react-router-dom";
 import IconComponent from "@/components/common/genericIconComponent";
 import ShadTooltipComponent from "@/components/common/shadTooltipComponent";
-import { PermissionGuard, ConditionalPermission } from "@/components/rbac";
+import { ConditionalPermission, PermissionGuard } from "@/components/rbac";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -193,7 +193,11 @@ export default function PublishDropdown() {
                       </div>
                     </ShadTooltipComponent>
                   </div>
-                  <ConditionalPermission resource="flow" action="update" resourceId={flowId}>
+                  <ConditionalPermission
+                    resource="flow"
+                    action="update"
+                    resourceId={flowId}
+                  >
                     {(canUpdate) => (
                       <Switch
                         data-testid="publish-switch"

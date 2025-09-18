@@ -1,11 +1,11 @@
+import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import IconComponent from "@/components/common/genericIconComponent";
 import {
+  type Role,
   type RoleAssignment,
   type Workspace,
-  type Role,
 } from "@/controllers/API/queries/rbac";
 
 interface RoleAssignmentDetailsProps {
@@ -66,12 +66,22 @@ export default function RoleAssignmentDetails({
               name={getPrincipalIcon(assignment.principal_type)}
               className="h-5 w-5 text-muted-foreground"
             />
-            <h3 className="text-lg font-semibold">{assignment.principal_name}</h3>
+            <h3 className="text-lg font-semibold">
+              {assignment.principal_name}
+            </h3>
           </div>
-          <IconComponent name="ArrowRight" className="h-4 w-4 text-muted-foreground" />
+          <IconComponent
+            name="ArrowRight"
+            className="h-4 w-4 text-muted-foreground"
+          />
           <div className="flex items-center space-x-2">
-            <IconComponent name="Shield" className="h-5 w-5 text-muted-foreground" />
-            <span className="text-lg font-semibold">{assignment.role_name}</span>
+            <IconComponent
+              name="Shield"
+              className="h-5 w-5 text-muted-foreground"
+            />
+            <span className="text-lg font-semibold">
+              {assignment.role_name}
+            </span>
           </div>
         </div>
         <Badge
@@ -106,7 +116,9 @@ export default function RoleAssignmentDetails({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Name:</span>
-              <span className="text-sm font-medium">{assignment.principal_name}</span>
+              <span className="text-sm font-medium">
+                {assignment.principal_name}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">ID:</span>
@@ -125,11 +137,15 @@ export default function RoleAssignmentDetails({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Role:</span>
-              <span className="text-sm font-medium">{assignment.role_name}</span>
+              <span className="text-sm font-medium">
+                {assignment.role_name}
+              </span>
             </div>
             {role?.description && (
               <div className="flex flex-col space-y-1">
-                <span className="text-sm text-muted-foreground">Description:</span>
+                <span className="text-sm text-muted-foreground">
+                  Description:
+                </span>
                 <span className="text-sm">{role.description}</span>
               </div>
             )}
@@ -166,7 +182,9 @@ export default function RoleAssignmentDetails({
           {assignment.scope_name && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Scope Name:</span>
-              <span className="text-sm font-medium">{assignment.scope_name}</span>
+              <span className="text-sm font-medium">
+                {assignment.scope_name}
+              </span>
             </div>
           )}
           {assignment.scope_id && (
@@ -190,31 +208,47 @@ export default function RoleAssignmentDetails({
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Granted By:</span>
-            <span className="text-sm font-medium">{assignment.granted_by_name}</span>
+            <span className="text-sm font-medium">
+              {assignment.granted_by_name}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Granted At:</span>
-            <span className="text-sm font-medium">{formatDate(assignment.granted_at)}</span>
+            <span className="text-sm font-medium">
+              {formatDate(assignment.granted_at)}
+            </span>
           </div>
           {assignment.expires_at && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Expires At:</span>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">{formatDate(assignment.expires_at)}</span>
+                <span className="text-sm font-medium">
+                  {formatDate(assignment.expires_at)}
+                </span>
                 {new Date(assignment.expires_at) < new Date() && (
-                  <IconComponent name="AlertTriangle" className="h-4 w-4 text-destructive" />
+                  <IconComponent
+                    name="AlertTriangle"
+                    className="h-4 w-4 text-destructive"
+                  />
                 )}
               </div>
             </div>
           )}
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Status:</span>
-            <Badge variant={getStatusColor(assignment.is_active, assignment.expires_at)}>
+            <Badge
+              variant={getStatusColor(
+                assignment.is_active,
+                assignment.expires_at,
+              )}
+            >
               {getStatusText(assignment.is_active, assignment.expires_at)}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Assignment ID:</span>
+            <span className="text-sm text-muted-foreground">
+              Assignment ID:
+            </span>
             <code className="text-xs bg-muted px-2 py-1 rounded">
               {assignment.id}
             </code>

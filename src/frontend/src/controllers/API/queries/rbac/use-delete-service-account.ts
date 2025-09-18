@@ -8,24 +8,29 @@ export interface DeleteServiceAccountData {
   service_account_id: string;
 }
 
-export const useDeleteServiceAccount: useMutationFunctionType<{ success: boolean }, DeleteServiceAccountData> = (
-  options?
-) => {
+export const useDeleteServiceAccount: useMutationFunctionType<
+  { success: boolean },
+  DeleteServiceAccountData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function deleteServiceAccount({ service_account_id }: DeleteServiceAccountData): Promise<{ success: boolean }> {
-    const res = await api.delete(`${getURL("RBAC")}/service-accounts/${service_account_id}`);
+  async function deleteServiceAccount({
+    service_account_id,
+  }: DeleteServiceAccountData): Promise<{ success: boolean }> {
+    const res = await api.delete(
+      `${getURL("RBAC")}/service-accounts/${service_account_id}`,
+    );
     if (res.status === 204) {
       return { success: true };
     }
     throw new Error(`Failed to delete service account: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, DeleteServiceAccountData> = mutate(
-    ["useDeleteServiceAccount"],
-    deleteServiceAccount,
-    options
-  );
+  const mutation: UseMutationResult<
+    { success: boolean },
+    any,
+    DeleteServiceAccountData
+  > = mutate(["useDeleteServiceAccount"], deleteServiceAccount, options);
 
   return mutation;
 };

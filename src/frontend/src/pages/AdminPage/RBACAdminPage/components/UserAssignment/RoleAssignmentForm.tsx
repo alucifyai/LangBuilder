@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -9,24 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
+import { useGetUsers } from "@/controllers/API/queries/auth";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import IconComponent from "@/components/common/genericIconComponent";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import {
-  type Workspace,
   type Role,
   type RoleAssignment,
-  useGetProjects,
   useGetEnvironments,
+  useGetProjects,
+  type Workspace,
 } from "@/controllers/API/queries/rbac";
-import { useGetUsers } from "@/controllers/API/queries/auth";
+import { cn } from "@/lib/utils";
 
 interface RoleAssignmentFormProps {
   assignment?: RoleAssignment | null;
@@ -47,11 +47,16 @@ export default function RoleAssignmentForm({
 }: RoleAssignmentFormProps) {
   const [formData, setFormData] = useState({
     role_id: assignment?.role_id || "",
-    principal_type: assignment?.principal_type || "user" as "user" | "service_account",
+    principal_type:
+      assignment?.principal_type || ("user" as "user" | "service_account"),
     principal_id: assignment?.principal_id || "",
-    scope_type: assignment?.scope_type || "global" as "global" | "workspace" | "project" | "environment",
+    scope_type:
+      assignment?.scope_type ||
+      ("global" as "global" | "workspace" | "project" | "environment"),
     scope_id: assignment?.scope_id || "",
-    expires_at: assignment?.expires_at ? new Date(assignment.expires_at) : undefined as Date | undefined,
+    expires_at: assignment?.expires_at
+      ? new Date(assignment.expires_at)
+      : (undefined as Date | undefined),
     is_active: assignment?.is_active ?? true,
   });
 
@@ -90,7 +95,7 @@ export default function RoleAssignmentForm({
         onError: () => {
           setUsers([]);
         },
-      }
+      },
     );
   };
 
@@ -105,7 +110,7 @@ export default function RoleAssignmentForm({
           onError: () => {
             setProjects([]);
           },
-        }
+        },
       );
     }
   };
@@ -120,7 +125,7 @@ export default function RoleAssignmentForm({
         onError: () => {
           setEnvironments([]);
         },
-      }
+      },
     );
   };
 
@@ -173,7 +178,7 @@ export default function RoleAssignmentForm({
   };
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updated = { ...prev, [field]: value };
 
       if (field === "scope_type") {
@@ -184,18 +189,18 @@ export default function RoleAssignmentForm({
     });
 
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   const getScopeOptions = () => {
     switch (formData.scope_type) {
       case "workspace":
-        return workspaces.map(w => ({ id: w.id, name: w.name }));
+        return workspaces.map((w) => ({ id: w.id, name: w.name }));
       case "project":
-        return projects.map(p => ({ id: p.id, name: p.name }));
+        return projects.map((p) => ({ id: p.id, name: p.name }));
       case "environment":
-        return environments.map(e => ({ id: e.id, name: e.name }));
+        return environments.map((e) => ({ id: e.id, name: e.name }));
       default:
         return [];
     }
@@ -203,7 +208,7 @@ export default function RoleAssignmentForm({
 
   const getPrincipalOptions = () => {
     if (formData.principal_type === "user") {
-      return users.map(u => ({ id: u.id, name: u.username || u.email }));
+      return users.map((u) => ({ id: u.id, name: u.username || u.email }));
     }
     return [];
   };
@@ -235,7 +240,9 @@ export default function RoleAssignmentForm({
             onValueChange={(value) => updateFormData("principal_id", value)}
             disabled={!!assignment}
           >
-            <SelectTrigger className={errors.principal_id ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.principal_id ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Select principal" />
             </SelectTrigger>
             <SelectContent>
@@ -310,7 +317,9 @@ export default function RoleAssignmentForm({
               onValueChange={(value) => updateFormData("scope_id", value)}
               disabled={!!assignment}
             >
-              <SelectTrigger className={errors.scope_id ? "border-destructive" : ""}>
+              <SelectTrigger
+                className={errors.scope_id ? "border-destructive" : ""}
+              >
                 <SelectValue placeholder={`Select ${formData.scope_type}`} />
               </SelectTrigger>
               <SelectContent>
@@ -336,7 +345,7 @@ export default function RoleAssignmentForm({
               variant="outline"
               className={cn(
                 "justify-start text-left font-normal",
-                !formData.expires_at && "text-muted-foreground"
+                !formData.expires_at && "text-muted-foreground",
               )}
             >
               <IconComponent name="Calendar" className="mr-2 h-4 w-4" />
@@ -386,11 +395,16 @@ export default function RoleAssignmentForm({
         <Button type="submit" disabled={isLoading}>
           {isLoading ? (
             <>
-              <IconComponent name="Loader2" className="mr-2 h-4 w-4 animate-spin" />
+              <IconComponent
+                name="Loader2"
+                className="mr-2 h-4 w-4 animate-spin"
+              />
               {assignment ? "Updating..." : "Creating..."}
             </>
+          ) : assignment ? (
+            "Update Assignment"
           ) : (
-            assignment ? "Update Assignment" : "Create Assignment"
+            "Create Assignment"
           )}
         </Button>
       </div>

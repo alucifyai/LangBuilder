@@ -17,22 +17,28 @@ export interface UpdateEnvironmentData {
   };
 }
 
-export const useUpdateEnvironment: useMutationFunctionType<Environment, UpdateEnvironmentData> = (options?) => {
+export const useUpdateEnvironment: useMutationFunctionType<
+  Environment,
+  UpdateEnvironmentData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function updateEnvironment({ environment_id, environment }: UpdateEnvironmentData): Promise<Environment> {
-    const res = await api.patch(`${getURL("RBAC")}/environments/${environment_id}`, environment);
+  async function updateEnvironment({
+    environment_id,
+    environment,
+  }: UpdateEnvironmentData): Promise<Environment> {
+    const res = await api.patch(
+      `${getURL("RBAC")}/environments/${environment_id}`,
+      environment,
+    );
     if (res.status === 200) {
       return res.data;
     }
     throw new Error(`Failed to update environment: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<Environment, any, UpdateEnvironmentData> = mutate(
-    ["useUpdateEnvironment"],
-    updateEnvironment,
-    options
-  );
+  const mutation: UseMutationResult<Environment, any, UpdateEnvironmentData> =
+    mutate(["useUpdateEnvironment"], updateEnvironment, options);
 
   return mutation;
 };

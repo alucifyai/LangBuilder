@@ -7,7 +7,11 @@ import { UseRequestProcessor } from "../../services/request-processor";
 export interface AuditLog {
   id: string;
   event_type: string;
-  event_category: "authentication" | "authorization" | "data_access" | "configuration";
+  event_category:
+    | "authentication"
+    | "authorization"
+    | "data_access"
+    | "configuration";
   actor_type: "user" | "service_account" | "system";
   actor_id: string;
   actor_name: string;
@@ -54,7 +58,10 @@ export const useGetAuditLogs: useMutationFunctionType<
     severity,
     skip = 0,
     limit = 50,
-  }: GetAuditLogsQueryParams): Promise<{ audit_logs: AuditLog[]; total_count: number }> {
+  }: GetAuditLogsQueryParams): Promise<{
+    audit_logs: AuditLog[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/audit-logs/?skip=${skip}&limit=${limit}`;
 
     if (start_date) url += `&start_date=${start_date}`;

@@ -1,18 +1,27 @@
-import { useState } from "react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import IconComponent from "../../../components/common/genericIconComponent";
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
-import { AuthContext } from "../../../contexts/authContext";
 import PermissionGuard from "../../../components/rbac/PermissionGuard";
+import { Button } from "../../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../../components/ui/tabs";
+import { AuthContext } from "../../../contexts/authContext";
 import useAlertStore from "../../../stores/alertStore";
-import WorkspaceManagementPage from "./WorkspaceManagementPage";
-import RoleManagementPage from "./RoleManagementPage";
-import RoleAssignmentPage from "./RoleAssignmentPage";
-import ServiceAccountPage from "./ServiceAccountPage";
 import AuditLogsPage from "./AuditLogsPage";
 import ComplianceReportsPage from "./ComplianceReportsPage";
+import RoleAssignmentPage from "./RoleAssignmentPage";
+import RoleManagementPage from "./RoleManagementPage";
+import ServiceAccountPage from "./ServiceAccountPage";
+import WorkspaceManagementPage from "./WorkspaceManagementPage";
 
 export default function RBACAdminPage() {
   const { userData } = useContext(AuthContext);
@@ -40,42 +49,54 @@ export default function RBACAdminPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <PermissionGuard permission="workspaces:read">
-              <TabsTrigger value="workspaces" className="flex items-center gap-2">
+              <TabsTrigger
+                value="workspaces"
+                className="flex items-center gap-2"
+              >
                 <IconComponent name="Building" className="h-4 w-4" />
                 Workspaces
               </TabsTrigger>
             </PermissionGuard>
-            
+
             <PermissionGuard permission="roles:read">
               <TabsTrigger value="roles" className="flex items-center gap-2">
                 <IconComponent name="Shield" className="h-4 w-4" />
                 Roles
               </TabsTrigger>
             </PermissionGuard>
-            
+
             <PermissionGuard permission="roles:assign">
-              <TabsTrigger value="assignments" className="flex items-center gap-2">
+              <TabsTrigger
+                value="assignments"
+                className="flex items-center gap-2"
+              >
                 <IconComponent name="Users" className="h-4 w-4" />
                 Assignments
               </TabsTrigger>
             </PermissionGuard>
-            
+
             <PermissionGuard permission="system:admin">
-              <TabsTrigger value="service-accounts" className="flex items-center gap-2">
+              <TabsTrigger
+                value="service-accounts"
+                className="flex items-center gap-2"
+              >
                 <IconComponent name="Bot" className="h-4 w-4" />
                 Service Accounts
               </TabsTrigger>
             </PermissionGuard>
-            
+
             <PermissionGuard permission="audit:read">
               <TabsTrigger value="audit" className="flex items-center gap-2">
                 <IconComponent name="FileText" className="h-4 w-4" />
                 Audit Logs
               </TabsTrigger>
             </PermissionGuard>
-            
+
             <PermissionGuard permission="compliance:read">
-              <TabsTrigger value="compliance" className="flex items-center gap-2">
+              <TabsTrigger
+                value="compliance"
+                className="flex items-center gap-2"
+              >
                 <IconComponent name="CheckCircle" className="h-4 w-4" />
                 Compliance
               </TabsTrigger>
@@ -119,14 +140,22 @@ export default function RBACAdminPage() {
           </PermissionGuard>
 
           {/* Fallback content when no permission */}
-          {!["workspaces", "roles", "assignments", "service-accounts", "audit", "compliance"].some(tab => 
-            activeTab === tab
-          ) && (
+          {![
+            "workspaces",
+            "roles",
+            "assignments",
+            "service-accounts",
+            "audit",
+            "compliance",
+          ].some((tab) => activeTab === tab) && (
             <TabsContent value={activeTab} className="mt-4">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <IconComponent name="AlertTriangle" className="h-5 w-5 text-yellow-500" />
+                    <IconComponent
+                      name="AlertTriangle"
+                      className="h-5 w-5 text-yellow-500"
+                    />
                     Access Restricted
                   </CardTitle>
                 </CardHeader>

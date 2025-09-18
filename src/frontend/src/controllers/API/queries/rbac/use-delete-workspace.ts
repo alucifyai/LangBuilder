@@ -17,18 +17,20 @@ export const useDeleteWorkspace: useMutationFunctionType<
   async function deleteWorkspace({
     workspace_id,
   }: DeleteWorkspaceData): Promise<{ success: boolean }> {
-    const res = await api.delete(`${getURL("RBAC")}/workspaces/${workspace_id}`);
+    const res = await api.delete(
+      `${getURL("RBAC")}/workspaces/${workspace_id}`,
+    );
     if (res.status === 204) {
       return { success: true };
     }
     throw new Error(`Failed to delete workspace: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, DeleteWorkspaceData> = mutate(
-    ["useDeleteWorkspace"],
-    deleteWorkspace,
-    options
-  );
+  const mutation: UseMutationResult<
+    { success: boolean },
+    any,
+    DeleteWorkspaceData
+  > = mutate(["useDeleteWorkspace"], deleteWorkspace, options);
 
   return mutation;
 };

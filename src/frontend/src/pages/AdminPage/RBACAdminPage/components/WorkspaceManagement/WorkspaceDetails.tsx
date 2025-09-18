@@ -1,7 +1,17 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
+import LoadingComponent from "@/components/common/loadingComponent";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -10,33 +20,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import IconComponent from "@/components/common/genericIconComponent";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import LoadingComponent from "@/components/common/loadingComponent";
-import useAlertStore from "@/stores/alertStore";
-import {
-  useGetWorkspaceUsers,
+  type Project,
   useGetProjects,
+  useGetWorkspaceUsers,
   useInviteUser,
   type Workspace,
   type WorkspaceUser,
-  type Project,
 } from "@/controllers/API/queries/rbac";
+import useAlertStore from "@/stores/alertStore";
 
 interface WorkspaceDetailsProps {
   workspace: Workspace;
   onClose: () => void;
 }
 
-export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetailsProps) {
+export default function WorkspaceDetails({
+  workspace,
+  onClose,
+}: WorkspaceDetailsProps) {
   const [users, setUsers] = useState<WorkspaceUser[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -46,8 +49,10 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const setErrorData = useAlertStore((state) => state.setErrorData);
 
-  const { mutate: getWorkspaceUsers, isPending: isLoadingUsers } = useGetWorkspaceUsers();
-  const { mutate: getProjects, isPending: isLoadingProjects } = useGetProjects();
+  const { mutate: getWorkspaceUsers, isPending: isLoadingUsers } =
+    useGetWorkspaceUsers();
+  const { mutate: getProjects, isPending: isLoadingProjects } =
+    useGetProjects();
   const { mutate: inviteUser, isPending: isInviting } = useInviteUser();
 
   useEffect(() => {
@@ -68,7 +73,7 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -85,7 +90,7 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -114,7 +119,7 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -131,7 +136,9 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
             </Badge>
           </div>
           {workspace.description && (
-            <p className="text-sm text-muted-foreground">{workspace.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {workspace.description}
+            </p>
           )}
         </div>
 
@@ -193,21 +200,30 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
       <div className="grid grid-cols-3 gap-4">
         <div className="rounded-lg border bg-card p-4">
           <div className="flex items-center space-x-2">
-            <IconComponent name="Users" className="h-4 w-4 text-muted-foreground" />
+            <IconComponent
+              name="Users"
+              className="h-4 w-4 text-muted-foreground"
+            />
             <span className="text-sm font-medium">Members</span>
           </div>
           <p className="text-2xl font-bold">{workspace.member_count || 0}</p>
         </div>
         <div className="rounded-lg border bg-card p-4">
           <div className="flex items-center space-x-2">
-            <IconComponent name="FolderOpen" className="h-4 w-4 text-muted-foreground" />
+            <IconComponent
+              name="FolderOpen"
+              className="h-4 w-4 text-muted-foreground"
+            />
             <span className="text-sm font-medium">Projects</span>
           </div>
           <p className="text-2xl font-bold">{projects.length}</p>
         </div>
         <div className="rounded-lg border bg-card p-4">
           <div className="flex items-center space-x-2">
-            <IconComponent name="Shield" className="h-4 w-4 text-muted-foreground" />
+            <IconComponent
+              name="Shield"
+              className="h-4 w-4 text-muted-foreground"
+            />
             <span className="text-sm font-medium">Roles</span>
           </div>
           <p className="text-2xl font-bold">{workspace.role_count || 0}</p>
@@ -228,11 +244,15 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-medium">Created:</span>
-                <span className="ml-2">{new Date(workspace.created_at).toLocaleString()}</span>
+                <span className="ml-2">
+                  {new Date(workspace.created_at).toLocaleString()}
+                </span>
               </div>
               <div>
                 <span className="font-medium">Last Updated:</span>
-                <span className="ml-2">{new Date(workspace.updated_at).toLocaleString()}</span>
+                <span className="ml-2">
+                  {new Date(workspace.updated_at).toLocaleString()}
+                </span>
               </div>
               <div>
                 <span className="font-medium">ID:</span>
@@ -240,7 +260,9 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
               </div>
               <div>
                 <span className="font-medium">Owner ID:</span>
-                <span className="ml-2 font-mono text-xs">{workspace.created_by_id}</span>
+                <span className="ml-2 font-mono text-xs">
+                  {workspace.created_by_id}
+                </span>
               </div>
             </div>
           </div>
@@ -267,11 +289,16 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
                       <TableRow key={user.user_id}>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <IconComponent name="User" className="h-4 w-4 text-muted-foreground" />
+                            <IconComponent
+                              name="User"
+                              className="h-4 w-4 text-muted-foreground"
+                            />
                             <div>
                               <p className="font-medium">{user.username}</p>
                               {user.email && (
-                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {user.email}
+                                </p>
                               )}
                             </div>
                             {user.is_owner && (
@@ -284,7 +311,11 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {user.roles.map((role) => (
-                              <Badge key={role} variant="secondary" className="text-xs">
+                              <Badge
+                                key={role}
+                                variant="secondary"
+                                className="text-xs"
+                              >
                                 {role}
                               </Badge>
                             ))}
@@ -294,7 +325,9 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
                           {new Date(user.joined_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={user.is_active ? "default" : "secondary"}>
+                          <Badge
+                            variant={user.is_active ? "default" : "secondary"}
+                          >
                             {user.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
@@ -328,7 +361,10 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
                       <TableRow key={project.id}>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <IconComponent name="FolderOpen" className="h-4 w-4 text-muted-foreground" />
+                            <IconComponent
+                              name="FolderOpen"
+                              className="h-4 w-4 text-muted-foreground"
+                            />
                             <span className="font-medium">{project.name}</span>
                           </div>
                         </TableCell>
@@ -336,7 +372,11 @@ export default function WorkspaceDetails({ workspace, onClose }: WorkspaceDetail
                           {project.description || "No description"}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={project.is_active ? "default" : "secondary"}>
+                          <Badge
+                            variant={
+                              project.is_active ? "default" : "secondary"
+                            }
+                          >
                             {project.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>

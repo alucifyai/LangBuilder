@@ -15,7 +15,9 @@ export interface UpdateRoleData {
   };
 }
 
-export const useUpdateRole: useMutationFunctionType<Role, UpdateRoleData> = (options?) => {
+export const useUpdateRole: useMutationFunctionType<Role, UpdateRoleData> = (
+  options?,
+) => {
   const { mutate } = UseRequestProcessor();
 
   async function updateRole({ role_id, role }: UpdateRoleData): Promise<Role> {
@@ -29,7 +31,7 @@ export const useUpdateRole: useMutationFunctionType<Role, UpdateRoleData> = (opt
   const mutation: UseMutationResult<Role, any, UpdateRoleData> = mutate(
     ["useUpdateRole"],
     updateRole,
-    options
+    options,
   );
 
   return mutation;

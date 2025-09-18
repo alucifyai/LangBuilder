@@ -1,5 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
+import LoadingComponent from "@/components/common/loadingComponent";
+import PaginatorComponent from "@/components/common/paginatorComponent";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -10,27 +22,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import IconComponent from "@/components/common/genericIconComponent";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import PaginatorComponent from "@/components/common/paginatorComponent";
-import useAlertStore from "@/stores/alertStore";
-import {
-  useGetWorkspaces,
   useCreateWorkspace,
-  useUpdateWorkspace,
   useDeleteWorkspace,
+  useGetWorkspaces,
+  useUpdateWorkspace,
   type Workspace,
 } from "@/controllers/API/queries/rbac";
-import WorkspaceForm from "./WorkspaceForm";
+import useAlertStore from "@/stores/alertStore";
 import WorkspaceDetails from "./WorkspaceDetails";
-import LoadingComponent from "@/components/common/loadingComponent";
+import WorkspaceForm from "./WorkspaceForm";
 
 export default function WorkspaceManagement() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -38,7 +38,9 @@ export default function WorkspaceManagement() {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
+    null,
+  );
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -47,9 +49,12 @@ export default function WorkspaceManagement() {
   const setErrorData = useAlertStore((state) => state.setErrorData);
 
   const { mutate: getWorkspaces, isPending: isLoading } = useGetWorkspaces();
-  const { mutate: createWorkspace, isPending: isCreating } = useCreateWorkspace();
-  const { mutate: updateWorkspace, isPending: isUpdating } = useUpdateWorkspace();
-  const { mutate: deleteWorkspace, isPending: isDeleting } = useDeleteWorkspace();
+  const { mutate: createWorkspace, isPending: isCreating } =
+    useCreateWorkspace();
+  const { mutate: updateWorkspace, isPending: isUpdating } =
+    useUpdateWorkspace();
+  const { mutate: deleteWorkspace, isPending: isDeleting } =
+    useDeleteWorkspace();
 
   useEffect(() => {
     fetchWorkspaces();
@@ -73,11 +78,14 @@ export default function WorkspaceManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
-  const handleCreateWorkspace = (data: { name: string; description?: string }) => {
+  const handleCreateWorkspace = (data: {
+    name: string;
+    description?: string;
+  }) => {
     createWorkspace(data, {
       onSuccess: () => {
         setSuccessData({ title: "Workspace created successfully" });
@@ -95,7 +103,7 @@ export default function WorkspaceManagement() {
 
   const handleUpdateWorkspace = (
     id: string,
-    data: { name?: string; description?: string; is_active?: boolean }
+    data: { name?: string; description?: string; is_active?: boolean },
   ) => {
     updateWorkspace(
       { workspace_id: id, ...data },
@@ -113,7 +121,7 @@ export default function WorkspaceManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -131,7 +139,7 @@ export default function WorkspaceManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -170,14 +178,20 @@ export default function WorkspaceManagement() {
               className="w-64"
             />
             <ShadTooltip content="Search by workspace name or description">
-              <IconComponent name="Search" className="h-4 w-4 text-muted-foreground" />
+              <IconComponent
+                name="Search"
+                className="h-4 w-4 text-muted-foreground"
+              />
             </ShadTooltip>
           </div>
         </div>
 
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateForm} className="flex items-center space-x-2">
+            <Button
+              onClick={openCreateForm}
+              className="flex items-center space-x-2"
+            >
               <IconComponent name="Plus" className="h-4 w-4" />
               <span>Create Workspace</span>
             </Button>
@@ -190,9 +204,10 @@ export default function WorkspaceManagement() {
             </DialogHeader>
             <WorkspaceForm
               workspace={selectedWorkspace}
-              onSubmit={isEditing ?
-                (data) => handleUpdateWorkspace(selectedWorkspace!.id, data) :
-                handleCreateWorkspace
+              onSubmit={
+                isEditing
+                  ? (data) => handleUpdateWorkspace(selectedWorkspace!.id, data)
+                  : handleCreateWorkspace
               }
               onCancel={() => {
                 setIsFormOpen(false);
@@ -230,7 +245,10 @@ export default function WorkspaceManagement() {
                     <TableRow key={workspace.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-2">
-                          <IconComponent name="Building2" className="h-4 w-4 text-muted-foreground" />
+                          <IconComponent
+                            name="Building2"
+                            className="h-4 w-4 text-muted-foreground"
+                          />
                           <span>{workspace.name}</span>
                         </div>
                       </TableCell>
@@ -238,7 +256,11 @@ export default function WorkspaceManagement() {
                         {workspace.description || "No description"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={workspace.is_active ? "default" : "secondary"}>
+                        <Badge
+                          variant={
+                            workspace.is_active ? "default" : "secondary"
+                          }
+                        >
                           {workspace.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
@@ -247,7 +269,10 @@ export default function WorkspaceManagement() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">
-                          <IconComponent name="Users" className="h-4 w-4 text-muted-foreground" />
+                          <IconComponent
+                            name="Users"
+                            className="h-4 w-4 text-muted-foreground"
+                          />
                           <span>{workspace.member_count || 0}</span>
                         </div>
                       </TableCell>
@@ -268,17 +293,25 @@ export default function WorkspaceManagement() {
                               size="sm"
                               onClick={() => openEditForm(workspace)}
                             >
-                              <IconComponent name="Pencil" className="h-4 w-4" />
+                              <IconComponent
+                                name="Pencil"
+                                className="h-4 w-4"
+                              />
                             </Button>
                           </ShadTooltip>
                           <ShadTooltip content="Delete Workspace">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteWorkspace(workspace.id)}
+                              onClick={() =>
+                                handleDeleteWorkspace(workspace.id)
+                              }
                               disabled={isDeleting}
                             >
-                              <IconComponent name="Trash2" className="h-4 w-4 text-destructive" />
+                              <IconComponent
+                                name="Trash2"
+                                className="h-4 w-4 text-destructive"
+                              />
                             </Button>
                           </ShadTooltip>
                         </div>

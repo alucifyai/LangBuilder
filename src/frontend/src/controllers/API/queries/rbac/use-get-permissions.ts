@@ -42,7 +42,10 @@ export const useGetPermissions: useMutationFunctionType<
     resource_type,
     category,
     is_system,
-  }: GetPermissionsQueryParams): Promise<{ permissions: Permission[]; total_count: number }> {
+  }: GetPermissionsQueryParams): Promise<{
+    permissions: Permission[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/permissions/?skip=${skip}&limit=${limit}`;
 
     if (search) {

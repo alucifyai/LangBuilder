@@ -1,14 +1,18 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import type { Workspace } from "@/controllers/API/queries/rbac";
 
 interface WorkspaceFormProps {
   workspace?: Workspace | null;
-  onSubmit: (data: { name: string; description?: string; is_active?: boolean }) => void;
+  onSubmit: (data: {
+    name: string;
+    description?: string;
+    is_active?: boolean;
+  }) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -70,7 +74,11 @@ export default function WorkspaceForm({
       return;
     }
 
-    const submitData: { name: string; description?: string; is_active?: boolean } = {
+    const submitData: {
+      name: string;
+      description?: string;
+      is_active?: boolean;
+    } = {
       name: formData.name.trim(),
     };
 
@@ -165,8 +173,10 @@ export default function WorkspaceForm({
               <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
               {workspace ? "Updating..." : "Creating..."}
             </>
+          ) : workspace ? (
+            "Update Workspace"
           ) : (
-            workspace ? "Update Workspace" : "Create Workspace"
+            "Create Workspace"
           )}
         </Button>
       </div>

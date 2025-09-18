@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import IconComponent from "@/components/common/genericIconComponent";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RBACAdminPage from "./RBACAdminPage";
 import UserManagementPage from "./UserManagementPage";
 
@@ -25,7 +25,11 @@ export default function AdminPage() {
       </div>
 
       {/* Admin Navigation Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-1 flex flex-col"
+      >
         <div className="border-b bg-muted/30">
           <TabsList className="grid w-full grid-cols-2 bg-transparent h-12">
             <TabsTrigger

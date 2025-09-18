@@ -1,8 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useCheckPermission } from "@/controllers/API/queries/rbac";
 
 interface RBACContextType {
-  hasPermission: (resource: string, action: string, resourceId?: string) => boolean;
+  hasPermission: (
+    resource: string,
+    action: string,
+    resourceId?: string,
+  ) => boolean;
   isLoading: boolean;
   currentWorkspace: string | null;
   setCurrentWorkspace: (workspaceId: string | null) => void;
@@ -19,13 +29,20 @@ interface RBACProviderProps {
 export function RBACProvider({ children }: RBACProviderProps) {
   const [currentWorkspace, setCurrentWorkspace] = useState<string | null>(null);
   const [currentProject, setCurrentProject] = useState<string | null>(null);
-  const [permissionCache, setPermissionCache] = useState<Map<string, boolean>>(new Map());
+  const [permissionCache, setPermissionCache] = useState<Map<string, boolean>>(
+    new Map(),
+  );
 
-  const { mutate: checkPermission, isPending: isLoading } = useCheckPermission();
+  const { mutate: checkPermission, isPending: isLoading } =
+    useCheckPermission();
 
-  const hasPermission = (resource: string, action: string, resourceId?: string): boolean => {
+  const hasPermission = (
+    resource: string,
+    action: string,
+    resourceId?: string,
+  ): boolean => {
     // Create cache key
-    const cacheKey = `${resource}:${action}:${resourceId || 'any'}`;
+    const cacheKey = `${resource}:${action}:${resourceId || "any"}`;
 
     // Check cache first
     if (permissionCache.has(cacheKey)) {
@@ -37,8 +54,12 @@ export function RBACProvider({ children }: RBACProviderProps) {
     return true;
   };
 
-  const checkAndCachePermission = (resource: string, action: string, resourceId?: string) => {
-    const cacheKey = `${resource}:${action}:${resourceId || 'any'}`;
+  const checkAndCachePermission = (
+    resource: string,
+    action: string,
+    resourceId?: string,
+  ) => {
+    const cacheKey = `${resource}:${action}:${resourceId || "any"}`;
 
     checkPermission(
       {
@@ -48,13 +69,15 @@ export function RBACProvider({ children }: RBACProviderProps) {
       },
       {
         onSuccess: (result) => {
-          setPermissionCache(prev => new Map(prev.set(cacheKey, result.granted)));
+          setPermissionCache(
+            (prev) => new Map(prev.set(cacheKey, result.granted)),
+          );
         },
         onError: () => {
           // Default to false on error
-          setPermissionCache(prev => new Map(prev.set(cacheKey, false)));
+          setPermissionCache((prev) => new Map(prev.set(cacheKey, false)));
         },
-      }
+      },
     );
   };
 
@@ -72,11 +95,7 @@ export function RBACProvider({ children }: RBACProviderProps) {
     setCurrentProject,
   };
 
-  return (
-    <RBACContext.Provider value={value}>
-      {children}
-    </RBACContext.Provider>
-  );
+  return <RBACContext.Provider value={value}>{children}</RBACContext.Provider>;
 }
 
 export function useRBAC(): RBACContextType {
@@ -88,7 +107,11 @@ export function useRBAC(): RBACContextType {
 }
 
 // Helper hook for conditional rendering based on permissions
-export function usePermissionGuard(resource: string, action: string, resourceId?: string) {
+export function usePermissionGuard(
+  resource: string,
+  action: string,
+  resourceId?: string,
+) {
   const { hasPermission, isLoading } = useRBAC();
   return {
     canAccess: hasPermission(resource, action, resourceId),

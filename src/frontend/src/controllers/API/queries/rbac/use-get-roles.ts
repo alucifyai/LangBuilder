@@ -40,7 +40,7 @@ export const useGetRoles: useMutationFunctionType<
     include_system_roles = false,
   }: GetRolesQueryParams): Promise<{ roles: Role[]; total_count: number }> {
     let url = `${getURL("RBAC")}/roles/?skip=${skip}&limit=${limit}`;
-    
+
     if (workspace_id) {
       url += `&workspace_id=${workspace_id}`;
     }
@@ -50,7 +50,7 @@ export const useGetRoles: useMutationFunctionType<
     if (include_system_roles) {
       url += `&include_system_roles=true`;
     }
-    
+
     const res = await api.get(url);
     if (res.status === 200) {
       return res.data;

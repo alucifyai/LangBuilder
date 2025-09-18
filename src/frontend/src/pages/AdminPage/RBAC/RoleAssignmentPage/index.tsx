@@ -1,5 +1,10 @@
 import IconComponent from "../../../../components/common/genericIconComponent";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../../components/ui/card";
 
 export default function RoleAssignmentPage() {
   return (
@@ -8,7 +13,7 @@ export default function RoleAssignmentPage() {
         <IconComponent name="Users" className="w-6 h-6" />
         <h2 className="text-2xl font-bold">Role Assignments</h2>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Manage Role Assignments</CardTitle>
@@ -19,8 +24,9 @@ export default function RoleAssignmentPage() {
           </p>
           <div className="mt-4 p-4 border rounded-lg bg-muted">
             <p className="text-sm">
-              🚧 Role Assignment interface is under development.
-              This will include user and service account role management with hierarchical scoping.
+              🚧 Role Assignment interface is under development. This will
+              include user and service account role management with hierarchical
+              scoping.
             </p>
           </div>
         </CardContent>

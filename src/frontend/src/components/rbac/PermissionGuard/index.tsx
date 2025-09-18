@@ -36,7 +36,7 @@ export default function PermissionGuard({
           resource_type,
           resource_id,
         });
-        
+
         if (mounted) {
           setHasPermission(result);
           setIsLoading(false);
@@ -54,7 +54,14 @@ export default function PermissionGuard({
     return () => {
       mounted = false;
     };
-  }, [permission, scope_type, scope_id, resource_type, resource_id, checkPermission]);
+  }, [
+    permission,
+    scope_type,
+    scope_id,
+    resource_type,
+    resource_id,
+    checkPermission,
+  ]);
 
   if (isLoading) {
     return <div className="opacity-50">{children}</div>;

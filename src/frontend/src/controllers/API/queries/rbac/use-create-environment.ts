@@ -14,10 +14,15 @@ export interface CreateEnvironmentData {
   variables?: Record<string, any>;
 }
 
-export const useCreateEnvironment: useMutationFunctionType<Environment, CreateEnvironmentData> = (options?) => {
+export const useCreateEnvironment: useMutationFunctionType<
+  Environment,
+  CreateEnvironmentData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function createEnvironment(data: CreateEnvironmentData): Promise<Environment> {
+  async function createEnvironment(
+    data: CreateEnvironmentData,
+  ): Promise<Environment> {
     const res = await api.post(`${getURL("RBAC")}/environments/`, data);
     if (res.status === 201) {
       return res.data;
@@ -25,11 +30,8 @@ export const useCreateEnvironment: useMutationFunctionType<Environment, CreateEn
     throw new Error(`Failed to create environment: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<Environment, any, CreateEnvironmentData> = mutate(
-    ["useCreateEnvironment"],
-    createEnvironment,
-    options
-  );
+  const mutation: UseMutationResult<Environment, any, CreateEnvironmentData> =
+    mutate(["useCreateEnvironment"], createEnvironment, options);
 
   return mutation;
 };

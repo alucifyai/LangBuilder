@@ -16,10 +16,15 @@ export interface CreateProjectData {
   retention_days?: number;
 }
 
-export const useCreateProject: useMutationFunctionType<Project, CreateProjectData> = (options?) => {
+export const useCreateProject: useMutationFunctionType<
+  Project,
+  CreateProjectData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function createProject(projectData: CreateProjectData): Promise<Project> {
+  async function createProject(
+    projectData: CreateProjectData,
+  ): Promise<Project> {
     const res = await api.post(`${getURL("RBAC")}/projects/`, projectData);
     if (res.status === 201) {
       return res.data;
@@ -30,7 +35,7 @@ export const useCreateProject: useMutationFunctionType<Project, CreateProjectDat
   const mutation: UseMutationResult<Project, any, CreateProjectData> = mutate(
     ["useCreateProject"],
     createProject,
-    options
+    options,
   );
 
   return mutation;

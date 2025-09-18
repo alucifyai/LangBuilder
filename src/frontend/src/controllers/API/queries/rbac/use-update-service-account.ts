@@ -17,22 +17,31 @@ export interface UpdateServiceAccountData {
   };
 }
 
-export const useUpdateServiceAccount: useMutationFunctionType<ServiceAccount, UpdateServiceAccountData> = (options?) => {
+export const useUpdateServiceAccount: useMutationFunctionType<
+  ServiceAccount,
+  UpdateServiceAccountData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function updateServiceAccount({ service_account_id, service_account }: UpdateServiceAccountData): Promise<ServiceAccount> {
-    const res = await api.patch(`${getURL("RBAC")}/service-accounts/${service_account_id}`, service_account);
+  async function updateServiceAccount({
+    service_account_id,
+    service_account,
+  }: UpdateServiceAccountData): Promise<ServiceAccount> {
+    const res = await api.patch(
+      `${getURL("RBAC")}/service-accounts/${service_account_id}`,
+      service_account,
+    );
     if (res.status === 200) {
       return res.data;
     }
     throw new Error(`Failed to update service account: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<ServiceAccount, any, UpdateServiceAccountData> = mutate(
-    ["useUpdateServiceAccount"],
-    updateServiceAccount,
-    options
-  );
+  const mutation: UseMutationResult<
+    ServiceAccount,
+    any,
+    UpdateServiceAccountData
+  > = mutate(["useUpdateServiceAccount"], updateServiceAccount, options);
 
   return mutation;
 };

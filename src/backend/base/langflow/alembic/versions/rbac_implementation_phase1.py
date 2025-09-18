@@ -1,7 +1,7 @@
 """Add RBAC tables for Phase 1 implementation.
 
-Revision ID: rbac_phase1_001
-Revises: latest
+Revision ID: rbac_implementation_phase1
+Revises: 3162e83e485f
 Create Date: 2025-09-16
 
 This migration adds all RBAC-related tables for the Phase 1 implementation:
@@ -16,15 +16,12 @@ This migration adds all RBAC-related tables for the Phase 1 implementation:
 
 from __future__ import annotations
 
-from uuid import uuid4
-
 import sqlalchemy as sa
 import sqlmodel
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers
-revision = "rbac_phase1_001"
+revision = "rbac_implementation_phase1"
 down_revision = "3162e83e485f"
 branch_labels = None
 depends_on = None
@@ -41,11 +38,11 @@ def upgrade() -> None:
     if "workspace" not in table_names:
         op.create_table(
             "workspace",
-            sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column("id", sa.String(32), primary_key=True),
             sa.Column("name", sa.String(255), nullable=False, index=True),
             sa.Column("description", sa.Text(), nullable=True),
             sa.Column("organization", sa.String(255), nullable=True, index=True),
-            sa.Column("owner_id", postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column("owner_id", sa.String(32), nullable=False, index=True),
             sa.Column("settings", sa.JSON(), nullable=True),
             sa.Column("workspace_metadata", sa.JSON(), nullable=True),
             sa.Column("tags", sa.JSON(), nullable=True),
@@ -62,16 +59,16 @@ def upgrade() -> None:
     if "project" not in table_names:
         op.create_table(
             'project',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('name', sa.String(255), nullable=False, index=True),
             sa.Column('description', sa.Text(), nullable=True),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('owner_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('workspace_id', sa.String(32), nullable=False, index=True),
+            sa.Column('owner_id', sa.String(32), nullable=False, index=True),
             sa.Column('repository_url', sa.String(500), nullable=True),
             sa.Column('documentation_url', sa.String(500), nullable=True),
             sa.Column('tags', sa.JSON(), nullable=True),
             sa.Column('project_metadata', sa.JSON(), nullable=True),
-            sa.Column('default_environment_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('default_environment_id', sa.String(32), nullable=True),
             sa.Column('auto_deploy_enabled', sa.Boolean(), default=False, nullable=False),
             sa.Column('retention_days', sa.Integer(), default=30, nullable=False),
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
@@ -88,12 +85,12 @@ def upgrade() -> None:
     if "environment" not in table_names:
         op.create_table(
             'environment',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('name', sa.String(100), nullable=False, index=True),
             sa.Column('description', sa.Text(), nullable=True),
             sa.Column('type', sa.String(50), nullable=False, index=True),
-            sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('owner_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('project_id', sa.String(32), nullable=False, index=True),
+            sa.Column('owner_id', sa.String(32), nullable=False, index=True),
             sa.Column('api_endpoint', sa.String(500), nullable=True),
             sa.Column('deployment_url', sa.String(500), nullable=True),
             sa.Column('config', sa.JSON(), nullable=True),
@@ -108,9 +105,9 @@ def upgrade() -> None:
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
             sa.Column('is_locked', sa.Boolean(), default=False, nullable=False),
             sa.Column('locked_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('locked_by_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('locked_by_id', sa.String(32), nullable=True),
             sa.Column('last_deployed_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('last_deployed_by_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('last_deployed_by_id', sa.String(32), nullable=True),
             sa.Column('deployment_count', sa.Integer(), default=0, nullable=False),
             sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
@@ -126,19 +123,19 @@ def upgrade() -> None:
     if "role" not in table_names:
         op.create_table(
             'role',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('name', sa.String(100), nullable=False, index=True),
             sa.Column('description', sa.Text(), nullable=True),
             sa.Column('type', sa.String(50), nullable=False, index=True),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('created_by_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('parent_role_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('workspace_id', sa.String(32), nullable=True, index=True),
+            sa.Column('created_by_id', sa.String(32), nullable=False, index=True),
+            sa.Column('parent_role_id', sa.String(32), nullable=True),
             sa.Column('priority', sa.Integer(), default=0, nullable=False),
             sa.Column('is_system', sa.Boolean(), default=False, nullable=False),
             sa.Column('is_default', sa.Boolean(), default=False, nullable=False),
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
             sa.Column('scope_type', sa.String(50), nullable=True),
-            sa.Column('scope_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('scope_id', sa.String(32), nullable=True),
             sa.Column('role_metadata', sa.JSON(), nullable=True),
             sa.Column('tags', sa.JSON(), nullable=True),
             sa.Column('version', sa.Integer(), default=1, nullable=False),
@@ -154,7 +151,7 @@ def upgrade() -> None:
     if "permission" not in table_names:
         op.create_table(
             'permission',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('name', sa.String(200), nullable=False, index=True),
             sa.Column('description', sa.Text(), nullable=True),
             sa.Column('code', sa.String(100), nullable=False, unique=True, index=True),
@@ -175,13 +172,13 @@ def upgrade() -> None:
     if "role_permission" not in table_names:
         op.create_table(
             'role_permission',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-            sa.Column('role_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('permission_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('id', sa.String(32), primary_key=True),
+            sa.Column('role_id', sa.String(32), nullable=False, index=True),
+            sa.Column('permission_id', sa.String(32), nullable=False, index=True),
             sa.Column('is_granted', sa.Boolean(), default=True, nullable=False),
             sa.Column('conditions', sa.JSON(), nullable=True),
             sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('granted_by_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('granted_by_id', sa.String(32), nullable=False),
             sa.Column('granted_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('reason', sa.Text(), nullable=True),
             sa.ForeignKeyConstraint(['role_id'], ['role.id'], name='fk_role_permission_role'),
@@ -194,13 +191,13 @@ def upgrade() -> None:
     if "user_group" not in table_names:
         op.create_table(
             'user_group',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('name', sa.String(255), nullable=False, index=True),
             sa.Column('description', sa.Text(), nullable=True),
             sa.Column('type', sa.String(50), nullable=False, index=True),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('created_by_id', postgresql.UUID(as_uuid=True), nullable=False),
-            sa.Column('parent_group_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('workspace_id', sa.String(32), nullable=False, index=True),
+            sa.Column('created_by_id', sa.String(32), nullable=False),
+            sa.Column('parent_group_id', sa.String(32), nullable=True),
             sa.Column('external_id', sa.String(255), nullable=True, index=True),
             sa.Column('external_provider', sa.String(100), nullable=True),
             sa.Column('membership_rules', sa.JSON(), nullable=True),
@@ -224,14 +221,14 @@ def upgrade() -> None:
     if "user_group_membership" not in table_names:
         op.create_table(
             'user_group_membership',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-            sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('group_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('id', sa.String(32), primary_key=True),
+            sa.Column('user_id', sa.String(32), nullable=False, index=True),
+            sa.Column('group_id', sa.String(32), nullable=False, index=True),
             sa.Column('role', sa.String(50), nullable=True),
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False),
             sa.Column('joined_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('added_by_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('added_by_id', sa.String(32), nullable=False),
             sa.Column('added_via', sa.String(50), nullable=True),
             sa.ForeignKeyConstraint(['user_id'], ['user.id'], name='fk_group_membership_user'),
             sa.ForeignKeyConstraint(['group_id'], ['user_group.id'], name='fk_group_membership_group'),
@@ -243,11 +240,11 @@ def upgrade() -> None:
     if "service_account" not in table_names:
         op.create_table(
             'service_account',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('name', sa.String(255), nullable=False, index=True),
             sa.Column('description', sa.Text(), nullable=True),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
-            sa.Column('created_by_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('workspace_id', sa.String(32), nullable=False, index=True),
+            sa.Column('created_by_id', sa.String(32), nullable=False),
             sa.Column('service_type', sa.String(50), nullable=True, index=True),
             sa.Column('integration_name', sa.String(100), nullable=True),
             sa.Column('token_prefix', sa.String(20), nullable=True),
@@ -257,7 +254,7 @@ def upgrade() -> None:
             sa.Column('allowed_origins', sa.JSON(), nullable=True),
             sa.Column('rate_limit_per_minute', sa.Integer(), nullable=True),
             sa.Column('default_scope_type', sa.String(50), nullable=True),
-            sa.Column('default_scope_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('default_scope_id', sa.String(32), nullable=True),
             sa.Column('allowed_permissions', sa.JSON(), nullable=True),
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
             sa.Column('is_locked', sa.Boolean(), default=False, nullable=False),
@@ -279,14 +276,14 @@ def upgrade() -> None:
     if "service_account_token" not in table_names:
         op.create_table(
             'service_account_token',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-            sa.Column('service_account_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('id', sa.String(32), primary_key=True),
+            sa.Column('service_account_id', sa.String(32), nullable=False, index=True),
             sa.Column('name', sa.String(255), nullable=False, index=True),
             sa.Column('token_hash', sa.String(255), nullable=False, unique=True, index=True),
             sa.Column('token_prefix', sa.String(20), nullable=False),
             sa.Column('scoped_permissions', sa.JSON(), nullable=True),
             sa.Column('scope_type', sa.String(50), nullable=True),
-            sa.Column('scope_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('scope_id', sa.String(32), nullable=True),
             sa.Column('allowed_ips', sa.JSON(), nullable=True),
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
             sa.Column('last_used_at', sa.DateTime(timezone=True), nullable=True),
@@ -294,9 +291,9 @@ def upgrade() -> None:
             sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
             sa.Column('revoked_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('revoked_by_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('revoked_by_id', sa.String(32), nullable=True),
             sa.Column('revoke_reason', sa.Text(), nullable=True),
-            sa.Column('created_by_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('created_by_id', sa.String(32), nullable=False),
             sa.ForeignKeyConstraint(['service_account_id'], ['service_account.id'], name='fk_token_service_account'),
             sa.ForeignKeyConstraint(['created_by_id'], ['user.id'], name='fk_token_created_by'),
             sa.ForeignKeyConstraint(['revoked_by_id'], ['user.id'], name='fk_token_revoked_by'),
@@ -307,18 +304,18 @@ def upgrade() -> None:
     if "role_assignment" not in table_names:
         op.create_table(
             'role_assignment',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-            sa.Column('role_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('id', sa.String(32), primary_key=True),
+            sa.Column('role_id', sa.String(32), nullable=False, index=True),
             sa.Column('assignment_type', sa.String(50), nullable=False, index=True),
             sa.Column('scope_type', sa.String(50), nullable=False, index=True),
-            sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('group_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('service_account_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('flow_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('component_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
+            sa.Column('user_id', sa.String(32), nullable=True, index=True),
+            sa.Column('group_id', sa.String(32), nullable=True, index=True),
+            sa.Column('service_account_id', sa.String(32), nullable=True, index=True),
+            sa.Column('workspace_id', sa.String(32), nullable=True, index=True),
+            sa.Column('project_id', sa.String(32), nullable=True, index=True),
+            sa.Column('environment_id', sa.String(32), nullable=True, index=True),
+            sa.Column('flow_id', sa.String(32), nullable=True, index=True),
+            sa.Column('component_id', sa.String(32), nullable=True, index=True),
             sa.Column('is_active', sa.Boolean(), default=True, nullable=False, index=True),
             sa.Column('is_inherited', sa.Boolean(), default=False, nullable=False),
             sa.Column('valid_from', sa.DateTime(timezone=True), nullable=True),
@@ -327,8 +324,8 @@ def upgrade() -> None:
             sa.Column('ip_restrictions', sa.JSON(), nullable=True),
             sa.Column('time_restrictions', sa.JSON(), nullable=True),
             sa.Column('reason', sa.Text(), nullable=True),
-            sa.Column('assigned_by_id', postgresql.UUID(as_uuid=True), nullable=False),
-            sa.Column('approved_by_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('assigned_by_id', sa.String(32), nullable=False),
+            sa.Column('approved_by_id', sa.String(32), nullable=True),
             sa.Column('approval_date', sa.DateTime(timezone=True), nullable=True),
             sa.Column('assigned_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
@@ -354,20 +351,20 @@ def upgrade() -> None:
     if "audit_log" not in table_names:
         op.create_table(
             'audit_log',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
+            sa.Column('id', sa.String(32), primary_key=True),
             sa.Column('event_type', sa.String(50), nullable=False, index=True),
             sa.Column('action', sa.String(100), nullable=False, index=True),
             sa.Column('outcome', sa.String(50), nullable=False, index=True),
             sa.Column('actor_type', sa.String(50), nullable=False, index=True),
-            sa.Column('actor_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
+            sa.Column('actor_id', sa.String(32), nullable=True, index=True),
             sa.Column('actor_name', sa.String(255), nullable=True),
             sa.Column('actor_email', sa.String(255), nullable=True),
             sa.Column('resource_type', sa.String(50), nullable=True, index=True),
-            sa.Column('resource_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
+            sa.Column('resource_id', sa.String(32), nullable=True, index=True),
             sa.Column('resource_name', sa.String(255), nullable=True),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True, index=True),
-            sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('workspace_id', sa.String(32), nullable=True, index=True),
+            sa.Column('project_id', sa.String(32), nullable=True, index=True),
+            sa.Column('environment_id', sa.String(32), nullable=True),
             sa.Column('ip_address', sa.String(45), nullable=True, index=True),
             sa.Column('user_agent', sa.String(500), nullable=True),
             sa.Column('session_id', sa.String(255), nullable=True, index=True),
@@ -393,8 +390,8 @@ def upgrade() -> None:
     if "environment_deployment" not in table_names:
         op.create_table(
             'environment_deployment',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-            sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('id', sa.String(32), primary_key=True),
+            sa.Column('environment_id', sa.String(32), nullable=False, index=True),
             sa.Column('version', sa.String(50), nullable=False, index=True),
             sa.Column('commit_hash', sa.String(40), nullable=True),
             sa.Column('deployment_type', sa.String(50), default='manual', nullable=False),
@@ -402,7 +399,7 @@ def upgrade() -> None:
             sa.Column('started_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
             sa.Column('error_message', sa.Text(), nullable=True),
-            sa.Column('deployed_by_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('deployed_by_id', sa.String(32), nullable=False),
             sa.Column('deployment_config', sa.JSON(), nullable=True),
             sa.Column('artifacts', sa.JSON(), nullable=True),
             sa.ForeignKeyConstraint(['environment_id'], ['environment.id'], name='fk_deployment_environment'),
@@ -413,16 +410,16 @@ def upgrade() -> None:
     if "workspace_invitation" not in table_names:
         op.create_table(
             'workspace_invitation',
-            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid4),
-            sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+            sa.Column('id', sa.String(32), primary_key=True),
+            sa.Column('workspace_id', sa.String(32), nullable=False, index=True),
             sa.Column('email', sa.String(255), nullable=False, index=True),
-            sa.Column('role_id', postgresql.UUID(as_uuid=True), nullable=True),
-            sa.Column('invited_by_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('role_id', sa.String(32), nullable=True),
+            sa.Column('invited_by_id', sa.String(32), nullable=False),
             sa.Column('invitation_code', sa.String(100), nullable=False, unique=True, index=True),
             sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
             sa.Column('is_accepted', sa.Boolean(), default=False, nullable=False),
             sa.Column('accepted_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('accepted_by_id', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('accepted_by_id', sa.String(32), nullable=True),
             sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
             sa.ForeignKeyConstraint(['workspace_id'], ['workspace.id'], name='fk_invitation_workspace'),
             sa.ForeignKeyConstraint(['role_id'], ['role.id'], name='fk_invitation_role'),
@@ -437,9 +434,9 @@ def upgrade() -> None:
         flow_foreign_keys = [fk["referred_table"] for fk in inspector.get_foreign_keys("flow")]
 
         if "project_id" not in flow_columns:
-            op.add_column('flow', sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True))
+            op.add_column('flow', sa.Column('project_id', sa.String(32), nullable=True))
         if "environment_id" not in flow_columns:
-            op.add_column('flow', sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=True))
+            op.add_column('flow', sa.Column('environment_id', sa.String(32), nullable=True))
         if "ix_flow_project_id" not in flow_indexes:
             op.create_index('ix_flow_project_id', 'flow', ['project_id'])
         if "ix_flow_environment_id" not in flow_indexes:
@@ -456,15 +453,15 @@ def upgrade() -> None:
         api_key_foreign_keys = [fk["referred_table"] for fk in inspector.get_foreign_keys("apikey")]
 
         if "service_account_id" not in api_key_columns:
-            op.add_column('apikey', sa.Column('service_account_id', postgresql.UUID(as_uuid=True), nullable=True))
+            op.add_column('apikey', sa.Column('service_account_id', sa.String(32), nullable=True))
         if "scoped_permissions" not in api_key_columns:
             op.add_column('apikey', sa.Column('scoped_permissions', sa.JSON(), nullable=True))
         if "scope_type" not in api_key_columns:
             op.add_column('apikey', sa.Column('scope_type', sa.String(50), nullable=True))
         if "scope_id" not in api_key_columns:
-            op.add_column('apikey', sa.Column('scope_id', postgresql.UUID(as_uuid=True), nullable=True))
+            op.add_column('apikey', sa.Column('scope_id', sa.String(32), nullable=True))
         if "workspace_id" not in api_key_columns:
-            op.add_column('apikey', sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True))
+            op.add_column('apikey', sa.Column('workspace_id', sa.String(32), nullable=True))
         if "ix_apikey_service_account_id" not in api_key_indexes:
             op.create_index('ix_apikey_service_account_id', 'apikey', ['service_account_id'])
         if "ix_apikey_workspace_id" not in api_key_indexes:
@@ -481,7 +478,7 @@ def upgrade() -> None:
         variable_foreign_keys = [fk["referred_table"] for fk in inspector.get_foreign_keys("variable")]
 
         if "environment_id" not in variable_columns:
-            op.add_column('variable', sa.Column('environment_id', postgresql.UUID(as_uuid=True), nullable=True))
+            op.add_column('variable', sa.Column('environment_id', sa.String(32), nullable=True))
         if "ix_variable_environment_id" not in variable_indexes:
             op.create_index('ix_variable_environment_id', 'variable', ['environment_id'])
         if "environment" not in variable_foreign_keys:

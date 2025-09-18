@@ -1,5 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
+import LoadingComponent from "@/components/common/loadingComponent";
+import PaginatorComponent from "@/components/common/paginatorComponent";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,29 +29,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import IconComponent from "@/components/common/genericIconComponent";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import PaginatorComponent from "@/components/common/paginatorComponent";
-import LoadingComponent from "@/components/common/loadingComponent";
-import useAlertStore from "@/stores/alertStore";
-import {
-  useGetWorkspaces,
-  useGetRoles,
-  useCreateRole,
-  useUpdateRole,
-  useDeleteRole,
-  type Workspace,
   type Role,
+  useCreateRole,
+  useDeleteRole,
+  useGetRoles,
+  useGetWorkspaces,
+  useUpdateRole,
+  type Workspace,
 } from "@/controllers/API/queries/rbac";
-import RoleForm from "./RoleForm";
+import useAlertStore from "@/stores/alertStore";
 import RoleDetails from "./RoleDetails";
+import RoleForm from "./RoleForm";
 
 export default function RoleManagement() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -84,7 +84,7 @@ export default function RoleManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -108,7 +108,7 @@ export default function RoleManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -140,7 +140,7 @@ export default function RoleManagement() {
       description?: string;
       permissions?: string[];
       is_active?: boolean;
-    }
+    },
   ) => {
     updateRole(
       { role_id: id, ...data },
@@ -158,7 +158,7 @@ export default function RoleManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -176,7 +176,7 @@ export default function RoleManagement() {
             list: [error?.message || "Unknown error occurred"],
           });
         },
-      }
+      },
     );
   };
 
@@ -222,11 +222,17 @@ export default function RoleManagement() {
               className="w-64"
             />
             <ShadTooltip content="Search by role name or description">
-              <IconComponent name="Search" className="h-4 w-4 text-muted-foreground" />
+              <IconComponent
+                name="Search"
+                className="h-4 w-4 text-muted-foreground"
+              />
             </ShadTooltip>
           </div>
 
-          <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
+          <Select
+            value={selectedWorkspace}
+            onValueChange={setSelectedWorkspace}
+          >
             <SelectTrigger className="w-48">
               <SelectValue placeholder="All Workspaces" />
             </SelectTrigger>
@@ -243,7 +249,10 @@ export default function RoleManagement() {
 
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateForm} className="flex items-center space-x-2">
+            <Button
+              onClick={openCreateForm}
+              className="flex items-center space-x-2"
+            >
               <IconComponent name="Plus" className="h-4 w-4" />
               <span>Create Role</span>
             </Button>
@@ -316,9 +325,14 @@ export default function RoleManagement() {
                       <TableCell>
                         {role.workspace_id ? (
                           <div className="flex items-center space-x-1">
-                            <IconComponent name="Building2" className="h-4 w-4 text-muted-foreground" />
+                            <IconComponent
+                              name="Building2"
+                              className="h-4 w-4 text-muted-foreground"
+                            />
                             <span className="text-sm">
-                              {workspaces.find((w) => w.id === role.workspace_id)?.name || "Unknown"}
+                              {workspaces.find(
+                                (w) => w.id === role.workspace_id,
+                              )?.name || "Unknown"}
                             </span>
                           </div>
                         ) : (
@@ -327,24 +341,40 @@ export default function RoleManagement() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">
-                          <IconComponent name="Key" className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{role.permissions.length}</span>
+                          <IconComponent
+                            name="Key"
+                            className="h-4 w-4 text-muted-foreground"
+                          />
+                          <span className="text-sm">
+                            {role.permissions.length}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={role.is_system_role ? "default" : "secondary"}>
+                        <Badge
+                          variant={
+                            role.is_system_role ? "default" : "secondary"
+                          }
+                        >
                           {role.is_system_role ? "System" : "Custom"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={role.is_active ? "default" : "secondary"}>
+                        <Badge
+                          variant={role.is_active ? "default" : "secondary"}
+                        >
                           {role.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">
-                          <IconComponent name="UserCheck" className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{role.assignment_count || 0}</span>
+                          <IconComponent
+                            name="UserCheck"
+                            className="h-4 w-4 text-muted-foreground"
+                          />
+                          <span className="text-sm">
+                            {role.assignment_count || 0}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -366,7 +396,10 @@ export default function RoleManagement() {
                                   size="sm"
                                   onClick={() => openEditForm(role)}
                                 >
-                                  <IconComponent name="Pencil" className="h-4 w-4" />
+                                  <IconComponent
+                                    name="Pencil"
+                                    className="h-4 w-4"
+                                  />
                                 </Button>
                               </ShadTooltip>
                               <ShadTooltip content="Delete Role">
@@ -376,7 +409,10 @@ export default function RoleManagement() {
                                   onClick={() => handleDeleteRole(role.id)}
                                   disabled={isDeleting}
                                 >
-                                  <IconComponent name="Trash2" className="h-4 w-4 text-destructive" />
+                                  <IconComponent
+                                    name="Trash2"
+                                    className="h-4 w-4 text-destructive"
+                                  />
                                 </Button>
                               </ShadTooltip>
                             </>
@@ -411,7 +447,9 @@ export default function RoleManagement() {
           {selectedRole && (
             <RoleDetails
               role={selectedRole}
-              workspace={workspaces.find((w) => w.id === selectedRole.workspace_id)}
+              workspace={workspaces.find(
+                (w) => w.id === selectedRole.workspace_id,
+              )}
               onClose={() => {
                 setIsDetailsOpen(false);
                 setSelectedRole(null);

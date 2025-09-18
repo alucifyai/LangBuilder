@@ -36,6 +36,7 @@ import MessagesPage from "./pages/SettingsPage/pages/messagesPage";
 import ShortcutsPage from "./pages/SettingsPage/pages/ShortcutsPage";
 
 const RBACAdminPage = lazy(() => import("./pages/AdminPage/RBACAdminPage"));
+
 import ViewPage from "./pages/ViewPage";
 
 const AdminPage = lazy(() => import("./pages/AdminPage"));

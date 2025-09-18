@@ -41,7 +41,10 @@ export const useGetEnvironments: useMutationFunctionType<
     limit = 50,
     search,
     is_active,
-  }: GetEnvironmentsQueryParams): Promise<{ environments: Environment[]; total_count: number }> {
+  }: GetEnvironmentsQueryParams): Promise<{
+    environments: Environment[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/environments/?skip=${skip}&limit=${limit}`;
 
     if (project_id) url += `&project_id=${project_id}`;

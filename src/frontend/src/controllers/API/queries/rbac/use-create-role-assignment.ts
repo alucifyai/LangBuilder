@@ -20,7 +20,9 @@ export const useCreateRoleAssignment: useMutationFunctionType<
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function createRoleAssignment(data: CreateRoleAssignmentData): Promise<RoleAssignment> {
+  async function createRoleAssignment(
+    data: CreateRoleAssignmentData,
+  ): Promise<RoleAssignment> {
     const res = await api.post(`${getURL("RBAC")}/role-assignments/`, data);
     if (res.status === 201) {
       return res.data;
@@ -28,11 +30,11 @@ export const useCreateRoleAssignment: useMutationFunctionType<
     throw new Error(`Failed to create role assignment: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<RoleAssignment, any, CreateRoleAssignmentData> = mutate(
-    ["useCreateRoleAssignment"],
-    createRoleAssignment,
-    options
-  );
+  const mutation: UseMutationResult<
+    RoleAssignment,
+    any,
+    CreateRoleAssignmentData
+  > = mutate(["useCreateRoleAssignment"], createRoleAssignment, options);
 
   return mutation;
 };

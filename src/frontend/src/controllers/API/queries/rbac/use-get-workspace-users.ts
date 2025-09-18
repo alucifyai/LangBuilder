@@ -32,7 +32,10 @@ export const useGetWorkspaceUsers: useMutationFunctionType<
     skip = 0,
     limit = 50,
     search,
-  }: GetWorkspaceUsersParams): Promise<{ users: WorkspaceUser[]; total_count: number }> {
+  }: GetWorkspaceUsersParams): Promise<{
+    users: WorkspaceUser[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/workspaces/${workspace_id}/users/?skip=${skip}&limit=${limit}`;
 
     if (search) {

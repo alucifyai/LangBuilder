@@ -32,20 +32,23 @@ export const useGetWorkspaces: useMutationFunctionType<
     skip = 0,
     limit = 50,
     search,
-  }: GetWorkspacesQueryParams): Promise<{ workspaces: Workspace[]; total_count: number }> {
+  }: GetWorkspacesQueryParams): Promise<{
+    workspaces: Workspace[];
+    total_count: number;
+  }> {
     try {
       let url = `${getURL("RBAC")}/workspaces/?skip=${skip}&limit=${limit}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
-      
+
       const res = await api.get(url);
       if (res.status === 200) {
         return res.data;
       }
       return { workspaces: [], total_count: 0 };
     } catch (error) {
-      console.error('Failed to fetch workspaces:', error);
+      console.error("Failed to fetch workspaces:", error);
       throw error;
     }
   }

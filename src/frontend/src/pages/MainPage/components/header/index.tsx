@@ -102,10 +102,7 @@ const HeaderComponent = ({
         <div className="h-7 w-10 transition-all group-data-[open=true]/sidebar-wrapper:md:w-0 lg:hidden">
           <div className="relative left-0 opacity-100 transition-all group-data-[open=true]/sidebar-wrapper:md:opacity-0">
             <SidebarTrigger>
-              <LangflowLogo
-                aria-hidden="true"
-                className="h-4 w-4"
-              />
+              <LangflowLogo aria-hidden="true" className="h-4 w-4" />
             </SidebarTrigger>
           </div>
         </div>
@@ -205,7 +202,9 @@ const HeaderComponent = ({
                   <PermissionGuard resource="flow" action="delete">
                     <DeleteConfirmationModal
                       onConfirm={handleDelete}
-                      description={"flow" + (selectedFlows.length > 1 ? "s" : "")}
+                      description={
+                        "flow" + (selectedFlows.length > 1 ? "s" : "")
+                      }
                       note={
                         "and " +
                         (selectedFlows.length > 1 ? "their" : "its") +
@@ -229,7 +228,10 @@ const HeaderComponent = ({
                   resource="flow"
                   action="create"
                   fallback={
-                    <ShadTooltip content="You don't have permission to create new flows" side="bottom">
+                    <ShadTooltip
+                      content="You don't have permission to create new flows"
+                      side="bottom"
+                    >
                       <Button
                         variant="default"
                         size="iconMd"

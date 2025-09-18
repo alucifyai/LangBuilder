@@ -14,10 +14,15 @@ export interface CreateServiceAccountData {
   permissions: string[];
 }
 
-export const useCreateServiceAccount: useMutationFunctionType<ServiceAccount, CreateServiceAccountData> = (options?) => {
+export const useCreateServiceAccount: useMutationFunctionType<
+  ServiceAccount,
+  CreateServiceAccountData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function createServiceAccount(data: CreateServiceAccountData): Promise<ServiceAccount> {
+  async function createServiceAccount(
+    data: CreateServiceAccountData,
+  ): Promise<ServiceAccount> {
     const res = await api.post(`${getURL("RBAC")}/service-accounts/`, data);
     if (res.status === 201) {
       return res.data;
@@ -25,11 +30,11 @@ export const useCreateServiceAccount: useMutationFunctionType<ServiceAccount, Cr
     throw new Error(`Failed to create service account: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<ServiceAccount, any, CreateServiceAccountData> = mutate(
-    ["useCreateServiceAccount"],
-    createServiceAccount,
-    options
-  );
+  const mutation: UseMutationResult<
+    ServiceAccount,
+    any,
+    CreateServiceAccountData
+  > = mutate(["useCreateServiceAccount"], createServiceAccount, options);
 
   return mutation;
 };

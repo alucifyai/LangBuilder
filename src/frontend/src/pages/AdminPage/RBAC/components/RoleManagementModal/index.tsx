@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import type { Role } from "@/controllers/API/queries/rbac/use-get-roles";
+import type { Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
 import IconComponent from "../../../../../components/common/genericIconComponent";
 import { Button } from "../../../../../components/ui/button";
+import { CheckBoxDiv } from "../../../../../components/ui/checkbox";
 import { Input } from "../../../../../components/ui/input";
 import { Label } from "../../../../../components/ui/label";
-import { CheckBoxDiv } from "../../../../../components/ui/checkbox";
-import { Textarea } from "../../../../../components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,9 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
+import { Textarea } from "../../../../../components/ui/textarea";
 import BaseModal from "../../../../../modals/baseModal";
-import type { Role } from "@/controllers/API/queries/rbac/use-get-roles";
-import type { Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
 
 // Common RBAC permissions
 const AVAILABLE_PERMISSIONS = [
@@ -122,14 +122,15 @@ export default function RoleManagementModal({
   };
 
   const handlePermissionToggle = (permission: string) => {
-    setSelectedPermissions(prev => 
+    setSelectedPermissions((prev) =>
       prev.includes(permission)
-        ? prev.filter(p => p !== permission)
-        : [...prev, permission]
+        ? prev.filter((p) => p !== permission)
+        : [...prev, permission],
     );
   };
 
-  const isValid = name.trim().length > 0 && workspaceId && selectedPermissions.length > 0;
+  const isValid =
+    name.trim().length > 0 && workspaceId && selectedPermissions.length > 0;
 
   return (
     <BaseModal size="large" open={open} setOpen={setOpen}>
@@ -199,31 +200,21 @@ export default function RoleManagementModal({
               ))}
             </div>
             <div className="text-xs text-muted-foreground">
-              Selected {selectedPermissions.length} permission{selectedPermissions.length !== 1 ? "s" : ""}
+              Selected {selectedPermissions.length} permission
+              {selectedPermissions.length !== 1 ? "s" : ""}
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
-            <CheckBoxDiv
-              checked={isActive}
-              onChange={setIsActive}
-            />
-            <Label className="text-sm font-medium">
-              Active role
-            </Label>
+            <CheckBoxDiv checked={isActive} onChange={setIsActive} />
+            <Label className="text-sm font-medium">Active role</Label>
           </div>
 
-          <div className="text-xs text-muted-foreground">
-            * Required fields
-          </div>
+          <div className="text-xs text-muted-foreground">* Required fields</div>
         </div>
       </BaseModal.Content>
       <BaseModal.Footer>
-        <Button
-          variant="outline"
-          onClick={() => setOpen(false)}
-          type="button"
-        >
+        <Button variant="outline" onClick={() => setOpen(false)} type="button">
           {cancelText}
         </Button>
         <Button

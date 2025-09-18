@@ -68,7 +68,8 @@ export const RESOURCES = {
 } as const;
 
 export function useRBACPermissions() {
-  const { hasPermission, isLoading, currentWorkspace, currentProject } = useRBAC();
+  const { hasPermission, isLoading, currentWorkspace, currentProject } =
+    useRBAC();
 
   return {
     // Flow permissions
@@ -87,7 +88,11 @@ export function useRBACPermissions() {
 
     // Project permissions
     canCreateProject: (workspaceId?: string) =>
-      hasPermission(RESOURCES.PROJECT, PERMISSIONS.PROJECTS.CREATE, workspaceId),
+      hasPermission(
+        RESOURCES.PROJECT,
+        PERMISSIONS.PROJECTS.CREATE,
+        workspaceId,
+      ),
     canEditProject: (projectId: string) =>
       hasPermission(RESOURCES.PROJECT, PERMISSIONS.PROJECTS.UPDATE, projectId),
     canDeleteProject: (projectId: string) =>
@@ -109,17 +114,32 @@ export function useRBACPermissions() {
     canCreateWorkspace: () =>
       hasPermission(RESOURCES.WORKSPACE, PERMISSIONS.WORKSPACES.CREATE),
     canEditWorkspace: (workspaceId: string) =>
-      hasPermission(RESOURCES.WORKSPACE, PERMISSIONS.WORKSPACES.UPDATE, workspaceId),
+      hasPermission(
+        RESOURCES.WORKSPACE,
+        PERMISSIONS.WORKSPACES.UPDATE,
+        workspaceId,
+      ),
     canDeleteWorkspace: (workspaceId: string) =>
-      hasPermission(RESOURCES.WORKSPACE, PERMISSIONS.WORKSPACES.DELETE, workspaceId),
+      hasPermission(
+        RESOURCES.WORKSPACE,
+        PERMISSIONS.WORKSPACES.DELETE,
+        workspaceId,
+      ),
     canManageWorkspace: (workspaceId: string) =>
-      hasPermission(RESOURCES.WORKSPACE, PERMISSIONS.WORKSPACES.MANAGE, workspaceId),
+      hasPermission(
+        RESOURCES.WORKSPACE,
+        PERMISSIONS.WORKSPACES.MANAGE,
+        workspaceId,
+      ),
     canInviteUsers: (workspaceId: string) =>
-      hasPermission(RESOURCES.WORKSPACE, PERMISSIONS.WORKSPACES.INVITE_USERS, workspaceId),
+      hasPermission(
+        RESOURCES.WORKSPACE,
+        PERMISSIONS.WORKSPACES.INVITE_USERS,
+        workspaceId,
+      ),
 
     // User management permissions
-    canViewUsers: () =>
-      hasPermission(RESOURCES.USER, PERMISSIONS.USERS.READ),
+    canViewUsers: () => hasPermission(RESOURCES.USER, PERMISSIONS.USERS.READ),
     canManageUsers: () =>
       hasPermission(RESOURCES.USER, PERMISSIONS.USERS.MANAGE),
     canAssignRoles: () =>
@@ -128,8 +148,7 @@ export function useRBACPermissions() {
     // Role management permissions
     canCreateRole: () =>
       hasPermission(RESOURCES.ROLE, PERMISSIONS.ROLES.CREATE),
-    canViewRoles: () =>
-      hasPermission(RESOURCES.ROLE, PERMISSIONS.ROLES.READ),
+    canViewRoles: () => hasPermission(RESOURCES.ROLE, PERMISSIONS.ROLES.READ),
     canEditRole: (roleId: string) =>
       hasPermission(RESOURCES.ROLE, PERMISSIONS.ROLES.UPDATE, roleId),
     canDeleteRole: (roleId: string) =>
@@ -139,13 +158,29 @@ export function useRBACPermissions() {
 
     // Environment permissions
     canCreateEnvironment: (projectId: string) =>
-      hasPermission(RESOURCES.ENVIRONMENT, PERMISSIONS.ENVIRONMENTS.CREATE, projectId),
+      hasPermission(
+        RESOURCES.ENVIRONMENT,
+        PERMISSIONS.ENVIRONMENTS.CREATE,
+        projectId,
+      ),
     canEditEnvironment: (environmentId: string) =>
-      hasPermission(RESOURCES.ENVIRONMENT, PERMISSIONS.ENVIRONMENTS.UPDATE, environmentId),
+      hasPermission(
+        RESOURCES.ENVIRONMENT,
+        PERMISSIONS.ENVIRONMENTS.UPDATE,
+        environmentId,
+      ),
     canDeleteEnvironment: (environmentId: string) =>
-      hasPermission(RESOURCES.ENVIRONMENT, PERMISSIONS.ENVIRONMENTS.DELETE, environmentId),
+      hasPermission(
+        RESOURCES.ENVIRONMENT,
+        PERMISSIONS.ENVIRONMENTS.DELETE,
+        environmentId,
+      ),
     canDeployToEnvironment: (environmentId: string) =>
-      hasPermission(RESOURCES.ENVIRONMENT, PERMISSIONS.ENVIRONMENTS.DEPLOY, environmentId),
+      hasPermission(
+        RESOURCES.ENVIRONMENT,
+        PERMISSIONS.ENVIRONMENTS.DEPLOY,
+        environmentId,
+      ),
 
     // Utility functions
     hasPermission,

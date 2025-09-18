@@ -17,20 +17,25 @@ export const useUpdateRoleAssignment: useMutationFunctionType<
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function updateRoleAssignment(data: UpdateRoleAssignmentData): Promise<RoleAssignment> {
+  async function updateRoleAssignment(
+    data: UpdateRoleAssignmentData,
+  ): Promise<RoleAssignment> {
     const { assignment_id, ...updateData } = data;
-    const res = await api.put(`${getURL("RBAC")}/role-assignments/${assignment_id}`, updateData);
+    const res = await api.put(
+      `${getURL("RBAC")}/role-assignments/${assignment_id}`,
+      updateData,
+    );
     if (res.status === 200) {
       return res.data;
     }
     throw new Error(`Failed to update role assignment: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<RoleAssignment, any, UpdateRoleAssignmentData> = mutate(
-    ["useUpdateRoleAssignment"],
-    updateRoleAssignment,
-    options
-  );
+  const mutation: UseMutationResult<
+    RoleAssignment,
+    any,
+    UpdateRoleAssignmentData
+  > = mutate(["useUpdateRoleAssignment"], updateRoleAssignment, options);
 
   return mutation;
 };

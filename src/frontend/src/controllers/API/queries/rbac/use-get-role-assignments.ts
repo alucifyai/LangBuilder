@@ -45,15 +45,18 @@ export const useGetRoleAssignments: useMutationFunctionType<
     scope_type,
     skip = 0,
     limit = 50,
-  }: GetRoleAssignmentsQueryParams): Promise<{ assignments: RoleAssignment[]; total_count: number }> {
+  }: GetRoleAssignmentsQueryParams): Promise<{
+    assignments: RoleAssignment[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/role-assignments/?skip=${skip}&limit=${limit}`;
-    
+
     if (workspace_id) url += `&workspace_id=${workspace_id}`;
     if (principal_id) url += `&principal_id=${principal_id}`;
     if (principal_type) url += `&principal_type=${principal_type}`;
     if (role_id) url += `&role_id=${role_id}`;
     if (scope_type) url += `&scope_type=${scope_type}`;
-    
+
     const res = await api.get(url);
     if (res.status === 200) {
       return res.data;

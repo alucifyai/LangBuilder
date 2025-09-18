@@ -1,2 +1,6 @@
-export { PermissionGuard, ConditionalPermission } from "./PermissionGuard";
-export { useRBACPermissions, PERMISSIONS, RESOURCES } from "../../hooks/useRBACPermissions";
+export {
+  PERMISSIONS,
+  RESOURCES,
+  useRBACPermissions,
+} from "../../hooks/useRBACPermissions";
+export { ConditionalPermission, PermissionGuard } from "./PermissionGuard";

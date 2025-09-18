@@ -195,9 +195,9 @@ async def get_permission_engine() -> PermissionEngine:
 def check_workspace_permission(permission: str):
     """Dependency factory for workspace permission checking."""
     async def dependency(
+        current_user: CurrentActiveUser,
         workspace: "Workspace" = Depends(get_workspace_by_id),
         session: AsyncSession = Depends(get_session),
-        current_user: CurrentActiveUser = Depends(get_current_active_user),
         permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> "Workspace":
         result = await permission_engine.check_permission(
@@ -222,9 +222,9 @@ def check_workspace_permission(permission: str):
 def check_project_permission(permission: str):
     """Dependency factory for project permission checking."""
     async def dependency(
+        current_user: CurrentActiveUser,
         project: "Project" = Depends(get_project_by_id),
         session: AsyncSession = Depends(get_session),
-        current_user: CurrentActiveUser = Depends(get_current_active_user),
         permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> "Project":
         result = await permission_engine.check_permission(
@@ -250,9 +250,9 @@ def check_project_permission(permission: str):
 def check_environment_permission(permission: str):
     """Dependency factory for environment permission checking."""
     async def dependency(
+        current_user: CurrentActiveUser,
         environment: "Environment" = Depends(get_environment_by_id),
         session: AsyncSession = Depends(get_session),
-        current_user: CurrentActiveUser = Depends(get_current_active_user),
         permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> "Environment":
         # Get workspace_id via proper relationship loading
@@ -287,9 +287,9 @@ def check_environment_permission(permission: str):
 def check_flow_permission(permission: str):
     """Dependency factory for flow permission checking."""
     async def dependency(
+        current_user: CurrentActiveUser,
         flow: "Flow" = Depends(get_flow_by_id),
         session: AsyncSession = Depends(get_session),
-        current_user: CurrentActiveUser = Depends(get_current_active_user),
         permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> "Flow":
         result = await permission_engine.check_permission(
@@ -316,9 +316,9 @@ def check_flow_permission(permission: str):
 def check_role_permission(permission: str):
     """Dependency factory for role permission checking."""
     async def dependency(
+        current_user: CurrentActiveUser,
         role: "Role" = Depends(get_role_by_id),
         session: AsyncSession = Depends(get_session),
-        current_user: CurrentActiveUser = Depends(get_current_active_user),
         permission_engine: PermissionEngine = Depends(get_permission_engine),
     ) -> "Role":
         result = await permission_engine.check_permission(

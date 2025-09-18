@@ -42,7 +42,10 @@ export const useGetServiceAccounts: useMutationFunctionType<
     limit = 50,
     search,
     is_active,
-  }: GetServiceAccountsQueryParams): Promise<{ service_accounts: ServiceAccount[]; total_count: number }> {
+  }: GetServiceAccountsQueryParams): Promise<{
+    service_accounts: ServiceAccount[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/service-accounts/?skip=${skip}&limit=${limit}`;
 
     if (workspace_id) url += `&workspace_id=${workspace_id}`;

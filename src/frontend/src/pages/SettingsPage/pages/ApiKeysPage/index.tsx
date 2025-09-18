@@ -89,8 +89,12 @@ export default function ApiKeysPage() {
       fallback={
         <div className="flex h-full w-full items-center justify-center">
           <div className="text-center">
-            <h3 className="text-lg font-medium text-muted-foreground mb-2">Access Denied</h3>
-            <p className="text-sm text-muted-foreground">You don't have permission to view API keys.</p>
+            <h3 className="text-lg font-medium text-muted-foreground mb-2">
+              Access Denied
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              You don't have permission to view API keys.
+            </p>
           </div>
         </div>
       }

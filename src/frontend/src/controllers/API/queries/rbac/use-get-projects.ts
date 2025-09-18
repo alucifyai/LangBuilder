@@ -39,7 +39,10 @@ export const useGetProjects: useMutationFunctionType<
     limit = 50,
     search,
     is_active,
-  }: GetProjectsQueryParams): Promise<{ projects: Project[]; total_count: number }> {
+  }: GetProjectsQueryParams): Promise<{
+    projects: Project[];
+    total_count: number;
+  }> {
     let url = `${getURL("RBAC")}/projects/?skip=${skip}&limit=${limit}`;
 
     if (workspace_id) {

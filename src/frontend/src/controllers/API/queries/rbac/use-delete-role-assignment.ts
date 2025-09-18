@@ -8,24 +8,29 @@ export interface DeleteRoleAssignmentData {
   assignment_id: string;
 }
 
-export const useDeleteRoleAssignment: useMutationFunctionType<{ success: boolean }, DeleteRoleAssignmentData> = (
-  options?
-) => {
+export const useDeleteRoleAssignment: useMutationFunctionType<
+  { success: boolean },
+  DeleteRoleAssignmentData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
-  async function deleteRoleAssignment({ assignment_id }: DeleteRoleAssignmentData): Promise<{ success: boolean }> {
-    const res = await api.delete(`${getURL("RBAC")}/role-assignments/${assignment_id}`);
+  async function deleteRoleAssignment({
+    assignment_id,
+  }: DeleteRoleAssignmentData): Promise<{ success: boolean }> {
+    const res = await api.delete(
+      `${getURL("RBAC")}/role-assignments/${assignment_id}`,
+    );
     if (res.status === 204) {
       return { success: true };
     }
     throw new Error(`Failed to delete role assignment: ${res.status}`);
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, DeleteRoleAssignmentData> = mutate(
-    ["useDeleteRoleAssignment"],
-    deleteRoleAssignment,
-    options
-  );
+  const mutation: UseMutationResult<
+    { success: boolean },
+    any,
+    DeleteRoleAssignmentData
+  > = mutate(["useDeleteRoleAssignment"], deleteRoleAssignment, options);
 
   return mutation;
 };
