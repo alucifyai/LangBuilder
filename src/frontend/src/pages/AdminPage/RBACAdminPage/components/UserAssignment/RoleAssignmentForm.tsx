@@ -1,4 +1,8 @@
-import { format } from "date-fns";
+// Using built-in Date formatting instead of date-fns
+const format = (date: Date, formatStr: string) => {
+  if (formatStr === 'PPP') return date.toLocaleDateString();
+  return date.toLocaleDateString();
+};
 import { useEffect, useState } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";

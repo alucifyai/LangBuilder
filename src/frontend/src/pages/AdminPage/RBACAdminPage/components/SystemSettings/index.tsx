@@ -164,7 +164,7 @@ export default function SystemSettings() {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Average Response Time</p>
-                <p className="text-2xl font-bold text-green-600">< 50ms</p>
+                <p className="text-2xl font-bold text-green-600">&lt; 50ms</p>
                 <p className="text-xs text-muted-foreground">Permission check latency</p>
               </div>
             </div>

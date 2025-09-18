@@ -74,7 +74,7 @@ async def create_role(
             resource_id=role_data.workspace_id,
             workspace_id=role_data.workspace_id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -170,7 +170,7 @@ async def list_roles(
             resource_id=workspace_id,
             workspace_id=workspace_id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -213,7 +213,7 @@ async def list_roles(
 
     # Apply pagination
     statement = statement.offset(skip).limit(limit)
-    
+
     result = await session.exec(statement)
     roles = result.all()
 
@@ -536,7 +536,7 @@ async def initialize_system_roles(
     # Create system permissions
     from langflow.services.database.models.rbac.permission import Permission, SYSTEM_PERMISSIONS
     from langflow.services.database.models.rbac.role import Role, SYSTEM_ROLES
-    
+
     for perm_data in SYSTEM_PERMISSIONS:
         statement = select(Permission).where(Permission.code == perm_data["code"])
         result = await session.exec(statement)

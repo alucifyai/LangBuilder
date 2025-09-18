@@ -29,31 +29,31 @@ if TYPE_CHECKING:
 
 class PermissionChecker:
     """Permission checking utility class for RBAC system."""
-    
+
     def __init__(self, session: AsyncSession, user: "User"):
         self.session = session
         self.user = user
-    
+
     def has_workspace_permission(self, workspace: "Workspace", action: str) -> bool:
         """Check if user has permission on workspace."""
         # Superuser always has access
         if self.user.is_superuser:
             return True
-        
+
         # Owner has full access
         if workspace.owner_id == self.user.id:
             return True
-        
+
         # For now, implement basic permission checking
         # In a full implementation, this would check role assignments
         return False
-    
+
     def has_project_permission(self, project: "Project", action: str) -> bool:
         """Check if user has permission on project."""
         # Superuser always has access
         if self.user.is_superuser:
             return True
-        
+
         # Check workspace permission (inherits from workspace)
         from langflow.services.database.models.rbac.workspace import Workspace
         if hasattr(project, 'workspace'):
@@ -61,45 +61,45 @@ class PermissionChecker:
         else:
             # Need to fetch workspace
             return self.user.is_superuser
-        
+
         return self.has_workspace_permission(workspace, action)
-    
+
     def has_environment_permission(self, environment: "Environment", action: str) -> bool:
         """Check if user has permission on environment."""
         # Superuser always has access
         if self.user.is_superuser:
             return True
-        
+
         # Check project permission (inherits from project)
         if hasattr(environment, 'project'):
             project = environment.project
             return self.has_project_permission(project, action)
-        
+
         return False
-    
+
     def has_flow_permission(self, flow: "Flow", action: str) -> bool:
         """Check if user has permission on flow."""
         # Superuser always has access
         if self.user.is_superuser:
             return True
-        
+
         # Flow owner has access
         if hasattr(flow, 'user_id') and flow.user_id == self.user.id:
             return True
-        
+
         return False
-    
+
     def has_role_permission(self, role: "Role", action: str) -> bool:
         """Check if user has permission on role."""
         # Superuser always has access
         if self.user.is_superuser:
             return True
-        
+
         # Check workspace permission
         if hasattr(role, 'workspace'):
             workspace = role.workspace
             return self.has_workspace_permission(workspace, action)
-        
+
         return False
 
 
@@ -109,7 +109,7 @@ async def get_workspace_by_id(
 ) -> "Workspace":
     """Get workspace by ID or raise 404."""
     from langflow.services.database.models.rbac.workspace import Workspace
-    
+
     workspace = await session.get(Workspace, workspace_id)
     if not workspace or workspace.is_deleted:
         raise HTTPException(
@@ -125,7 +125,7 @@ async def get_project_by_id(
 ) -> "Project":
     """Get project by ID or raise 404."""
     from langflow.services.database.models.rbac.project import Project
-    
+
     project = await session.get(Project, project_id)
     if not project or not project.is_active:
         raise HTTPException(
@@ -141,7 +141,7 @@ async def get_environment_by_id(
 ) -> "Environment":
     """Get environment by ID or raise 404."""
     from langflow.services.database.models.rbac.environment import Environment
-    
+
     environment = await session.get(Environment, environment_id)
     if not environment or not environment.is_active:
         raise HTTPException(
@@ -157,7 +157,7 @@ async def get_role_by_id(
 ) -> "Role":
     """Get role by ID or raise 404."""
     from langflow.services.database.models.rbac.role import Role
-    
+
     role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
@@ -173,7 +173,7 @@ async def get_flow_by_id(
 ) -> "Flow":
     """Get flow by ID or raise 404."""
     from langflow.services.database.models.flow.model import Flow
-    
+
     flow = await session.get(Flow, flow_id)
     if not flow:
         raise HTTPException(
@@ -208,7 +208,7 @@ def check_workspace_permission(permission: str):
             resource_id=workspace.id,
             workspace_id=workspace.id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -236,7 +236,7 @@ def check_project_permission(permission: str):
             workspace_id=project.workspace_id,
             project_id=project.id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -262,7 +262,7 @@ def check_environment_permission(permission: str):
             project = await session.get(Project, environment.project_id)
             if project:
                 workspace_id = project.workspace_id
-        
+
         result = await permission_engine.check_permission(
             session=session,
             user=current_user,
@@ -273,7 +273,7 @@ def check_environment_permission(permission: str):
             project_id=environment.project_id,
             environment_id=environment.id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -302,7 +302,7 @@ def check_flow_permission(permission: str):
             project_id=getattr(flow, 'project_id', None),
             environment_id=getattr(flow, 'environment_id', None),
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -329,7 +329,7 @@ def check_role_permission(permission: str):
             resource_id=role.id,
             workspace_id=role.workspace_id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -394,5 +394,3 @@ async def check_api_key_permissions(
             return False
 
     return True
-
-
