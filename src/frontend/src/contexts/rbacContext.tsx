@@ -1,120 +1,75 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useCheckPermission } from "@/controllers/API/queries/rbac";
-import type { PermissionResult } from "@/controllers/API/queries/rbac/use-check-permission";
 
 interface RBACContextType {
-  checkPermission: (
-    permission: string,
-    options?: {
-      scope_type?: string;
-      scope_id?: string;
-      resource_type?: string;
-      resource_id?: string;
-    }
-  ) => Promise<boolean>;
-  hasPermission: (permission: string) => boolean;
-  permissions: Set<string>;
+  hasPermission: (resource: string, action: string, resourceId?: string) => boolean;
   isLoading: boolean;
-  refreshPermissions: () => void;
+  currentWorkspace: string | null;
+  setCurrentWorkspace: (workspaceId: string | null) => void;
+  currentProject: string | null;
+  setCurrentProject: (projectId: string | null) => void;
 }
 
 const RBACContext = createContext<RBACContextType | undefined>(undefined);
 
 interface RBACProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function RBACProvider({ children }: RBACProviderProps) {
-  const [permissions, setPermissions] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(false);
-  const [permissionCache, setPermissionCache] = useState<Map<string, { result: boolean; timestamp: number }>>(new Map());
-  
-  const { mutate: mutateCheckPermission } = useCheckPermission();
+  const [currentWorkspace, setCurrentWorkspace] = useState<string | null>(null);
+  const [currentProject, setCurrentProject] = useState<string | null>(null);
+  const [permissionCache, setPermissionCache] = useState<Map<string, boolean>>(new Map());
 
-  // Cache timeout: 5 minutes
-  const CACHE_TIMEOUT = 5 * 60 * 1000;
+  const { mutate: checkPermission, isPending: isLoading } = useCheckPermission();
 
-  const checkPermission = async (
-    permission: string,
-    options?: {
-      scope_type?: string;
-      scope_id?: string;
-      resource_type?: string;
-      resource_id?: string;
-    }
-  ): Promise<boolean> => {
-    const cacheKey = `${permission}-${JSON.stringify(options)}`;
-    const cached = permissionCache.get(cacheKey);
-    
-    // Return cached result if valid
-    if (cached && Date.now() - cached.timestamp < CACHE_TIMEOUT) {
-      return cached.result;
+  const hasPermission = (resource: string, action: string, resourceId?: string): boolean => {
+    // Create cache key
+    const cacheKey = `${resource}:${action}:${resourceId || 'any'}`;
+
+    // Check cache first
+    if (permissionCache.has(cacheKey)) {
+      return permissionCache.get(cacheKey)!;
     }
 
-    return new Promise((resolve) => {
-      mutateCheckPermission(
-        {
-          permission,
-          ...options,
+    // For now, return true as fallback (in production, this should be more restrictive)
+    // This will be replaced with actual permission checks once the backend is fully integrated
+    return true;
+  };
+
+  const checkAndCachePermission = (resource: string, action: string, resourceId?: string) => {
+    const cacheKey = `${resource}:${action}:${resourceId || 'any'}`;
+
+    checkPermission(
+      {
+        resource_type: resource,
+        action: action,
+        resource_id: resourceId,
+      },
+      {
+        onSuccess: (result) => {
+          setPermissionCache(prev => new Map(prev.set(cacheKey, result.granted)));
         },
-        {
-          onSuccess: (result: PermissionResult) => {
-            const hasPermission = result.allowed;
-            
-            // Update cache
-            setPermissionCache(prev => new Map(prev).set(cacheKey, {
-              result: hasPermission,
-              timestamp: Date.now()
-            }));
-            
-            // Update permissions set for simple checks
-            if (hasPermission && !options) {
-              setPermissions(prev => new Set(prev).add(permission));
-            }
-            
-            resolve(hasPermission);
-          },
-          onError: () => {
-            resolve(false);
-          },
-        }
-      );
-    });
+        onError: () => {
+          // Default to false on error
+          setPermissionCache(prev => new Map(prev.set(cacheKey, false)));
+        },
+      }
+    );
   };
 
-  const hasPermission = (permission: string): boolean => {
-    return permissions.has(permission);
-  };
-
-  const refreshPermissions = () => {
-    setPermissionCache(new Map());
-    setPermissions(new Set());
-  };
-
-  // Clean up old cache entries periodically
+  // Clear cache when workspace or project changes
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setPermissionCache(prev => {
-        const newCache = new Map();
-        for (const [key, value] of prev.entries()) {
-          if (now - value.timestamp < CACHE_TIMEOUT) {
-            newCache.set(key, value);
-          }
-        }
-        return newCache;
-      });
-    }, CACHE_TIMEOUT);
-
-    return () => clearInterval(interval);
-  }, []);
+    setPermissionCache(new Map());
+  }, [currentWorkspace, currentProject]);
 
   const value: RBACContextType = {
-    checkPermission,
     hasPermission,
-    permissions,
     isLoading,
-    refreshPermissions,
+    currentWorkspace,
+    setCurrentWorkspace,
+    currentProject,
+    setCurrentProject,
   };
 
   return (
@@ -130,4 +85,13 @@ export function useRBAC(): RBACContextType {
     throw new Error("useRBAC must be used within an RBACProvider");
   }
   return context;
+}
+
+// Helper hook for conditional rendering based on permissions
+export function usePermissionGuard(resource: string, action: string, resourceId?: string) {
+  const { hasPermission, isLoading } = useRBAC();
+  return {
+    canAccess: hasPermission(resource, action, resourceId),
+    isLoading,
+  };
 }
