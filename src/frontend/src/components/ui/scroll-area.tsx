@@ -6,11 +6,7 @@ interface ScrollAreaProps {
 }
 
 export function ScrollArea({ children, className }: ScrollAreaProps) {
-  return (
-    <div className={`overflow-auto ${className || ''}`}>
-      {children}
-    </div>
-  );
+  return <div className={`overflow-auto ${className || ""}`}>{children}</div>;
 }
 
 export { ScrollArea as default };

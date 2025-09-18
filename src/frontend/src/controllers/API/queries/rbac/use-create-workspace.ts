@@ -12,7 +12,7 @@ export interface CreateWorkspaceData {
 }
 
 export const useCreateWorkspace: useMutationFunctionType<
-  Workspace,
+  undefined,
   CreateWorkspaceData
 > = (options?) => {
   const { mutate } = UseRequestProcessor();

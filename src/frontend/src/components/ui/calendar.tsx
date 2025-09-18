@@ -8,7 +8,13 @@ interface CalendarProps {
   className?: string;
 }
 
-export function Calendar({ mode = "single", selected, onSelect, disabled, className }: CalendarProps) {
+export function Calendar({
+  mode = "single",
+  selected,
+  onSelect,
+  disabled,
+  className,
+}: CalendarProps) {
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
@@ -24,7 +30,7 @@ export function Calendar({ mode = "single", selected, onSelect, disabled, classN
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
-  const days = [];
+  const days: React.ReactElement[] = [];
 
   // Empty cells for days before month starts
   for (let i = 0; i < firstDayOfMonth; i++) {
@@ -34,7 +40,9 @@ export function Calendar({ mode = "single", selected, onSelect, disabled, classN
   // Days of the month
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(currentYear, currentMonth, day);
-    const isSelected = mode === "single" && selected instanceof Date &&
+    const isSelected =
+      mode === "single" &&
+      selected instanceof Date &&
       date.toDateString() === selected.toDateString();
     const isDisabled = disabled && disabled(date);
 
@@ -45,23 +53,26 @@ export function Calendar({ mode = "single", selected, onSelect, disabled, classN
         disabled={isDisabled}
         className={`
           p-2 text-sm rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed
-          ${isSelected ? 'bg-blue-500 text-white' : ''}
-          ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+          ${isSelected ? "bg-blue-500 text-white" : ""}
+          ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         `}
       >
         {day}
-      </button>
+      </button>,
     );
   }
 
   return (
-    <div className={`p-4 border rounded-lg bg-white ${className || ''}`}>
+    <div className={`p-4 border rounded-lg bg-white ${className || ""}`}>
       <div className="text-center font-medium mb-4">
-        {today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        {today.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
       </div>
       <div className="grid grid-cols-7 gap-1">
-        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-          <div key={day} className="p-2 text-xs font-medium text-center text-gray-500">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+          <div
+            key={day}
+            className="p-2 text-xs font-medium text-center text-gray-500"
+          >
             {day}
           </div>
         ))}

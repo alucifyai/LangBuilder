@@ -1,6 +1,5 @@
-import { CalendarIcon } from "lucide-react";
 import * as React from "react";
-import { DateRange } from "react-day-picker";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -9,6 +8,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+
+interface DateRange {
+  from: Date | undefined;
+  to: Date | undefined;
+}
 
 interface DatePickerWithRangeProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -33,7 +37,7 @@ export function DatePickerWithRange({
               !date && "text-muted-foreground",
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <IconComponent name="Calendar" className="mr-2 h-4 w-4" />
             {date?.from ? (
               date.to ? (
                 <>
@@ -49,14 +53,22 @@ export function DatePickerWithRange({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={onDateChange}
-            numberOfMonths={2}
-          />
+          <div className="p-4">
+            <div className="text-sm text-muted-foreground mb-2">
+              Range picker functionality not yet implemented
+            </div>
+            <Calendar
+              mode="single"
+              selected={date?.from}
+              onSelect={(selectedDate) => {
+                if (selectedDate instanceof Date) {
+                  onDateChange({ from: selectedDate, to: selectedDate });
+                } else {
+                  onDateChange(undefined);
+                }
+              }}
+            />
+          </div>
         </PopoverContent>
       </Popover>
     </div>

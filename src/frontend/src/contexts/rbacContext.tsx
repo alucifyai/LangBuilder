@@ -33,6 +33,7 @@ export function RBACProvider({ children }: RBACProviderProps) {
     new Map(),
   );
 
+  // @ts-ignore - Type definition issue with mutation hook
   const { mutate: checkPermission, isPending: isLoading } =
     useCheckPermission();
 

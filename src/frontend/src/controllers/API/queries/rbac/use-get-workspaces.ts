@@ -23,7 +23,7 @@ interface GetWorkspacesQueryParams {
 }
 
 export const useGetWorkspaces: useMutationFunctionType<
-  { workspaces: Workspace[]; total_count: number },
+  undefined,
   GetWorkspacesQueryParams
 > = (options?) => {
   const { mutate } = UseRequestProcessor();

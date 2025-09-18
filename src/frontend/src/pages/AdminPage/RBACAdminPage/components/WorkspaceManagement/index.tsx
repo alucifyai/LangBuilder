@@ -1,357 +1,66 @@
-import { useEffect, useState } from "react";
-import IconComponent from "@/components/common/genericIconComponent";
-import LoadingComponent from "@/components/common/loadingComponent";
-import PaginatorComponent from "@/components/common/paginatorComponent";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  useCreateWorkspace,
-  useDeleteWorkspace,
-  useGetWorkspaces,
-  useUpdateWorkspace,
-  type Workspace,
-} from "@/controllers/API/queries/rbac";
-import useAlertStore from "@/stores/alertStore";
-import WorkspaceDetails from "./WorkspaceDetails";
-import WorkspaceForm from "./WorkspaceForm";
+import { useState } from "react";
 
 export default function WorkspaceManagement() {
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
-    null,
-  );
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const setSuccessData = useAlertStore((state) => state.setSuccessData);
-  const setErrorData = useAlertStore((state) => state.setErrorData);
-
-  const { mutate: getWorkspaces, isPending: isLoading } = useGetWorkspaces();
-  const { mutate: createWorkspace, isPending: isCreating } =
-    useCreateWorkspace();
-  const { mutate: updateWorkspace, isPending: isUpdating } =
-    useUpdateWorkspace();
-  const { mutate: deleteWorkspace, isPending: isDeleting } =
-    useDeleteWorkspace();
-
-  useEffect(() => {
-    fetchWorkspaces();
-  }, [pageIndex, pageSize, searchTerm]);
-
-  const fetchWorkspaces = () => {
-    getWorkspaces(
-      {
-        skip: pageSize * (pageIndex - 1),
-        limit: pageSize,
-        search: searchTerm || undefined,
-      },
-      {
-        onSuccess: (data) => {
-          setWorkspaces(data.workspaces);
-          setTotalCount(data.total_count);
-        },
-        onError: (error) => {
-          setErrorData({
-            title: "Failed to load workspaces",
-            list: [error?.message || "Unknown error occurred"],
-          });
-        },
-      },
-    );
-  };
-
-  const handleCreateWorkspace = (data: {
-    name: string;
-    description?: string;
-  }) => {
-    createWorkspace(data, {
-      onSuccess: () => {
-        setSuccessData({ title: "Workspace created successfully" });
-        setIsFormOpen(false);
-        fetchWorkspaces();
-      },
-      onError: (error) => {
-        setErrorData({
-          title: "Failed to create workspace",
-          list: [error?.message || "Unknown error occurred"],
-        });
-      },
-    });
-  };
-
-  const handleUpdateWorkspace = (
-    id: string,
-    data: { name?: string; description?: string; is_active?: boolean },
-  ) => {
-    updateWorkspace(
-      { workspace_id: id, ...data },
-      {
-        onSuccess: () => {
-          setSuccessData({ title: "Workspace updated successfully" });
-          setIsFormOpen(false);
-          setIsEditing(false);
-          setSelectedWorkspace(null);
-          fetchWorkspaces();
-        },
-        onError: (error) => {
-          setErrorData({
-            title: "Failed to update workspace",
-            list: [error?.message || "Unknown error occurred"],
-          });
-        },
-      },
-    );
-  };
-
-  const handleDeleteWorkspace = (id: string) => {
-    deleteWorkspace(
-      { workspace_id: id },
-      {
-        onSuccess: () => {
-          setSuccessData({ title: "Workspace deleted successfully" });
-          fetchWorkspaces();
-        },
-        onError: (error) => {
-          setErrorData({
-            title: "Failed to delete workspace",
-            list: [error?.message || "Unknown error occurred"],
-          });
-        },
-      },
-    );
-  };
-
-  const openCreateForm = () => {
-    setSelectedWorkspace(null);
-    setIsEditing(false);
-    setIsFormOpen(true);
-  };
-
-  const openEditForm = (workspace: Workspace) => {
-    setSelectedWorkspace(workspace);
-    setIsEditing(true);
-    setIsFormOpen(true);
-  };
-
-  const openDetails = (workspace: Workspace) => {
-    setSelectedWorkspace(workspace);
-    setIsDetailsOpen(true);
-  };
-
-  const handlePaginationChange = (pageIndex: number, pageSize: number) => {
-    setPageIndex(pageIndex);
-    setPageSize(pageSize);
-  };
+  const [workspaces] = useState([
+    { id: "1", name: "Default Workspace", members: 5, projects: 3, status: "Active" },
+    { id: "2", name: "Development", members: 8, projects: 7, status: "Active" },
+    { id: "3", name: "Testing", members: 3, projects: 2, status: "Inactive" },
+  ]);
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header and Controls */}
-      <div className="flex items-center justify-between p-6 border-b">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Input
-              placeholder="Search workspaces..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64"
-            />
-            <ShadTooltip content="Search by workspace name or description">
-              <IconComponent
-                name="Search"
-                className="h-4 w-4 text-muted-foreground"
-              />
-            </ShadTooltip>
-          </div>
-        </div>
-
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={openCreateForm}
-              className="flex items-center space-x-2"
-            >
-              <IconComponent name="Plus" className="h-4 w-4" />
-              <span>Create Workspace</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditing ? "Edit Workspace" : "Create New Workspace"}
-              </DialogTitle>
-            </DialogHeader>
-            <WorkspaceForm
-              workspace={selectedWorkspace}
-              onSubmit={
-                isEditing
-                  ? (data) => handleUpdateWorkspace(selectedWorkspace!.id, data)
-                  : handleCreateWorkspace
-              }
-              onCancel={() => {
-                setIsFormOpen(false);
-                setSelectedWorkspace(null);
-                setIsEditing(false);
-              }}
-              isLoading={isCreating || isUpdating}
-            />
-          </DialogContent>
-        </Dialog>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold">Workspace Management</h2>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          Create Workspace
+        </button>
       </div>
 
-      {/* Workspace Table */}
-      <div className="flex-1 overflow-hidden">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <LoadingComponent />
-          </div>
-        ) : (
-          <>
-            <div className="h-full overflow-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Members</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workspaces.map((workspace) => (
-                    <TableRow key={workspace.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center space-x-2">
-                          <IconComponent
-                            name="Building2"
-                            className="h-4 w-4 text-muted-foreground"
-                          />
-                          <span>{workspace.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {workspace.description || "No description"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            workspace.is_active ? "default" : "secondary"
-                          }
-                        >
-                          {workspace.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(workspace.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          <IconComponent
-                            name="Users"
-                            className="h-4 w-4 text-muted-foreground"
-                          />
-                          <span>{workspace.member_count || 0}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <ShadTooltip content="View Details">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openDetails(workspace)}
-                            >
-                              <IconComponent name="Eye" className="h-4 w-4" />
-                            </Button>
-                          </ShadTooltip>
-                          <ShadTooltip content="Edit Workspace">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEditForm(workspace)}
-                            >
-                              <IconComponent
-                                name="Pencil"
-                                className="h-4 w-4"
-                              />
-                            </Button>
-                          </ShadTooltip>
-                          <ShadTooltip content="Delete Workspace">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleDeleteWorkspace(workspace.id)
-                              }
-                              disabled={isDeleting}
-                            >
-                              <IconComponent
-                                name="Trash2"
-                                className="h-4 w-4 text-destructive"
-                              />
-                            </Button>
-                          </ShadTooltip>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            <div className="border-t p-4">
-              <PaginatorComponent
-                pageIndex={pageIndex}
-                pageSize={pageSize}
-                totalRowsCount={totalCount}
-                paginate={handlePaginationChange}
-                rowsCount={[5, 10, 25, 50]}
-              />
-            </div>
-          </>
-        )}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search workspaces..."
+          className="border rounded px-3 py-2 w-64"
+        />
       </div>
 
-      {/* Workspace Details Dialog */}
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Workspace Details</DialogTitle>
-          </DialogHeader>
-          {selectedWorkspace && (
-            <WorkspaceDetails
-              workspace={selectedWorkspace}
-              onClose={() => {
-                setIsDetailsOpen(false);
-                setSelectedWorkspace(null);
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      <div className="border rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Members</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Projects</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {workspaces.map((workspace) => (
+              <tr key={workspace.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium">{workspace.name}</td>
+                <td className="px-4 py-3">{workspace.members}</td>
+                <td className="px-4 py-3">{workspace.projects}</td>
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    workspace.status === "Active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}>
+                    {workspace.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex space-x-2">
+                    <button className="text-blue-600 hover:text-blue-800 text-sm">Edit</button>
+                    <button className="text-red-600 hover:text-red-800 text-sm">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -20,54 +20,20 @@ export default function PermissionGuard({
   fallback = null,
   children,
 }: PermissionGuardProps) {
-  const { checkPermission } = useRBAC();
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { hasPermission: checkPermission, isLoading } = useRBAC();
 
-  useEffect(() => {
-    let mounted = true;
-
-    const verifyPermission = async () => {
-      setIsLoading(true);
-      try {
-        const result = await checkPermission(permission, {
-          scope_type,
-          scope_id,
-          resource_type,
-          resource_id,
-        });
-
-        if (mounted) {
-          setHasPermission(result);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (mounted) {
-          setHasPermission(false);
-          setIsLoading(false);
-        }
-      }
-    };
-
-    verifyPermission();
-
-    return () => {
-      mounted = false;
-    };
-  }, [
+  // Use the hasPermission function directly
+  const hasAccess = checkPermission(
+    resource_type || "global",
     permission,
-    scope_type,
-    scope_id,
-    resource_type,
-    resource_id,
-    checkPermission,
-  ]);
+    resource_id
+  );
 
   if (isLoading) {
     return <div className="opacity-50">{children}</div>;
   }
 
-  if (!hasPermission) {
+  if (!hasAccess) {
     return <>{fallback}</>;
   }
 

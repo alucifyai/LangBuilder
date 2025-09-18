@@ -1,11 +1,11 @@
 import { useState } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ComplianceReporting from "./components/ComplianceReporting";
-import RoleManagement from "./components/RoleManagement";
 import SystemSettings from "./components/SystemSettings";
-import UserAssignment from "./components/UserAssignment";
 import WorkspaceManagement from "./components/WorkspaceManagement";
+import RoleManagement from "./components/RoleManagement";
+import UserAssignment from "./components/UserAssignment";
+import ComplianceReporting from "./components/ComplianceReporting";
 
 export default function RBACAdminPage() {
   const [activeTab, setActiveTab] = useState("workspaces");
