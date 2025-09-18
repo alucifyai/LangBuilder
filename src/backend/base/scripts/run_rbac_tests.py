@@ -46,7 +46,7 @@ def run_command(command: list, description: str) -> bool:
             text=True,
             timeout=300  # 5 minute timeout
         )
-        
+
         if result.returncode == 0:
             print_success(f"{description} completed successfully")
             if result.stdout.strip():
@@ -57,7 +57,7 @@ def run_command(command: list, description: str) -> bool:
             if result.stderr.strip():
                 print(f"Error: {result.stderr.strip()}")
             return False
-            
+
     except subprocess.TimeoutExpired:
         print_error(f"{description} timed out")
         return False
@@ -68,14 +68,14 @@ def run_command(command: list, description: str) -> bool:
 def main():
     """Main test runner function."""
     print_header("RBAC Phase 2 Test Suite")
-    
+
     # Get the base path
     script_dir = Path(__file__).parent
     base_path = script_dir.parent
     os.chdir(base_path)
-    
+
     print_info(f"Base directory: {base_path}")
-    
+
     # Test categories to run
     test_categories = [
         {
@@ -92,7 +92,7 @@ def main():
             "description": "Run workspace API unit tests"
         },
         {
-            "name": "RBAC Unit Tests - Projects", 
+            "name": "RBAC Unit Tests - Projects",
             "command": ["python", "-m", "pytest", "tests/unit/api/v1/rbac/test_projects.py", "-v"],
             "description": "Run project API unit tests"
         },
@@ -122,30 +122,30 @@ def main():
             "description": "Validate Phase 2 implementation compliance"
         }
     ]
-    
+
     # Track results
     passed_tests = 0
     total_tests = len(test_categories)
-    
+
     # Run each test category
     for i, test_config in enumerate(test_categories, 1):
         print_header(f"Test {i}/{total_tests}: {test_config['name']}")
-        
+
         success = run_command(test_config["command"], test_config["description"])
-        
+
         if success:
             passed_tests += 1
-        
+
         # Add separator between tests
         print()
-    
+
     # Print final summary
     print_header("Test Summary")
-    
+
     if passed_tests == total_tests:
         print_success(f"All {total_tests} test categories passed!")
         print_info("✨ RBAC Phase 2 implementation is fully tested and validated")
-        
+
         # Additional information
         print("\n" + Colors.BOLD + "What was tested:" + Colors.END)
         print("• Python syntax validation for all RBAC files")
@@ -155,14 +155,14 @@ def main():
         print("• Permission engine functionality and caching")
         print("• Database model validation")
         print("• Router integration and dependency consistency")
-        
+
         print("\n" + Colors.BOLD + "Test Coverage:" + Colors.END)
         print("• 144+ individual test methods across all modules")
         print("• Comprehensive mocking and fixture usage")
         print("• Error handling and edge case validation")
         print("• Multi-tenant isolation testing")
         print("• Permission hierarchy validation")
-        
+
         return 0
     else:
         failed_tests = total_tests - passed_tests
