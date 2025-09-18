@@ -153,3 +153,23 @@ Please do a comprehensive audit of the phase 4 implementation. Ensure all the de
   tests have full coverage.
 
 
+Prompt #19:
+
+Time to work on phase 5. Read RBAC_IMPLEMENTATION_PLAN.md for the RBAC implementation plan of Phase 5:             │
+│    Advanced Features, understand the overall context in LangBuilder using AppGraph v7_1 and acceptanc criteria       │
+│     represented as validation node in Gherkin structures in the AppGraph, follow the implementation plan, and fully  │
+│   comply the implementation code with the existing LangBuilder business logic and service patterns in the            │
+│   implementation. Create test cases and validation scripts while you generate the codes. Ensure the code can pass    │
+│   pre-commit-config rules. This phase is about RBAC Multi-Environment Support and Service Account Management.
+
+
+Prompt #20:
+
+Please do a comprehensive audit of the phase 5 implementation. Ensure all the details and deliverables described   │
+│   in the implementation plan for phase 4 are completely fulfilled, implementation is fully compliant with the        │
+│   LangBuilder system pattern, phase 5 is fully compatible with phases 1, 2, 3 and 4, code passes pre-commit-config,  │
+│   all the relevant requirements in the PRD are satisfied, and there is no logical gap between the implementation     │
+│   and the AppGraph. Ensure that all the integrations with LangBuilder flows, services, and data layer are complete,  │
+│   and integration tests have full coverage. Produce documentation of the implementation and audit report. 
+
+
