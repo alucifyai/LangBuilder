@@ -120,6 +120,12 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
+    # SSO Configurations, comment out until sso_configuratio is part of alembic table setup
+    # sso_configurations: list["SSOConfiguration"] = Relationship(
+    #     back_populates="workspace",
+    #     sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    # )
+
     # Unique constraints
     __table_args__ = (UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),)
 
