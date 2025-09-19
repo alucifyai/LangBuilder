@@ -712,4 +712,4 @@ describe("Phase 6 Component Integration Tests", () => {
 });
 
 // Export for potential use in other test files
-export { renderWithProviders, createQueryClient };
+// export { renderWithProviders, createQueryClient };
