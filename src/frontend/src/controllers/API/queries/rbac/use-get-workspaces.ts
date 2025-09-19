@@ -48,10 +48,12 @@ export const useGetWorkspaces: useMutationFunctionType<
 
       if (res.status === 200) {
         // The backend returns an array directly, not wrapped in an object
-        const workspaces = Array.isArray(res.data) ? res.data : res.data.workspaces || [];
+        const workspaces = Array.isArray(res.data)
+          ? res.data
+          : res.data.workspaces || [];
         return {
           workspaces,
-          total_count: workspaces.length
+          total_count: workspaces.length,
         };
       }
       return { workspaces: [], total_count: 0 };

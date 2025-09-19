@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useGetRoles } from "../../../../../controllers/API/queries/rbac/use-get-roles";
+import { useEffect, useState } from "react";
 import { useCreateRole } from "../../../../../controllers/API/queries/rbac/use-create-role";
-import { useUpdateRole } from "../../../../../controllers/API/queries/rbac/use-update-role";
 import { useDeleteRole } from "../../../../../controllers/API/queries/rbac/use-delete-role";
+import { useGetRoles } from "../../../../../controllers/API/queries/rbac/use-get-roles";
+import { useUpdateRole } from "../../../../../controllers/API/queries/rbac/use-update-role";
 import PermissionsModal from "./PermissionsModal";
 
 export default function RoleManagement() {
@@ -14,20 +14,21 @@ export default function RoleManagement() {
   const [editRoleName, setEditRoleName] = useState("");
   const [editRoleDescription, setEditRoleDescription] = useState("");
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
-  const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<any>(null);
+  const [selectedRoleForPermissions, setSelectedRoleForPermissions] =
+    useState<any>(null);
 
   const {
     mutate: fetchRoles,
     data: rolesData,
     isPending: isLoading,
-    error
+    error,
   } = useGetRoles({
     onSuccess: (data) => {
       console.log("Roles fetched successfully:", data);
     },
     onError: (error) => {
       console.error("Failed to fetch roles:", error);
-    }
+    },
   });
 
   const { mutate: createRole, isPending: isCreatingRole } = useCreateRole({
@@ -40,7 +41,7 @@ export default function RoleManagement() {
     },
     onError: (error) => {
       console.error("Failed to create role:", error);
-    }
+    },
   });
 
   const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateRole({
@@ -57,7 +58,7 @@ export default function RoleManagement() {
       setEditingRole(null);
       setEditRoleName("");
       setEditRoleDescription("");
-    }
+    },
   });
 
   const { mutate: deleteRole, error: deleteError } = useDeleteRole({
@@ -69,7 +70,7 @@ export default function RoleManagement() {
     onError: (error) => {
       console.error("Failed to delete role:", error);
       alert(`Failed to delete role: ${error?.message || "Unknown error"}`);
-    }
+    },
   });
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export default function RoleManagement() {
         name: newRoleName,
         description: newRoleDescription,
         type: "custom",
-        is_active: true
+        is_active: true,
       });
     }
   };
@@ -104,8 +105,8 @@ export default function RoleManagement() {
         role: {
           name: editRoleName.trim(),
           description: editRoleDescription.trim() || undefined,
-          is_active: true
-        }
+          is_active: true,
+        },
       });
     }
   };
@@ -127,7 +128,9 @@ export default function RoleManagement() {
     console.log(`Saving permissions for role ${roleId}:`, permissions);
     // Here you would call an API to update the role permissions
     // For now, we'll just close the modal and show a success message
-    alert(`Permissions updated for role! (${permissions.length} permissions selected)\n\nIn a real implementation, this would call an API to update the role permissions.`);
+    alert(
+      `Permissions updated for role! (${permissions.length} permissions selected)\n\nIn a real implementation, this would call an API to update the role permissions.`,
+    );
 
     // Refresh roles to get updated data
     fetchRoles({ search: searchTerm, is_active: true });
@@ -142,7 +145,7 @@ export default function RoleManagement() {
   };
 
   // Handle both API response formats
-  const roles = Array.isArray(rolesData) ? rolesData : (rolesData?.roles || []);
+  const roles = Array.isArray(rolesData) ? rolesData : rolesData?.roles || [];
 
   return (
     <div className="p-6">
@@ -162,7 +165,9 @@ export default function RoleManagement() {
           <h3 className="text-lg font-medium mb-4">Create New Role</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Role Name</label>
+              <label className="block text-sm font-medium mb-2">
+                Role Name
+              </label>
               <input
                 type="text"
                 value={newRoleName}
@@ -172,7 +177,9 @@ export default function RoleManagement() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+              <label className="block text-sm font-medium mb-2">
+                Description (Optional)
+              </label>
               <textarea
                 value={newRoleDescription}
                 onChange={(e) => setNewRoleDescription(e.target.value)}
@@ -209,7 +216,7 @@ export default function RoleManagement() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           placeholder="Search roles..."
           className="border rounded px-3 py-2 w-64"
         />
@@ -251,11 +258,21 @@ export default function RoleManagement() {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Role Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Description</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Users</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Permissions</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Role Name
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Description
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Users
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Permissions
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y">

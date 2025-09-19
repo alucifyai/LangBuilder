@@ -45,7 +45,7 @@ async def create_workspace(
 ) -> WorkspaceRead:
     """Create a new workspace."""
     from langflow.services.database.models.rbac.workspace import Workspace, WorkspaceCreate, WorkspaceRead
-    
+
     # Check if workspace name already exists for this user
     statement = select(Workspace).where(
         Workspace.owner_id == current_user.id,
@@ -109,7 +109,7 @@ async def list_workspaces(
 
     # Apply pagination
     statement = statement.offset(skip).limit(limit)
-    
+
     result = await session.exec(statement)
     workspaces = result.all()
 
@@ -282,7 +282,7 @@ async def list_workspace_projects(
         Project.workspace_id == workspace_id,
         Project.is_active == True
     ).offset(skip).limit(limit)
-    
+
     result = await session.exec(statement)
     projects = result.all()
 

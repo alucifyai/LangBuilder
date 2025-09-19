@@ -22,7 +22,10 @@ export const useCreateWorkspace: useMutationFunctionType<
   ): Promise<Workspace> {
     try {
       console.log("Creating workspace with data:", workspaceData);
-      const res = await api.post(`${getURL("RBAC")}/workspaces/`, workspaceData);
+      const res = await api.post(
+        `${getURL("RBAC")}/workspaces/`,
+        workspaceData,
+      );
       console.log("Create workspace response:", res.status, res.data);
 
       if (res.status === 201) {

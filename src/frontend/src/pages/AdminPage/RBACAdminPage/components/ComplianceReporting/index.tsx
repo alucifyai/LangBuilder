@@ -3,9 +3,27 @@ import { useState } from "react";
 export default function ComplianceReporting() {
   const [reportType, setReportType] = useState("");
   const [reports] = useState([
-    { id: "1", name: "User Access Report", type: "Access", generated: "2024-01-15", status: "Ready" },
-    { id: "2", name: "Role Assignment Audit", type: "Audit", generated: "2024-01-14", status: "Generating" },
-    { id: "3", name: "Permission Matrix", type: "Matrix", generated: "2024-01-13", status: "Ready" },
+    {
+      id: "1",
+      name: "User Access Report",
+      type: "Access",
+      generated: "2024-01-15",
+      status: "Ready",
+    },
+    {
+      id: "2",
+      name: "Role Assignment Audit",
+      type: "Audit",
+      generated: "2024-01-14",
+      status: "Generating",
+    },
+    {
+      id: "3",
+      name: "Permission Matrix",
+      type: "Matrix",
+      generated: "2024-01-13",
+      status: "Ready",
+    },
   ]);
 
   return (
@@ -60,11 +78,21 @@ export default function ComplianceReporting() {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Report Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Generated</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Report Name
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Type
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Generated
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -74,18 +102,24 @@ export default function ComplianceReporting() {
                 <td className="px-4 py-3">{report.type}</td>
                 <td className="px-4 py-3 text-gray-600">{report.generated}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    report.status === "Ready"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs ${
+                      report.status === "Ready"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
                     {report.status}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex space-x-2">
-                    <button className="text-blue-600 hover:text-blue-800 text-sm">Download</button>
-                    <button className="text-gray-600 hover:text-gray-800 text-sm">View</button>
+                    <button className="text-blue-600 hover:text-blue-800 text-sm">
+                      Download
+                    </button>
+                    <button className="text-gray-600 hover:text-gray-800 text-sm">
+                      View
+                    </button>
                   </div>
                 </td>
               </tr>

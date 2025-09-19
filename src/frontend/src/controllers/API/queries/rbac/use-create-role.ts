@@ -13,9 +13,10 @@ export interface CreateRoleData {
   is_active?: boolean;
 }
 
-export const useCreateRole: useMutationFunctionType<undefined, CreateRoleData> = (
-  options?,
-) => {
+export const useCreateRole: useMutationFunctionType<
+  undefined,
+  CreateRoleData
+> = (options?) => {
   const { mutate } = UseRequestProcessor();
 
   async function createRole(roleData: CreateRoleData): Promise<Role> {

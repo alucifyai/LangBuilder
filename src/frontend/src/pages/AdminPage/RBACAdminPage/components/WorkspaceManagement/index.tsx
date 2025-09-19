@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useGetWorkspaces } from "../../../../../controllers/API/queries/rbac/use-get-workspaces";
+import { useEffect, useState } from "react";
 import { useCreateWorkspace } from "../../../../../controllers/API/queries/rbac/use-create-workspace";
-import { useUpdateWorkspace } from "../../../../../controllers/API/queries/rbac/use-update-workspace";
 import { useDeleteWorkspace } from "../../../../../controllers/API/queries/rbac/use-delete-workspace";
+import { useGetWorkspaces } from "../../../../../controllers/API/queries/rbac/use-get-workspaces";
+import { useUpdateWorkspace } from "../../../../../controllers/API/queries/rbac/use-update-workspace";
 
 export default function WorkspaceManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,7 +18,7 @@ export default function WorkspaceManagement() {
     mutate: fetchWorkspaces,
     data: workspacesData,
     isPending: isLoading,
-    error
+    error,
   } = useGetWorkspaces({
     onSuccess: (data) => {
       console.log("Workspaces fetched successfully:", data);
@@ -26,44 +26,52 @@ export default function WorkspaceManagement() {
     },
     onError: (error) => {
       console.error("Failed to fetch workspaces:", error);
-    }
+    },
   });
 
-  const { mutate: createWorkspace, isPending: isCreatingWorkspace } = useCreateWorkspace({
-    onSuccess: (newWorkspace) => {
-      console.log("Workspace created successfully:", newWorkspace);
-      setIsCreating(false);
-      setNewWorkspaceName("");
-      setNewWorkspaceDescription("");
-      setCreateError(null);
-      // Refresh workspaces list - clear search to see all workspaces including new one
-      setSearchTerm("");
-      // Add a small delay to ensure backend has processed the creation
-      setTimeout(() => {
-        fetchWorkspaces({ search: "" });
-      }, 500);
-    },
-    onError: (error) => {
-      console.error("Failed to create workspace:", error);
-      // Don't show error if it's a duplicate but workspace was still created
-      const errorMessage = error?.message || "Unknown error occurred";
-      if (errorMessage.toLowerCase().includes("already exists") || errorMessage.toLowerCase().includes("duplicate")) {
-        // Still refresh the list in case it was created despite the error
-        setTimeout(() => {
-          fetchWorkspaces({ search: searchTerm });
-        }, 500);
-        // Clear the form since it might have been created
+  const { mutate: createWorkspace, isPending: isCreatingWorkspace } =
+    useCreateWorkspace({
+      onSuccess: (newWorkspace) => {
+        console.log("Workspace created successfully:", newWorkspace);
         setIsCreating(false);
         setNewWorkspaceName("");
         setNewWorkspaceDescription("");
         setCreateError(null);
-      } else {
-        setCreateError(errorMessage);
-      }
-    }
-  });
+        // Refresh workspaces list - clear search to see all workspaces including new one
+        setSearchTerm("");
+        // Add a small delay to ensure backend has processed the creation
+        setTimeout(() => {
+          fetchWorkspaces({ search: "" });
+        }, 500);
+      },
+      onError: (error) => {
+        console.error("Failed to create workspace:", error);
+        // Don't show error if it's a duplicate but workspace was still created
+        const errorMessage = error?.message || "Unknown error occurred";
+        if (
+          errorMessage.toLowerCase().includes("already exists") ||
+          errorMessage.toLowerCase().includes("duplicate")
+        ) {
+          // Still refresh the list in case it was created despite the error
+          setTimeout(() => {
+            fetchWorkspaces({ search: searchTerm });
+          }, 500);
+          // Clear the form since it might have been created
+          setIsCreating(false);
+          setNewWorkspaceName("");
+          setNewWorkspaceDescription("");
+          setCreateError(null);
+        } else {
+          setCreateError(errorMessage);
+        }
+      },
+    });
 
-  const { mutate: updateWorkspace, isPending: isUpdatingWorkspace, error: updateError } = useUpdateWorkspace({
+  const {
+    mutate: updateWorkspace,
+    isPending: isUpdatingWorkspace,
+    error: updateError,
+  } = useUpdateWorkspace({
     onSuccess: (data) => {
       console.log("Update workspace successful:", data);
       setEditingWorkspace(null);
@@ -79,7 +87,7 @@ export default function WorkspaceManagement() {
       setEditingWorkspace(null);
       setEditWorkspaceName("");
       setEditWorkspaceDescription("");
-    }
+    },
   });
 
   const { mutate: deleteWorkspace } = useDeleteWorkspace({
@@ -89,7 +97,7 @@ export default function WorkspaceManagement() {
     },
     onError: (error) => {
       console.error("Failed to delete workspace:", error);
-    }
+    },
   });
 
   useEffect(() => {
@@ -120,7 +128,7 @@ export default function WorkspaceManagement() {
       createWorkspace({
         name: trimmedName,
         description: newWorkspaceDescription.trim() || undefined,
-        is_active: true
+        is_active: true,
       });
     }
   };
@@ -143,8 +151,8 @@ export default function WorkspaceManagement() {
         workspace: {
           name: editWorkspaceName.trim(),
           description: editWorkspaceDescription.trim() || undefined,
-          is_active: true
-        }
+          is_active: true,
+        },
       });
 
       updateWorkspace({
@@ -152,13 +160,16 @@ export default function WorkspaceManagement() {
         workspace: {
           name: editWorkspaceName.trim(),
           description: editWorkspaceDescription.trim() || undefined,
-          is_active: true
-        }
+          is_active: true,
+        },
       });
     } else {
       console.log("handleUpdateWorkspace: conditions not met");
       console.log("editingWorkspace exists:", !!editingWorkspace);
-      console.log("editWorkspaceName.trim() exists:", !!editWorkspaceName.trim());
+      console.log(
+        "editWorkspaceName.trim() exists:",
+        !!editWorkspaceName.trim(),
+      );
     }
   };
 
@@ -201,7 +212,9 @@ export default function WorkspaceManagement() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Workspace Name</label>
+              <label className="block text-sm font-medium mb-2">
+                Workspace Name
+              </label>
               <input
                 type="text"
                 value={newWorkspaceName}
@@ -214,7 +227,9 @@ export default function WorkspaceManagement() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+              <label className="block text-sm font-medium mb-2">
+                Description (Optional)
+              </label>
               <textarea
                 value={newWorkspaceDescription}
                 onChange={(e) => setNewWorkspaceDescription(e.target.value)}
@@ -258,7 +273,7 @@ export default function WorkspaceManagement() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           placeholder="Search workspaces..."
           className="border rounded px-3 py-2 w-64"
         />
@@ -297,11 +312,21 @@ export default function WorkspaceManagement() {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Members</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Projects</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Name
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Members
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Projects
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -335,11 +360,13 @@ export default function WorkspaceManagement() {
                   <td className="px-4 py-3">{workspace.member_count || 1}</td>
                   <td className="px-4 py-3">-</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      workspace.is_active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        workspace.is_active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {workspace.is_active ? "Active" : "Inactive"}
                     </span>
                   </td>
@@ -349,7 +376,9 @@ export default function WorkspaceManagement() {
                         <>
                           <button
                             onClick={handleUpdateWorkspace}
-                            disabled={!editWorkspaceName.trim() || isUpdatingWorkspace}
+                            disabled={
+                              !editWorkspaceName.trim() || isUpdatingWorkspace
+                            }
                             className="text-green-600 hover:text-green-800 text-sm disabled:opacity-50"
                           >
                             {isUpdatingWorkspace ? "Saving..." : "Save"}

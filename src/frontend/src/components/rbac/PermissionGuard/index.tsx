@@ -26,7 +26,7 @@ export default function PermissionGuard({
   const hasAccess = checkPermission(
     resource_type || "global",
     permission,
-    resource_id
+    resource_id,
   );
 
   if (isLoading) {

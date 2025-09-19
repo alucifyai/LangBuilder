@@ -118,7 +118,7 @@ async def create_role_assignment(
     current_user: CurrentActiveUser,
 ) -> RoleAssignmentRead:
     """Create a new role assignment."""
-    
+
     # TODO: Fix permission check - use proper FastAPI dependency
     # await check_workspace_permission(
     #     session, current_user, assignment_data.workspace_id, "role_assignment:create"
@@ -172,7 +172,7 @@ async def create_role_assignment(
     assignment_dict['assigned_by_id'] = current_user.id
 
     assignment = RoleAssignment(**assignment_dict)
-    
+
     session.add(assignment)
     await session.commit()
     await session.refresh(assignment)
@@ -203,7 +203,7 @@ async def get_role_assignment(
     current_user: CurrentActiveUser,
 ) -> RoleAssignmentRead:
     """Get role assignment by ID."""
-    
+
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -228,7 +228,7 @@ async def update_role_assignment(
     current_user: CurrentActiveUser,
 ) -> RoleAssignmentRead:
     """Update role assignment."""
-    
+
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -260,7 +260,7 @@ async def delete_role_assignment(
     current_user: CurrentActiveUser,
 ) -> None:
     """Delete role assignment (deactivate)."""
-    
+
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -290,7 +290,7 @@ async def list_user_role_assignments(
     limit: int = Query(100, ge=1, le=1000),
 ) -> list[RoleAssignmentRead]:
     """List all role assignments for a specific user."""
-    
+
     # If workspace_id is provided, check permission for that workspace
     # Otherwise, user can only see their own assignments
     if workspace_id:
@@ -319,7 +319,7 @@ async def list_user_role_assignments(
 
     # Apply pagination
     statement = statement.offset(skip).limit(limit)
-    
+
     result = await session.exec(statement)
     assignments = result.all()
 
@@ -334,7 +334,7 @@ async def approve_role_assignment(
     current_user: CurrentActiveUser,
 ) -> RoleAssignmentRead:
     """Approve a pending role assignment."""
-    
+
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -369,7 +369,7 @@ async def reject_role_assignment(
     current_user: CurrentActiveUser,
 ) -> None:
     """Reject a pending role assignment."""
-    
+
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -402,7 +402,7 @@ async def list_pending_assignments(
     limit: int = Query(100, ge=1, le=1000),
 ) -> list[RoleAssignmentRead]:
     """List pending role assignments requiring approval."""
-    
+
     # Check workspace permission
     # TODO: Fix permission check to use proper FastAPI dependency
     # await check_workspace_permission(session, current_user, workspace_id, "role_assignment:approve")
@@ -414,7 +414,7 @@ async def list_pending_assignments(
             RoleAssignment.is_active == False
         )
     ).offset(skip).limit(limit)
-    
+
     result = await session.exec(statement)
     assignments = result.all()
 
@@ -428,7 +428,7 @@ async def bulk_create_role_assignments(
     current_user: CurrentActiveUser,
 ) -> list[RoleAssignmentRead]:
     """Create multiple role assignments at once."""
-    
+
     if len(assignments_data) > 50:  # Reasonable bulk limit
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -436,7 +436,7 @@ async def bulk_create_role_assignments(
         )
 
     created_assignments = []
-    
+
     for assignment_data in assignments_data:
         try:
             # Check workspace permission for each assignment
@@ -450,10 +450,10 @@ async def bulk_create_role_assignments(
                 **assignment_data.model_dump(),
                 assigned_by_id=current_user.id
             )
-            
+
             session.add(assignment)
             created_assignments.append(assignment)
-            
+
         except Exception as e:
             # If any assignment fails, rollback all
             await session.rollback()
@@ -463,7 +463,7 @@ async def bulk_create_role_assignments(
             )
 
     await session.commit()
-    
+
     # Refresh all assignments
     for assignment in created_assignments:
         await session.refresh(assignment)

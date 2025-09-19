@@ -44,7 +44,7 @@ async def list_permissions(
     action: str | None = None,
 ) -> list[PermissionRead]:
     """List available permissions in the system."""
-    
+
     # Only superusers can list all permissions
     if not current_user.is_superuser:
         raise HTTPException(
@@ -70,7 +70,7 @@ async def list_permissions(
 
     # Apply pagination
     statement = statement.offset(skip).limit(limit)
-    
+
     result = await session.exec(statement)
     permissions = result.all()
 
@@ -84,7 +84,7 @@ async def get_permission(
     current_user: CurrentActiveUser,
 ) -> PermissionRead:
     """Get permission by ID."""
-    
+
     # Only superusers can view permission details
     if not current_user.is_superuser:
         raise HTTPException(
@@ -110,7 +110,7 @@ async def check_permission(
     permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> dict:
     """Check if current user has a specific permission."""
-    
+
     resource_type = permission_check.get("resource_type")
     action = permission_check.get("action")
     resource_id = permission_check.get("resource_id")
@@ -151,7 +151,7 @@ async def batch_check_permissions(
     permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[dict]:
     """Check multiple permissions at once for better performance."""
-    
+
     if len(permission_checks) > 50:  # Reasonable batch limit
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -159,7 +159,7 @@ async def batch_check_permissions(
         )
 
     results = []
-    
+
     for check in permission_checks:
         resource_type = check.get("resource_type")
         action = check.get("action")
@@ -210,7 +210,7 @@ async def initialize_system_permissions(
     current_user: CurrentActiveUser,
 ) -> dict:
     """Initialize system permissions."""
-    
+
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -249,7 +249,7 @@ async def list_resource_types(
     current_user: CurrentActiveUser,
 ) -> list[str]:
     """List available resource types."""
-    
+
     statement = select(Permission.resource_type).distinct()
     result = await session.exec(statement)
     resource_types = result.all()
@@ -264,12 +264,12 @@ async def list_actions(
     resource_type: str | None = Query(None),
 ) -> list[str]:
     """List available actions, optionally filtered by resource type."""
-    
+
     statement = select(Permission.action).distinct()
-    
+
     if resource_type:
         statement = statement.where(Permission.resource_type == resource_type)
-    
+
     result = await session.exec(statement)
     actions = result.all()
 

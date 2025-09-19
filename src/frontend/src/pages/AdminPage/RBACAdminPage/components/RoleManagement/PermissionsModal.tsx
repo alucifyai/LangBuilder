@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
-import { useGetPermissions, type Permission } from "../../../../../controllers/API/queries/rbac/use-get-permissions";
+import { useEffect, useState } from "react";
+import {
+  type Permission,
+  useGetPermissions,
+} from "../../../../../controllers/API/queries/rbac/use-get-permissions";
 import { useGetRolePermissions } from "../../../../../controllers/API/queries/rbac/use-get-role-permissions";
 import { useUpdateRolePermissions } from "../../../../../controllers/API/queries/rbac/use-update-role-permissions";
 
@@ -14,7 +17,12 @@ interface PermissionsModalProps {
   onSave: (roleId: string, permissions: string[]) => void;
 }
 
-export default function PermissionsModal({ isOpen, onClose, role, onSave }: PermissionsModalProps) {
+export default function PermissionsModal({
+  isOpen,
+  onClose,
+  role,
+  onSave,
+}: PermissionsModalProps) {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -40,7 +48,7 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
   } = useGetRolePermissions({
     onSuccess: (data) => {
       console.log("Role permissions fetched successfully:", data);
-      const permissionIds = data.map(permission => permission.id);
+      const permissionIds = data.map((permission) => permission.id);
       setSelectedPermissions(permissionIds);
     },
     onError: (error) => {
@@ -49,19 +57,17 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
   });
 
   // Update role permissions
-  const {
-    mutate: updatePermissions,
-    isPending: isUpdatingPermissions,
-  } = useUpdateRolePermissions({
-    onSuccess: () => {
-      console.log("Role permissions updated successfully");
-      onSave(role!.id, selectedPermissions);
-      onClose();
-    },
-    onError: (error) => {
-      console.error("Failed to update role permissions:", error);
-    },
-  });
+  const { mutate: updatePermissions, isPending: isUpdatingPermissions } =
+    useUpdateRolePermissions({
+      onSuccess: () => {
+        console.log("Role permissions updated successfully");
+        onSave(role!.id, selectedPermissions);
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Failed to update role permissions:", error);
+      },
+    });
 
   console.log("PermissionsModal render - isOpen:", isOpen, "role:", role);
 
@@ -87,7 +93,10 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
   // Fetch permissions when modal opens
   useEffect(() => {
     if (isOpen && role) {
-      console.log("Fetching permissions and role permissions for role:", role.id);
+      console.log(
+        "Fetching permissions and role permissions for role:",
+        role.id,
+      );
       fetchPermissions({ limit: 1000 });
       fetchRolePermissions({ role_id: role.id });
     } else if (!isOpen) {
@@ -97,16 +106,21 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
   }, [isOpen, role, fetchPermissions, fetchRolePermissions]);
 
   const handlePermissionToggle = (permissionId: string) => {
-    setSelectedPermissions(prev =>
+    setSelectedPermissions((prev) =>
       prev.includes(permissionId)
-        ? prev.filter(id => id !== permissionId)
-        : [...prev, permissionId]
+        ? prev.filter((id) => id !== permissionId)
+        : [...prev, permissionId],
     );
   };
 
   const handleSave = () => {
     if (role) {
-      console.log("Saving permissions for role:", role.id, "permissions:", selectedPermissions);
+      console.log(
+        "Saving permissions for role:",
+        role.id,
+        "permissions:",
+        selectedPermissions,
+      );
       updatePermissions({
         role_id: role.id,
         permission_ids: selectedPermissions,
@@ -117,20 +131,29 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
   // Get permissions from backend data
   const allPermissions = permissionsData || [];
 
-  const filteredPermissions = allPermissions.filter(permission =>
-    permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (permission.description && permission.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (permission.category && permission.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredPermissions = allPermissions.filter(
+    (permission) =>
+      permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (permission.description &&
+        permission.description
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (permission.category &&
+        permission.category.toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
-  const groupedPermissions = filteredPermissions.reduce((groups, permission) => {
-    const category = permission.category || permission.resource_type || "Other";
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(permission);
-    return groups;
-  }, {} as Record<string, Permission[]>);
+  const groupedPermissions = filteredPermissions.reduce(
+    (groups, permission) => {
+      const category =
+        permission.category || permission.resource_type || "Other";
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(permission);
+      return groups;
+    },
+    {} as Record<string, Permission[]>,
+  );
 
   if (!isOpen || !role) return null;
 
@@ -187,63 +210,67 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
             </div>
           ) : (
             <div className="space-y-6">
-              {Object.entries(groupedPermissions).map(([category, permissions]) => (
-                <div key={category}>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    {category}
-                  </h3>
-                  <div className="space-y-2">
-                    {permissions.map((permission) => (
-                      <div
-                        key={permission.id}
-                        className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => handlePermissionToggle(permission.id)}
-                      >
-                        <input
-                          type="checkbox"
-                          id={permission.id}
-                          checked={selectedPermissions.includes(permission.id)}
-                          onChange={(e) => e.stopPropagation()}
-                          className="mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
-                        />
-                        <div className="flex-1">
-                          <label
-                            htmlFor={permission.id}
-                            className="block text-sm font-medium text-gray-900 cursor-pointer"
-                          >
-                            {permission.name}
-                          </label>
-                          {permission.description && (
-                            <p className="text-sm text-gray-600 mt-1">
-                              {permission.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                              {permission.code || permission.id}
-                            </span>
-                            {permission.is_system && (
-                              <span className="inline-block px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
-                                System
-                              </span>
+              {Object.entries(groupedPermissions).map(
+                ([category, permissions]) => (
+                  <div key={category}>
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">
+                      {category}
+                    </h3>
+                    <div className="space-y-2">
+                      {permissions.map((permission) => (
+                        <div
+                          key={permission.id}
+                          className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                          onClick={() => handlePermissionToggle(permission.id)}
+                        >
+                          <input
+                            type="checkbox"
+                            id={permission.id}
+                            checked={selectedPermissions.includes(
+                              permission.id,
                             )}
-                            {permission.is_dangerous && (
-                              <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
-                                Dangerous
-                              </span>
+                            onChange={(e) => e.stopPropagation()}
+                            className="mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                          />
+                          <div className="flex-1">
+                            <label
+                              htmlFor={permission.id}
+                              className="block text-sm font-medium text-gray-900 cursor-pointer"
+                            >
+                              {permission.name}
+                            </label>
+                            {permission.description && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                {permission.description}
+                              </p>
                             )}
-                            {permission.requires_mfa && (
-                              <span className="inline-block px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">
-                                MFA Required
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                                {permission.code || permission.id}
                               </span>
-                            )}
+                              {permission.is_system && (
+                                <span className="inline-block px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
+                                  System
+                                </span>
+                              )}
+                              {permission.is_dangerous && (
+                                <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
+                                  Dangerous
+                                </span>
+                              )}
+                              {permission.requires_mfa && (
+                                <span className="inline-block px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">
+                                  MFA Required
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           )}
         </div>
@@ -252,7 +279,8 @@ export default function PermissionsModal({ isOpen, onClose, role, onSave }: Perm
         <div className="flex-shrink-0 p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              {selectedPermissions.length} permission{selectedPermissions.length !== 1 ? 's' : ''} selected
+              {selectedPermissions.length} permission
+              {selectedPermissions.length !== 1 ? "s" : ""} selected
             </div>
             <div className="flex space-x-3">
               <button

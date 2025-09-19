@@ -32,7 +32,7 @@ export const useAssignRolePermission: useMutationFunctionType<
     try {
       const res = await api.post(
         `${getURL("RBAC")}/roles/${role_id}/permissions`,
-        { permission_id }
+        { permission_id },
       );
 
       if (res.status === 200 || res.status === 201) {
@@ -55,8 +55,11 @@ export const useAssignRolePermission: useMutationFunctionType<
     }
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, AssignPermissionData> =
-    mutate(["useAssignRolePermission"], assignPermission, options);
+  const mutation: UseMutationResult<
+    { success: boolean },
+    any,
+    AssignPermissionData
+  > = mutate(["useAssignRolePermission"], assignPermission, options);
 
   return mutation;
 };
@@ -73,7 +76,7 @@ export const useRemoveRolePermission: useMutationFunctionType<
   }: RemovePermissionData): Promise<{ success: boolean }> {
     try {
       const res = await api.delete(
-        `${getURL("RBAC")}/roles/${role_id}/permissions/${permission_id}`
+        `${getURL("RBAC")}/roles/${role_id}/permissions/${permission_id}`,
       );
 
       if (res.status === 200 || res.status === 204) {
@@ -96,8 +99,11 @@ export const useRemoveRolePermission: useMutationFunctionType<
     }
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, RemovePermissionData> =
-    mutate(["useRemoveRolePermission"], removePermission, options);
+  const mutation: UseMutationResult<
+    { success: boolean },
+    any,
+    RemovePermissionData
+  > = mutate(["useRemoveRolePermission"], removePermission, options);
 
   return mutation;
 };
@@ -114,9 +120,12 @@ export const useUpdateRolePermissions: useMutationFunctionType<
   }: UpdateRolePermissionsData): Promise<{ success: boolean }> {
     try {
       // Use the new batch update endpoint
-      const res = await api.put(`${getURL("RBAC")}/roles/${role_id}/permissions`, {
-        permission_ids: permission_ids
-      });
+      const res = await api.put(
+        `${getURL("RBAC")}/roles/${role_id}/permissions`,
+        {
+          permission_ids: permission_ids,
+        },
+      );
 
       if (res.status === 200) {
         console.log("Role permissions updated successfully:", res.data);
@@ -139,8 +148,11 @@ export const useUpdateRolePermissions: useMutationFunctionType<
     }
   }
 
-  const mutation: UseMutationResult<{ success: boolean }, any, UpdateRolePermissionsData> =
-    mutate(["useUpdateRolePermissions"], updateRolePermissions, options);
+  const mutation: UseMutationResult<
+    { success: boolean },
+    any,
+    UpdateRolePermissionsData
+  > = mutate(["useUpdateRolePermissions"], updateRolePermissions, options);
 
   return mutation;
 };
