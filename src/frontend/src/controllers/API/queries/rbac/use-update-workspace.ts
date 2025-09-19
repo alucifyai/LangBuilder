@@ -15,7 +15,7 @@ export interface UpdateWorkspaceData {
 }
 
 export const useUpdateWorkspace: useMutationFunctionType<
-  Workspace,
+  undefined,
   UpdateWorkspaceData
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
@@ -24,14 +24,33 @@ export const useUpdateWorkspace: useMutationFunctionType<
     workspace_id,
     workspace,
   }: UpdateWorkspaceData): Promise<Workspace> {
-    const res = await api.patch(
-      `${getURL("RBAC")}/workspaces/${workspace_id}`,
-      workspace,
-    );
-    if (res.status === 200) {
-      return res.data;
+    try {
+      console.log("Updating workspace:", workspace_id, "with data:", workspace);
+      const res = await api.put(
+        `${getURL("RBAC")}/workspaces/${workspace_id}`,
+        workspace,
+      );
+      console.log("Update workspace response:", res.status, res.data);
+
+      if (res.status === 200 || res.status === 201 || res.status === 204) {
+        return res.data;
+      }
+      throw new Error(`Failed to update workspace: ${res.status}`);
+    } catch (error: any) {
+      console.error("Update workspace error:", error);
+
+      // Extract meaningful error message from response
+      let errorMessage = "Unknown error";
+      if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      throw new Error(errorMessage);
     }
-    throw new Error(`Failed to update workspace: ${res.status}`);
   }
 
   const mutation: UseMutationResult<Workspace, any, UpdateWorkspaceData> =

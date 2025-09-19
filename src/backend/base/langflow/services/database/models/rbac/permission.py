@@ -223,7 +223,7 @@ SYSTEM_PERMISSIONS = [
     {"code": "audit:export", "name": "Export Audit Logs", "resource_type": ResourceType.AUDIT_LOG, "action": PermissionAction.EXPORT},
 
     # System permissions
-    {"code": "system:manage", "name": "System Management", "resource_type": ResourceType.SYSTEM, "action": PermissionAction.MANAGE, "is_system": True, "is_dangerous": True},
+    {"code": "system:manage", "name": "System Management", "resource_type": ResourceType.SYSTEM, "action": PermissionAction.MANAGE, "is_dangerous": True},
     {"code": "system:break_glass", "name": "Break Glass Access", "resource_type": ResourceType.SYSTEM, "action": PermissionAction.BREAK_GLASS, "is_dangerous": True, "requires_mfa": True},
 ]
 

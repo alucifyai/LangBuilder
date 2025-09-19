@@ -226,10 +226,12 @@ async def initialize_system_permissions(
         existing = result.first()
 
         if not existing:
-            permission = Permission(
-                **perm_data,
-                is_system=True
-            )
+            # Only add is_system=True if not already specified in perm_data
+            permission_data = perm_data.copy()
+            if "is_system" not in permission_data:
+                permission_data["is_system"] = True
+
+            permission = Permission(**permission_data)
             session.add(permission)
             created_permissions += 1
 

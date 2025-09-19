@@ -1,28 +1,251 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useGetRoles } from "../../../../../controllers/API/queries/rbac/use-get-roles";
+import { useCreateRole } from "../../../../../controllers/API/queries/rbac/use-create-role";
+import { useUpdateRole } from "../../../../../controllers/API/queries/rbac/use-update-role";
+import { useDeleteRole } from "../../../../../controllers/API/queries/rbac/use-delete-role";
+import PermissionsModal from "./PermissionsModal";
 
 export default function RoleManagement() {
-  const [roles] = useState([
-    { id: "1", name: "Admin", description: "Full system access", users: 2, permissions: 15 },
-    { id: "2", name: "Editor", description: "Content management access", users: 5, permissions: 8 },
-    { id: "3", name: "Viewer", description: "Read-only access", users: 12, permissions: 3 },
-  ]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [newRoleName, setNewRoleName] = useState("");
+  const [newRoleDescription, setNewRoleDescription] = useState("");
+  const [editingRole, setEditingRole] = useState<string | null>(null);
+  const [editRoleName, setEditRoleName] = useState("");
+  const [editRoleDescription, setEditRoleDescription] = useState("");
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<any>(null);
+
+  const {
+    mutate: fetchRoles,
+    data: rolesData,
+    isPending: isLoading,
+    error
+  } = useGetRoles({
+    onSuccess: (data) => {
+      console.log("Roles fetched successfully:", data);
+    },
+    onError: (error) => {
+      console.error("Failed to fetch roles:", error);
+    }
+  });
+
+  const { mutate: createRole, isPending: isCreatingRole } = useCreateRole({
+    onSuccess: () => {
+      setIsCreating(false);
+      setNewRoleName("");
+      setNewRoleDescription("");
+      // Refresh roles list
+      fetchRoles({ search: searchTerm, is_active: true });
+    },
+    onError: (error) => {
+      console.error("Failed to create role:", error);
+    }
+  });
+
+  const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateRole({
+    onSuccess: () => {
+      setEditingRole(null);
+      setEditRoleName("");
+      setEditRoleDescription("");
+      // Refresh roles list
+      fetchRoles({ search: searchTerm, is_active: true });
+    },
+    onError: (error) => {
+      console.error("Failed to update role:", error);
+      // Reset edit state on error to prevent getting stuck
+      setEditingRole(null);
+      setEditRoleName("");
+      setEditRoleDescription("");
+    }
+  });
+
+  const { mutate: deleteRole, error: deleteError } = useDeleteRole({
+    onSuccess: () => {
+      console.log("Role deleted successfully");
+      // Refresh roles list
+      fetchRoles({ search: searchTerm, is_active: true });
+    },
+    onError: (error) => {
+      console.error("Failed to delete role:", error);
+      alert(`Failed to delete role: ${error?.message || "Unknown error"}`);
+    }
+  });
+
+  useEffect(() => {
+    fetchRoles({ search: searchTerm, is_active: true });
+  }, []);
+
+  const handleSearch = () => {
+    fetchRoles({ search: searchTerm, is_active: true });
+  };
+
+  const handleCreateRole = () => {
+    if (newRoleName.trim()) {
+      createRole({
+        name: newRoleName,
+        description: newRoleDescription,
+        type: "custom",
+        is_active: true
+      });
+    }
+  };
+
+  const handleEditRole = (role: any) => {
+    setEditingRole(role.id);
+    setEditRoleName(role.name);
+    setEditRoleDescription(role.description || "");
+  };
+
+  const handleUpdateRole = () => {
+    if (editingRole && editRoleName.trim()) {
+      updateRole({
+        role_id: editingRole,
+        role: {
+          name: editRoleName.trim(),
+          description: editRoleDescription.trim() || undefined,
+          is_active: true
+        }
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRole(null);
+    setEditRoleName("");
+    setEditRoleDescription("");
+  };
+
+  const handlePermissions = (role: any) => {
+    console.log("handlePermissions called with role:", role);
+    setSelectedRoleForPermissions(role);
+    setShowPermissionsModal(true);
+    console.log("showPermissionsModal set to true");
+  };
+
+  const handlePermissionsSave = (roleId: string, permissions: string[]) => {
+    console.log(`Saving permissions for role ${roleId}:`, permissions);
+    // Here you would call an API to update the role permissions
+    // For now, we'll just close the modal and show a success message
+    alert(`Permissions updated for role! (${permissions.length} permissions selected)\n\nIn a real implementation, this would call an API to update the role permissions.`);
+
+    // Refresh roles to get updated data
+    fetchRoles({ search: searchTerm, is_active: true });
+  };
+
+  const handleDeleteRole = (roleId: string) => {
+    console.log("handleDeleteRole called with:", roleId);
+    if (confirm("Are you sure you want to delete this role?")) {
+      console.log("Calling deleteRole with:", { role_id: roleId });
+      deleteRole({ role_id: roleId });
+    }
+  };
+
+  // Handle both API response formats
+  const roles = Array.isArray(rolesData) ? rolesData : (rolesData?.roles || []);
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Role Management</h2>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          Create Role
+        <button
+          onClick={() => setIsCreating(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          disabled={isCreatingRole}
+        >
+          {isCreatingRole ? "Creating..." : "Create Role"}
         </button>
       </div>
 
-      <div className="mb-4">
+      {isCreating && (
+        <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+          <h3 className="text-lg font-medium mb-4">Create New Role</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Role Name</label>
+              <input
+                type="text"
+                value={newRoleName}
+                onChange={(e) => setNewRoleName(e.target.value)}
+                className="w-full border rounded px-3 py-2"
+                placeholder="Enter role name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+              <textarea
+                value={newRoleDescription}
+                onChange={(e) => setNewRoleDescription(e.target.value)}
+                className="w-full border rounded px-3 py-2"
+                rows={3}
+                placeholder="Enter role description"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleCreateRole}
+                disabled={!newRoleName.trim() || isCreatingRole}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                Create
+              </button>
+              <button
+                onClick={() => {
+                  setIsCreating(false);
+                  setNewRoleName("");
+                  setNewRoleDescription("");
+                }}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-4 flex space-x-2">
         <input
           type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           placeholder="Search roles..."
           className="border rounded px-3 py-2 w-64"
         />
+        <button
+          onClick={handleSearch}
+          disabled={isLoading}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Searching..." : "Search"}
+        </button>
+        {searchTerm && (
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              fetchRoles({ search: "", is_active: true });
+            }}
+            disabled={isLoading}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+          >
+            Clear
+          </button>
+        )}
+        <button
+          onClick={() => fetchRoles({ search: searchTerm, is_active: true })}
+          disabled={isLoading}
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50"
+        >
+          {isLoading ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          Error loading roles: {error.message}
+        </div>
+      )}
 
       <div className="border rounded-lg overflow-hidden">
         <table className="w-full">
@@ -36,24 +259,118 @@ export default function RoleManagement() {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {roles.map((role) => (
-              <tr key={role.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{role.name}</td>
-                <td className="px-4 py-3 text-gray-600">{role.description}</td>
-                <td className="px-4 py-3">{role.users}</td>
-                <td className="px-4 py-3">{role.permissions}</td>
-                <td className="px-4 py-3">
-                  <div className="flex space-x-2">
-                    <button className="text-blue-600 hover:text-blue-800 text-sm">Edit</button>
-                    <button className="text-green-600 hover:text-green-800 text-sm">Permissions</button>
-                    <button className="text-red-600 hover:text-red-800 text-sm">Delete</button>
-                  </div>
+            {isLoading ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  Loading roles...
                 </td>
               </tr>
-            ))}
+            ) : roles.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  No roles found. Create your first role!
+                </td>
+              </tr>
+            ) : (
+              roles.map((role) => (
+                <tr key={role.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium">
+                    {editingRole === role.id ? (
+                      <input
+                        type="text"
+                        value={editRoleName}
+                        onChange={(e) => setEditRoleName(e.target.value)}
+                        className="w-full border rounded px-2 py-1 text-sm"
+                      />
+                    ) : (
+                      <>
+                        {role.name}
+                        {role.is_system_role && (
+                          <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">
+                            System
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {editingRole === role.id ? (
+                      <input
+                        type="text"
+                        value={editRoleDescription}
+                        onChange={(e) => setEditRoleDescription(e.target.value)}
+                        className="w-full border rounded px-2 py-1 text-sm"
+                        placeholder="Role description"
+                      />
+                    ) : (
+                      role.description || "No description"
+                    )}
+                  </td>
+                  <td className="px-4 py-3">{role.assignment_count || 0}</td>
+                  <td className="px-4 py-3">{role.permissions?.length || 0}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex space-x-2">
+                      {editingRole === role.id ? (
+                        <>
+                          <button
+                            onClick={handleUpdateRole}
+                            disabled={!editRoleName.trim() || isUpdatingRole}
+                            className="text-green-600 hover:text-green-800 text-sm disabled:opacity-50"
+                          >
+                            {isUpdatingRole ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-800 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {!role.is_system_role && (
+                            <button
+                              onClick={() => handleEditRole(role)}
+                              className="text-blue-600 hover:text-blue-800 text-sm"
+                            >
+                              Edit
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handlePermissions(role)}
+                            className="text-green-600 hover:text-green-800 text-sm"
+                          >
+                            Permissions
+                          </button>
+                          {!role.is_system_role && (
+                            <button
+                              onClick={() => handleDeleteRole(role.id)}
+                              className="text-red-600 hover:text-red-800 text-sm"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Permissions Modal */}
+      <PermissionsModal
+        isOpen={showPermissionsModal}
+        onClose={() => {
+          setShowPermissionsModal(false);
+          setSelectedRoleForPermissions(null);
+        }}
+        role={selectedRoleForPermissions}
+        onSave={handlePermissionsSave}
+      />
     </div>
   );
 }

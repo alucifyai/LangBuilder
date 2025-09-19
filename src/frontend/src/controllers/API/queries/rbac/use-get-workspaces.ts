@@ -42,9 +42,17 @@ export const useGetWorkspaces: useMutationFunctionType<
         url += `&search=${encodeURIComponent(search)}`;
       }
 
+      console.log("Fetching workspaces from URL:", url);
       const res = await api.get(url);
+      console.log("Workspace API response:", res.status, res.data);
+
       if (res.status === 200) {
-        return res.data;
+        // The backend returns an array directly, not wrapped in an object
+        const workspaces = Array.isArray(res.data) ? res.data : res.data.workspaces || [];
+        return {
+          workspaces,
+          total_count: workspaces.length
+        };
       }
       return { workspaces: [], total_count: 0 };
     } catch (error) {

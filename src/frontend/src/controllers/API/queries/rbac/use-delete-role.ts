@@ -9,7 +9,7 @@ export interface DeleteRoleData {
 }
 
 export const useDeleteRole: useMutationFunctionType<
-  { success: boolean },
+  undefined,
   DeleteRoleData
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
@@ -17,11 +17,30 @@ export const useDeleteRole: useMutationFunctionType<
   async function deleteRole({
     role_id,
   }: DeleteRoleData): Promise<{ success: boolean }> {
-    const res = await api.delete(`${getURL("RBAC")}/roles/${role_id}`);
-    if (res.status === 204) {
-      return { success: true };
+    try {
+      console.log("Deleting role:", role_id);
+      const res = await api.delete(`${getURL("RBAC")}/roles/${role_id}`);
+      console.log("Delete role response:", res.status);
+
+      if (res.status === 204 || res.status === 200) {
+        return { success: true };
+      }
+      throw new Error(`Failed to delete role: ${res.status}`);
+    } catch (error: any) {
+      console.error("Delete role error:", error);
+
+      // Extract meaningful error message from response
+      let errorMessage = "Unknown error";
+      if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      throw new Error(errorMessage);
     }
-    throw new Error(`Failed to delete role: ${res.status}`);
   }
 
   const mutation: UseMutationResult<{ success: boolean }, any, DeleteRoleData> =

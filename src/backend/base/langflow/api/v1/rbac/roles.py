@@ -414,7 +414,11 @@ async def list_role_permissions(
 
     permissions = []
     for rp in role_permissions:
-        permission = await session.get(Permission, rp.permission_id)
+        # Ensure permission_id is properly converted to UUID
+        perm_id = rp.permission_id
+        if isinstance(perm_id, str):
+            perm_id = UUIDstr(perm_id)
+        permission = await session.get(Permission, perm_id)
         if permission:
             permissions.append(PermissionRead.model_validate(permission))
 
@@ -445,6 +449,16 @@ async def assign_permission_to_role(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="permission_id is required"
         )
+
+    # Convert permission_id to UUIDstr if it's a string
+    if isinstance(permission_id, str):
+        try:
+            permission_id = UUIDstr(permission_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid permission_id format"
+            )
 
     permission = await session.get(Permission, permission_id)
     if not permission:
@@ -517,6 +531,109 @@ async def remove_permission_from_role(
     # TODO: Log audit event
 
 
+@router.put("/{role_id}/permissions", status_code=status.HTTP_200_OK)
+async def update_role_permissions(
+    role_id: UUIDstr,
+    permission_data: dict,
+    session: DbSession,
+    current_user: CurrentActiveUser,
+) -> dict:
+    """Update role permissions (batch operation)."""
+    from langflow.services.database.models.rbac.role import Role
+    from langflow.services.database.models.rbac.permission import Permission, RolePermission
+
+    # Validate role exists
+    role = await session.get(Role, role_id)
+    if not role or not role.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found"
+        )
+
+    permission_ids = permission_data.get("permission_ids", [])
+    if not isinstance(permission_ids, list):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="permission_ids must be a list"
+        )
+
+    # Convert permission IDs to UUIDs and validate they exist
+    validated_permission_ids = []
+    for perm_id in permission_ids:
+        if isinstance(perm_id, str):
+            try:
+                perm_id = UUIDstr(perm_id)
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid permission_id format: {perm_id}"
+                )
+        validated_permission_ids.append(perm_id)
+
+    # Validate all permissions exist
+    for perm_id in validated_permission_ids:
+        permission = await session.get(Permission, perm_id)
+        if not permission:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Permission not found: {perm_id}"
+            )
+
+    # Get current role permissions
+    current_statement = select(RolePermission).where(
+        RolePermission.role_id == role_id,
+        RolePermission.is_granted == True
+    )
+    current_result = await session.exec(current_statement)
+    current_role_permissions = current_result.all()
+    current_permission_ids = [rp.permission_id for rp in current_role_permissions]
+
+    # Calculate changes
+    to_add = [pid for pid in validated_permission_ids if pid not in current_permission_ids]
+    to_remove = [pid for pid in current_permission_ids if pid not in validated_permission_ids]
+
+    # Remove permissions that are no longer needed
+    for perm_id in to_remove:
+        delete_statement = select(RolePermission).where(
+            RolePermission.role_id == role_id,
+            RolePermission.permission_id == perm_id
+        )
+        delete_result = await session.exec(delete_statement)
+        role_permission = delete_result.first()
+        if role_permission:
+            await session.delete(role_permission)
+
+    # Add new permissions
+    for perm_id in to_add:
+        # Check if assignment already exists (safety check)
+        existing_statement = select(RolePermission).where(
+            RolePermission.role_id == role_id,
+            RolePermission.permission_id == perm_id
+        )
+        existing_result = await session.exec(existing_statement)
+        existing = existing_result.first()
+
+        if not existing:
+            role_permission = RolePermission(
+                role_id=role_id,
+                permission_id=perm_id,
+                is_granted=True,
+                granted_by_id=current_user.id,
+                reason=f"Batch update by {current_user.username}"
+            )
+            session.add(role_permission)
+
+    await session.commit()
+
+    # TODO: Log audit event
+
+    return {
+        "message": "Role permissions updated successfully",
+        "permissions_added": len(to_add),
+        "permissions_removed": len(to_remove)
+    }
+
+
 @router.post("/initialize-system-roles", status_code=status.HTTP_201_CREATED)
 async def initialize_system_roles(
     session: DbSession,
@@ -543,10 +660,12 @@ async def initialize_system_roles(
         existing = result.first()
 
         if not existing:
-            permission = Permission(
-                **perm_data,
-                is_system=True
-            )
+            # Only add is_system=True if not already specified in perm_data
+            permission_data = perm_data.copy()
+            if "is_system" not in permission_data:
+                permission_data["is_system"] = True
+
+            permission = Permission(**permission_data)
             session.add(permission)
             created_permissions += 1
 

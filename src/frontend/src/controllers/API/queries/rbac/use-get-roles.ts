@@ -24,6 +24,7 @@ interface GetRolesQueryParams {
   limit?: number;
   search?: string;
   include_system_roles?: boolean;
+  is_active?: boolean;
 }
 
 export const useGetRoles: useMutationFunctionType<
@@ -38,6 +39,7 @@ export const useGetRoles: useMutationFunctionType<
     limit = 50,
     search,
     include_system_roles = false,
+    is_active,
   }: GetRolesQueryParams): Promise<{ roles: Role[]; total_count: number }> {
     let url = `${getURL("RBAC")}/roles/?skip=${skip}&limit=${limit}`;
 
@@ -49,6 +51,9 @@ export const useGetRoles: useMutationFunctionType<
     }
     if (include_system_roles) {
       url += `&include_system_roles=true`;
+    }
+    if (is_active !== undefined) {
+      url += `&is_active=${is_active}`;
     }
 
     const res = await api.get(url);

@@ -20,11 +20,30 @@ export const useCreateWorkspace: useMutationFunctionType<
   async function createWorkspace(
     workspaceData: CreateWorkspaceData,
   ): Promise<Workspace> {
-    const res = await api.post(`${getURL("RBAC")}/workspaces/`, workspaceData);
-    if (res.status === 201) {
-      return res.data;
+    try {
+      console.log("Creating workspace with data:", workspaceData);
+      const res = await api.post(`${getURL("RBAC")}/workspaces/`, workspaceData);
+      console.log("Create workspace response:", res.status, res.data);
+
+      if (res.status === 201) {
+        return res.data;
+      }
+      throw new Error(`Failed to create workspace: ${res.status}`);
+    } catch (error: any) {
+      console.error("Create workspace error:", error);
+
+      // Extract meaningful error message from response
+      let errorMessage = "Unknown error";
+      if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      throw new Error(errorMessage);
     }
-    throw new Error(`Failed to create workspace: ${res.status}`);
   }
 
   const mutation: UseMutationResult<Workspace, any, CreateWorkspaceData> =

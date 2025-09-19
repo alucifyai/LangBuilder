@@ -30,7 +30,7 @@ interface GetPermissionsQueryParams {
 }
 
 export const useGetPermissions: useMutationFunctionType<
-  { permissions: Permission[]; total_count: number },
+  Permission[],
   GetPermissionsQueryParams
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
@@ -42,10 +42,7 @@ export const useGetPermissions: useMutationFunctionType<
     resource_type,
     category,
     is_system,
-  }: GetPermissionsQueryParams): Promise<{
-    permissions: Permission[];
-    total_count: number;
-  }> {
+  }: GetPermissionsQueryParams): Promise<Permission[]> {
     let url = `${getURL("RBAC")}/permissions/?skip=${skip}&limit=${limit}`;
 
     if (search) {
@@ -65,11 +62,11 @@ export const useGetPermissions: useMutationFunctionType<
     if (res.status === 200) {
       return res.data;
     }
-    return { permissions: [], total_count: 0 };
+    return [];
   }
 
   const mutation: UseMutationResult<
-    { permissions: Permission[]; total_count: number },
+    Permission[],
     any,
     GetPermissionsQueryParams
   > = mutate(["useGetPermissions"], getPermissions, options);

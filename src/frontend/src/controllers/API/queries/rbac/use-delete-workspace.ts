@@ -9,7 +9,7 @@ export interface DeleteWorkspaceData {
 }
 
 export const useDeleteWorkspace: useMutationFunctionType<
-  { success: boolean },
+  undefined,
   DeleteWorkspaceData
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
@@ -17,13 +17,32 @@ export const useDeleteWorkspace: useMutationFunctionType<
   async function deleteWorkspace({
     workspace_id,
   }: DeleteWorkspaceData): Promise<{ success: boolean }> {
-    const res = await api.delete(
-      `${getURL("RBAC")}/workspaces/${workspace_id}`,
-    );
-    if (res.status === 204) {
-      return { success: true };
+    try {
+      console.log("Deleting workspace:", workspace_id);
+      const res = await api.delete(
+        `${getURL("RBAC")}/workspaces/${workspace_id}`,
+      );
+      console.log("Delete workspace response:", res.status);
+
+      if (res.status === 204 || res.status === 200) {
+        return { success: true };
+      }
+      throw new Error(`Failed to delete workspace: ${res.status}`);
+    } catch (error: any) {
+      console.error("Delete workspace error:", error);
+
+      // Extract meaningful error message from response
+      let errorMessage = "Unknown error";
+      if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      throw new Error(errorMessage);
     }
-    throw new Error(`Failed to delete workspace: ${res.status}`);
   }
 
   const mutation: UseMutationResult<

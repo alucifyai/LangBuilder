@@ -37,12 +37,12 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model="WorkspaceRead", status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=WorkspaceRead, status_code=status.HTTP_201_CREATED)
 async def create_workspace(
-    workspace_data: "WorkspaceCreate",
+    workspace_data: WorkspaceCreate,
     session: DbSession,
     current_user: CurrentActiveUser,
-) -> "WorkspaceRead":
+) -> WorkspaceRead:
     """Create a new workspace."""
     from langflow.services.database.models.rbac.workspace import Workspace, WorkspaceCreate, WorkspaceRead
     
@@ -118,24 +118,9 @@ async def list_workspaces(
 
 @router.get("/{workspace_id}", response_model=WorkspaceRead)
 async def get_workspace(
-    workspace_id: UUIDstr,
-    session: DbSession,
-    current_user: CurrentActiveUser,
+    workspace: Workspace = Depends(check_workspace_permission("read")),
 ) -> WorkspaceRead:
     """Get workspace by ID."""
-    from langflow.services.database.models.rbac.workspace import Workspace
-    
-    # Check workspace permission manually
-    await check_workspace_permission(session, current_user, workspace_id, "read")
-    
-    # Get workspace
-    workspace = await session.get(Workspace, workspace_id)
-    if not workspace:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Workspace not found"
-        )
-    
     return WorkspaceRead.model_validate(workspace)
 
 

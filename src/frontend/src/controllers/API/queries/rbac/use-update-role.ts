@@ -21,11 +21,30 @@ export const useUpdateRole: useMutationFunctionType<undefined, UpdateRoleData> =
   const { mutate } = UseRequestProcessor();
 
   async function updateRole({ role_id, role }: UpdateRoleData): Promise<Role> {
-    const res = await api.patch(`${getURL("RBAC")}/roles/${role_id}`, role);
-    if (res.status === 200) {
-      return res.data;
+    try {
+      console.log("Updating role:", role_id, "with data:", role);
+      const res = await api.put(`${getURL("RBAC")}/roles/${role_id}`, role);
+      console.log("Update role response:", res.status, res.data);
+
+      if (res.status === 200 || res.status === 201 || res.status === 204) {
+        return res.data;
+      }
+      throw new Error(`Failed to update role: ${res.status}`);
+    } catch (error: any) {
+      console.error("Update role error:", error);
+
+      // Extract meaningful error message from response
+      let errorMessage = "Unknown error";
+      if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      throw new Error(errorMessage);
     }
-    throw new Error(`Failed to update role: ${res.status}`);
   }
 
   const mutation: UseMutationResult<Role, any, UpdateRoleData> = mutate(
