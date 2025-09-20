@@ -3,6 +3,7 @@ import type { useMutationFunctionType } from "../../../../types/api";
 import { api } from "../../api";
 import { getURL } from "../../helpers/constants";
 import { UseRequestProcessor } from "../../services/request-processor";
+import { handleRBACError, normalizeListResponse } from "./error-handler";
 
 export interface Project {
   id: string;
@@ -21,52 +22,95 @@ export interface Project {
 
 interface GetProjectsQueryParams {
   workspace_id?: string;
-  skip?: number;
-  limit?: number;
+  page?: number;
+  page_size?: number;
   search?: string;
   is_active?: boolean;
+  is_archived?: boolean;
+}
+
+interface ProjectListResponse {
+  projects: Project[];
+  total_count: number;
+  page: number;
+  page_size: number;
+  has_next: boolean;
+  has_previous: boolean;
 }
 
 export const useGetProjects: useMutationFunctionType<
-  { projects: Project[]; total_count: number },
+  ProjectListResponse,
   GetProjectsQueryParams
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
   async function getProjects({
     workspace_id,
-    skip = 0,
-    limit = 50,
+    page = 1,
+    page_size = 50,
     search,
     is_active,
-  }: GetProjectsQueryParams): Promise<{
-    projects: Project[];
-    total_count: number;
-  }> {
-    let url = `${getURL("RBAC")}/projects/?skip=${skip}&limit=${limit}`;
+    is_archived,
+  }: GetProjectsQueryParams): Promise<ProjectListResponse> {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("page_size", page_size.toString());
 
     if (workspace_id) {
-      url += `&workspace_id=${workspace_id}`;
+      params.append("workspace_id", workspace_id);
     }
     if (search) {
-      url += `&search=${encodeURIComponent(search)}`;
+      params.append("search", search);
     }
     if (is_active !== undefined) {
-      url += `&is_active=${is_active}`;
+      params.append("is_active", is_active.toString());
+    }
+    if (is_archived !== undefined) {
+      params.append("is_archived", is_archived.toString());
     }
 
-    const res = await api.get(url);
-    if (res.status === 200) {
-      return res.data;
+    const url = `${getURL("RBAC")}/projects/?${params.toString()}`;
+
+    try {
+      const res = await api.get(url);
+
+      if (res.status === 200) {
+        // Use normalized response handler
+        const normalized = normalizeListResponse<Project>(
+          res.data,
+          "projects",
+          page,
+          page_size,
+        );
+
+        return {
+          projects: normalized.items,
+          total_count: normalized.total_count,
+          page: normalized.page,
+          page_size: normalized.page_size,
+          has_next: normalized.has_next,
+          has_previous: normalized.has_previous,
+        };
+      }
+
+      return {
+        projects: [],
+        total_count: 0,
+        page: page,
+        page_size: page_size,
+        has_next: false,
+        has_previous: false,
+      };
+    } catch (error) {
+      handleRBACError(error, "project list");
     }
-    return { projects: [], total_count: 0 };
   }
 
   const mutation: UseMutationResult<
-    { projects: Project[]; total_count: number },
+    ProjectListResponse,
     any,
     GetProjectsQueryParams
-  > = mutate(["useGetProjects"], getProjects, options);
+  > = mutate(["useGetProjects"], getProjects, options || {});
 
   return mutation;
 };

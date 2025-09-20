@@ -19,6 +19,8 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 if TYPE_CHECKING:
+    from langflow.services.database.models.rbac.permission import Permission
+    from langflow.services.database.models.rbac.role import Role
     from langflow.services.database.models.user.model import User
 
 
@@ -208,11 +210,22 @@ class PermissionEngine:
 
         for request in permission_requests:
             try:
+                resource_type = request.get("resource_type")
+                action = request.get("action")
+
+                if not resource_type or not action:
+                    results.append(PermissionResult(
+                        allowed=False,
+                        reason="Missing resource_type or action",
+                        decision="DENY"
+                    ))
+                    continue
+
                 result = await self.check_permission(
                     session=session,
                     user=user,
-                    resource_type=request.get("resource_type"),
-                    action=request.get("action"),
+                    resource_type=str(resource_type),
+                    action=str(action),
                     resource_id=request.get("resource_id"),
                     workspace_id=request.get("workspace_id"),
                     project_id=request.get("project_id"),
@@ -285,13 +298,13 @@ class PermissionEngine:
         if workspace_id:
             statement = statement.where(
                 (RoleAssignment.workspace_id == workspace_id) |
-                (RoleAssignment.workspace_id.is_(None))  # Include system roles
+                (RoleAssignment.workspace_id is None)  # Include system roles
             )
 
         if project_id:
             statement = statement.where(
                 (RoleAssignment.project_id == project_id) |
-                (RoleAssignment.project_id.is_(None))  # Include broader scope roles
+                (RoleAssignment.project_id is None)  # Include broader scope roles
             )
 
         result = await session.exec(statement)
@@ -398,19 +411,19 @@ class PermissionEngine:
         if context.workspace_id:
             role_query = role_query.where(
                 (RoleAssignment.workspace_id == context.workspace_id) |
-                (RoleAssignment.workspace_id.is_(None))  # System-wide roles
+                (RoleAssignment.workspace_id is None)  # System-wide roles
             )
 
         if context.project_id:
             role_query = role_query.where(
                 (RoleAssignment.project_id == context.project_id) |
-                (RoleAssignment.project_id.is_(None))
+                (RoleAssignment.project_id is None)
             )
 
         if context.environment_id:
             role_query = role_query.where(
                 (RoleAssignment.environment_id == context.environment_id) |
-                (RoleAssignment.environment_id.is_(None))
+                (RoleAssignment.environment_id is None)
             )
 
         result = await session.exec(role_query)
@@ -481,7 +494,7 @@ class PermissionEngine:
             )
 
         # Check role assignments for each group
-        group_ids = [m.group_id for m in memberships]
+        group_ids = [m.group_id for m in memberships if m.group_id is not None]
 
         role_query = select(RoleAssignment).where(
             RoleAssignment.group_id.in_(group_ids),
@@ -492,7 +505,7 @@ class PermissionEngine:
         if context.workspace_id:
             role_query = role_query.where(
                 (RoleAssignment.workspace_id == context.workspace_id) |
-                (RoleAssignment.workspace_id.is_(None))
+                (RoleAssignment.workspace_id is None)
             )
 
         result = await session.exec(role_query)

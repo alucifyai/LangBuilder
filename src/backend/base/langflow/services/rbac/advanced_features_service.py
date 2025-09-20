@@ -39,6 +39,7 @@ class BreakGlassAccessResult:
 
     def __init__(
         self,
+        *,
         granted: bool,
         justification: str | None = None,
         emergency_level: str = "low",
@@ -60,6 +61,7 @@ class ConditionalPermissionContext:
 
     def __init__(
         self,
+        *,
         ip_address: str | None = None,
         user_agent: str | None = None,
         session_id: str | None = None,
@@ -81,7 +83,7 @@ class ConditionalPermissionContext:
 
 class AdvancedRBACFeaturesService(Service):
     """Service for Phase 5 Advanced RBAC Features.
-    
+
     This service provides advanced RBAC capabilities including multi-environment
     support, enhanced service account management, break-glass access, and
     conditional permissions based on context.
@@ -121,14 +123,14 @@ class AdvancedRBACFeaturesService(Service):
         context: ConditionalPermissionContext | None = None
     ) -> bool:
         """Check if user has permission for specific environment action.
-        
+
         Args:
             session: Database session
             user: User to check permissions for
             environment_id: Environment ID to check access for
             action: Action to perform (deploy, read, write, delete)
             context: Additional context for conditional permissions
-            
+
         Returns:
             bool: True if permission is granted
         """
@@ -156,7 +158,7 @@ class AdvancedRBACFeaturesService(Service):
                     and_(
                         RoleAssignment.user_id == user.id,
                         RoleAssignment.environment_id == environment_id,
-                        RoleAssignment.is_active == True
+                        RoleAssignment.is_active
                     )
                 )
             )
@@ -174,7 +176,7 @@ class AdvancedRBACFeaturesService(Service):
                         continue
 
                     await self._log_environment_access(
-                        session, user, environment, action, True, context
+                        session, user, environment, action, granted=True, context=context
                     )
                     return True
 
@@ -183,12 +185,12 @@ class AdvancedRBACFeaturesService(Service):
                 session, user, environment, action, context
             ):
                 await self._log_environment_access(
-                    session, user, environment, action, True, context
+                    session, user, environment, action, granted=True, context=context
                 )
                 return True
 
             await self._log_environment_access(
-                session, user, environment, action, False, context
+                session, user, environment, action, granted=False, context=context
             )
             return False
 
@@ -298,7 +300,7 @@ class AdvancedRBACFeaturesService(Service):
         expires_days: int = 365
     ) -> dict:
         """Create service account with scoped token.
-        
+
         Args:
             session: Database session
             creator: User creating the service account
@@ -310,7 +312,7 @@ class AdvancedRBACFeaturesService(Service):
             scope_id: ID of the scope entity
             allowed_ips: List of allowed IP addresses
             expires_days: Token expiration in days
-            
+
         Returns:
             dict: Service account and token details
         """
@@ -416,7 +418,7 @@ class AdvancedRBACFeaturesService(Service):
         context: ConditionalPermissionContext | None = None
     ) -> bool:
         """Validate service account token scope for requested action.
-        
+
         Args:
             session: Database session
             token_hash: Hashed token value
@@ -424,7 +426,7 @@ class AdvancedRBACFeaturesService(Service):
             resource_type: Type of resource being accessed
             resource_id: ID of specific resource
             context: Request context for additional validation
-            
+
         Returns:
             bool: True if token scope allows the action
         """
@@ -436,7 +438,7 @@ class AdvancedRBACFeaturesService(Service):
                 select(ServiceAccountToken).where(
                     and_(
                         ServiceAccountToken.token_hash == token_hash,
-                        ServiceAccountToken.is_active == True,
+                        ServiceAccountToken.is_active,
                         or_(
                             ServiceAccountToken.expires_at.is_(None),
                             ServiceAccountToken.expires_at > datetime.now(timezone.utc)
@@ -667,7 +669,7 @@ class AdvancedRBACFeaturesService(Service):
         resource_context: dict | None = None
     ) -> BreakGlassAccessResult:
         """Evaluate break-glass emergency access request.
-        
+
         Args:
             session: Database session
             user: User requesting emergency access
@@ -675,7 +677,7 @@ class AdvancedRBACFeaturesService(Service):
             emergency_level: Level of emergency (low, medium, high, critical)
             requested_permissions: Specific permissions being requested
             resource_context: Context about resources being accessed
-            
+
         Returns:
             BreakGlassAccessResult: Result of break-glass evaluation
         """
@@ -781,14 +783,14 @@ class AdvancedRBACFeaturesService(Service):
         context: ConditionalPermissionContext
     ) -> bool:
         """Evaluate conditional permissions based on context.
-        
+
         Args:
             session: Database session
             user: User requesting access
             environment: Environment being accessed
             action: Action being performed
             context: Request context for evaluation
-            
+
         Returns:
             bool: True if conditional permissions are satisfied
         """
@@ -1073,14 +1075,14 @@ class AdvancedRBACFeaturesService(Service):
         workspace_id: str | None = None
     ) -> dict:
         """Generate compliance report for audit purposes.
-        
+
         Args:
             session: Database session
             report_type: Type of compliance report (soc2, iso27001, gdpr, ccpa)
             start_date: Start date for report period
             end_date: End date for report period
             workspace_id: Workspace ID to filter report
-            
+
         Returns:
             dict: Compliance report data
         """

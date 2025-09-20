@@ -1,22 +1,23 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Union
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Union, List
+from uuid import uuid4
 
 from pydantic import field_validator
-from sqlalchemy import JSON, Column, Text, UniqueConstraint
+from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-# if TYPE_CHECKING:
-#     from langflow.services.database.models.rbac.project import Project
-#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-#     from langflow.services.database.models.flow.model import Flow
-#     from langflow.services.database.models.variable.model import Variable
-#     from langflow.services.database.models.user.model import User
+if TYPE_CHECKING:
+    from langflow.services.database.models.flow.model import Flow
+    from langflow.services.database.models.rbac.project import Project
+    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+    from langflow.services.database.models.user.model import User
+    from langflow.services.database.models.variable.model import Variable
 
 
 class EnvironmentType(str, Enum):
@@ -33,14 +34,14 @@ class EnvironmentBase(SQLModel):
     """Base environment model for deployment contexts."""
 
     name: str = Field(index=True)
-    description: str | None = Field(default=None, sa_column=Column(Text))
+    description: Union[str, None] = Field(default=None, sa_column=Column(Text))
     type: EnvironmentType = Field(default=EnvironmentType.DEVELOPMENT, index=True)
 
     # Environment configuration
-    api_endpoint: str | None = Field(default=None)
-    deployment_url: str | None = Field(default=None)
-    config: dict | None = Field(default={}, sa_column=Column(JSON))
-    secrets: dict | None = Field(default={}, sa_column=Column(JSON))  # Encrypted in practice
+    api_endpoint: Union[str, None] = Field(default=None)
+    deployment_url: Union[str, None] = Field(default=None)
+    config: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
+    secrets: Union[dict, None] = Field(default={}, sa_column=Column(JSON))  # Encrypted in practice
 
     # Resource limits
     max_instances: int = Field(default=1)
@@ -56,12 +57,12 @@ class EnvironmentBase(SQLModel):
     # Status and lifecycle
     is_active: bool = Field(default=True, index=True)
     is_locked: bool = Field(default=False)  # Prevent modifications in production
-    locked_at: datetime | None = Field(default=None)
-    locked_by_id: UUIDstr | None = Field(default=None)
+    locked_at: Union[datetime, None] = Field(default=None)
+    locked_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
 
     # Deployment tracking
-    last_deployed_at: datetime | None = Field(default=None)
-    last_deployed_by_id: UUIDstr | None = Field(default=None)
+    last_deployed_at: Union[datetime, None] = Field(default=None)
+    last_deployed_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
     deployment_count: int = Field(default=0)
 
     # Timestamps
@@ -94,26 +95,26 @@ class Environment(EnvironmentBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "environment"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Project relationship
-    project_id: UUIDstr = Field(foreign_key="project.id", index=True)
-    project: "Project" = Relationship(back_populates="environments")
+    project_id: UUIDstr = Field(foreign_key="project.id", sa_type=CHAR(32))
+    project: Mapped["Project"] = Relationship(back_populates="environments")
 
     # Owner relationship
-    owner_id: UUIDstr = Field(foreign_key="user.id", index=True)
-    owner: "User" = Relationship(back_populates="owned_environments")
+    owner_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    owner: Mapped["User"] = Relationship(back_populates="owned_environments")
 
     # Relationships
-    flows: list["Flow"] = Relationship(
+    flows: Mapped[List["Flow"]] = Relationship(
         back_populates="environment",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    variables: list["Variable"] = Relationship(
+    variables: Mapped[List["Variable"]] = Relationship(
         back_populates="environment",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: list["RoleAssignment"] = Relationship(
+    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
         back_populates="environment",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -143,12 +144,12 @@ class EnvironmentCreate(SQLModel):
     """Schema for creating an environment."""
 
     name: str
-    description: str | None = None
+    description: Union[str, None] = None
     type: EnvironmentType
     project_id: UUIDstr
-    api_endpoint: str | None = None
-    deployment_url: str | None = None
-    config: dict | None = Field(default=None, sa_column=Column(JSON))
+    api_endpoint: Union[str, None] = None
+    deployment_url: Union[str, None] = None
+    config: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
     max_instances: int = 1
     max_memory_mb: int = 512
     max_cpu_cores: float = 0.5
@@ -164,29 +165,29 @@ class EnvironmentRead(EnvironmentBase):
     id: UUIDstr
     project_id: UUIDstr
     owner_id: UUIDstr
-    flow_count: int | None = None
-    variable_count: int | None = None
-    is_deployed: bool | None = None
+    flow_count: Union[int, None] = None
+    variable_count: Union[int, None] = None
+    is_deployed: Union[bool, None] = None
 
 
 class EnvironmentUpdate(SQLModel):
     """Schema for updating environment data."""
 
-    name: str | None = None
-    description: str | None = None
-    api_endpoint: str | None = None
-    deployment_url: str | None = None
-    config: dict | None = Field(default=None, sa_column=Column(JSON))
-    secrets: dict | None = Field(default=None, sa_column=Column(JSON))
-    max_instances: int | None = None
-    max_memory_mb: int | None = None
-    max_cpu_cores: float | None = None
-    timeout_seconds: int | None = None
-    auto_scaling_enabled: bool | None = None
-    min_instances: int | None = None
-    scale_to_zero: bool | None = None
-    is_active: bool | None = None
-    is_locked: bool | None = None
+    name: Union[str, None] = None
+    description: Union[str, None] = None
+    api_endpoint: Union[str, None] = None
+    deployment_url: Union[str, None] = None
+    config: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    secrets: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    max_instances: Union[int, None] = None
+    max_memory_mb: Union[int, None] = None
+    max_cpu_cores: Union[float, None] = None
+    timeout_seconds: Union[int, None] = None
+    auto_scaling_enabled: Union[bool, None] = None
+    min_instances: Union[int, None] = None
+    scale_to_zero: Union[bool, None] = None
+    is_active: Union[bool, None] = None
+    is_locked: Union[bool, None] = None
 
 
 class EnvironmentDeployment(SQLModel, table=True):  # type: ignore[call-arg]
@@ -194,25 +195,25 @@ class EnvironmentDeployment(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "environment_deployment"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
-    environment_id: UUIDstr = Field(foreign_key="environment.id", index=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    environment_id: UUIDstr = Field(foreign_key="environment.id", index=True, sa_type=CHAR(32))
 
     # Deployment details
     version: str = Field(index=True)
-    commit_hash: str | None = Field(default=None)
+    commit_hash: Union[str, None] = Field(default=None)
     deployment_type: str = Field(default="manual")  # manual, auto, rollback
 
     # Status
     status: str = Field(default="pending", index=True)  # pending, in_progress, success, failed, rolled_back
     started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    completed_at: datetime | None = Field(default=None)
-    error_message: str | None = Field(default=None, sa_column=Column(Text))
+    completed_at: Union[datetime, None] = Field(default=None)
+    error_message: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # Deployment metadata
-    deployed_by_id: UUIDstr = Field(foreign_key="user.id")
-    deployment_config: dict | None = Field(default={}, sa_column=Column(JSON))
-    artifacts: dict | None = Field(default={}, sa_column=Column(JSON))
+    deployed_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    deployment_config: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
+    artifacts: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
 
     # Relationships
-    environment: "Environment" = Relationship()
-    deployed_by: "User" = Relationship()
+    environment: Mapped["Environment"] = Relationship()
+    deployed_by: Mapped["User"] = Relationship()

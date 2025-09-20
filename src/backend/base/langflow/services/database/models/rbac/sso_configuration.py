@@ -1,21 +1,22 @@
 """SSO Configuration model for enterprise identity provider integration."""
 
-# from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Union, List
+from uuid import uuid4
 
-from pydantic import BaseModel, field_validator
-from sqlalchemy import JSON, Column, Text, UniqueConstraint
+from pydantic import field_validator
+from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-# if TYPE_CHECKING:
-#     from langflow.services.database.models.rbac.workspace import Workspace
-#     from langflow.services.database.models.user.model import User
+if TYPE_CHECKING:
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.user.model import User
 
 
 class SSOProviderType(str, Enum):
@@ -48,7 +49,7 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "sso_configuration"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Basic configuration
     name: str = Field(index=True)  # Human-readable name
@@ -56,37 +57,37 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
     status: SSOStatus = Field(default=SSOStatus.DRAFT, index=True)
 
     # Workspace association
-    workspace_id: UUIDstr = Field(foreign_key="workspace.id", index=True)
-    workspace: "Workspace" = Relationship(back_populates="sso_configurations")
+    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=CHAR(32))
+    workspace: Mapped["Workspace"] = Relationship(back_populates="sso_configurations")
 
     # Provider configuration (encrypted in production)
     provider_config: dict = Field(sa_column=Column(JSON))
 
     # OIDC/OAuth2 Configuration
-    client_id: str | None = Field(default=None)
-    client_secret: str | None = Field(default=None)  # Should be encrypted
-    discovery_url: str | None = Field(default=None)
-    authorization_url: str | None = Field(default=None)
-    token_url: str | None = Field(default=None)
-    userinfo_url: str | None = Field(default=None)
-    jwks_url: str | None = Field(default=None)
+    client_id: Union[str, None] = Field(default=None)
+    client_secret: Union[str, None] = Field(default=None)  # Should be encrypted
+    discovery_url: Union[str, None] = Field(default=None)
+    authorization_url: Union[str, None] = Field(default=None)
+    token_url: Union[str, None] = Field(default=None)
+    userinfo_url: Union[str, None] = Field(default=None)
+    jwks_url: Union[str, None] = Field(default=None)
 
     # SAML2 Configuration
-    saml_entity_id: str | None = Field(default=None)
-    saml_sso_url: str | None = Field(default=None)
-    saml_slo_url: str | None = Field(default=None)  # Single Logout URL
-    saml_certificate: str | None = Field(default=None, sa_column=Column(Text))
-    saml_private_key: str | None = Field(default=None, sa_column=Column(Text))
+    saml_entity_id: Union[str, None] = Field(default=None)
+    saml_sso_url: Union[str, None] = Field(default=None)
+    saml_slo_url: Union[str, None] = Field(default=None)  # Single Logout URL
+    saml_certificate: Union[str, None] = Field(default=None, sa_column=Column(Text))
+    saml_private_key: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # LDAP Configuration
-    ldap_server: str | None = Field(default=None)
-    ldap_port: int | None = Field(default=389)
+    ldap_server: Union[str, None] = Field(default=None)
+    ldap_port: Union[int, None] = Field(default=389)
     ldap_use_ssl: bool = Field(default=False)
-    ldap_base_dn: str | None = Field(default=None)
-    ldap_bind_dn: str | None = Field(default=None)
-    ldap_bind_password: str | None = Field(default=None)  # Should be encrypted
-    ldap_user_filter: str | None = Field(default=None)
-    ldap_group_filter: str | None = Field(default=None)
+    ldap_base_dn: Union[str, None] = Field(default=None)
+    ldap_bind_dn: Union[str, None] = Field(default=None)
+    ldap_bind_password_hash: Union[str, None] = Field(default=None)  # Encrypted/hashed password
+    ldap_user_filter: Union[str, None] = Field(default=None)
+    ldap_group_filter: Union[str, None] = Field(default=None)
 
     # User mapping configuration
     user_mapping: dict = Field(default={}, sa_column=Column(JSON))
@@ -94,36 +95,37 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
     role_mapping: dict = Field(default={}, sa_column=Column(JSON))
 
     # Security and validation
-    allowed_domains: list[str] | None = Field(default=[], sa_column=Column(JSON))
-    required_claims: list[str] | None = Field(default=[], sa_column=Column(JSON))
+    allowed_domains: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
+    required_claims: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
     claim_mappings: dict = Field(default={}, sa_column=Column(JSON))
 
     # SCIM configuration
     scim_enabled: bool = Field(default=False)
-    scim_endpoint: str | None = Field(default=None)
-    scim_token: str | None = Field(default=None)  # Should be encrypted
+    scim_endpoint: Union[str, None] = Field(default=None)
+    scim_token: Union[str, None] = Field(default=None)  # Should be encrypted
     scim_sync_interval_hours: int = Field(default=24)
-    last_scim_sync: datetime | None = Field(default=None)
+    last_scim_sync: Union[datetime, None] = Field(default=None)
 
     # Advanced settings
     auto_provision_users: bool = Field(default=True)
     auto_create_groups: bool = Field(default=True)
-    default_role_id: UUIDstr | None = Field(default=None)
+    default_role_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
     session_timeout_minutes: int = Field(default=1440)  # 24 hours
-    force_reauth_hours: int | None = Field(default=None)
+    force_reauth_hours: Union[int, None] = Field(default=None)
+    is_active: bool = Field(default=True, index=True)
 
     # Metadata and tracking
-    metadata: dict = Field(default={}, sa_column=Column(JSON))
-    tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
+    extra_metadata: dict = Field(default={}, sa_column=Column(JSON))
+    tags: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
 
     # Connection testing
-    last_test_at: datetime | None = Field(default=None)
-    last_test_result: str | None = Field(default=None)
-    test_user_email: str | None = Field(default=None)
+    last_test_at: Union[datetime, None] = Field(default=None)
+    last_test_result: Union[str, None] = Field(default=None)
+    test_user_email: Union[str, None] = Field(default=None)
 
     # Audit and lifecycle
-    created_by_id: UUIDstr = Field(foreign_key="user.id")
-    created_by: "User" = Relationship(
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    created_by: Mapped["User"] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[SSOConfiguration.created_by_id]",
             "primaryjoin": "SSOConfiguration.created_by_id == User.id"
@@ -133,7 +135,7 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_used_at: datetime | None = Field(default=None)
+    last_used_at: Union[datetime, None] = Field(default=None)
 
     # Unique constraints
     __table_args__ = (
@@ -174,39 +176,39 @@ class SSOConfigurationCreate(SQLModel):
     provider_config: dict
 
     # Optional provider-specific fields
-    client_id: str | None = None
-    client_secret: str | None = None
-    discovery_url: str | None = None
-    authorization_url: str | None = None
-    token_url: str | None = None
-    userinfo_url: str | None = None
+    client_id: Union[str, None] = None
+    client_secret: Union[str, None] = None
+    discovery_url: Union[str, None] = None
+    authorization_url: Union[str, None] = None
+    token_url: Union[str, None] = None
+    userinfo_url: Union[str, None] = None
 
     # SAML fields
-    saml_entity_id: str | None = None
-    saml_sso_url: str | None = None
-    saml_certificate: str | None = None
+    saml_entity_id: Union[str, None] = None
+    saml_sso_url: Union[str, None] = None
+    saml_certificate: Union[str, None] = None
 
     # LDAP fields
-    ldap_server: str | None = None
-    ldap_port: int | None = None
+    ldap_server: Union[str, None] = None
+    ldap_port: Union[int, None] = None
     ldap_use_ssl: bool = False
-    ldap_base_dn: str | None = None
-    ldap_bind_dn: str | None = None
-    ldap_bind_password: str | None = None
+    ldap_base_dn: Union[str, None] = None
+    ldap_bind_dn: Union[str, None] = None
+    ldap_bind_password_hash: Union[str, None] = None
 
     # Configuration
-    user_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
-    group_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
-    role_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
-    allowed_domains: list[str] | None = None
+    user_mapping: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    group_mapping: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    role_mapping: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    allowed_domains: Union[List[str], None] = None
     auto_provision_users: bool = True
     auto_create_groups: bool = True
-    default_role_id: UUIDstr | None = None
+    default_role_id: Union[UUIDstr, None] = None
 
     # SCIM
     scim_enabled: bool = False
-    scim_endpoint: str | None = None
-    scim_token: str | None = None
+    scim_endpoint: Union[str, None] = None
+    scim_token: Union[str, None] = None
     scim_sync_interval_hours: int = 24
 
 
@@ -220,21 +222,21 @@ class SSOConfigurationRead(SQLModel):
     workspace_id: UUIDstr
 
     # Non-sensitive configuration
-    client_id: str | None
-    discovery_url: str | None
-    authorization_url: str | None
-    token_url: str | None
-    userinfo_url: str | None
+    client_id: Union[str, None]
+    discovery_url: Union[str, None]
+    authorization_url: Union[str, None]
+    token_url: Union[str, None]
+    userinfo_url: Union[str, None]
 
     # SAML (non-sensitive)
-    saml_entity_id: str | None
-    saml_sso_url: str | None
+    saml_entity_id: Union[str, None]
+    saml_sso_url: Union[str, None]
 
     # LDAP (non-sensitive)
-    ldap_server: str | None
-    ldap_port: int | None
+    ldap_server: Union[str, None]
+    ldap_port: Union[int, None]
     ldap_use_ssl: bool
-    ldap_base_dn: str | None
+    ldap_base_dn: Union[str, None]
 
     # Settings
     auto_provision_users: bool
@@ -243,10 +245,10 @@ class SSOConfigurationRead(SQLModel):
     session_timeout_minutes: int
 
     # Status
-    last_test_at: datetime | None
-    last_test_result: str | None
-    last_scim_sync: datetime | None
-    last_used_at: datetime | None
+    last_test_at: Union[datetime, None]
+    last_test_result: Union[str, None]
+    last_scim_sync: Union[datetime, None]
+    last_used_at: Union[datetime, None]
 
     # Audit
     created_by_id: UUIDstr
@@ -257,55 +259,55 @@ class SSOConfigurationRead(SQLModel):
 class SSOConfigurationUpdate(SQLModel):
     """Schema for updating SSO configuration."""
 
-    name: str | None = None
+    name: Union[str, None] = None
     status: SSOStatus | None = None
-    provider_config: dict | None = Field(default=None, sa_column=Column(JSON))
+    provider_config: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
 
     # Provider fields
-    client_id: str | None = None
-    client_secret: str | None = None
-    discovery_url: str | None = None
-    authorization_url: str | None = None
-    token_url: str | None = None
-    userinfo_url: str | None = None
+    client_id: Union[str, None] = None
+    client_secret: Union[str, None] = None
+    discovery_url: Union[str, None] = None
+    authorization_url: Union[str, None] = None
+    token_url: Union[str, None] = None
+    userinfo_url: Union[str, None] = None
 
     # SAML fields
-    saml_entity_id: str | None = None
-    saml_sso_url: str | None = None
-    saml_certificate: str | None = None
-    saml_private_key: str | None = None
+    saml_entity_id: Union[str, None] = None
+    saml_sso_url: Union[str, None] = None
+    saml_certificate: Union[str, None] = None
+    saml_private_key: Union[str, None] = None
 
     # LDAP fields
-    ldap_server: str | None = None
-    ldap_port: int | None = None
-    ldap_use_ssl: bool | None = None
-    ldap_base_dn: str | None = None
-    ldap_bind_dn: str | None = None
-    ldap_bind_password: str | None = None
+    ldap_server: Union[str, None] = None
+    ldap_port: Union[int, None] = None
+    ldap_use_ssl: Union[bool, None] = None
+    ldap_base_dn: Union[str, None] = None
+    ldap_bind_dn: Union[str, None] = None
+    ldap_bind_password_hash: Union[str, None] = None
 
     # Mappings
-    user_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
-    group_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
-    role_mapping: dict | None = Field(default=None, sa_column=Column(JSON))
+    user_mapping: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    group_mapping: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    role_mapping: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
 
     # Settings
-    allowed_domains: list[str] | None = None
-    auto_provision_users: bool | None = None
-    auto_create_groups: bool | None = None
-    default_role_id: UUIDstr | None = None
-    session_timeout_minutes: int | None = None
+    allowed_domains: Union[List[str], None] = None
+    auto_provision_users: Union[bool, None] = None
+    auto_create_groups: Union[bool, None] = None
+    default_role_id: Union[UUIDstr, None] = None
+    session_timeout_minutes: Union[int, None] = None
 
     # SCIM
-    scim_enabled: bool | None = None
-    scim_endpoint: str | None = None
-    scim_token: str | None = None
-    scim_sync_interval_hours: int | None = None
+    scim_enabled: Union[bool, None] = None
+    scim_endpoint: Union[str, None] = None
+    scim_token: Union[str, None] = None
+    scim_sync_interval_hours: Union[int, None] = None
 
 
 class SSOTestRequest(SQLModel):
     """Schema for testing SSO configuration."""
 
-    test_user_email: str | None = None
+    test_user_email: Union[str, None] = None
     dry_run: bool = True
 
 
@@ -316,11 +318,11 @@ class SSOTestResult(SQLModel):
     provider_type: SSOProviderType
     test_timestamp: datetime
     response_time_ms: float | None = None
-    user_info: dict | None = Field(default=None, sa_column=Column(JSON))
-    groups: list[str] | None = None
-    errors: list[str] | None = None
-    warnings: list[str] | None = None
-    recommendations: list[str] | None = None
+    user_info: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    groups: Union[List[str], None] = None
+    errors: Union[List[str], None] = None
+    warnings: Union[List[str], None] = None
+    recommendations: Union[List[str], None] = None
 
 
 # Predefined SSO configuration templates

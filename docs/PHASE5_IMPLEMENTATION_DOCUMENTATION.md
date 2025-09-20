@@ -397,7 +397,7 @@ if result.granted:
     # Use temporary elevated access
     temp_token = result.access_token
     expires_at = result.expires_at
-    
+
     # All actions are logged
     audit_log_id = result.audit_log_id
 ```
@@ -537,15 +537,15 @@ Ensure proper indexes for performance:
 
 ```sql
 -- Environment permissions index
-CREATE INDEX idx_env_perm_lookup 
+CREATE INDEX idx_env_perm_lookup
 ON environment_permission(environment_id, user_id, permission);
 
 -- Service account token index
-CREATE INDEX idx_sa_token_lookup 
+CREATE INDEX idx_sa_token_lookup
 ON service_account_token(token_hash, is_active);
 
 -- Audit log index
-CREATE INDEX idx_audit_timestamp 
+CREATE INDEX idx_audit_timestamp
 ON audit_log(created_at DESC, event_type);
 ```
 

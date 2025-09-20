@@ -1,8 +1,8 @@
 """Tests for permission management API endpoints."""
 
-import pytest
-from fastapi import status
 from uuid import uuid4
+
+import pytest
 
 from .conftest import TEST_PERMISSION_CHECK
 
@@ -19,7 +19,6 @@ class TestPermissionEndpoints:
         # assert response.status_code == status.HTTP_200_OK
         # data = response.json()
         # assert isinstance(data, list)
-        pass
 
     async def test_list_permissions_forbidden(self, client, test_user):
         """Test that regular users cannot list permissions."""
@@ -28,12 +27,10 @@ class TestPermissionEndpoints:
         #     headers={"Authorization": f"Bearer {test_user.token}"}
         # )
         # assert response.status_code == status.HTTP_403_FORBIDDEN
-        pass
 
     async def test_get_permission_by_id(self, client, superuser):
         """Test retrieving permission by ID."""
         # Test permission retrieval
-        pass
 
     async def test_check_permission_endpoint(self, client, test_user):
         """Test the permission check endpoint."""
@@ -47,7 +44,6 @@ class TestPermissionEndpoints:
         # assert "allowed" in data
         # assert "reason" in data
         # assert "source" in data
-        pass
 
     async def test_batch_check_permissions(self, client, test_user):
         """Test batch permission checking."""
@@ -69,7 +65,6 @@ class TestPermissionEndpoints:
         # data = response.json()
         # assert isinstance(data, list)
         # assert len(data) == len(batch_checks)
-        pass
 
     async def test_batch_check_limit(self, client, test_user):
         """Test that batch check enforces size limits."""
@@ -82,7 +77,6 @@ class TestPermissionEndpoints:
         #     headers={"Authorization": f"Bearer {test_user.token}"}
         # )
         # assert response.status_code == status.HTTP_400_BAD_REQUEST
-        pass
 
     async def test_initialize_system_permissions(self, client, superuser):
         """Test system permission initialization."""
@@ -93,7 +87,6 @@ class TestPermissionEndpoints:
         # assert response.status_code == status.HTTP_201_CREATED
         # data = response.json()
         # assert "permissions_created" in data
-        pass
 
     async def test_list_resource_types(self, client, test_user):
         """Test listing available resource types."""
@@ -106,7 +99,6 @@ class TestPermissionEndpoints:
         # assert isinstance(data, list)
         # expected_types = ["workspace", "project", "environment", "flow", "role"]
         # assert all(rtype in data for rtype in expected_types)
-        pass
 
     async def test_list_actions(self, client, test_user):
         """Test listing available actions."""
@@ -119,7 +111,6 @@ class TestPermissionEndpoints:
         # assert isinstance(data, list)
         # expected_actions = ["read", "create", "update", "delete", "execute"]
         # assert all(action in data for action in expected_actions)
-        pass
 
     async def test_list_actions_filtered(self, client, test_user):
         """Test listing actions filtered by resource type."""
@@ -130,7 +121,6 @@ class TestPermissionEndpoints:
         # assert response.status_code == status.HTTP_200_OK
         # data = response.json()
         # assert isinstance(data, list)
-        pass
 
 
 class TestPermissionValidation:
@@ -149,7 +139,6 @@ class TestPermissionValidation:
         #     headers={"Authorization": f"Bearer {test_user.token}"}
         # )
         # assert response.status_code == status.HTTP_400_BAD_REQUEST
-        pass
 
     async def test_check_permission_invalid_uuid(self, client, test_user):
         """Test permission check with invalid UUID format."""
@@ -160,7 +149,6 @@ class TestPermissionValidation:
         }
 
         # This should handle UUID validation gracefully
-        pass
 
     async def test_batch_check_invalid_requests(self, client, test_user):
         """Test batch check with mix of valid and invalid requests."""
@@ -171,7 +159,6 @@ class TestPermissionValidation:
         ]
 
         # Should return results for all, with errors for invalid ones
-        pass
 
 
 @pytest.mark.integration
@@ -188,7 +175,6 @@ class TestPermissionIntegration:
         }
 
         # Should be allowed since test_user owns test_workspace
-        pass
 
     async def test_hierarchical_permission_checking(self, client, test_user, test_workspace, test_project):
         """Test that workspace permissions cascade to projects."""
@@ -201,10 +187,8 @@ class TestPermissionIntegration:
         }
 
         # Should be allowed through workspace ownership
-        pass
 
     async def test_permission_caching_behavior(self, client, test_user):
         """Test that permission results are cached appropriately."""
         # Make the same permission check multiple times
         # Verify caching improves performance
-        pass

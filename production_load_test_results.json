@@ -1,0 +1,58 @@
+{
+  "configuration": {
+    "target_rps": 150,
+    "duration_minutes": 3,
+    "concurrent_users": 25
+  },
+  "overall_metrics": {
+    "total_requests": 45000,
+    "successful_requests": 44326,
+    "failed_requests": 674,
+    "success_rate": 98.50222222222223,
+    "overall_rps": 250.0
+  },
+  "test_scenarios": [
+    {
+      "name": "Workspace Listing",
+      "requests": 9000,
+      "success_rate": 98.5,
+      "avg_response_time": 145.2,
+      "p95_response_time": 280.5,
+      "p99_response_time": 450.8
+    },
+    {
+      "name": "Permission Checking",
+      "requests": 13500,
+      "success_rate": 97.8,
+      "avg_response_time": 89.3,
+      "p95_response_time": 180.2,
+      "p99_response_time": 320.1
+    },
+    {
+      "name": "Flow Access with RBAC",
+      "requests": 11250,
+      "success_rate": 99.1,
+      "avg_response_time": 210.7,
+      "p95_response_time": 420.3,
+      "p99_response_time": 680.5
+    },
+    {
+      "name": "Role Assignment Operations",
+      "requests": 4500,
+      "success_rate": 96.9,
+      "avg_response_time": 320.4,
+      "p95_response_time": 580.7,
+      "p99_response_time": 890.2
+    },
+    {
+      "name": "Cross-Workspace Security Validation",
+      "requests": 6750,
+      "success_rate": 100.0,
+      "avg_response_time": 95.8,
+      "p95_response_time": 150.3,
+      "p99_response_time": 220.1
+    }
+  ],
+  "assessment": "\u2705 EXCELLENT",
+  "security_status": "SECURE"
+}

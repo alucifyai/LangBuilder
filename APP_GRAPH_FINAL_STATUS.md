@@ -32,19 +32,19 @@ The partitioned graph divides the system into 6 logical subsystems:
 
 1. **User Management & Authentication** (16 nodes)
    - 3 schema, 6 interface, 4 logic, 3 test nodes
-   
-2. **Flow Development & Management** (21 nodes)  
+
+2. **Flow Development & Management** (21 nodes)
    - 2 schema, 10 interface, 5 logic, 4 test nodes
-   
+
 3. **Graph Execution & Runtime** (21 nodes)
    - 5 schema, 6 interface, 6 logic, 4 test nodes
-   
+
 4. **File & Asset Management** (12 nodes)
    - 2 schema, 4 interface, 3 logic, 3 test nodes
-   
+
 5. **Integration & External Services** (16 nodes)
    - 2 schema, 8 interface, 3 logic, 3 test nodes
-   
+
 6. **System Infrastructure** (10 nodes)
    - 1 schema, 2 interface, 4 logic, 3 test nodes
 

@@ -1,24 +1,25 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Union
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Union, List
+from uuid import uuid4
 
-from pydantic import field_validator
-from sqlalchemy import JSON, Column, Index, Text, UniqueConstraint
+from sqlalchemy import CHAR, JSON, Column, Index, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-# if TYPE_CHECKING:
-#     from langflow.services.database.models.rbac.workspace import Workspace
-#     from langflow.services.database.models.rbac.project import Project
-#     from langflow.services.database.models.rbac.environment import Environment
-#     from langflow.services.database.models.rbac.role import Role
-#     from langflow.services.database.models.rbac.user_group import UserGroup
-#     from langflow.services.database.models.user.model import User
-#     from langflow.services.database.models.flow.model import Flow
+if TYPE_CHECKING:
+    from langflow.services.database.models.flow.model import Flow
+    from langflow.services.database.models.rbac.environment import Environment
+    from langflow.services.database.models.rbac.project import Project
+    from langflow.services.database.models.rbac.role import Role
+    from langflow.services.database.models.rbac.service_account import ServiceAccount
+    from langflow.services.database.models.rbac.user_group import UserGroup
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.user.model import User
 
 
 class AssignmentType(str, Enum):
@@ -52,18 +53,18 @@ class RoleAssignmentBase(SQLModel):
     is_inherited: bool = Field(default=False)  # Inherited from parent scope
 
     # Temporal constraints
-    valid_from: datetime | None = Field(default=None)
-    valid_until: datetime | None = Field(default=None)
+    valid_from: Union[datetime, None] = Field(default=None)
+    valid_until: Union[datetime, None] = Field(default=None)
 
     # Conditions and restrictions
-    conditions: dict | None = Field(default={}, sa_column=Column(JSON))
-    ip_restrictions: list[str] | None = Field(default=[], sa_column=Column(JSON))
-    time_restrictions: dict | None = Field(default={}, sa_column=Column(JSON))  # e.g., business hours only
+    conditions: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
+    ip_restrictions: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
+    time_restrictions: Union[dict, None] = Field(default={}, sa_column=Column(JSON))  # e.g., business hours only
 
     # Assignment details
-    reason: str | None = Field(default=None, sa_column=Column(Text))
-    approved_by_id: UUIDstr | None = Field(default=None)
-    approval_date: datetime | None = Field(default=None)
+    reason: Union[str, None] = Field(default=None, sa_column=Column(Text))
+    approved_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    approval_date: Union[datetime, None] = Field(default=None)
 
     # Timestamps
     assigned_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -77,26 +78,26 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "role_assignment"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Role relationship
-    role_id: UUIDstr = Field(foreign_key="role.id", index=True)
-    role: "Role" = Relationship(back_populates="role_assignments")
+    role_id: UUIDstr = Field(foreign_key="role.id", sa_type=CHAR(32))
+    role: Mapped["Role"] = Relationship(back_populates="role_assignments")
 
     # Assignee (user, group, or service account)
-    user_id: UUIDstr | None = Field(foreign_key="user.id", index=True, nullable=True)
-    group_id: UUIDstr | None = Field(foreign_key="user_group.id", index=True, nullable=True)
-    service_account_id: UUIDstr | None = Field(foreign_key="service_account.id", index=True, nullable=True)
+    user_id: Union[UUIDstr, None] = Field(foreign_key="user.id", sa_type=CHAR(32))
+    group_id: Union[UUIDstr, None] = Field(foreign_key="user_group.id", sa_type=CHAR(32))
+    service_account_id: Union[UUIDstr, None] = Field(foreign_key="service_account.id", sa_type=CHAR(32))
 
     # Scope relationships (hierarchical)
-    workspace_id: UUIDstr | None = Field(foreign_key="workspace.id", index=True, nullable=True)
-    project_id: UUIDstr | None = Field(foreign_key="project.id", index=True, nullable=True)
-    environment_id: UUIDstr | None = Field(foreign_key="environment.id", index=True, nullable=True)
-    flow_id: UUIDstr | None = Field(foreign_key="flow.id", index=True, nullable=True)
-    component_id: UUIDstr | None = Field(default=None, index=True)  # Component doesn't have a table yet
+    workspace_id: Union[UUIDstr, None] = Field(foreign_key="workspace.id", sa_type=CHAR(32))
+    project_id: Union[UUIDstr, None] = Field(foreign_key="project.id", sa_type=CHAR(32))
+    environment_id: Union[UUIDstr, None] = Field(foreign_key="environment.id", sa_type=CHAR(32))
+    flow_id: Union[UUIDstr, None] = Field(foreign_key="flow.id", sa_type=CHAR(32))
+    component_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))  # Component doesn't have a table yet
 
     # Assignment tracking
-    assigned_by_id: UUIDstr = Field(foreign_key="user.id")
+    assigned_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
 
     # Relationships
     user: Union["User", None] = Relationship(
@@ -112,7 +113,7 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
     environment: Union["Environment", None] = Relationship(back_populates="role_assignments")
     flow: Union["Flow", None] = Relationship(back_populates="role_assignments")
 
-    assigned_by: "User" = Relationship(
+    assigned_by: Mapped["User"] = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[RoleAssignment.assigned_by_id]",
             "primaryjoin": "RoleAssignment.assigned_by_id == User.id"
@@ -149,24 +150,24 @@ class RoleAssignmentCreate(SQLModel):
     scope_type: AssignmentScope
 
     # Assignee (one of these must be provided)
-    user_id: UUIDstr | None = None
-    group_id: UUIDstr | None = None
-    service_account_id: UUIDstr | None = None
+    user_id: Union[UUIDstr, None] = None
+    group_id: Union[UUIDstr, None] = None
+    service_account_id: Union[UUIDstr, None] = None
 
     # Scope (based on scope_type)
-    workspace_id: UUIDstr | None = None
-    project_id: UUIDstr | None = None
-    environment_id: UUIDstr | None = None
-    flow_id: UUIDstr | None = None
-    component_id: UUIDstr | None = None
+    workspace_id: Union[UUIDstr, None] = None
+    project_id: Union[UUIDstr, None] = None
+    environment_id: Union[UUIDstr, None] = None
+    flow_id: Union[UUIDstr, None] = None
+    component_id: Union[UUIDstr, None] = None
 
     # Optional fields
-    valid_from: datetime | None = None
-    valid_until: datetime | None = None
-    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
-    ip_restrictions: list[str] | None = None
-    time_restrictions: dict | None = Field(default=None, sa_column=Column(JSON))
-    reason: str | None = None
+    valid_from: Union[datetime, None] = None
+    valid_until: Union[datetime, None] = None
+    conditions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    ip_restrictions: Union[List[str], None] = None
+    time_restrictions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    reason: Union[str, None] = None
 
     # Note: Removed complex validation to prevent issues
     # Backend will validate that user exists when creating assignment
@@ -177,46 +178,46 @@ class RoleAssignmentRead(RoleAssignmentBase):
 
     id: UUIDstr
     role_id: UUIDstr
-    role_name: str | None = None
+    role_name: Union[str, None] = None
 
     # Assignee
-    user_id: UUIDstr | None
-    user_name: str | None = None
-    group_id: UUIDstr | None
-    group_name: str | None = None
-    service_account_id: UUIDstr | None
-    service_account_name: str | None = None
+    user_id: Union[UUIDstr, None]
+    user_name: Union[str, None] = None
+    group_id: Union[UUIDstr, None]
+    group_name: Union[str, None] = None
+    service_account_id: Union[UUIDstr, None]
+    service_account_name: Union[str, None] = None
 
     # Scope
-    workspace_id: UUIDstr | None
-    workspace_name: str | None = None
-    project_id: UUIDstr | None
-    project_name: str | None = None
-    environment_id: UUIDstr | None
-    environment_name: str | None = None
-    flow_id: UUIDstr | None
-    flow_name: str | None = None
-    component_id: UUIDstr | None
+    workspace_id: Union[UUIDstr, None]
+    workspace_name: Union[str, None] = None
+    project_id: Union[UUIDstr, None]
+    project_name: Union[str, None] = None
+    environment_id: Union[UUIDstr, None]
+    environment_name: Union[str, None] = None
+    flow_id: Union[UUIDstr, None]
+    flow_name: Union[str, None] = None
+    component_id: Union[UUIDstr, None]
 
     # Assignment info
     assigned_by_id: UUIDstr
-    assigned_by_name: str | None = None
-    approved_by_id: UUIDstr | None
-    approved_by_name: str | None = None
+    assigned_by_name: Union[str, None] = None
+    approved_by_id: Union[UUIDstr, None]
+    approved_by_name: Union[str, None] = None
 
 
 class RoleAssignmentUpdate(SQLModel):
     """Schema for updating a role assignment."""
 
-    is_active: bool | None = None
-    valid_from: datetime | None = None
-    valid_until: datetime | None = None
-    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
-    ip_restrictions: list[str] | None = None
-    time_restrictions: dict | None = Field(default=None, sa_column=Column(JSON))
-    reason: str | None = None
-    approved_by_id: UUIDstr | None = None
-    approval_date: datetime | None = None
+    is_active: Union[bool, None] = None
+    valid_from: Union[datetime, None] = None
+    valid_until: Union[datetime, None] = None
+    conditions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    ip_restrictions: Union[List[str], None] = None
+    time_restrictions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    reason: Union[str, None] = None
+    approved_by_id: Union[UUIDstr, None] = None
+    approval_date: Union[datetime, None] = None
 
 
 class RoleAssignmentApproval(SQLModel):
@@ -224,6 +225,6 @@ class RoleAssignmentApproval(SQLModel):
 
     assignment_id: UUIDstr
     approved: bool
-    reason: str | None = None
-    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
-    valid_until: datetime | None = None
+    reason: Union[str, None] = None
+    conditions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    valid_until: Union[datetime, None] = None

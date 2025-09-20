@@ -39,7 +39,7 @@ class RBACService(Service):
 
     name = "rbac_service"
 
-    def __init__(self, cache_service: "CacheService" = None):
+    def __init__(self, cache_service: "CacheService" | None = None):
         """Initialize RBAC service with optional cache integration."""
         self.cache_service = cache_service
         self.permission_engine = PermissionEngine(

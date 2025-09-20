@@ -1,12 +1,11 @@
 """Unit tests for RBAC service business logic."""
 
-import pytest
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
+import pytest
+from langflow.services.rbac.permission_engine import PermissionDecision, PermissionResult
 from langflow.services.rbac.service import RBACService
-from langflow.services.rbac.permission_engine import PermissionResult, PermissionDecision
 
 
 class TestRBACService:
@@ -51,8 +50,8 @@ class TestRBACService:
             evaluation_time_ms=50.0,
         )
 
-        with patch.object(rbac_service.permission_engine, 'check_permission', return_value=expected_result):
-            with patch.object(rbac_service, '_log_permission_check', return_value=None):
+        with patch.object(rbac_service.permission_engine, "check_permission", return_value=expected_result):
+            with patch.object(rbac_service, "_log_permission_check", return_value=None):
                 result = await rbac_service.evaluate_permission(
                     session=mock_session,
                     user=mock_user,
@@ -77,8 +76,8 @@ class TestRBACService:
             evaluation_time_ms=25.0,
         )
 
-        with patch.object(rbac_service.permission_engine, 'check_permission', return_value=expected_result):
-            with patch.object(rbac_service, '_log_permission_check', return_value=None):
+        with patch.object(rbac_service.permission_engine, "check_permission", return_value=expected_result):
+            with patch.object(rbac_service, "_log_permission_check", return_value=None):
                 result = await rbac_service.evaluate_permission(
                     session=mock_session,
                     user=mock_user,
@@ -99,8 +98,8 @@ class TestRBACService:
             evaluation_time_ms=5.0,
         )
 
-        with patch.object(rbac_service.permission_engine, 'check_permission', return_value=cached_result):
-            with patch.object(rbac_service, '_log_permission_check', return_value=None):
+        with patch.object(rbac_service.permission_engine, "check_permission", return_value=cached_result):
+            with patch.object(rbac_service, "_log_permission_check", return_value=None):
                 result = await rbac_service.evaluate_permission(
                     session=mock_session,
                     user=mock_user,
@@ -126,8 +125,8 @@ class TestRBACService:
             PermissionResult(decision=PermissionDecision.DENY, reason="Denied", cached=False),
         ]
 
-        with patch.object(rbac_service.permission_engine, 'batch_check_permissions', return_value=expected_results):
-            with patch.object(rbac_service, '_log_permission_check', return_value=None):
+        with patch.object(rbac_service.permission_engine, "batch_check_permissions", return_value=expected_results):
+            with patch.object(rbac_service, "_log_permission_check", return_value=None):
                 results = await rbac_service.batch_evaluate_permissions(
                     session=mock_session,
                     user=mock_user,
@@ -144,7 +143,6 @@ class TestRBACService:
     async def test_assign_role_to_user_success(self, rbac_service, mock_session, mock_user):
         """Test successful role assignment."""
         from langflow.services.database.models.rbac.role import Role
-        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
         from langflow.services.database.models.user.model import User
 
         role_id = str(uuid4())
@@ -166,9 +164,9 @@ class TestRBACService:
         # Mock no existing assignment
         mock_session.exec.return_value.first.return_value = None
 
-        with patch.object(rbac_service, '_validate_role_assignment_scope', return_value=None):
-            with patch.object(rbac_service.permission_engine, 'invalidate_user_cache', return_value=None):
-                with patch.object(rbac_service, '_log_role_assignment', return_value=None):
+        with patch.object(rbac_service, "_validate_role_assignment_scope", return_value=None):
+            with patch.object(rbac_service.permission_engine, "invalidate_user_cache", return_value=None):
+                with patch.object(rbac_service, "_log_role_assignment", return_value=None):
                     assignment = await rbac_service.assign_role_to_user(
                         session=mock_session,
                         user_id=user_id,
@@ -209,7 +207,7 @@ class TestRBACService:
         existing_assignment = MagicMock(spec=RoleAssignment)
         mock_session.exec.return_value.first.return_value = existing_assignment
 
-        with patch.object(rbac_service, '_validate_role_assignment_scope', return_value=None):
+        with patch.object(rbac_service, "_validate_role_assignment_scope", return_value=None):
             with pytest.raises(ValueError, match="Role assignment already exists"):
                 await rbac_service.assign_role_to_user(
                     session=mock_session,
@@ -236,8 +234,8 @@ class TestRBACService:
 
         mock_session.get.return_value = mock_assignment
 
-        with patch.object(rbac_service.permission_engine, 'invalidate_user_cache', return_value=None):
-            with patch.object(rbac_service, '_log_role_assignment', return_value=None):
+        with patch.object(rbac_service.permission_engine, "invalidate_user_cache", return_value=None):
+            with patch.object(rbac_service, "_log_role_assignment", return_value=None):
                 await rbac_service.revoke_role_from_user(
                     session=mock_session,
                     assignment_id=assignment_id,
@@ -254,7 +252,7 @@ class TestRBACService:
         """Test workspace access check - allowed."""
         workspace_id = "ws-123"
 
-        with patch.object(rbac_service, 'evaluate_permission') as mock_evaluate:
+        with patch.object(rbac_service, "evaluate_permission") as mock_evaluate:
             mock_evaluate.return_value = PermissionResult(
                 decision=PermissionDecision.ALLOW,
                 reason="User owns workspace",
@@ -285,14 +283,14 @@ class TestRBACService:
         target_resource_type = "environment"
         target_resource_id = "env-123"
 
-        with patch.object(rbac_service, 'evaluate_permission') as mock_evaluate:
+        with patch.object(rbac_service, "evaluate_permission") as mock_evaluate:
             mock_evaluate.return_value = PermissionResult(
                 decision=PermissionDecision.ALLOW,
                 reason="User has break-glass permission",
                 cached=False,
             )
 
-            with patch.object(rbac_service, '_log_break_glass_access', return_value=None):
+            with patch.object(rbac_service, "_log_break_glass_access", return_value=None):
                 result = await rbac_service.validate_break_glass_access(
                     session=mock_session,
                     user=mock_user,

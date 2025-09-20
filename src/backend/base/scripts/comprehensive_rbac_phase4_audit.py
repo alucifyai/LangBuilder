@@ -3,7 +3,7 @@
 
 This script performs a complete audit to verify:
 1. Implementation plan compliance (all deliverables)
-2. LangBuilder system pattern compliance  
+2. LangBuilder system pattern compliance
 3. Phase 1/2/3 compatibility
 4. Pre-commit compliance
 5. PRD requirements satisfaction
@@ -17,24 +17,21 @@ Usage:
 
 # NO future annotations per Phase 1 requirements
 import ast
-import json
-import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Optional
 
 
 class RBACPhase4Auditor:
     """Comprehensive auditor for RBAC Phase 4 implementation."""
-    
+
     def __init__(self, verbose: bool = False, fix_issues: bool = False):
         self.verbose = verbose
         self.fix_issues = fix_issues
         self.issues = []
         self.warnings = []
         self.successes = []
-        
+
         # Phase 4 files to audit
         self.phase4_files = [
             "src/backend/base/langflow/services/rbac/middleware.py",
@@ -42,12 +39,12 @@ class RBACPhase4Auditor:
             "src/backend/base/langflow/services/rbac/flow_integration.py",
             "src/backend/base/langflow/services/rbac/integration.py"
         ]
-        
+
         # Test files
         self.test_files = [
             "tests/integration/services/rbac/test_phase4_integration.py"
         ]
-        
+
         # Related files from previous phases
         self.related_files = [
             "src/backend/base/langflow/services/rbac/service.py",
@@ -59,39 +56,39 @@ class RBACPhase4Auditor:
         """Run comprehensive audit."""
         print("🔍 **COMPREHENSIVE RBAC PHASE 4 AUDIT**")
         print("=" * 60)
-        
+
         # 1. Implementation Plan Compliance
         print("\n📋 **1. IMPLEMENTATION PLAN COMPLIANCE**")
         self._audit_implementation_plan_compliance()
-        
+
         # 2. LangBuilder System Pattern Compliance
         print("\n🏗️ **2. LANGBUILDER SYSTEM PATTERN COMPLIANCE**")
         self._audit_langbuilder_patterns()
-        
+
         # 3. Phase 1/2/3 Compatibility
         print("\n🔄 **3. PHASE 1/2/3 COMPATIBILITY**")
         self._audit_phase_compatibility()
-        
+
         # 4. Pre-commit Compliance
         print("\n✅ **4. PRE-COMMIT COMPLIANCE**")
         self._audit_precommit_compliance()
-        
+
         # 5. PRD Requirements
         print("\n📄 **5. PRD REQUIREMENTS SATISFACTION**")
         self._audit_prd_requirements()
-        
+
         # 6. AppGraph Consistency
         print("\n🗺️ **6. APPGRAPH LOGICAL CONSISTENCY**")
         self._audit_appgraph_consistency()
-        
+
         # 7. LangBuilder Integrations
         print("\n🔗 **7. LANGBUILDER INTEGRATIONS COMPLETENESS**")
         self._audit_langbuilder_integrations()
-        
+
         # 8. Test Coverage
         print("\n🧪 **8. TEST COVERAGE COMPLETENESS**")
         self._audit_test_coverage()
-        
+
         # Generate final report
         return self._generate_final_report()
 
@@ -105,7 +102,7 @@ class RBACPhase4Auditor:
                 "required_methods": ["dispatch", "_check_permissions", "_extract_rbac_context"]
             },
             "flow_execution_integration": {
-                "description": "Flow execution permission integration", 
+                "description": "Flow execution permission integration",
                 "files": ["flow_integration.py"],
                 "required_classes": ["RBACFlowExecutionGuard", "FlowExecutionContext"],
                 "required_methods": ["check_execution_permission", "execute_flow_with_rbac"]
@@ -128,12 +125,12 @@ class RBACPhase4Auditor:
                 "required_features": ["_permission_cache", "get_metrics", "_cache_ttl"]
             },
             "integration_tests": {
-                "description": "60+ integration tests", 
+                "description": "60+ integration tests",
                 "files": ["test_phase4_integration.py"],
                 "minimum_tests": 15  # Our implementation has 20 test methods
             }
         }
-        
+
         for requirement, spec in plan_requirements.items():
             self._check_requirement(requirement, spec)
 
@@ -150,42 +147,42 @@ class RBACPhase4Auditor:
     def _check_code_requirement(self, requirement: str, spec: dict) -> None:
         """Check code-based requirements."""
         missing_items = []
-        
+
         for file_name in spec["files"]:
             file_path = self._find_file(file_name)
             if not file_path:
                 missing_items.append(f"File {file_name} not found")
                 continue
-                
+
             content = self._read_file(file_path)
             if not content:
                 missing_items.append(f"Could not read {file_name}")
                 continue
-            
+
             # Check required classes
             if "required_classes" in spec:
                 for class_name in spec["required_classes"]:
                     if f"class {class_name}" not in content:
                         missing_items.append(f"Missing class {class_name} in {file_name}")
-            
+
             # Check required methods
             if "required_methods" in spec:
                 for method_name in spec["required_methods"]:
                     if f"def {method_name}" not in content and f"async def {method_name}" not in content:
                         missing_items.append(f"Missing method {method_name} in {file_name}")
-            
+
             # Check required functions
             if "required_functions" in spec:
                 for func_name in spec["required_functions"]:
                     if f"def {func_name}" not in content and f"async def {func_name}" not in content:
                         missing_items.append(f"Missing function {func_name} in {file_name}")
-            
+
             # Check required features
             if "required_features" in spec:
                 for feature in spec["required_features"]:
                     if feature not in content:
                         missing_items.append(f"Missing feature {feature} in {file_name}")
-        
+
         if missing_items:
             self.issues.extend(missing_items)
             print(f"❌ {requirement}: {spec['description']} - {len(missing_items)} issues")
@@ -201,12 +198,12 @@ class RBACPhase4Auditor:
         test_file = self._find_file(spec["files"][0])
         if not test_file:
             self.issues.append("Integration test file not found")
-            print(f"❌ integration_tests: Missing test file")
+            print("❌ integration_tests: Missing test file")
             return
-        
+
         content = self._read_file(test_file)
         test_count = content.count("def test_")
-        
+
         if test_count >= spec["minimum_tests"]:
             self.successes.append("integration_tests")
             print(f"✅ integration_tests: {test_count} test methods (≥{spec['minimum_tests']} required)")
@@ -248,7 +245,7 @@ class RBACPhase4Auditor:
                 "files": ["middleware.py", "dependencies.py"]
             }
         }
-        
+
         for pattern_name, spec in patterns.items():
             self._check_pattern(pattern_name, spec)
 
@@ -269,23 +266,23 @@ class RBACPhase4Auditor:
         files_to_check = spec.get("files", self.phase4_files)
         pattern = spec["pattern"]
         minimum_count = spec.get("minimum_count", 1)
-        
+
         missing_files = []
         total_matches = 0
-        
+
         for file_name in files_to_check:
             file_path = self._find_file(file_name) if "/" not in file_name else Path(file_name)
             if not file_path or not file_path.exists():
                 missing_files.append(file_name)
                 continue
-                
+
             content = self._read_file(file_path)
             matches = len(re.findall(pattern, content))
             total_matches += matches
-        
+
         if missing_files:
             self.issues.append(f"{pattern_name}: Missing files {missing_files}")
-        
+
         if total_matches >= minimum_count:
             self.successes.append(pattern_name)
             print(f"✅ {pattern_name}: {spec['description']} ({total_matches} matches)")
@@ -297,19 +294,19 @@ class RBACPhase4Auditor:
         """Check import patterns in files."""
         files_to_check = spec.get("files", self.phase4_files)
         required_imports = spec["imports"]
-        
+
         missing_imports = []
-        
+
         for file_name in files_to_check:
             file_path = self._find_file(file_name) if "/" not in file_name else Path(file_name)
             if not file_path or not file_path.exists():
                 continue
-                
+
             content = self._read_file(file_path)
             for import_name in required_imports:
                 if import_name not in content:
                     missing_imports.append(f"{import_name} in {file_name}")
-        
+
         if missing_imports:
             self.issues.extend(missing_imports)
             print(f"❌ {pattern_name}: {spec['description']} - missing imports")
@@ -323,22 +320,22 @@ class RBACPhase4Auditor:
     def _check_phase1_compliance(self, pattern_name: str, spec: dict) -> None:
         """Check Phase 1 compliance specifically."""
         violations = []
-        
+
         for file_name in self.phase4_files:
             file_path = Path(file_name)
             if not file_path.exists():
                 continue
-                
+
             content = self._read_file(file_path)
-            
+
             # Check for future annotations (should not exist)
             if "from __future__ import annotations" in content:
                 violations.append(f"Future annotations found in {file_name}")
-            
+
             # Check for Phase 1 compliance comment
             if "NO future annotations per Phase 1 requirements" not in content:
                 violations.append(f"Missing Phase 1 compliance comment in {file_name}")
-        
+
         if violations:
             self.issues.extend(violations)
             print(f"❌ {pattern_name}: {spec['description']} - violations found")
@@ -369,7 +366,7 @@ class RBACPhase4Auditor:
                 "functions": ["check_user_access_to_flow", "get_user_accessible_flows"]
             }
         }
-        
+
         for check_name, spec in compatibility_checks.items():
             self._check_compatibility(check_name, spec)
 
@@ -392,18 +389,18 @@ class RBACPhase4Auditor:
             integration_file = Path("src/backend/base/langflow/services/rbac/integration.py")
             if integration_file.exists():
                 content = self._read_file(integration_file)
-                
+
                 missing_items = []
                 if "imports" in spec:
                     for import_name in spec["imports"]:
                         if import_name not in content:
                             missing_items.append(f"Missing {import_name}")
-                
+
                 if "functions" in spec:
                     for func_name in spec["functions"]:
                         if f"def {func_name}" not in content and f"async def {func_name}" not in content:
                             missing_items.append(f"Missing function {func_name}")
-                
+
                 if missing_items:
                     self.issues.extend(missing_items)
                     print(f"❌ {check_name}: {spec['description']} - missing items")
@@ -419,38 +416,38 @@ class RBACPhase4Auditor:
         integration_file = Path("src/backend/base/langflow/services/rbac/dependencies.py")
         if not integration_file.exists():
             return False
-        
+
         content = self._read_file(integration_file)
-        
+
         # Check for permission dependencies that work with existing API patterns
         required_dependencies = [
             "RequireFlowRead", "RequireFlowWrite", "RequireFlowExecute",
             "RequireProjectRead", "RequireWorkspaceAdmin"
         ]
-        
+
         for dep in required_dependencies:
             if dep not in content:
                 return False
-        
+
         return True
 
     def _check_phase1_models_import(self) -> bool:
         """Check that Phase 1 models can be imported (via service layer)."""
         # Phase 4 implementation correctly uses service layer abstraction
         # Models are imported in the core RBAC services, not in Phase 4 integration files
-        
+
         # Check that Phase 1 model imports exist in the service layer
         service_files = [
             "src/backend/base/langflow/services/rbac/service.py",
             "src/backend/base/langflow/services/rbac/audit_service.py",
             "src/backend/base/langflow/services/rbac/role_service.py"
         ]
-        
+
         phase1_model_imports = [
             "from langflow.services.database.models.rbac",
             "Permission", "Role", "RoleAssignment", "AuditLog"
         ]
-        
+
         import_found = False
         for service_file in service_files:
             file_path = Path(service_file)
@@ -463,13 +460,13 @@ class RBACPhase4Auditor:
                         break
                 if import_found:
                     break
-        
+
         return import_found
 
     def _audit_precommit_compliance(self) -> None:
         """Audit pre-commit compliance."""
         print("Checking syntax and basic formatting...")
-        
+
         syntax_issues = []
         for file_name in self.phase4_files:
             file_path = Path(file_name)
@@ -479,14 +476,14 @@ class RBACPhase4Auditor:
                     ast.parse(content)
                 except SyntaxError as e:
                     syntax_issues.append(f"Syntax error in {file_name}: {e}")
-        
+
         if syntax_issues:
             self.issues.extend(syntax_issues)
             print(f"❌ Syntax validation: {len(syntax_issues)} errors")
         else:
             self.successes.append("syntax_validation")
             print("✅ Syntax validation: All files have valid syntax")
-        
+
         print("✅ Pre-commit compliance: Formatting checked (manual linting passed)")
 
     def _audit_prd_requirements(self) -> None:
@@ -509,22 +506,22 @@ class RBACPhase4Auditor:
                 "features": ["audit_log", "execution_event", "compliance"]
             }
         }
-        
+
         for requirement, spec in prd_requirements.items():
             self._check_prd_requirement(requirement, spec)
 
     def _check_prd_requirement(self, requirement: str, spec: dict) -> None:
         """Check individual PRD requirement."""
         missing_features = []
-        
+
         # Check all Phase 4 files for required features
         for file_name in self.phase4_files:
             file_path = Path(file_name)
             if not file_path.exists():
                 continue
-                
+
             content = self._read_file(file_path)
-            
+
             # Check specific features based on requirement
             if requirement == "epic4_runtime_enforcement":
                 if "middleware.py" in file_name and "permission" not in content.lower():
@@ -540,7 +537,7 @@ class RBACPhase4Auditor:
             elif requirement == "auditability":
                 if "audit" not in content.lower() and "log" not in content.lower():
                     continue  # This file might not handle auditing
-        
+
         if missing_features:
             self.issues.extend(missing_features)
             print(f"❌ {requirement}: {spec['description']} - missing features")
@@ -572,7 +569,7 @@ class RBACPhase4Auditor:
                 "patterns": ["RBACIntegrationService", "setup_middleware"]
             }
         }
-        
+
         for requirement, spec in appgraph_requirements.items():
             self._check_appgraph_requirement(requirement, spec)
 
@@ -584,32 +581,32 @@ class RBACPhase4Auditor:
                 self.issues.append(f"{requirement}: File {spec['file']} not found")
                 print(f"❌ {requirement}: {spec['description']} - file missing")
                 return
-            
+
             content = self._read_file(file_path)
-            
+
             missing_items = []
-            
+
             if "class" in spec and f"class {spec['class']}" not in content:
                 missing_items.append(f"Missing class {spec['class']}")
-            
+
             if "features" in spec:
                 for feature in spec["features"]:
                     if feature not in content:
                         missing_items.append(f"Missing feature {feature}")
-            
+
             if "states" in spec:
                 # Check if state-like logic exists (not literal statechart)
                 state_count = sum(1 for state in spec["states"] if state in content.lower())
                 if state_count < len(spec["states"]) // 2:  # At least half the states
                     missing_items.append("Missing state transition logic")
-            
+
             if missing_items:
                 self.issues.extend(missing_items)
                 print(f"❌ {requirement}: {spec['description']} - missing items")
             else:
                 self.successes.append(requirement)
                 print(f"✅ {requirement}: {spec['description']}")
-        
+
         elif "files" in spec:
             all_good = True
             for file_name in spec["files"]:
@@ -617,13 +614,13 @@ class RBACPhase4Auditor:
                 if not file_path:
                     all_good = False
                     break
-                
+
                 content = self._read_file(file_path)
                 for pattern in spec["patterns"]:
                     if pattern not in content:
                         all_good = False
                         break
-            
+
             if all_good:
                 self.successes.append(requirement)
                 print(f"✅ {requirement}: {spec['description']}")
@@ -660,47 +657,47 @@ class RBACPhase4Auditor:
                 "features": ["execute_flow_with_rbac", "Graph", "arun"]
             }
         }
-        
+
         for integration, spec in integrations.items():
             self._check_integration(integration, spec)
 
     def _check_integration(self, integration: str, spec: dict) -> None:
         """Check integration requirement."""
         missing_items = []
-        
+
         files_to_check = spec.get("files", [spec.get("file")])
-        
+
         for file_name in files_to_check:
             if not file_name:
                 continue
-                
+
             file_path = self._find_file(file_name)
             if not file_path:
                 missing_items.append(f"File {file_name} not found")
                 continue
-            
+
             content = self._read_file(file_path)
-            
+
             if "functions" in spec:
                 for func_name in spec["functions"]:
                     if f"def {func_name}" not in content and f"async def {func_name}" not in content:
                         missing_items.append(f"Missing function {func_name} in {file_name}")
-            
+
             if "imports" in spec:
                 for import_name in spec["imports"]:
                     if import_name not in content:
                         missing_items.append(f"Missing import {import_name} in {file_name}")
-            
+
             if "features" in spec:
                 for feature in spec["features"]:
                     if feature not in content:
                         missing_items.append(f"Missing feature {feature} in {file_name}")
-            
+
             if "pattern" in spec:
                 if spec["pattern"] == "extends Service base class":
                     if "Service)" not in content or "class" not in content:
                         missing_items.append(f"Missing Service base class pattern in {file_name}")
-        
+
         if missing_items:
             self.issues.extend(missing_items)
             print(f"❌ {integration}: {spec['description']} - missing items")
@@ -739,21 +736,21 @@ class RBACPhase4Auditor:
                 "patterns": ["test_performance", "test.*load"]
             }
         }
-        
+
         test_file = self._find_file("test_phase4_integration.py")
         if not test_file:
             self.issues.append("Phase 4 integration test file not found")
             print("❌ Test file missing")
             return
-        
+
         content = self._read_file(test_file)
-        
+
         for requirement, spec in test_requirements.items():
             found_patterns = 0
             for pattern in spec["patterns"]:
                 if re.search(pattern, content):
                     found_patterns += 1
-            
+
             if found_patterns > 0:
                 self.successes.append(requirement)
                 print(f"✅ {requirement}: {spec['description']} ({found_patterns} matches)")
@@ -766,29 +763,29 @@ class RBACPhase4Auditor:
         print("\n" + "=" * 60)
         print("📊 **COMPREHENSIVE AUDIT SUMMARY**")
         print("=" * 60)
-        
+
         total_checks = len(self.successes) + len(self.issues)
         success_rate = (len(self.successes) / total_checks * 100) if total_checks > 0 else 0
-        
-        print(f"\n**Overall Results:**")
+
+        print("\n**Overall Results:**")
         print(f"✅ Successful checks: {len(self.successes)}")
         print(f"❌ Issues found: {len(self.issues)}")
         print(f"⚠️ Warnings: {len(self.warnings)}")
         print(f"📈 Success rate: {success_rate:.1f}%")
-        
+
         if self.issues:
             print(f"\n**Critical Issues ({len(self.issues)}):**")
             for i, issue in enumerate(self.issues, 1):
                 print(f"{i:2d}. {issue}")
-        
+
         if self.warnings:
             print(f"\n**Warnings ({len(self.warnings)}):**")
             for i, warning in enumerate(self.warnings, 1):
                 print(f"{i:2d}. {warning}")
-        
+
         # Determine overall status
         critical_issues = len(self.issues)
-        
+
         if critical_issues == 0:
             print("\n🎉 **AUDIT RESULT: PASSED**")
             print("✅ Phase 4 implementation is **PRODUCTION READY**")
@@ -797,38 +794,37 @@ class RBACPhase4Auditor:
             print("✅ Complete backward compatibility")
             print("✅ Comprehensive test coverage")
             return True
-        elif critical_issues <= 3:
+        if critical_issues <= 3:
             print("\n⚠️ **AUDIT RESULT: PASSED WITH MINOR ISSUES**")
             print("✅ Phase 4 implementation is **READY FOR DEPLOYMENT**")
             print("⚠️ Minor issues should be addressed post-deployment")
             return True
-        else:
-            print("\n❌ **AUDIT RESULT: FAILED**")
-            print("❌ Critical issues must be resolved before deployment")
-            print("🔧 Please address the issues above")
-            return False
+        print("\n❌ **AUDIT RESULT: FAILED**")
+        print("❌ Critical issues must be resolved before deployment")
+        print("🔧 Please address the issues above")
+        return False
 
-    def _find_file(self, file_name: str) -> Optional[Path]:
+    def _find_file(self, file_name: str) -> Path | None:
         """Find file by name in expected locations."""
         if "/" in file_name:
             return Path(file_name)
-        
+
         search_paths = [
             Path("src/backend/base/langflow/services/rbac") / file_name,
             Path("tests/integration/services/rbac") / file_name,
             Path("tests/unit/services/rbac") / file_name
         ]
-        
+
         for path in search_paths:
             if path.exists():
                 return path
-        
+
         return None
 
     def _read_file(self, file_path: Path) -> str:
         """Read file content safely."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 return f.read()
         except Exception:
             return ""
@@ -838,10 +834,10 @@ def main():
     """Main function."""
     verbose = "--verbose" in sys.argv
     fix_issues = "--fix-issues" in sys.argv
-    
+
     auditor = RBACPhase4Auditor(verbose=verbose, fix_issues=fix_issues)
     success = auditor.audit()
-    
+
     sys.exit(0 if success else 1)
 
 

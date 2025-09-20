@@ -68,8 +68,14 @@ export const RESOURCES = {
 } as const;
 
 export function useRBACPermissions() {
-  const { hasPermission, isLoading, currentWorkspace, currentProject } =
-    useRBAC();
+  const {
+    hasPermission,
+    isLoading,
+    currentWorkspace,
+    currentProject,
+    isDangerousAction,
+    requiresMFA,
+  } = useRBAC();
 
   return {
     // Flow permissions
@@ -187,5 +193,15 @@ export function useRBACPermissions() {
     isLoading,
     currentWorkspace,
     currentProject,
+
+    // Security checks
+    isDangerousAction,
+    requiresMFA,
+
+    // Helper for dangerous operations
+    isDeleteOperation: (resource: string, action: string) =>
+      isDangerousAction(resource, action) && action.includes("delete"),
+    isMFARequired: (resource: string, action: string) =>
+      requiresMFA(resource, action),
   };
 }

@@ -1067,7 +1067,7 @@
                     }
                   },
                   "onClose": {
-                    "type": "dynamic", 
+                    "type": "dynamic",
                     "content": {
                       "referenceType": "event",
                       "id": "handleClose"
@@ -1220,7 +1220,7 @@
                 "path": "@/modals/baseModal"
               },
               "Button": {
-                "type": "local", 
+                "type": "local",
                 "path": "@/components/ui/button"
               },
               "Input": {

@@ -16,7 +16,7 @@
       "defaultValue": null
     },
     "blocker": {
-      "type": "object", 
+      "type": "object",
       "defaultValue": {}
     },
     "changesNotSaved": {

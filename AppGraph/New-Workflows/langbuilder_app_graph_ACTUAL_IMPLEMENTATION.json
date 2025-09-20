@@ -40,7 +40,7 @@
           ]
         },
         {
-          "id": "api_key_entity", 
+          "id": "api_key_entity",
           "type": "schema",
           "name": "ApiKey",
           "description": "API key authentication with usage tracking",
@@ -61,7 +61,7 @@
       "logic_nodes": [
         {
           "id": "authentication_system",
-          "type": "logic", 
+          "type": "logic",
           "name": "Authentication System",
           "description": "JWT and API key authentication with user validation - actual implementation",
           "path": "src/backend/base/langflow/services/auth/utils.py",
@@ -116,7 +116,7 @@
               },
               "validating_jwt": {
                 "invoke": {
-                  "id": "validateJWT", 
+                  "id": "validateJWT",
                   "src": "get_current_user_by_jwt",
                   "onDone": {
                     "target": "authenticated",
@@ -164,7 +164,7 @@
         {
           "id": "simple_authorization_system",
           "type": "logic",
-          "name": "Simple Authorization System", 
+          "name": "Simple Authorization System",
           "description": "Basic authorization with superuser checks and resource ownership validation - actual implementation",
           "path": "src/backend/base/langflow/services/auth/utils.py",
           "actual_functions": [
@@ -173,7 +173,7 @@
           ],
           "authorization_pattern": [
             "check_user_authenticated",
-            "check_user_active", 
+            "check_user_active",
             "check_resource_ownership_or_superuser",
             "grant_or_deny_access"
           ],
@@ -190,7 +190,7 @@
               "checking_authentication": {
                 "invoke": {
                   "id": "checkAuth",
-                  "src": "get_current_active_user", 
+                  "src": "get_current_active_user",
                   "onDone": {
                     "target": "checking_access",
                     "actions": ["store_user"]
@@ -202,7 +202,7 @@
                 "entry": ["determine_access_requirements"],
                 "always": [
                   {
-                    "target": "access_granted", 
+                    "target": "access_granted",
                     "cond": "is_superuser"
                   },
                   {
@@ -258,7 +258,7 @@
               "idle": {
                 "on": {
                   "CREATE_USER": "creating_user",
-                  "READ_USER": "reading_user", 
+                  "READ_USER": "reading_user",
                   "UPDATE_USER": "updating_user",
                   "DELETE_USER": "deleting_user"
                 }
@@ -286,7 +286,7 @@
               "updating_user": {
                 "entry": ["validate_update_data"],
                 "invoke": {
-                  "id": "updateUser", 
+                  "id": "updateUser",
                   "src": "patch_user",
                   "onDone": "user_updated",
                   "onError": "update_failed"
@@ -295,7 +295,7 @@
               "deleting_user": {
                 "invoke": {
                   "id": "deleteUser",
-                  "src": "delete_user", 
+                  "src": "delete_user",
                   "onDone": "user_deleted",
                   "onError": "deletion_failed"
                 }
@@ -333,7 +333,7 @@
       {
         "id": "edge_auth_1",
         "source": "authentication_system",
-        "target": "user_entity", 
+        "target": "user_entity",
         "type": "data_operation",
         "description": "Authentication system reads user data for validation"
       },
@@ -341,7 +341,7 @@
         "id": "edge_auth_2",
         "source": "authentication_system",
         "target": "api_key_entity",
-        "type": "data_operation", 
+        "type": "data_operation",
         "description": "Authentication system validates API keys"
       },
       {

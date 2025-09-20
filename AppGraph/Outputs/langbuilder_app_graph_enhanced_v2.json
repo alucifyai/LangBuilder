@@ -13446,7 +13446,7 @@
                             }
                             },
                             "gridLayout": {
-                            "type": "reusable-component-style-map", 
+                            "type": "reusable-component-style-map",
                             "content": {
                                 "display": "grid",
                                 "gridTemplateColumns": "repeat(auto-fill, minmax(300px, 1fr))",
@@ -15189,7 +15189,7 @@
                             "defaultValue": ""
                             },
                             "stdioCommand": {
-                            "type": "string", 
+                            "type": "string",
                             "defaultValue": ""
                             },
                             "stdioArgs": {
@@ -16941,7 +16941,7 @@
                             },
                             "TabsContent": {
                             "type": "library",
-                            "path": "@/components/ui/tabs-button", 
+                            "path": "@/components/ui/tabs-button",
                             "version": "1.0.0"
                             },
                             "ShadTooltip": {

@@ -50,7 +50,7 @@ class RBACIntegrationConfig:
     @classmethod
     def from_environment(cls) -> "RBACIntegrationConfig":
         """Create configuration from environment variables.
-        
+
         Returns:
             RBACIntegrationConfig: Configuration based on environment
         """
@@ -66,7 +66,7 @@ class RBACIntegrationConfig:
 
 class RBACIntegrationService(Service):
     """Service for integrating RBAC with LangBuilder application.
-    
+
     This service provides a centralized way to integrate RBAC features
     with the existing LangBuilder application while maintaining backward
     compatibility and allowing for graceful degradation.
@@ -135,10 +135,10 @@ class RBACIntegrationService(Service):
 
     def setup_middleware(self, app: FastAPI) -> None:
         """Setup RBAC middleware on FastAPI application.
-        
+
         This method integrates RBAC middleware with the existing FastAPI
         application while maintaining backward compatibility.
-        
+
         Args:
             app: FastAPI application instance
         """
@@ -181,7 +181,7 @@ class RBACIntegrationService(Service):
 
     def get_rbac_service(self) -> Optional["RBACService"]:
         """Get the RBAC service instance.
-        
+
         Returns:
             RBACService or None: RBAC service if available
         """
@@ -189,7 +189,7 @@ class RBACIntegrationService(Service):
 
     def get_flow_integration_service(self) -> Optional["RBACFlowIntegrationService"]:
         """Get the Flow integration service.
-        
+
         Returns:
             RBACFlowIntegrationService or None: Flow integration service if available
         """
@@ -197,7 +197,7 @@ class RBACIntegrationService(Service):
 
     def is_rbac_enabled(self) -> bool:
         """Check if RBAC is enabled.
-        
+
         Returns:
             bool: True if RBAC is enabled and functional
         """
@@ -205,7 +205,7 @@ class RBACIntegrationService(Service):
 
     def get_integration_status(self) -> dict:
         """Get RBAC integration status.
-        
+
         Returns:
             dict: Status information about RBAC integration
         """
@@ -227,7 +227,7 @@ _rbac_integration_service: RBACIntegrationService | None = None
 
 def get_rbac_integration_service() -> RBACIntegrationService:
     """Get the global RBAC integration service instance.
-    
+
     Returns:
         RBACIntegrationService: Global RBAC integration service
     """
@@ -239,7 +239,7 @@ def get_rbac_integration_service() -> RBACIntegrationService:
 
 async def initialize_rbac_integration() -> None:
     """Initialize RBAC integration for LangBuilder.
-    
+
     This function should be called during application startup to initialize
     RBAC services and integration components.
     """
@@ -249,10 +249,10 @@ async def initialize_rbac_integration() -> None:
 
 def setup_rbac_middleware(app: FastAPI) -> None:
     """Setup RBAC middleware on FastAPI application.
-    
+
     This function provides a simple way to add RBAC middleware to the
     existing LangBuilder FastAPI application.
-    
+
     Args:
         app: FastAPI application instance
     """
@@ -262,7 +262,7 @@ def setup_rbac_middleware(app: FastAPI) -> None:
 
 def is_rbac_available() -> bool:
     """Check if RBAC is available and functional.
-    
+
     Returns:
         bool: True if RBAC is available
     """
@@ -280,16 +280,16 @@ async def check_user_access_to_flow(
     session = None
 ) -> bool:
     """Check if user has access to a Flow (backward compatibility).
-    
+
     This function provides a simple interface for checking Flow access
     that can be used by existing code without major changes.
-    
+
     Args:
         user: User object
         flow_id: Flow ID to check access for
         action: Action to check (read, write, execute, delete)
         session: Database session (optional)
-        
+
     Returns:
         bool: True if access is granted
     """
@@ -336,14 +336,14 @@ async def check_user_access_to_flow(
 
 async def get_user_accessible_flows(user, session = None) -> list[str]:
     """Get list of Flow IDs accessible to user (backward compatibility).
-    
+
     This function provides a way to get accessible Flows for existing
     code that needs to filter Flow lists based on permissions.
-    
+
     Args:
         user: User object
         session: Database session (optional)
-        
+
     Returns:
         list[str]: List of accessible Flow IDs
     """

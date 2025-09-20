@@ -1,0 +1,225 @@
+apiVersion: langflow.org/v1
+kind: RBACPolicy
+metadata:
+  name: basic-workspace-rbac
+  workspace: development
+  description: Basic RBAC configuration for development workspace
+  labels:
+    environment: development
+    template: basic
+    team: engineering
+  annotations:
+    created-by: infrastructure-team
+    last-reviewed: "2024-01-15"
+spec:
+  # Define basic permissions for flow operations
+  permissions:
+    - name: flow:read
+      description: Read flows and their configurations
+      resourceType: flow
+      action: read
+      metadata:
+        category: basic
+
+    - name: flow:write
+      description: Create and modify flows
+      resourceType: flow
+      action: write
+      metadata:
+        category: basic
+
+    - name: flow:execute
+      description: Execute flows
+      resourceType: flow
+      action: execute
+      metadata:
+        category: basic
+
+    - name: flow:deploy
+      description: Deploy flows to environments
+      resourceType: flow
+      action: deploy
+      metadata:
+        category: advanced
+
+    - name: workspace:read
+      description: Read workspace information
+      resourceType: workspace
+      action: read
+      metadata:
+        category: basic
+
+    - name: workspace:admin
+      description: Administer workspace settings
+      resourceType: workspace
+      action: admin
+      metadata:
+        category: admin
+
+  # Define basic roles with clear hierarchy
+  roles:
+    - name: viewer
+      description: Can view flows and workspace information
+      type: custom
+      permissions:
+        - flow:read
+        - workspace:read
+      priority: 100
+      metadata:
+        level: entry
+        department: all
+      tags:
+        - read-only
+        - basic
+
+    - name: developer
+      description: Can develop and test flows
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - workspace:read
+      priority: 200
+      metadata:
+        level: intermediate
+        department: engineering
+      tags:
+        - development
+        - standard
+
+    - name: deployer
+      description: Can deploy flows in addition to development
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - flow:deploy
+        - workspace:read
+      priority: 250
+      metadata:
+        level: advanced
+        department: engineering
+      tags:
+        - deployment
+        - advanced
+
+    - name: admin
+      description: Full workspace administration
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - flow:deploy
+        - workspace:read
+        - workspace:admin
+      priority: 300
+      metadata:
+        level: admin
+        department: all
+      tags:
+        - administration
+        - full-access
+
+  # Define user groups for team organization
+  groups:
+    - name: frontend-team
+      description: Frontend development team
+      type: team
+      members:
+        - alice@company.com
+        - bob@company.com
+      autoAssignRoles:
+        - developer
+      metadata:
+        department: engineering
+        focus: frontend
+      tags:
+        - frontend
+        - ui-ux
+
+    - name: backend-team
+      description: Backend development team
+      type: team
+      members:
+        - charlie@company.com
+        - diana@company.com
+      autoAssignRoles:
+        - developer
+      metadata:
+        department: engineering
+        focus: backend
+      tags:
+        - backend
+        - api
+
+    - name: qa-team
+      description: Quality assurance team
+      type: team
+      members:
+        - eve@company.com
+        - frank@company.com
+      autoAssignRoles:
+        - viewer
+      metadata:
+        department: quality
+        focus: testing
+      tags:
+        - qa
+        - testing
+
+  # Define role assignments
+  assignments:
+    # Individual user assignments
+    - user: admin@company.com
+      roles:
+        - admin
+      scopeType: workspace
+      metadata:
+        reason: workspace-administrator
+        assigned-by: infrastructure-team
+
+    - user: lead@company.com
+      roles:
+        - deployer
+      scopeType: workspace
+      metadata:
+        reason: team-lead
+        assigned-by: infrastructure-team
+
+    # Group-based assignments
+    - group: frontend-team
+      roles:
+        - developer
+      scopeType: workspace
+      metadata:
+        reason: team-membership
+        assigned-by: infrastructure-team
+
+    - group: backend-team
+      roles:
+        - developer
+      scopeType: workspace
+      metadata:
+        reason: team-membership
+        assigned-by: infrastructure-team
+
+    - group: qa-team
+      roles:
+        - viewer
+      scopeType: workspace
+      metadata:
+        reason: testing-access
+        assigned-by: infrastructure-team
+
+    # Temporary access example
+    - user: contractor@external.com
+      roles:
+        - viewer
+      scopeType: workspace
+      expiresAt: "2024-12-31T23:59:59Z"
+      metadata:
+        reason: temporary-contractor
+        assigned-by: infrastructure-team

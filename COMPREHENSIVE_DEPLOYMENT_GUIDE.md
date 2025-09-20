@@ -29,31 +29,31 @@ graph TB
             RBAC_UI[RBAC Admin Interface]
             GUARDS[Permission Guards]
         end
-        
+
         subgraph "API Layer"
             PROXY[Traefik Proxy]
             CORE_API[Core LangBuilder APIs]
             RBAC_API[RBAC APIs /api/v1/rbac/*]
         end
-        
+
         subgraph "Backend Services"
             BACKEND[LangBuilder Backend]
             RBAC_ENGINE[Permission Engine]
             CELERY[Celery Workers]
         end
-        
+
         subgraph "Data Layer"
             DB[(PostgreSQL)]
             REDIS[(Redis Cache)]
             RABBIT[RabbitMQ]
         end
-        
+
         subgraph "Monitoring"
             PROM[Prometheus]
             GRAF[Grafana]
         end
     end
-    
+
     UI --> PROXY
     RBAC_UI --> PROXY
     PROXY --> CORE_API
@@ -469,7 +469,7 @@ location /api/v1/rbac/check-permission {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    
+
     # Enable caching for permission checks
     proxy_cache_valid 200 5m;
     proxy_cache_valid 403 1m;

@@ -187,7 +187,7 @@ with Session(engine) as session:
     workspace = Workspace(name="test", owner_id="user123")
     session.add(workspace)
     session.commit()
-    
+
     # Test project creation
     project = Project(name="test", workspace_id=workspace.id, owner_id="user123")
     session.add(project)

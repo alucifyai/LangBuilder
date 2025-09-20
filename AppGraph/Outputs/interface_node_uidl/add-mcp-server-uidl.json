@@ -44,7 +44,7 @@
       "defaultValue": ""
     },
     "stdioCommand": {
-      "type": "string", 
+      "type": "string",
       "defaultValue": ""
     },
     "stdioArgs": {
@@ -1796,7 +1796,7 @@
     },
     "TabsContent": {
       "type": "library",
-      "path": "@/components/ui/tabs-button", 
+      "path": "@/components/ui/tabs-button",
       "version": "1.0.0"
     },
     "ShadTooltip": {

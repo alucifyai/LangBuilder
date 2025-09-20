@@ -18,7 +18,7 @@ class User(SQLModel, table=True):
     owned_workspaces: list["Workspace"] = Relationship(back_populates="owner")
 ```
 
-**Root Cause**: 
+**Root Cause**:
 - SQLAlchemy's internal type mapping system gets confused when using future annotations
 - The string-based forward references `"Workspace"` are not properly resolved during relationship mapping
 - SQLModel uses SQLAlchemy's internal `Mapper` which expects concrete types at relationship definition time
@@ -179,7 +179,7 @@ class RoleAssignment(SQLModel, table=True):
 # PROBLEMATIC - Referenced field doesn't exist
 class User(SQLModel, table=True):
     # Missing: role_assignments field
-    
+
 class RoleAssignment(SQLModel, table=True):
     user: "User" = Relationship(back_populates="role_assignments")  # Non-existent
 ```
@@ -306,7 +306,7 @@ def test_model_relationships():
     user = User(username="test", password="test")
     workspace = Workspace(name="test", owner=user)
     project = Project(name="test", workspace=workspace, owner=user)
-    
+
     # Verify bidirectional relationships
     assert workspace.owner == user
     assert user.owned_workspaces[0] == workspace
@@ -340,17 +340,17 @@ from langflow.schema.serialize import UUIDstr
 
 class ModelName(SQLModel, table=True):
     __tablename__ = "model_name"
-    
+
     # Primary key
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
-    
+
     # Foreign keys with explicit declaration
     parent_id: UUIDstr = Field(foreign_key="parent.id", index=True)
-    
+
     # Relationships with proper typing
     parent: "Parent" = Relationship(back_populates="children")
     children: list["Child"] = Relationship(back_populates="parent")
-    
+
     # Optional relationships
     optional_rel: Union["OptionalModel", None] = Relationship(...)
 ```
@@ -394,7 +394,7 @@ class ModelName(SQLModel, table=True):
 
 ---
 
-**Analysis Date**: September 17, 2024  
-**Resolution Status**: ✅ Complete  
-**Database Schema**: Validated & Production-Ready  
+**Analysis Date**: September 17, 2024
+**Resolution Status**: ✅ Complete
+**Database Schema**: Validated & Production-Ready
 **Performance**: Optimized with proper constraints and indexes

@@ -2,7 +2,7 @@
 
 
 <goal>
-Your goal is to analyze an existing code repository and reverse-engineer it into an App Graph that provides an abstracted, structured definition of the application's schema, interface, logic, and test scenarios. The App Graph is used as a tech design artifact suitable for engineering implementation. Your App Graph should accurately reflect the application as it is implemented in the code repository. 
+Your goal is to analyze an existing code repository and reverse-engineer it into an App Graph that provides an abstracted, structured definition of the application's schema, interface, logic, and test scenarios. The App Graph is used as a tech design artifact suitable for engineering implementation. Your App Graph should accurately reflect the application as it is implemented in the code repository.
 </goal>
 
 
@@ -92,7 +92,7 @@ Conduct a comprehensive analysis of the codebase using the following systematic 
 - Identify primary keys, foreign keys, and indexes
 - Extract field types, constraints, and validations
 - Understand entity relationships through foreign keys and join tables
-- Analyze any business rules embedded in model validations Let us start from the schema node. 
+- Analyze any business rules embedded in model validations Let us start from the schema node.
 
 
 Generate complete-schema-entities.md for all the details at the finest granular level possible.
@@ -128,7 +128,7 @@ Prompt #5:
 
 
 <goal>
-Your goal is to reverse-engineer the codebase into an App Graph that provides an abstracted, structured definition of the application's schema, interface, logic, and test scenarios. The App Graph is used as a tech design artifact suitable for engineering implementation. Your App Graph should accurately reflect the application as it is implemented in the code repository. 
+Your goal is to reverse-engineer the codebase into an App Graph that provides an abstracted, structured definition of the application's schema, interface, logic, and test scenarios. The App Graph is used as a tech design artifact suitable for engineering implementation. Your App Graph should accurately reflect the application as it is implemented in the code repository.
 </goal>
 
 
@@ -172,7 +172,7 @@ All of the App Graph nodes are connected by edges to show how they relate to eac
 - Transition between Logic Nodes, like pre and post events for a given step and state changes
 - Relationship between Logic Nodes and Interface Nodes to show triggers for a certain process flow or state transition
 - Relationship between Schema Nodes and Interface Nodes to show triggers for certain data access
-- Relationship between Logic Nodes and Schema Nodes to map the events with the entities and build the cross-links among them. For example, we want to know which entities are involved in certain events and flows, what states correspond to what entities, and how events change entities and states. 
+- Relationship between Logic Nodes and Schema Nodes to map the events with the entities and build the cross-links among them. For example, we want to know which entities are involved in certain events and flows, what states correspond to what entities, and how events change entities and states.
 
 
 Every edge has a unique id. It is important to include all edges between nodes of the same type and all edges across all different node types to accurately reflect dependencies, logic, and flows.
@@ -181,7 +181,7 @@ Every edge has a unique id. It is important to include all edges between nodes o
 You have analyzed the Code Repository deeply and generated complete-interface-nodes.md, completed-schema-entities.md, complete-logic-nodes.md, and complete-test-nodes.md. Based on your deep understanding of the codebase, you will reverse-engineer and generate the App Graph for LangBuilder, as fine-grained as possible to accurately cover complete schema nodes, interface nodes, logic nodes, test nodes, and all relationship edges between the nodes, for example entity-to-entity relationships, composition and navigation relationships between interface nodes, interface to schema and entity edges such as API calls, form submission, data fetching, and state management, logic-to-logic dependencies, including function call chains, event emissions, async operation dependencies, and service-to-service communication, logic-to-interface trigger relationships such as API calls from UI components, and state updates that trigger UI changes, logic-to-schema data operation relationships like database queries and mutations in business logic, and entity lifecycle events, as well as all the validation relationship between tests and any other nodes.
 
 
-Aggregate all of the nodes and edges and generate a final JSON output for the entire App Graph 
+Aggregate all of the nodes and edges and generate a final JSON output for the entire App Graph
 
 
 # Partition Final App Graph If Necessary
@@ -189,9 +189,9 @@ Thoroughly understand the system's overall purpose and the specific functions it
 
 
 ## Apply a Decomposition Strategy
-1. **Functional Decomposition**: Divide the system into smaller sub-functions, where each sub-function performs a specific, well-defined task. 
-2. **Object-Oriented Decomposition**: Break down the system into classes or objects that encapsulate data and behavior related to specific problem domain aspects. 
-3. **Domain-Based Decomposition**: Group components based on their relevance to different areas of the business or problem domain. 
+1. **Functional Decomposition**: Divide the system into smaller sub-functions, where each sub-function performs a specific, well-defined task.
+2. **Object-Oriented Decomposition**: Break down the system into classes or objects that encapsulate data and behavior related to specific problem domain aspects.
+3. **Domain-Based Decomposition**: Group components based on their relevance to different areas of the business or problem domain.
 ## Define Module Boundaries
 1. **Create Well-Defined Interfaces**: Ensure each subsystem has a clear and stable interface, specifying how it interacts with other parts of the system.
 2. **Encapsulate State and Behavior**: A subsystem should contain its own classes and maintain control over its internal state and functions.
@@ -229,7 +229,7 @@ If the Final App Graph is necessary to be partitioned into multiple subsystems, 
         “details” : “{{description of the relationship}}”
         }
     ]
-}        
+}
 
 
 ## Quality Assurance Checklist
@@ -262,7 +262,7 @@ Next we need to support new features for granular access control and role-based 
 Prompt #7:
 
 
-for the interface nodes, generate a detailed UIDL representation of every page which includes all elements, components, and layouts in a UIDL JSON format.  To better understand the UIDL standard, please read the documentation here (https://docs.teleporthq.io/uidl/). refer to the frontend codebase and 
+for the interface nodes, generate a detailed UIDL representation of every page which includes all elements, components, and layouts in a UIDL JSON format.  To better understand the UIDL standard, please read the documentation here (https://docs.teleporthq.io/uidl/). refer to the frontend codebase and
 complete-interface-nodes.md. Update langbuilder_app_graph.json, langbuilder_app_graph_partitioned.json, langbuilder_app_graph_rbac.json, and langbuilder_app_graph_partitioned_rbac.json.
 
 
@@ -283,10 +283,10 @@ I want you to deep dive into the frontend code. For every frontend file and     
 │   Remember, once you update the interface nodes in the langbuilder_app_graph json  │
 │   files, you need to update the relationship between interface nodes, and          │
 │   between interface node and other schema, logic, and test nodes properly to make  │
-│   the app graph consistent and accurate. 
+│   the app graph consistent and accurate.
 
 
-Prompt #9: 
+Prompt #9:
 
 
 I am not sure the comprehensive-frontend-uidl.json is comprehensive at all. For  │
@@ -382,7 +382,7 @@ Prompt #16:
 Now you need to make sure all the RBAC nodes are correctly and fully connected with corresponding schema nodes     │
 │   and interface nodes with accurate relationship on the edges. The edges include the ones between schema nodes and   │
 │   logic nodes, between interface nodes and logic nodes, and between schema nodes and interface nodes. Update         │
-│   langbuilder_app_graph_enhanced_v4_with_85_rbac_flows.json with all the missing edges. 
+│   langbuilder_app_graph_enhanced_v4_with_85_rbac_flows.json with all the missing edges.
 
 
 
@@ -397,7 +397,7 @@ Could you audit AppGraph/New-Workflows/langbuilder_app_graph_enhanced_v4_with_85
 │   right format (schema using graphql, interface using uidl, and logic using startchart), and all the edges between   │
 │   the Security & Administration subsystem and other subsystems are fully and accurately added. Make the new RBAC     │
 │   nodes red, new edges due to RBAC red, affected nodes due to RBAC blue, affected edges due to RBAC blue, intact     │
-│   nodes green, and intact edges green.   
+│   nodes green, and intact edges green.
 
 
 
@@ -434,7 +434,7 @@ i am not sure what you have fixed, because my analysis showed that there has bee
 │       - 5 logic, 1 test node                                                                                         │
 │     4. User Experience & Interaction - 2 orphaned (2.5%)                                                             │
 │     5. Integration & Communication - 1 orphaned (1.3%)                                                               │
-│     6. Data Management & Storage - 1 orphaned (1.3%) -- Where did you store your fix? 
+│     6. Data Management & Storage - 1 orphaned (1.3%) -- Where did you store your fix?
 
 
 
@@ -451,7 +451,7 @@ i have a question for you. In v5_complete you generated one logic node [Pasted t
 Prompt #22:
 
 You are working on my code repository directory directly. I asked you to analyze the code deeply, carefully, and   │
-│   generate comprehensive logic flows from the code. Why didn't you generate from the code? 
+│   generate comprehensive logic flows from the code. Why didn't you generate from the code?
 
 
 
@@ -489,7 +489,7 @@ Next, you need to analyze an updated PRD for RBAC at PRD _ Granular Access Contr
 │   relationship with, modify existing nodes and edges to support RBAC when necessary. Produce v6 that includes full   │
 │   AppGraph with all the design and support for RBAC, all the existing AppGraph intact the same, all the edges        │
 │   necessary, and the meta data about the new full and complete AppGraph with RBAC design and implementation          │
-│   details. 
+│   details.
 
 
 
@@ -522,7 +522,7 @@ I have noticed a few gaps from your generation of the Gherkin nodes with regard 
 │   these annotations will be critical in the subsequent retrieval from the graph.                                     │
 │   Some Stories are not included it seems like Story 1.2: Create and Manage Custom Roles                              │
 │   Some stories are included but few Acceptance Criteria seem to be missed. Like @AC6 for Story 1.1 (Scenario:        │
-│   Enforcement — only the invited user can accept) is not included it seems 
+│   Enforcement — only the invited user can accept) is not included it seems
 
 
 
@@ -536,7 +536,7 @@ Now i want you to generate code for the implementation of the RBAC features. Fir
 │   testable tasks, and modualize the coding so that each implementation and coding module and task can be fully       │
 │   tested before moving onto the next module and task of implementation and coding. The key is to control codability  │
 │   and quality of each coding task and ensure the overall quality of the code generation at the end to fully and      │
-│   completely implement the RBAC features as described in the AppGraph and the enhanced PRD. 
+│   completely implement the RBAC features as described in the AppGraph and the enhanced PRD.
 
 
 

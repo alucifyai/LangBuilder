@@ -22433,7 +22433,7 @@
               ],
               "vertex_states": [
                 "ACTIVE",
-                "INACTIVE", 
+                "INACTIVE",
                 "ERROR"
               ],
               "execution_phases": [
@@ -22827,7 +22827,7 @@
               ],
               "vertex_state_management": [
                 "set_state(state: str)",
-                "is_active()", 
+                "is_active()",
                 "mark_vertex(vertex_id: str, state: str)",
                 "mark_all_vertices(state: str)",
                 "activate_state_vertices(name: str, caller: str)",

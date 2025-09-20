@@ -1,34 +1,40 @@
 """Audit log management API endpoints for RBAC system."""
 
-from typing import TYPE_CHECKING
-from langflow.schema.serialize import UUIDstr
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import select, and_, or_
-from sqlmodel.ext.asyncio.session import AsyncSession
 from datetime import datetime, timedelta
+from typing import Annotated, TYPE_CHECKING
 
-from langflow.api.utils import CurrentActiveUser, DbSession
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlmodel import apaginate
+from sqlmodel import and_, or_, select, desc
+
+from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
 from langflow.api.v1.rbac.dependencies import (
-    check_workspace_permission,
     get_permission_engine,
 )
-from langflow.services.rbac.permission_engine import PermissionEngine
-from langflow.services.database.models.rbac.audit_log import (
-    AuditLog,
-    AuditLogRead,
-    AuditLogFilter,
-    AuditLogExport,
-    AuditLogSummary,
-    ComplianceReport,
-    AuditEventType,
-    ActorType,
-    AuditOutcome,
+from langflow.api.v1.rbac.security_middleware import (
+    SecurityRequirement,
+    ValidationRequirement,
+    get_authenticated_user,
+    secure_endpoint,
 )
-from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
+from langflow.schema.serialize import UUIDstr
+from langflow.services.database.models.rbac.audit_log import (
+    ActorType,
+    AuditEventType,
+    AuditLog,
+    AuditLogExport,
+    AuditLogRead,
+    AuditLogSummary,
+    AuditOutcome,
+    ComplianceReport,
+)
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
+    pass
 
 router = APIRouter(
     prefix="/audit",
@@ -43,12 +49,25 @@ router = APIRouter(
 
 
 @router.get("/logs", response_model=list[AuditLogRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="audit_log",
+        action="read",
+        require_workspace_access=True,
+        audit_action="read_audit_logs",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_audit_logs(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     workspace_id: UUIDstr,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    params: Annotated[Params | None, Depends(custom_params)] = None,
     event_type: AuditEventType | None = None,
     actor_type: ActorType | None = None,
     outcome: AuditOutcome | None = None,
@@ -58,69 +77,105 @@ async def list_audit_logs(
     start_date: datetime | None = None,
     end_date: datetime | None = None,
     search: str | None = None,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[AuditLogRead]:
     """List audit logs for a workspace."""
-    
     # Check workspace permission - only admins can view audit logs
-    await check_workspace_permission(session, current_user, workspace_id, "audit:read")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=workspace_id,
+        workspace_id=workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read audit logs: {result.reason}"
+        )
 
     statement = select(AuditLog).where(AuditLog.workspace_id == workspace_id)
 
     # Apply filters
     if event_type:
         statement = statement.where(AuditLog.event_type == event_type)
-    
+
     if actor_type:
         statement = statement.where(AuditLog.actor_type == actor_type)
-    
+
     if outcome:
         statement = statement.where(AuditLog.outcome == outcome)
-    
+
     if actor_id:
         statement = statement.where(AuditLog.actor_id == actor_id)
-    
+
     if resource_type:
         statement = statement.where(AuditLog.resource_type == resource_type)
-    
+
     if resource_id:
         statement = statement.where(AuditLog.resource_id == resource_id)
-    
+
     if start_date:
         statement = statement.where(AuditLog.timestamp >= start_date)
-    
+
     if end_date:
         statement = statement.where(AuditLog.timestamp <= end_date)
-    
+
     if search:
-        statement = statement.where(
-            or_(
-                AuditLog.event_description.ilike(f"%{search}%"),
-                AuditLog.details.astext.ilike(f"%{search}%"),
-                AuditLog.ip_address.ilike(f"%{search}%"),
-                AuditLog.user_agent.ilike(f"%{search}%")
-            )
-        )
+        # Use simple ilike conditions - database will handle nulls appropriately
+        search_conditions = [
+            AuditLog.actor_name.ilike(f"%{search}%"),
+            AuditLog.resource_name.ilike(f"%{search}%"),
+            AuditLog.ip_address.ilike(f"%{search}%"),
+            AuditLog.user_agent.ilike(f"%{search}%"),
+            AuditLog.error_message.ilike(f"%{search}%"),
+            AuditLog.api_endpoint.ilike(f"%{search}%")
+        ]
+
+        statement = statement.where(or_(*search_conditions))
 
     # Order by timestamp descending (most recent first)
-    statement = statement.order_by(AuditLog.timestamp.desc())
-    
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-    
-    result = await session.exec(statement)
-    logs = result.all()
+    statement = statement.order_by(desc(AuditLog.timestamp))
 
-    return [AuditLogRead.model_validate(log) for log in logs]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [AuditLogRead.model_validate(log) for log in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        logs = result.all()
+        return [AuditLogRead.model_validate(log) for log in logs]
 
 
 @router.get("/logs/{log_id}", response_model=AuditLogRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="audit_log",
+        action="read",
+        require_workspace_access=True,
+        audit_action="read_audit_log",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_audit_log(
+    request: Request,
     log_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> AuditLogRead:
     """Get audit log by ID."""
-    
     log = await session.get(AuditLog, log_id)
     if not log:
         raise HTTPException(
@@ -129,42 +184,78 @@ async def get_audit_log(
         )
 
     # Check workspace permission
-    await check_workspace_permission(session, current_user, log.workspace_id, "audit:read")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=log.workspace_id,
+        workspace_id=log.workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read audit log: {result.reason}"
+        )
 
     return AuditLogRead.model_validate(log)
 
 
 @router.post("/logs/export", response_model=dict)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def export_audit_logs(
     export_request: AuditLogExport,
     session: DbSession,
     current_user: CurrentActiveUser,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> dict:
     """Export audit logs to various formats."""
-    
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, export_request.workspace_id, "audit:export"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=export_request.workspace_id,
+        workspace_id=export_request.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to export audit logs: {result.reason}"
+        )
 
     # Build query based on filters
     statement = select(AuditLog).where(AuditLog.workspace_id == export_request.workspace_id)
-    
+
     if export_request.start_date:
         statement = statement.where(AuditLog.timestamp >= export_request.start_date)
-    
+
     if export_request.end_date:
         statement = statement.where(AuditLog.timestamp <= export_request.end_date)
-    
+
     if export_request.event_types:
         statement = statement.where(AuditLog.event_type.in_(export_request.event_types))
-    
+
     if export_request.resource_types:
         statement = statement.where(AuditLog.resource_type.in_(export_request.resource_types))
 
     # Order by timestamp
-    statement = statement.order_by(AuditLog.timestamp.desc())
-    
+    statement = statement.order_by(desc(AuditLog.timestamp))
+
     result = await session.exec(statement)
     logs = result.all()
 
@@ -175,24 +266,49 @@ async def export_audit_logs(
         "format": export_request.format,
         "total_records": len(logs),
         "status": "completed",
-        "download_url": f"/api/v1/rbac/audit/exports/placeholder-export-id/download",
+        "download_url": "/api/v1/rbac/audit/exports/placeholder-export-id/download",
         "created_at": datetime.utcnow().isoformat(),
         "expires_at": (datetime.utcnow() + timedelta(hours=24)).isoformat(),
     }
 
 
 @router.get("/summary", response_model=AuditLogSummary)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_audit_summary(
     session: DbSession,
     current_user: CurrentActiveUser,
     workspace_id: UUIDstr,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> AuditLogSummary:
     """Get audit log summary statistics."""
-    
     # Check workspace permission
-    await check_workspace_permission(session, current_user, workspace_id, "audit:read")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=workspace_id,
+        workspace_id=workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read audit summary: {result.reason}"
+        )
 
     # Default to last 30 days if no dates provided
     if not start_date:
@@ -215,9 +331,9 @@ async def get_audit_summary(
     total_events = len(all_logs)
 
     # Count by event type
-    event_type_counts = {}
+    event_type_counts: dict[str, int] = {}
     for log in all_logs:
-        event_type = log.event_type.value if hasattr(log.event_type, 'value') else str(log.event_type)
+        event_type = log.event_type.value if hasattr(log.event_type, "value") else str(log.event_type)
         event_type_counts[event_type] = event_type_counts.get(event_type, 0) + 1
 
     # Count by outcome
@@ -242,6 +358,18 @@ async def get_audit_summary(
 
 
 @router.get("/compliance/report", response_model=ComplianceReport)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_compliance_report(
     session: DbSession,
     current_user: CurrentActiveUser,
@@ -249,11 +377,24 @@ async def get_compliance_report(
     report_type: str = Query("soc2", description="Type of compliance report"),
     start_date: datetime | None = None,
     end_date: datetime | None = None,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> ComplianceReport:
     """Generate compliance report."""
-    
     # Check workspace permission - only admins can generate compliance reports
-    await check_workspace_permission(session, current_user, workspace_id, "audit:compliance")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=workspace_id,
+        workspace_id=workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to generate compliance report: {result.reason}"
+        )
 
     # Default to last 90 days for compliance reports
     if not start_date:
@@ -269,7 +410,7 @@ async def get_compliance_report(
             AuditLog.timestamp <= end_date
         )
     )
-    
+
     result = await session.exec(statement)
     logs = result.all()
 
@@ -279,7 +420,7 @@ async def get_compliance_report(
         "failed_access_attempts": len([log for log in logs if log.event_type == AuditEventType.LOGIN and log.outcome == AuditOutcome.FAILURE]),
         "privilege_escalations": len([log for log in logs if log.event_type == AuditEventType.ROLE_ASSIGNED]),
         "data_access_events": len([log for log in logs if "data" in log.event_description.lower()]),
-        "configuration_changes": len([log for log in logs if log.event_type in [AuditEventType.ROLE_CREATED, AuditEventType.PERMISSION_GRANTED]]),
+        "configuration_changes": len([log for log in logs if log.event_type in [AuditEventType.ROLE_ASSIGNED, AuditEventType.PERMISSION_GRANTED]]),
     }
 
     # Generate findings based on patterns
@@ -311,35 +452,68 @@ async def get_compliance_report(
 
 
 @router.get("/events/types", response_model=list[str])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_event_types(
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> list[str]:
     """List all available audit event types."""
-    
     # Return all audit event types
     return [event_type.value for event_type in AuditEventType]
 
 
 @router.get("/actors/types", response_model=list[str])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_actor_types(
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> list[str]:
     """List all available actor types."""
-    
     # Return all actor types
     return [actor_type.value for actor_type in ActorType]
 
 
 @router.post("/logs", response_model=AuditLogRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def create_audit_log(
     log_data: dict,
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> AuditLogRead:
     """Create a new audit log entry (for system use)."""
-    
     # Only superusers or system services can create audit logs directly
     if not current_user.is_superuser:
         raise HTTPException(
@@ -362,7 +536,7 @@ async def create_audit_log(
         user_agent=log_data.get("user_agent"),
         timestamp=datetime.utcnow(),
     )
-    
+
     session.add(audit_log)
     await session.commit()
     await session.refresh(audit_log)

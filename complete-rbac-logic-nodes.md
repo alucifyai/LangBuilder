@@ -22,7 +22,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
       "actions": ["validate_input_schema", "check_user_permissions"]
     },
     {
-      "state": "VALIDATION", 
+      "state": "VALIDATION",
       "description": "Validate role definition and hierarchy constraints",
       "transitions": ["HIERARCHY_CHECK", "ERROR"],
       "actions": ["validate_role_name", "check_name_uniqueness", "validate_permissions"]
@@ -42,7 +42,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
     {
       "state": "PERMISSION_ASSIGNMENT",
       "description": "Assign initial permissions to the new role",
-      "transitions": ["CACHE_INVALIDATION", "ERROR"], 
+      "transitions": ["CACHE_INVALIDATION", "ERROR"],
       "actions": ["assign_default_permissions", "inherit_parent_permissions", "validate_assignments"]
     },
     {
@@ -52,7 +52,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
       "actions": ["clear_permission_cache", "update_role_indices", "refresh_user_permissions"]
     },
     {
-      "state": "NOTIFICATION", 
+      "state": "NOTIFICATION",
       "description": "Notify relevant systems and users of role creation",
       "transitions": ["COMPLETED"],
       "actions": ["notify_administrators", "log_audit_event", "trigger_sync_events"]
@@ -108,7 +108,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
       "logging": "ERROR"
     },
     "permission_errors": {
-      "action": "return_authorization_error", 
+      "action": "return_authorization_error",
       "rollback": false,
       "logging": "WARN"
     }
@@ -128,7 +128,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
   "integration_points": {
     "authentication_service": "Role validation for login",
     "authorization_middleware": "Permission checking integration",
-    "audit_system": "Role creation logging", 
+    "audit_system": "Role creation logging",
     "user_management": "Role assignment workflows"
   },
   "rbac_permissions": ["can_manage_roles", "can_create_roles"],
@@ -143,7 +143,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
 {
   "id": "permission_entity_definition_logic",
   "type": "logic",
-  "name": "Permission Entity Definition Logic", 
+  "name": "Permission Entity Definition Logic",
   "description": "Define granular permissions with scope and resource constraints",
   "path": "src/backend/base/langflow/services/database/models/permission/model.py",
   "workflow_states": [
@@ -592,7 +592,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
 ```json
 {
   "id": "service_account_management_logic",
-  "type": "logic", 
+  "type": "logic",
   "name": "Service Account Management Logic",
   "description": "Create and manage programmatic access accounts with scoped permissions",
   "path": "src/backend/base/langflow/services/database/models/service_account/model.py",
@@ -1054,7 +1054,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
       "actions": ["load_role_hierarchy", "initialize_resolution_context", "validate_target_role"]
     },
     {
-      "state": "HIERARCHY_TRAVERSAL", 
+      "state": "HIERARCHY_TRAVERSAL",
       "description": "Traverse role hierarchy to collect inherited permissions",
       "transitions": ["PERMISSION_AGGREGATION", "ERROR"],
       "actions": ["traverse_parent_roles", "collect_direct_permissions", "track_inheritance_paths"]
@@ -1062,7 +1062,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
     {
       "state": "PERMISSION_AGGREGATION",
       "description": "Aggregate permissions from all inheritance levels",
-      "transitions": ["CONFLICT_DETECTION", "ERROR"], 
+      "transitions": ["CONFLICT_DETECTION", "ERROR"],
       "actions": ["aggregate_inherited_permissions", "merge_permission_sets", "maintain_source_tracking"]
     },
     {
@@ -1108,7 +1108,7 @@ Based on the comprehensive analysis of RBAC_COMPREHENSIVE_FLOWS_ANALYSIS.md, her
       "actions": ["log_resolution_error", "generate_error_report"]
     },
     {
-      "state": "FAILED", 
+      "state": "FAILED",
       "description": "Permission inheritance resolution failed",
       "transitions": [],
       "actions": ["return_error_response", "cleanup_resources"]
@@ -1128,7 +1128,7 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
   "rbac_schema_entity_flows": [
     {
       "id": "role_conflict_resolution_logic",
-      "name": "Role Conflict Resolution Logic", 
+      "name": "Role Conflict Resolution Logic",
       "description": "R009: Resolve conflicts when users have multiple roles",
       "key_states": ["CONFLICT_DETECTION", "PRECEDENCE_ANALYSIS", "RESOLUTION_APPLICATION"],
       "rbac_permissions": ["Internal system operation"],
@@ -1137,7 +1137,7 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
     {
       "id": "service_account_token_generation_logic",
       "name": "Service Account Token Generation Logic",
-      "description": "R010: Generate scoped API tokens for service accounts", 
+      "description": "R010: Generate scoped API tokens for service accounts",
       "key_states": ["TOKEN_REQUEST", "SCOPE_VALIDATION", "SECURE_GENERATION", "DISTRIBUTION"],
       "rbac_permissions": ["can_manage_tokens", "can_generate_service_tokens"],
       "color": "#FF6B6B"
@@ -1151,7 +1151,7 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
       "color": "#FF6B6B"
     },
     {
-      "id": "temporal_role_assignment_logic", 
+      "id": "temporal_role_assignment_logic",
       "name": "Temporal Role Assignment Logic",
       "description": "R012: Manage time-bound role assignments with expiration",
       "key_states": ["TEMPORAL_VALIDATION", "EXPIRATION_SETUP", "MONITORING_CONFIG", "CLEANUP_SCHEDULING"],
@@ -1161,14 +1161,14 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
     {
       "id": "emergency_access_override_logic",
       "name": "Emergency Access Override Logic",
-      "description": "R013: Emergency access procedures for critical system operations", 
+      "description": "R013: Emergency access procedures for critical system operations",
       "key_states": ["EMERGENCY_VALIDATION", "APPROVAL_BYPASS", "TEMPORARY_ELEVATION", "AUDIT_TRACKING"],
       "rbac_permissions": ["emergency_access_override"],
       "color": "#FF6B6B"
     },
     {
       "id": "permission_scope_validation_logic",
-      "name": "Permission Scope Validation Logic", 
+      "name": "Permission Scope Validation Logic",
       "description": "R014: Validate permission scopes against resource hierarchies",
       "key_states": ["SCOPE_ANALYSIS", "HIERARCHY_VALIDATION", "CONSTRAINT_CHECKING", "COMPLIANCE_VERIFICATION"],
       "rbac_permissions": ["Internal system operation"],
@@ -1230,7 +1230,7 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
       "actions": ["lookup_cached_permissions", "validate_cache_freshness", "check_cache_hit_ratio"]
     },
     {
-      "state": "PERMISSION_CALCULATION", 
+      "state": "PERMISSION_CALCULATION",
       "description": "Calculate permissions when not cached",
       "transitions": ["CACHE_UPDATE", "ERROR"],
       "actions": ["calculate_fresh_permissions", "resolve_role_inheritance", "apply_dynamic_rules"]
@@ -1254,7 +1254,7 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
       "actions": ["grant_access", "log_access_granted", "update_usage_metrics"]
     },
     {
-      "state": "ACCESS_DENIED", 
+      "state": "ACCESS_DENIED",
       "description": "Deny access and log security event",
       "transitions": ["COMPLETED"],
       "actions": ["deny_access", "log_access_denied", "trigger_security_alerts"]
@@ -1330,7 +1330,7 @@ I'll continue with the remaining flows R009-R015 in a more condensed format to s
   "integration_points": {
     "api_middleware": "HTTP request interception",
     "websocket_handlers": "Real-time connection authorization",
-    "job_queue": "Background task authorization", 
+    "job_queue": "Background task authorization",
     "monitoring_system": "Performance and security metrics"
   },
   "rbac_permissions": ["Internal system operation"],
@@ -1355,7 +1355,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
       "color": "#4ECDC4"
     },
     {
-      "id": "access_validator_logic", 
+      "id": "access_validator_logic",
       "name": "Access Validator Logic",
       "description": "R018: Real-time validation of access requests against user permissions",
       "key_states": ["REQUEST_ANALYSIS", "PERMISSION_CHECK", "POLICY_EVALUATION", "DECISION_RENDERING"],
@@ -1365,7 +1365,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
     },
     {
       "id": "role_hierarchy_manager_logic",
-      "name": "Role Hierarchy Manager Logic", 
+      "name": "Role Hierarchy Manager Logic",
       "description": "R019: Manage role inheritance chains and hierarchy validation",
       "key_states": ["HIERARCHY_LOADING", "INHERITANCE_CALCULATION", "VALIDATION", "UPDATE_PROPAGATION"],
       "rbac_permissions": ["can_manage_role_hierarchy"],
@@ -1451,7 +1451,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
     },
     {
       "state": "ROLE_DELETION",
-      "description": "Handle role deletion workflow", 
+      "description": "Handle role deletion workflow",
       "transitions": ["CONFIRMATION", "USER_INTERACTION"],
       "actions": ["check_deletion_impact", "show_confirmation_dialog", "process_deletion_request"]
     },
@@ -1558,7 +1558,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
   "accessibility": {
     "features": [
       "Keyboard navigation support",
-      "Screen reader compatibility", 
+      "Screen reader compatibility",
       "High contrast mode support",
       "Focus management for dialogs"
     ]
@@ -1583,7 +1583,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
     },
     {
       "id": "access_control_panel_logic",
-      "name": "Access Control Panel Logic", 
+      "name": "Access Control Panel Logic",
       "description": "R038: Centralized dashboard for monitoring and managing access control",
       "key_components": ["AccessDashboard", "MonitoringWidgets", "AlertPanel"],
       "rbac_permissions": ["can_access_control_panel", "can_monitor_access"],
@@ -1729,7 +1729,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
   },
   "security_features": {
     "tamper_protection": "Cryptographic integrity protection",
-    "access_control": "Strict access controls on security logs", 
+    "access_control": "Strict access controls on security logs",
     "encryption": "End-to-end encryption for sensitive events",
     "audit_trail": "Comprehensive audit trail for all log access"
   },
@@ -1752,7 +1752,7 @@ Due to space constraints, I'll provide the remaining 19 logic service flows in c
       "color": "#FFD93D"
     },
     {
-      "id": "role_assignment_audit_logic", 
+      "id": "role_assignment_audit_logic",
       "name": "Role Assignment Audit Logic",
       "description": "R063: Track all role assignments, modifications, and removals",
       "key_features": ["Assignment tracking", "Approval workflow audit", "Temporal tracking"],
@@ -1787,7 +1787,7 @@ The 85 comprehensive RBAC logic nodes provide:
 
 ### Core Capabilities:
 - **Schema Entity Management**: 15 flows for role, permission, and entity management
-- **Logic Services**: 20 flows for enforcement, validation, and processing 
+- **Logic Services**: 20 flows for enforcement, validation, and processing
 - **Interface Management**: 25 flows for user interfaces and management tools
 - **Audit & Logging**: 25 flows for comprehensive security auditing
 

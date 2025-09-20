@@ -224,43 +224,43 @@ erDiagram
     User ||--o{ File : "uploads"
     User ||--o{ Credential : "manages"
     User ||--o{ Store : "contributes"
-    
+
     %% Folder Hierarchy
     Folder ||--o{ Folder : "parent_child"
     Folder ||--o{ Flow : "contains"
-    
+
     %% Flow Execution and Monitoring
     Flow ||--o{ Transaction : "generates"
     Flow ||--o{ VertexBuild : "builds"
     Flow ||--o{ Message : "processes"
     Flow ||--o{ Component : "contains"
-    
+
     %% Graph Relationships
     Vertex }|--|| Edge : "connects"
     Transaction }o--|| Vertex : "tracks"
     VertexBuild }o--|| Component : "references"
-    
+
     %% Message Relationships
     Message }o--|| User : "belongs_to"
-    
+
     %% File and Flow Relationships
     File }|--|| Flow : "used_by"
-    
+
     %% API and Transaction Relationships
     ApiKey ||--o{ Transaction : "authorizes"
-    
+
     %% Variable and Flow Relationships
     Variable }|--|| Flow : "used_in"
-    
+
     %% Credential Relationships
     Credential ||--o{ ApiKey : "manages"
     Credential ||--o{ Variable : "relates"
-    
+
     %% Store Relationships
     Store ||--o{ Component : "contains"
     Store ||--o{ Flow : "shares"
     Store ||--o{ StoreRating : "rated_by"
-    
+
     %% Global Variable Relationships
     GlobalVariable }o--|| User : "scoped_to"
 ```

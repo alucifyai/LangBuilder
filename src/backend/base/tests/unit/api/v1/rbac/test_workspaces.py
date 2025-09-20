@@ -1,29 +1,29 @@
 """Test suite for workspace RBAC API endpoints."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
+import pytest
 from fastapi import HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.v1.rbac.workspaces import (
     create_workspace,
-    list_workspaces,
-    get_workspace,
-    update_workspace,
     delete_workspace,
-    invite_user_to_workspace,
-    list_workspace_users,
-    list_workspace_projects,
+    get_workspace,
     get_workspace_statistics,
+    invite_user_to_workspace,
+    list_workspace_projects,
+    list_workspace_users,
+    list_workspaces,
+    update_workspace,
 )
 from langflow.services.database.models.rbac.workspace import (
     Workspace,
     WorkspaceCreate,
-    WorkspaceUpdate,
     WorkspaceInvitation,
+    WorkspaceUpdate,
 )
 from langflow.services.database.models.user.model import User
 
@@ -98,7 +98,7 @@ class TestCreateWorkspace:
 
         mock_session.refresh = AsyncMock()
 
-        with patch('langflow.api.v1.rbac.workspaces.Workspace') as MockWorkspace:
+        with patch("langflow.api.v1.rbac.workspaces.Workspace") as MockWorkspace:
             MockWorkspace.return_value = created_workspace
 
             result = await create_workspace(
@@ -287,7 +287,7 @@ class TestInviteUserToWorkspace:
         mock_result.first.return_value = None
         mock_session.exec.return_value = mock_result
 
-        with patch('langflow.api.v1.rbac.workspaces.WorkspaceInvitation') as MockInvitation:
+        with patch("langflow.api.v1.rbac.workspaces.WorkspaceInvitation") as MockInvitation:
             mock_invitation = MagicMock()
             mock_invitation.id = uuid4()
             mock_invitation.expires_at = datetime.now(timezone.utc)
@@ -414,7 +414,7 @@ class TestGetWorkspaceStatistics:
         # Mock count queries
         mock_session.exec.side_effect = [
             AsyncMock(one=lambda: 5),  # project_count
-            AsyncMock(one=lambda: 3),  # user_count  
+            AsyncMock(one=lambda: 3),  # user_count
             AsyncMock(one=lambda: 2),  # group_count
             AsyncMock(one=lambda: 10), # flow_count
         ]

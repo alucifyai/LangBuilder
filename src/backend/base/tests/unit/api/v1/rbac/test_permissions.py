@@ -1,22 +1,22 @@
 """Test suite for permissions RBAC API endpoints."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
+import pytest
 from fastapi import HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.v1.rbac.permissions import (
-    list_permissions,
-    get_permission,
-    check_permission,
     batch_check_permissions,
+    check_permission,
+    get_permission,
     initialize_system_permissions,
-    list_resource_types,
     list_actions,
+    list_permissions,
+    list_resource_types,
 )
-from langflow.services.database.models.rbac.permission import Permission, PermissionRead, SYSTEM_PERMISSIONS
+from langflow.services.database.models.rbac.permission import Permission
 from langflow.services.database.models.user.model import User
 from langflow.services.rbac.permission_engine import PermissionEngine, PermissionResult
 
@@ -381,7 +381,7 @@ class TestInitializeSystemPermissions:
         mock_result.first.return_value = None
         mock_session.exec.return_value = mock_result
 
-        with patch('langflow.api.v1.rbac.permissions.SYSTEM_PERMISSIONS', [
+        with patch("langflow.api.v1.rbac.permissions.SYSTEM_PERMISSIONS", [
             {"code": "workspace:read", "name": "Read Workspace", "resource_type": "workspace", "action": "read"},
             {"code": "project:create", "name": "Create Project", "resource_type": "project", "action": "create"}
         ]):

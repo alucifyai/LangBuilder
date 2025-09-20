@@ -180,7 +180,7 @@ POST /api/v1/rbac/permissions/batch-check
         "workspace_id": "ws-456"
     },
     {
-        "resource_type": "project", 
+        "resource_type": "project",
         "action": "create",
         "workspace_id": "ws-456"
     },
@@ -204,7 +204,7 @@ POST /api/v1/rbac/permissions/batch-check
     {
         "allowed": true,
         "reason": "User has project-create permission",
-        "source": "role_assignment", 
+        "source": "role_assignment",
         "cached": false,
         "evaluated_at": "2024-09-17T10:30:00Z"
     },
@@ -251,35 +251,35 @@ class PermissionEngine:
     async def check_permission(self, session, user, **kwargs) -> PermissionResult:
         # 1. Build permission context
         context = PermissionContext(**kwargs)
-        
+
         # 2. Check cache first
         cache_key = self._build_cache_key(user.id, context)
         cached_result = await self._check_cached_permission(cache_key)
         if cached_result:
             return cached_result
-            
+
         # 3. Superuser bypass
         if user.is_superuser:
             return PermissionResult(allowed=True, reason="Superuser access")
-            
+
         # 4. Check resource ownership
         ownership_result = await self._check_resource_ownership(session, user, context)
         if ownership_result.allowed:
             await self._cache_result(cache_key, ownership_result)
             return ownership_result
-            
+
         # 5. Check role-based permissions
         role_result = await self._check_role_permissions(session, user, context)
         if role_result.allowed:
             await self._cache_result(cache_key, role_result)
             return role_result
-            
+
         # 6. Check hierarchical permissions
         hierarchical_result = await self._resolve_hierarchical_permissions(session, user, context)
         if hierarchical_result.allowed:
             await self._cache_result(cache_key, hierarchical_result)
             return hierarchical_result
-            
+
         # 7. Default deny
         result = PermissionResult(allowed=False, reason="No applicable permissions found")
         await self._cache_result(cache_key, result)
@@ -293,11 +293,11 @@ class CacheConfiguration:
     # Cache TTL by permission type
     CACHE_TTL = {
         "ownership": 300,      # 5 minutes
-        "role_assignment": 600, # 10 minutes  
+        "role_assignment": 600, # 10 minutes
         "system_admin": 1800,  # 30 minutes
         "default_deny": 60,    # 1 minute
     }
-    
+
     # Cache invalidation patterns
     INVALIDATION_PATTERNS = {
         "role_assignment": ["user:{user_id}:roles:*", "role:{role_id}:*"],
@@ -313,14 +313,14 @@ async def batch_check_permissions(self, session, user, requests) -> List[Permiss
     """Optimized batch permission checking."""
     # 1. Group requests by context similarity
     grouped_requests = self._group_similar_requests(requests)
-    
+
     # 2. Pre-load user roles and permissions for context
     user_roles = await self._get_user_roles(session, user, workspace_ids=self._extract_workspaces(requests))
-    
+
     # 3. Batch cache lookups
     cache_keys = [self._build_cache_key(user.id, req) for req in requests]
     cached_results = await self._batch_cache_lookup(cache_keys)
-    
+
     # 4. Process uncached requests efficiently
     results = []
     for i, request in enumerate(requests):
@@ -329,7 +329,7 @@ async def batch_check_permissions(self, session, user, requests) -> List[Permiss
         else:
             result = await self._check_permission_with_context(session, user, request, user_roles)
             results.append(result)
-            
+
     return results
 ```
 
@@ -419,7 +419,7 @@ CREATE TABLE rbac_workspaces (
     UNIQUE(owner_id, name) WHERE NOT is_deleted
 );
 
--- Projects (within workspaces)  
+-- Projects (within workspaces)
 CREATE TABLE rbac_projects (
     id UUID PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
@@ -459,7 +459,7 @@ CREATE TABLE rbac_environments (
 ```python
 class Permission(SQLModel, table=True):
     __tablename__ = "rbac_permissions"
-    
+
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     code: str = Field(unique=True, index=True)
     name: str
@@ -472,7 +472,7 @@ class Permission(SQLModel, table=True):
 
 class Role(SQLModel, table=True):
     __tablename__ = "rbac_roles"
-    
+
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(index=True)
     description: str | None = None
@@ -488,7 +488,7 @@ class Role(SQLModel, table=True):
 
 class Workspace(SQLModel, table=True):
     __tablename__ = "rbac_workspaces"
-    
+
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(index=True)
     description: str | None = None
@@ -530,26 +530,26 @@ tests/
 class TestWorkspaceAPI:
     def test_create_workspace_success(self):
         """Test successful workspace creation with valid data."""
-        
+
     def test_create_workspace_duplicate_name(self):
         """Test workspace creation fails with duplicate name."""
-        
+
     def test_list_workspaces_with_filters(self):
         """Test workspace listing with search and filter parameters."""
-        
+
     def test_workspace_permission_denied(self):
         """Test workspace access denied for insufficient permissions."""
 
 class TestPermissionEngine:
     def test_permission_check_superuser(self):
         """Test superuser bypass for all permissions."""
-        
+
     def test_permission_check_cached_result(self):
         """Test permission engine returns cached results."""
-        
+
     def test_batch_permission_check_optimization(self):
         """Test batch checking performance and correctness."""
-        
+
     def test_hierarchical_permission_inheritance(self):
         """Test permission inheritance from workspace to project."""
 ```
@@ -559,13 +559,13 @@ class TestPermissionEngine:
 class TestRBACWorkflowIntegration:
     async def test_complete_workspace_project_flow(self):
         """Test complete workflow: create workspace -> project -> assign roles -> check permissions."""
-        
+
     async def test_multi_tenant_isolation(self):
         """Test users cannot access resources from other tenants."""
-        
+
     async def test_role_based_access_patterns(self):
         """Test different role-based access scenarios."""
-        
+
     async def test_permission_caching_integration(self):
         """Test permission caching works across multiple API calls."""
 ```
@@ -618,18 +618,18 @@ class TestPerformance:
         start_time = time.time()
         result = await permission_engine.check_permission(...)
         end_time = time.time()
-        
+
         assert (end_time - start_time) < 0.1  # 100ms
         assert result is not None
-        
+
     async def test_batch_permission_scalability(self):
         """Test batch permission checking with 50 requests."""
         requests = [generate_permission_request() for _ in range(50)]
-        
+
         start_time = time.time()
         results = await permission_engine.batch_check_permissions(session, user, requests)
         end_time = time.time()
-        
+
         assert len(results) == 50
         assert (end_time - start_time) < 0.2  # 200ms for 50 checks
 ```
@@ -647,21 +647,21 @@ class RBACSecurityMiddleware:
         token = self.extract_token(request)
         if not token:
             raise HTTPException(status_code=401, detail="Authentication required")
-            
+
         # 2. Validate token and get user
         user = await self.validate_token(token)
         if not user or not user.is_active:
             raise HTTPException(status_code=401, detail="Invalid or inactive user")
-            
+
         # 3. Add user to request context
         request.state.current_user = user
-        
+
         # 4. Continue to endpoint
         response = await call_next(request)
-        
+
         # 5. Log access for audit trail
         await self.log_access(user, request, response)
-        
+
         return response
 ```
 
@@ -673,7 +673,7 @@ class WorkspaceCreate(BaseModel):
     description: str | None = Field(None, max_length=2000)
     organization: str | None = Field(None, max_length=200)
     settings: dict = Field(default_factory=dict)
-    
+
     @validator('name')
     def validate_name(cls, v):
         # Sanitize input to prevent XSS and injection attacks
@@ -682,7 +682,7 @@ class WorkspaceCreate(BaseModel):
             raise ValueError('Name cannot be empty')
         # Additional sanitization logic
         return v
-        
+
     @validator('settings')
     def validate_settings(cls, v):
         # Validate settings against allowed keys and types
@@ -699,21 +699,21 @@ class RBACRateLimiter:
     # Rate limits by endpoint type
     RATE_LIMITS = {
         "permission_check": "10000/minute",    # High frequency for permission checks
-        "batch_permission": "100/minute",      # Lower for batch operations  
+        "batch_permission": "100/minute",      # Lower for batch operations
         "workspace_create": "10/minute",       # Conservative for creation
         "role_management": "100/minute",       # Moderate for role operations
     }
-    
+
     async def check_rate_limit(self, user_id: UUID, endpoint_type: str):
         key = f"rate_limit:{user_id}:{endpoint_type}"
         current = await redis.incr(key)
         if current == 1:
             await redis.expire(key, 60)  # 1 minute window
-            
+
         limit = self.get_limit_for_endpoint(endpoint_type)
         if current > limit:
             raise HTTPException(
-                status_code=429, 
+                status_code=429,
                 detail=f"Rate limit exceeded for {endpoint_type}"
             )
 ```
@@ -723,13 +723,13 @@ class RBACRateLimiter:
 ```python
 class TenantIsolationMixin:
     """Mixin to ensure multi-tenant data isolation."""
-    
+
     def apply_tenant_filter(self, query, user: User, resource_type: str):
         """Apply tenant-specific filters to database queries."""
-        
+
         if user.is_superuser:
             return query  # Superusers can see all data
-            
+
         if resource_type == "workspace":
             # Users can only see workspaces they own or are members of
             return query.filter(
@@ -738,26 +738,26 @@ class TenantIsolationMixin:
                     Workspace.id.in_(self.get_user_workspace_ids(user.id))
                 )
             )
-            
+
         elif resource_type == "project":
             # Users can only see projects in their accessible workspaces
             accessible_workspaces = self.get_user_workspace_ids(user.id)
             return query.filter(Project.workspace_id.in_(accessible_workspaces))
-            
+
         return query
-        
+
     def validate_tenant_access(self, user: User, resource_id: UUID, resource_type: str):
         """Validate user has access to resource within their tenant scope."""
         if user.is_superuser:
             return True
-            
+
         # Check if resource belongs to user's accessible workspaces
         resource_workspace_id = self.get_resource_workspace_id(resource_id, resource_type)
         user_workspace_ids = self.get_user_workspace_ids(user.id)
-        
+
         if resource_workspace_id not in user_workspace_ids:
             raise HTTPException(
-                status_code=403, 
+                status_code=403,
                 detail="Access denied: Resource not in accessible workspace"
             )
 ```
@@ -785,26 +785,26 @@ class PermissionCache:
     def __init__(self, redis_client):
         self.redis = redis_client
         self.local_cache = TTLCache(maxsize=1000, ttl=60)  # 1-minute local cache
-        
+
     async def get(self, key: str) -> dict | None:
         # 1. Check local cache first (fastest)
         if key in self.local_cache:
             return self.local_cache[key]
-            
+
         # 2. Check Redis cache
         cached_data = await self.redis.get(key)
         if cached_data:
             data = json.loads(cached_data)
             self.local_cache[key] = data  # Populate local cache
             return data
-            
+
         return None
-        
+
     async def set(self, key: str, value: dict, ttl: int = 300):
         # Store in both local and Redis cache
         self.local_cache[key] = value
         await self.redis.setex(key, ttl, json.dumps(value, default=str))
-        
+
     async def invalidate_pattern(self, pattern: str):
         """Invalidate all keys matching pattern."""
         keys = await self.redis.keys(pattern)
@@ -832,7 +832,7 @@ class OptimizedQueries:
         ).select_from(
             Permission
             .join(RolePermission, Permission.id == RolePermission.permission_id)
-            .join(Role, RolePermission.role_id == Role.id)  
+            .join(Role, RolePermission.role_id == Role.id)
             .join(RoleAssignment, Role.id == RoleAssignment.role_id)
         ).where(
             RoleAssignment.user_id == user_id,
@@ -844,7 +844,7 @@ class OptimizedQueries:
                 Role.workspace_id.is_(None)  # System roles
             )
         )
-        
+
         result = await session.exec(query)
         return result.all()
 ```
@@ -860,7 +860,7 @@ class DatabaseConfig:
         "pool_recycle": 3600,      # Recycle connections hourly
         "pool_pre_ping": True,     # Validate connections
     }
-    
+
     # Read replica configuration for permission checks
     READ_REPLICA_CONFIG = {
         "read_permission_checks": True,  # Use read replicas for permission queries
@@ -874,19 +874,19 @@ class DatabaseConfig:
 class BatchProcessingOptimizer:
     async def optimize_permission_batch(self, requests: List[dict]) -> List[dict]:
         """Optimize batch permission requests for efficiency."""
-        
+
         # 1. Group by similarity (same workspace, project, etc.)
         grouped = defaultdict(list)
         for req in requests:
             key = (req.get('workspace_id'), req.get('project_id'))
             grouped[key].append(req)
-            
+
         # 2. Pre-load context data for each group
         context_data = {}
         for key, group_requests in grouped.items():
             workspace_id, project_id = key
             context_data[key] = await self.preload_context(workspace_id, project_id)
-            
+
         # 3. Process requests with shared context
         optimized_requests = []
         for key, group_requests in grouped.items():
@@ -894,7 +894,7 @@ class BatchProcessingOptimizer:
             for req in group_requests:
                 req['_preloaded_context'] = context
                 optimized_requests.append(req)
-                
+
         return optimized_requests
 ```
 
@@ -909,7 +909,7 @@ class PerformanceMonitor:
             "database_query_time": [],
             "api_response_times": {}
         }
-    
+
     @contextmanager
     def measure_latency(self, operation: str):
         start_time = time.time()
@@ -919,7 +919,7 @@ class PerformanceMonitor:
             end_time = time.time()
             latency = (end_time - start_time) * 1000  # Convert to ms
             self.metrics[f"{operation}_latency"].append(latency)
-            
+
     def get_performance_stats(self) -> dict:
         return {
             "avg_permission_check_ms": statistics.mean(self.metrics.get("permission_check_latency", [0])),
@@ -941,30 +941,30 @@ class RBACSettings(BaseSettings):
     DATABASE_URL: str = Field(..., env="DATABASE_URL")
     DATABASE_POOL_SIZE: int = Field(20, env="DATABASE_POOL_SIZE")
     DATABASE_MAX_OVERFLOW: int = Field(30, env="DATABASE_MAX_OVERFLOW")
-    
-    # Redis Configuration  
+
+    # Redis Configuration
     REDIS_URL: str = Field("redis://localhost:6379", env="REDIS_URL")
     REDIS_CONNECTION_POOL_SIZE: int = Field(50, env="REDIS_POOL_SIZE")
-    
+
     # Caching Configuration
     PERMISSION_CACHE_TTL: int = Field(300, env="PERMISSION_CACHE_TTL")  # 5 minutes
     PERMISSION_CACHE_ENABLED: bool = Field(True, env="PERMISSION_CACHE_ENABLED")
     LOCAL_CACHE_SIZE: int = Field(1000, env="LOCAL_CACHE_SIZE")
-    
+
     # Performance Settings
     BATCH_PERMISSION_LIMIT: int = Field(50, env="BATCH_PERMISSION_LIMIT")
     MAX_PERMISSION_CHECK_LATENCY_MS: int = Field(100, env="MAX_PERMISSION_LATENCY")
-    
+
     # Security Settings
     REQUIRE_HTTPS: bool = Field(True, env="REQUIRE_HTTPS")
     JWT_SECRET_KEY: str = Field(..., env="JWT_SECRET_KEY")
     JWT_ALGORITHM: str = Field("HS256", env="JWT_ALGORITHM")
     JWT_EXPIRATION_HOURS: int = Field(24, env="JWT_EXPIRATION_HOURS")
-    
+
     # Audit Settings
     AUDIT_LOG_ENABLED: bool = Field(True, env="AUDIT_LOG_ENABLED")
     AUDIT_LOG_RETENTION_DAYS: int = Field(90, env="AUDIT_RETENTION_DAYS")
-    
+
     class Config:
         env_file = ".env"
         case_sensitive = True
@@ -1101,7 +1101,7 @@ spec:
             memory: "512Mi"
             cpu: "200m"
           limits:
-            memory: "1Gi" 
+            memory: "1Gi"
             cpu: "500m"
         livenessProbe:
           httpGet:
@@ -1151,17 +1151,17 @@ async def diagnose_cache_performance():
     start = time.time()
     await redis.ping()
     redis_latency = (time.time() - start) * 1000
-    
+
     if redis_latency > 10:  # 10ms threshold
         logger.warning(f"Redis latency high: {redis_latency}ms")
-        
-# Check database performance  
+
+# Check database performance
 async def diagnose_db_performance():
     query = "SELECT 1"
     start = time.time()
     await session.exec(text(query))
     db_latency = (time.time() - start) * 1000
-    
+
     if db_latency > 50:  # 50ms threshold
         logger.warning(f"Database latency high: {db_latency}ms")
 
@@ -1186,7 +1186,7 @@ async def invalidate_user_permissions(user_id: UUID):
         f"user_roles:{user_id}:*",
         f"role_permissions:*:{user_id}"
     ]
-    
+
     for pattern in patterns:
         await cache.invalidate_pattern(pattern)
 
@@ -1227,7 +1227,7 @@ class PermissionDebugger:
             "context": context.dict(),
             "steps": []
         }
-        
+
         # Step 1: Check cache
         cache_key = self._build_cache_key(user_id, context)
         cached_result = await self._check_cached_permission(cache_key)
@@ -1236,14 +1236,14 @@ class PermissionDebugger:
             "cache_key": cache_key,
             "result": "hit" if cached_result else "miss"
         })
-        
+
         # Step 2: Check user roles
         user_roles = await self._get_user_roles(session, user_id, context.workspace_id)
         debug_info["steps"].append({
             "step": "user_roles",
             "roles": [{"id": str(r.id), "name": r.name} for r in user_roles]
         })
-        
+
         # Step 3: Check permissions
         for role in user_roles:
             permissions = await self._get_role_permissions(session, role)
@@ -1252,7 +1252,7 @@ class PermissionDebugger:
                 "role": role.name,
                 "permissions": [p.code for p in permissions]
             })
-            
+
         return debug_info
 ```
 
@@ -1261,7 +1261,7 @@ class PermissionDebugger:
 class RBACPerformanceMonitor:
     def __init__(self):
         self.metrics = defaultdict(list)
-        
+
     @contextmanager
     def track_operation(self, operation: str):
         start_time = time.time()
@@ -1270,10 +1270,10 @@ class RBACPerformanceMonitor:
         finally:
             duration = (time.time() - start_time) * 1000
             self.metrics[operation].append(duration)
-            
+
             if duration > 100:  # Alert on slow operations
                 logger.warning(f"Slow {operation}: {duration:.2f}ms")
-                
+
     def get_stats(self) -> dict:
         stats = {}
         for operation, timings in self.metrics.items():
@@ -1293,15 +1293,15 @@ class RBACPerformanceMonitor:
 async def rbac_health_check():
     """Comprehensive RBAC system health check."""
     checks = {}
-    
+
     # Database connectivity
     try:
         await session.exec(text("SELECT 1"))
         checks["database"] = {"status": "healthy", "latency_ms": 0}
     except Exception as e:
         checks["database"] = {"status": "unhealthy", "error": str(e)}
-    
-    # Redis connectivity  
+
+    # Redis connectivity
     try:
         start = time.time()
         await redis.ping()
@@ -1309,7 +1309,7 @@ async def rbac_health_check():
         checks["redis"] = {"status": "healthy", "latency_ms": latency}
     except Exception as e:
         checks["redis"] = {"status": "unhealthy", "error": str(e)}
-        
+
     # Permission engine
     try:
         test_result = await permission_engine.check_permission(
@@ -1318,9 +1318,9 @@ async def rbac_health_check():
         checks["permission_engine"] = {"status": "healthy", "test_result": test_result.allowed}
     except Exception as e:
         checks["permission_engine"] = {"status": "unhealthy", "error": str(e)}
-        
+
     overall_status = "healthy" if all(c.get("status") == "healthy" for c in checks.values()) else "unhealthy"
-    
+
     return {
         "status": overall_status,
         "timestamp": datetime.now(timezone.utc),
@@ -1339,7 +1339,7 @@ async def rbac_health_check():
 # ✅ Good: Consistent parameter ordering
 async def create_workspace(
     session: DbSession,                    # Required dependencies first
-    current_user: CurrentActiveUser,       
+    current_user: CurrentActiveUser,
     permission_engine: PermissionEngine = Depends(get_permission_engine),
     workspace_data: WorkspaceCreate,       # Request body
     skip: int = Query(0, ge=0),           # Query parameters with defaults last
@@ -1381,7 +1381,7 @@ async def create_workspace(data: WorkspaceCreate):
         raise HTTPException(
             status_code=403,
             detail={
-                "error": "insufficient_permissions", 
+                "error": "insufficient_permissions",
                 "message": "You don't have permission to create workspaces"
             }
         )
@@ -1392,26 +1392,26 @@ async def create_workspace(data: WorkspaceCreate):
 # ✅ Good: Comprehensive test structure
 class TestWorkspaceAPI:
     """Test workspace API endpoints."""
-    
+
     @pytest.mark.asyncio
     async def test_create_workspace_success(self, mock_session, mock_user):
         """Test successful workspace creation with valid data."""
         # Arrange
         workspace_data = WorkspaceCreate(name="Test", description="Test workspace")
         mock_session.exec.return_value.first.return_value = None  # No existing workspace
-        
+
         # Act
         result = await create_workspace(
             workspace_data=workspace_data,
             session=mock_session,
             current_user=mock_user
         )
-        
+
         # Assert
         assert result is not None
         mock_session.add.assert_called_once()
         mock_session.commit.assert_called_once()
-        
+
     @pytest.mark.asyncio
     async def test_create_workspace_duplicate_name(self, mock_session, mock_user):
         """Test workspace creation fails with duplicate name."""
@@ -1438,7 +1438,7 @@ async def get_user_workspace_permissions(user_id: UUID, workspace_id: UUID):
         Role.workspace_id == workspace_id,
         RoleAssignment.is_active == True
     )
-    
+
     return await session.exec(query).all()
 
 # ❌ Bad: N+1 query problem
@@ -1446,7 +1446,7 @@ async def get_user_workspace_permissions_bad(user_id: UUID, workspace_id: UUID):
     role_assignments = await session.exec(
         select(RoleAssignment).where(RoleAssignment.user_id == user_id)
     ).all()
-    
+
     permissions = []
     for assignment in role_assignments:  # N+1 queries
         role = await session.get(Role, assignment.role_id)
@@ -1461,7 +1461,7 @@ class CacheKeyBuilder:
     @staticmethod
     def permission_key(user_id: UUID, context: PermissionContext) -> str:
         return f"perm:{user_id}:{context.resource_type}:{context.action}:{context.resource_id}"
-        
+
     @staticmethod
     def user_roles_key(user_id: UUID, workspace_id: UUID) -> str:
         return f"user_roles:{user_id}:{workspace_id}"
@@ -1481,13 +1481,13 @@ await cache.set(cache_key, result)  # No TTL
 # ✅ Good: Comprehensive validation
 class WorkspaceCreate(BaseModel):
     name: str = Field(
-        ..., 
-        min_length=1, 
+        ...,
+        min_length=1,
         max_length=200,
         pattern=r'^[\w\s\-\.]+$',
         description="Workspace name (alphanumeric, spaces, hyphens, dots only)"
     )
-    
+
     @validator('name')
     def validate_name(cls, v):
         v = v.strip()
@@ -1516,7 +1516,7 @@ async def delete_workspace(
     workspace.is_deleted = True
     await session.commit()
 
-# ❌ Bad: Implicit or missing permission checks  
+# ❌ Bad: Implicit or missing permission checks
 @router.delete("/{workspace_id}")
 async def delete_workspace(workspace_id: UUID, current_user: CurrentActiveUser):
     workspace = await session.get(Workspace, workspace_id)
@@ -1566,7 +1566,7 @@ async def create_workspace(workspace_data: WorkspaceCreate):
 # 1. Run all tests
 python src/backend/base/scripts/run_rbac_tests.py
 
-# 2. Validate implementation compliance  
+# 2. Validate implementation compliance
 python src/backend/base/scripts/validate_rbac_phase2.py
 
 # 3. Check code quality

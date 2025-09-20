@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
-"""
-Test runner script for RBAC Phase 2 implementation.
+"""Test runner script for RBAC Phase 2 implementation.
 
 This script runs all RBAC tests including unit tests, integration tests,
 and validation checks to ensure the complete system works correctly.
 """
 
-import sys
-import subprocess
 import os
+import subprocess
+import sys
 from pathlib import Path
+
 
 # Color codes for output
 class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    BOLD = '\033[1m'
-    END = '\033[0m'
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
 
 def print_success(message: str):
     print(f"{Colors.GREEN}✓{Colors.END} {message}")
@@ -44,7 +44,7 @@ def run_command(command: list, description: str) -> bool:
             command,
             capture_output=True,
             text=True,
-            timeout=300  # 5 minute timeout
+            timeout=300, check=False  # 5 minute timeout
         )
 
         if result.returncode == 0:
@@ -52,11 +52,10 @@ def run_command(command: list, description: str) -> bool:
             if result.stdout.strip():
                 print(f"Output: {result.stdout.strip()}")
             return True
-        else:
-            print_error(f"{description} failed")
-            if result.stderr.strip():
-                print(f"Error: {result.stderr.strip()}")
-            return False
+        print_error(f"{description} failed")
+        if result.stderr.strip():
+            print(f"Error: {result.stderr.strip()}")
+        return False
 
     except subprocess.TimeoutExpired:
         print_error(f"{description} timed out")
@@ -164,11 +163,10 @@ def main():
         print("• Permission hierarchy validation")
 
         return 0
-    else:
-        failed_tests = total_tests - passed_tests
-        print_error(f"{failed_tests} out of {total_tests} test categories failed")
-        print_warning("Please review the failed tests above and fix any issues")
-        return 1
+    failed_tests = total_tests - passed_tests
+    print_error(f"{failed_tests} out of {total_tests} test categories failed")
+    print_warning("Please review the failed tests above and fix any issues")
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())

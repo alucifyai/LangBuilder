@@ -105,11 +105,11 @@ export default function WorkspaceManagementPage() {
   const [inputValue, setInputValue] = useState("");
   const [size, setPageSize] = useState(PAGINATION_SIZE);
   const [index, setPageIndex] = useState(PAGINATION_PAGE);
-  
+
   // API hooks
   const { mutate: mutateGetWorkspaces } = useGetWorkspaces({});
   const { mutate: mutateCreateWorkspace } = useCreateWorkspace();
-  
+
   // Handlers for CRUD operations
   function handleNewWorkspace(workspaceData) {
     mutateCreateWorkspace(workspaceData, {
@@ -150,7 +150,7 @@ Advanced role creation and management:
 export default function RoleManagementPage() {
   // Workspace filtering
   const [selectedWorkspace, setSelectedWorkspace] = useState("");
-  
+
   // Role operations
   function handleNewRole(roleData) {
     mutateCreateRole(roleData, {
@@ -232,11 +232,11 @@ Centralized permission state management:
 export function RBACProvider({ children }: RBACProviderProps) {
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [permissionCache, setPermissionCache] = useState<Map<string, CacheEntry>>(new Map());
-  
+
   const checkPermission = async (permission: string, options?: PermissionOptions): Promise<boolean> => {
     const cacheKey = `${permission}-${JSON.stringify(options)}`;
     const cached = permissionCache.get(cacheKey);
-    
+
     // Return cached result if valid
     if (cached && Date.now() - cached.timestamp < CACHE_TIMEOUT) {
       return cached.result;
@@ -302,7 +302,7 @@ export default function PermissionGuard({
         const result = await checkPermission(permission, {
           scope_type, scope_id, resource_type, resource_id,
         });
-        
+
         if (mounted) {
           setHasPermission(result);
           setIsLoading(false);
@@ -334,15 +334,15 @@ export default function PermissionGuard({
 </PermissionGuard>
 
 // With fallback content
-<PermissionGuard 
-  permission="admin:access" 
+<PermissionGuard
+  permission="admin:access"
   fallback={<div>Access Denied</div>}
 >
   <AdminPanel />
 </PermissionGuard>
 
 // Scoped permission check
-<PermissionGuard 
+<PermissionGuard
   permission="flows:execute"
   scope_type="environment"
   scope_id={environmentId}
@@ -372,7 +372,7 @@ export default function WorkspaceManagementModal({
 
   const handleSubmit = () => {
     if (!name.trim()) return;
-    
+
     onConfirm({
       name: name.trim(),
       description: description.trim() || undefined,
@@ -426,9 +426,9 @@ const AVAILABLE_PERMISSIONS = [
 
 export default function RoleManagementModal(props) {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  
+
   const handlePermissionToggle = (permission: string) => {
-    setSelectedPermissions(prev => 
+    setSelectedPermissions(prev =>
       prev.includes(permission)
         ? prev.filter(p => p !== permission)
         : [...prev, permission]
@@ -440,7 +440,7 @@ export default function RoleManagementModal(props) {
       <BaseModal.Content>
         <div className="space-y-4">
           {/* Name and workspace fields */}
-          
+
           <div className="space-y-2">
             <Label>Permissions *</Label>
             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
@@ -506,7 +506,7 @@ describe('Phase 6 RBAC Frontend Integration', () => {
     it('should render children when permission granted', async () => {
       // Mock permission check
       const mockCheckPermission = vi.fn().mockResolvedValue(true);
-      
+
       renderWithProviders(
         <PermissionGuard permission="test:permission">
           <div>Protected Content</div>
@@ -549,7 +549,7 @@ export default function AdminPage() {
   return (
     <div>
       {/* Existing admin content */}
-      
+
       {/* Add RBAC section */}
       <PermissionGuard permission="system:admin">
         <div className="admin-section">
@@ -648,12 +648,12 @@ class PermissionCache {
   get(key: string): boolean | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() - entry.timestamp > CACHE_TIMEOUT) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.result;
   }
 
@@ -670,7 +670,7 @@ class PermissionCache {
 
 ```typescript
 // Component lazy loading
-const WorkspaceManagementPage = lazy(() => 
+const WorkspaceManagementPage = lazy(() =>
   import('./WorkspaceManagementPage')
 );
 
@@ -731,7 +731,7 @@ const handleSubmit = async (data) => {
   try {
     // Client-side validation for UX
     if (!validateForm(data)) return;
-    
+
     // Server handles authorization
     await apiCall(data);
   } catch (error) {
@@ -786,7 +786,7 @@ const handleSubmit = async (data) => {
    // Replace direct user checks
    // Before
    {userData?.is_superuser && <AdminButton />}
-   
+
    // After
    <PermissionGuard permission="system:admin">
      <AdminButton />
@@ -850,6 +850,6 @@ export const PERMISSIONS = {
 
 ---
 
-*Last Updated: January 2025*  
-*Version: 1.0.0*  
+*Last Updated: January 2025*
+*Version: 1.0.0*
 *Status: Production Ready*

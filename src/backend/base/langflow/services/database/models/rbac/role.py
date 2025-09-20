@@ -1,21 +1,22 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Union
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Union, List
+from uuid import uuid4
 
 from pydantic import field_validator
-from sqlalchemy import JSON, Column, Text, UniqueConstraint
+from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-# if TYPE_CHECKING:
-#     from langflow.services.database.models.rbac.workspace import Workspace
-#     from langflow.services.database.models.rbac.permission import RolePermission
-#     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-#     from langflow.services.database.models.user.model import User
+if TYPE_CHECKING:
+    from langflow.services.database.models.rbac.permission import RolePermission
+    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.user.model import User
 
 
 class RoleType(str, Enum):
@@ -31,11 +32,11 @@ class RoleBase(SQLModel):
     """Base role model for RBAC system."""
 
     name: str = Field(index=True)
-    description: str | None = Field(default=None, sa_column=Column(Text))
+    description: Union[str, None] = Field(default=None, sa_column=Column(Text))
     type: RoleType = Field(default=RoleType.CUSTOM, index=True)
 
     # Role hierarchy
-    parent_role_id: UUIDstr | None = Field(default=None, foreign_key="role.id")
+    parent_role_id: Union[UUIDstr, None] = Field(default=None, foreign_key="role.id", sa_type=CHAR(32))
     priority: int = Field(default=0)  # Higher priority overrides lower
 
     # Role configuration
@@ -44,12 +45,12 @@ class RoleBase(SQLModel):
     is_active: bool = Field(default=True, index=True)
 
     # Scope definition
-    scope_type: str | None = Field(default="workspace")  # workspace, project, environment, flow, component
-    scope_id: UUIDstr | None = Field(default=None)  # ID of the scoped resource
+    scope_type: Union[str, None] = Field(default="workspace")  # workspace, project, environment, flow, component
+    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))  # ID of the scoped resource
 
     # Metadata
-    role_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
-    tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
+    role_metadata: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
+    tags: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
 
     # Versioning
     version: int = Field(default=1)
@@ -80,15 +81,15 @@ class Role(RoleBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "role"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Workspace relationship (null for system roles)
-    workspace_id: UUIDstr | None = Field(foreign_key="workspace.id", index=True, nullable=True)
+    workspace_id: Union[UUIDstr, None] = Field(foreign_key="workspace.id", sa_type=CHAR(32))
     workspace: Union["Workspace", None] = Relationship(back_populates="roles")
 
     # Creator relationship
-    created_by_id: UUIDstr = Field(foreign_key="user.id", index=True)
-    created_by: "User" = Relationship(back_populates="created_roles")
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    created_by: Mapped["User"] = Relationship(back_populates="created_roles")
 
     # Parent role relationship (for hierarchy)
     parent_role: Union["Role", None] = Relationship(
@@ -99,11 +100,11 @@ class Role(RoleBase, table=True):  # type: ignore[call-arg]
     )
 
     # Relationships
-    permissions: list["RolePermission"] = Relationship(
+    permissions: Mapped[List["RolePermission"]] = Relationship(
         back_populates="role",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: list["RoleAssignment"] = Relationship(
+    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
         back_populates="role",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -180,15 +181,15 @@ class RoleCreate(SQLModel):
     """Schema for creating a role."""
 
     name: str
-    description: str | None = None
+    description: Union[str, None] = None
     type: RoleType = RoleType.CUSTOM
-    workspace_id: UUIDstr | None = None
-    parent_role_id: UUIDstr | None = None
+    workspace_id: Union[UUIDstr, None] = None
+    parent_role_id: Union[UUIDstr, None] = None
     priority: int = 0
     scope_type: str | None = "workspace"
-    scope_id: UUIDstr | None = None
-    role_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
-    tags: list[str] | None = None
+    scope_id: Union[UUIDstr, None] = None
+    role_metadata: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    tags: Union[List[str], None] = None
 
 
 class RoleRead(RoleBase):
@@ -197,24 +198,24 @@ class RoleRead(RoleBase):
     id: UUIDstr
     workspace_id: UUIDstr | None
     created_by_id: UUIDstr
-    permission_count: int | None = None
-    assignment_count: int | None = None
-    is_inherited: bool | None = None
+    permission_count: Union[int, None] = None
+    assignment_count: Union[int, None] = None
+    is_inherited: Union[bool, None] = None
 
 
 class RoleUpdate(SQLModel):
     """Schema for updating role data."""
 
-    name: str | None = None
-    description: str | None = None
-    parent_role_id: UUIDstr | None = None
-    priority: int | None = None
-    scope_type: str | None = None
-    scope_id: UUIDstr | None = None
-    role_metadata: dict | None = Field(default=None, sa_column=Column(JSON))
-    tags: list[str] | None = None
-    is_active: bool | None = None
-    is_default: bool | None = None
+    name: Union[str, None] = None
+    description: Union[str, None] = None
+    parent_role_id: Union[UUIDstr, None] = None
+    priority: Union[int, None] = None
+    scope_type: Union[str, None] = None
+    scope_id: Union[UUIDstr, None] = None
+    role_metadata: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    tags: Union[List[str], None] = None
+    is_active: Union[bool, None] = None
+    is_default: Union[bool, None] = None
 
 
 class RoleHierarchy(SQLModel):
@@ -224,6 +225,6 @@ class RoleHierarchy(SQLModel):
     role_name: str
     parent_role_id: UUIDstr | None
     depth: int
-    path: list[UUIDstr]
-    inherited_permissions: list[str]
+    path: List[UUIDstr]
+    inherited_permissions: List[str]
     effective_priority: int

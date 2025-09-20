@@ -13,7 +13,7 @@ Based on comprehensive analysis of the test suites across backend and frontend, 
 - **Integration**: Custom fixtures for user auth, API keys, flows
 
 **Frontend Testing:**
-- **Unit Tests**: Jest + React Testing Library  
+- **Unit Tests**: Jest + React Testing Library
 - **E2E Tests**: Playwright
 - **Component Testing**: Custom test utilities + mock stores
 - **API Testing**: Mock implementations with real request patterns
@@ -22,7 +22,7 @@ Based on comprehensive analysis of the test suites across backend and frontend, 
 ```
 Backend:
 ├── unit/           # Isolated component testing
-├── integration/    # Cross-component interaction testing  
+├── integration/    # Cross-component interaction testing
 ├── performance/    # Load testing and benchmarks
 └── locust/        # Distributed load testing
 
@@ -41,7 +41,7 @@ Frontend:
 # Test: test_create_flow
 GIVEN: Valid flow creation payload
 WHEN: POST /api/v1/flows/
-THEN: 
+THEN:
   - Status: 201 CREATED
   - Response includes all required fields: id, name, data, description, etc.
   - Flow persisted to database with user_id association
@@ -68,7 +68,7 @@ THEN:
   - Includes compressed responses for performance
 
 # Test: test_read_flows_user_isolation
-GIVEN: Multiple users with different flows  
+GIVEN: Multiple users with different flows
 WHEN: User requests flow list
 THEN:
   - Only returns flows owned by requesting user
@@ -158,7 +158,7 @@ THEN:
 
 # Cache Behavior in Cycles:
 - Cycle vertices have cache=False for outputs
-- Non-cycle vertices maintain cache=True  
+- Non-cycle vertices maintain cache=True
 - Prevents infinite caching loops
 ```
 
@@ -190,7 +190,7 @@ WHEN: Events processed through agent pipeline
 THEN:
   - Chain start events initialize message structure
   - Tool events create structured content blocks
-  - Tool errors handled with proper formatting  
+  - Tool errors handled with proper formatting
   - Chain end events mark completion
   - Message state maintained throughout execution
   - Event ordering preserved
@@ -200,14 +200,14 @@ THEN:
 
 ### 5. E2E User Workflow Testing
 
-#### API Code Generation Testing  
+#### API Code Generation Testing
 ```typescript
 // Test: tweaksTest.spec.ts - curl_api_generation
 GIVEN: Flow with components and tweaks
 WHEN: User generates API code snippets
 THEN:
   - cURL code generated and copied to clipboard
-  - Tweaks modifications update generated code  
+  - Tweaks modifications update generated code
   - Different formats (Python, JS, cURL) supported
   - Input schema correctly reflected
   - Code changes when flow parameters modified
@@ -234,7 +234,7 @@ THEN:
 
 // Component Configuration Flow:
 1. Search and drag component to canvas
-2. Modify component parameters (collection_name, persist_directory)  
+2. Modify component parameters (collection_name, persist_directory)
 3. Publish flow and access API modal
 4. Verify tweaks section reflects modifications
 5. Check all code generation formats contain updates
@@ -243,9 +243,9 @@ THEN:
 ### 6. State Management Testing
 
 #### Store Isolation and Reset Testing
-```typescript  
+```typescript
 // Test: authStore.test.ts
-GIVEN: Multiple Zustand stores with interdependencies  
+GIVEN: Multiple Zustand stores with interdependencies
 WHEN: Logout or state reset triggered
 THEN:
   - AuthStore state reset to defaults
@@ -277,7 +277,7 @@ THEN:
 ```python
 # Test: test_run_flow_with_caching_invalid_input_format
 GIVEN: API endpoint expecting string input
-WHEN: Object/dictionary sent instead  
+WHEN: Object/dictionary sent instead
 THEN:
   - Returns 422 Unprocessable Entity
   - Proper error message format
@@ -291,7 +291,7 @@ THEN:
 GIVEN: Non-existent flow ID
 WHEN: Flow execution requested
 THEN:
-  - Returns 404 Not Found  
+  - Returns 404 Not Found
   - Error message includes flow identifier
   - No sensitive information leaked
   - Proper error response format
@@ -309,7 +309,7 @@ THEN:
 ```
 
 #### Memory Leak Prevention
-```python  
+```python
 # Test: test_mcp_memory_leak.py
 GIVEN: MCP component with potential memory issues
 WHEN: Component executed repeatedly
@@ -327,7 +327,7 @@ THEN:
 #### Field Validation Rules
 ```python
 # Flow Model Validation Tests:
-endpoint_name: 
+endpoint_name:
   - Pattern: /^[a-zA-Z0-9_-]+$/
   - Unique per user
   - Nullable
@@ -338,7 +338,7 @@ icon_bg_color:
   - 7 character length requirement
 
 access_type:
-  - Enum: ['PRIVATE', 'PUBLIC'] 
+  - Enum: ['PRIVATE', 'PUBLIC']
   - Default: 'PRIVATE'
   - Database constraint enforcement
 ```
@@ -372,7 +372,7 @@ THEN:
 ```python
 # Real workflow simulation:
 1. User creates flow
-2. Adds multiple components  
+2. Adds multiple components
 3. Configures connections
 4. Tests in playground
 5. Publishes for API access
@@ -380,7 +380,7 @@ THEN:
 
 # Each step validated for:
 - State consistency
-- Data persistence  
+- Data persistence
 - User experience flow
 - Error recovery
 - Performance characteristics
@@ -392,7 +392,7 @@ THEN:
 - **API Endpoints**: 95% coverage across all routes
 - **Database Models**: 100% CRUD operations tested
 - **Graph Engine**: Core algorithms and edge cases covered
-- **Component System**: Dynamic imports, lifecycle, error handling  
+- **Component System**: Dynamic imports, lifecycle, error handling
 - **Authentication**: Login, logout, session management, user isolation
 - **Frontend Stores**: State management, persistence, cross-store interactions
 
@@ -406,7 +406,7 @@ THEN:
 
 ### Quality Assurance
 - **Acceptance Criteria**: Clear behavioral specifications
-- **Test Data**: Realistic scenarios and edge cases  
+- **Test Data**: Realistic scenarios and edge cases
 - **Automation**: CI/CD integration with automated test execution
 - **Coverage Metrics**: Code coverage tracking and reporting
 - **Regression Testing**: Automated detection of introduced bugs
@@ -436,7 +436,7 @@ async def active_user(client):
 @pytest.fixture
 async def logged_in_headers(client, active_user):
     # Returns: {"Authorization": f"Bearer {access_token}"}
-    
+
 # Fixture: created_api_key - API key for service integration
 @pytest.fixture
 async def created_api_key(active_user):
@@ -496,9 +496,9 @@ class FlowBuilderPage {
 ## User Story Mapping
 
 ### Epic: Flow Management
-**As a** LangBuilder user  
-**I want to** create, manage, and execute AI flows  
-**So that** I can build and deploy AI applications efficiently  
+**As a** LangBuilder user
+**I want to** create, manage, and execute AI flows
+**So that** I can build and deploy AI applications efficiently
 
 #### User Stories:
 1. **Flow Creation**: As a user, I want to create flows with unique names so that I can organize my AI workflows
@@ -506,10 +506,10 @@ class FlowBuilderPage {
 3. **Flow Sharing**: As a user, I want to make flows public or private so that I can control access to my work
 4. **Flow Execution**: As a user, I want to execute flows and see real-time progress so that I can test and debug my AI applications
 
-### Epic: Component Management  
-**As a** LangBuilder user  
-**I want to** use and configure AI components  
-**So that** I can build complex AI workflows without coding  
+### Epic: Component Management
+**As a** LangBuilder user
+**I want to** use and configure AI components
+**So that** I can build complex AI workflows without coding
 
 #### User Stories:
 1. **Component Discovery**: As a user, I want to search and browse available components so that I can find the right tools for my workflow
@@ -517,9 +517,9 @@ class FlowBuilderPage {
 3. **Component Connection**: As a user, I want to connect components with drag-and-drop so that I can create data flow pipelines visually
 
 ### Epic: Authentication and Security
-**As a** LangBuilder administrator  
-**I want to** secure user access and data  
-**So that** user data is protected and properly isolated  
+**As a** LangBuilder administrator
+**I want to** secure user access and data
+**So that** user data is protected and properly isolated
 
 #### User Stories:
 1. **User Authentication**: As a user, I want to securely log in so that my data is protected
@@ -544,11 +544,11 @@ Feature: Flow Management
     When I create a flow with name "MyFlow"
     Then the flow should be created successfully
     And the flow name should be "MyFlow"
-    
+
     When I create another flow with name "MyFlow"
-    Then the flow should be created successfully  
+    Then the flow should be created successfully
     And the flow name should be "MyFlow (1)"
-    
+
     When I create a third flow with name "MyFlow"
     Then the flow should be created successfully
     And the flow name should be "MyFlow (2)"
@@ -589,7 +589,7 @@ Feature: Authentication and Authorization
     And I should be authenticated for API requests
     And I should have access to my user data
 
-  Scenario: Failed login with invalid credentials  
+  Scenario: Failed login with invalid credentials
     Given I have invalid credentials "testuser" and "wrongpassword"
     When I attempt to log in
     Then I should receive a 401 Unauthorized response
@@ -625,7 +625,7 @@ Feature: Component Integration
     When I drag a "Chat Input" component to the canvas
     Then the component should be added to the flow
     And the component should be configurable
-    
+
     When I set the input value to "collection_name_test_123123123!@#$&*(&%$@"
     Then the component should accept complex characters
     And the value should persist when switching views
@@ -671,7 +671,7 @@ Feature: Flow Execution
     And the system should handle the error gracefully
 
   Scenario: Cyclic flow execution with max iterations
-    Given I have a flow with circular dependencies  
+    Given I have a flow with circular dependencies
     When I execute the flow with max_iterations=2
     Then the system should detect the cyclic nature
     And execution should stop after 2 iterations
@@ -689,11 +689,11 @@ Feature: End-to-End User Workflows
     Given I am on the main page
     When I select the "Basic Prompting" template
     Then the template should load successfully
-    
+
     When I configure the OpenAI API key
     And I build the flow
     Then I should see "built successfully" confirmation
-    
+
     When I test the flow in the playground with message "Hello, behave like a pirate"
     Then I should receive a pirate-themed response
     And the conversation should be saved to session history
@@ -704,7 +704,7 @@ Feature: End-to-End User Workflows
     And I configure the OpenAI integration
     And I build the flow
     Then the document should be processed successfully
-    
+
     When I ask "What is this document about?"
     Then I should receive an answer based on the document content
     And the response should reference the uploaded document
@@ -714,7 +714,7 @@ Feature: End-to-End User Workflows
     When I create a new custom component
     Then the code editor should open
     And the code button should pulse pink indicating editing required
-    
+
     When I write valid component code
     And I save the component
     Then I should see visual confirmation of successful save
@@ -724,11 +724,11 @@ Feature: End-to-End User Workflows
     Given I navigate to the files page
     When the page is empty
     Then I should see an empty state message
-    
+
     When I upload multiple files (.txt, .json, .py)
     Then all files should be uploaded successfully
     And I should see upload success messages
-    
+
     When I search for files by name
     Then the search should filter results in real-time
     And I should be able to download or delete selected files
@@ -746,7 +746,7 @@ Feature: Project and Folder Management
     When I create a new project named "My AI Project"
     Then the project should be created successfully
     And it should appear in my project list
-    
+
     When I rename the project to "Updated Project Name"
     Then the project name should be updated
     And the change should persist across sessions
@@ -779,7 +779,7 @@ Feature: API Integration and Code Generation
     And I select "cURL" format
     Then I should see generated cURL code
     And the code should be copied to clipboard when I click copy
-    
+
     When I modify flow parameters (tweaks)
     Then the generated code should update automatically
     And the new parameters should be reflected in the code
@@ -802,7 +802,7 @@ Feature: API Integration and Code Generation
 
 ### Feature: Error Handling and Edge Cases
 ```gherkin
-Feature: Error Handling and Edge Cases  
+Feature: Error Handling and Edge Cases
   As a LangBuilder user
   I want robust error handling
   So that I can understand and resolve issues
@@ -814,7 +814,7 @@ Feature: Error Handling and Edge Cases
     And the error message should be descriptive
     And no server-side processing should occur
 
-  Scenario: Missing resource handling  
+  Scenario: Missing resource handling
     Given I attempt to access a non-existent flow
     When I request the flow by invalid ID
     Then I should receive a 404 Not Found response
@@ -845,7 +845,7 @@ Feature: Error Handling and Edge Cases
 - **Error Scenarios**: Comprehensive edge case and error condition testing
 - **Security**: Authentication, authorization, and data isolation fully tested
 
-### Test Automation Strategy  
+### Test Automation Strategy
 - **Unit Tests**: 300+ tests for individual component behavior
 - **Integration Tests**: 50+ tests for cross-component interactions
 - **E2E Tests**: 155+ tests covering complete user journeys

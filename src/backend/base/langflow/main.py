@@ -41,6 +41,7 @@ from langflow.services.deps import (
     get_settings_service,
     get_telemetry_service,
 )
+from langflow.services.rbac.middleware import RBACMiddleware
 from langflow.services.utils import initialize_services, teardown_services
 
 if TYPE_CHECKING:
@@ -278,7 +279,7 @@ def create_app():
 
     __version__ = get_version_info()["version"]
     configure()
-    lifespan = get_lifespan(version=__version__)
+    lifespan = get_lifespan(version=__version__, fix_migration=True)
     app = FastAPI(
         title="Langflow",
         version=__version__,
@@ -289,16 +290,98 @@ def create_app():
     )
 
     setup_sentry(app)
-    origins = ["*"]
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # ✅ SECURE Configuration with centralized security settings
+    from langflow.services.settings.security_config import get_security_config
+
+    security_config = get_security_config()
+
+    # Apply CORS configuration from security config
+    cors_config = security_config.get_cors_config()
+    app.add_middleware(CORSMiddleware, **cors_config)
+
+    # Add security headers middleware
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.requests import Request
+    from starlette.responses import Response
+
+    class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+        """Enhanced middleware to add comprehensive security headers to all responses."""
+
+        async def dispatch(self, request: Request, call_next):
+            response = await call_next(request)
+
+            # Get security headers from config
+            headers = security_config.get_security_headers()
+
+            # Apply security headers
+            for header, value in headers.items():
+                if value:  # Only add headers with values
+                    response.headers[header] = value
+
+            # SECURITY FIX: Remove potentially dangerous headers
+            dangerous_headers = [
+                "Server",
+                "X-Powered-By",
+                "X-AspNet-Version",
+                "X-AspNetMvc-Version",
+            ]
+
+            for dangerous_header in dangerous_headers:
+                if dangerous_header in response.headers:
+                    if dangerous_header == "Server":
+                        response.headers[dangerous_header] = "Langflow"  # Generic name
+                    else:
+                        del response.headers[dangerous_header]
+
+            # Add security-specific response modifications
+            if request.url.path.startswith("/api/"):
+                # API responses should not be cached for security
+                response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+                response.headers["Pragma"] = "no-cache"
+                response.headers["Expires"] = "0"
+
+            return response
+
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(JavaScriptMIMETypeMiddleware)
+
+    # Add RBAC middleware for permission enforcement
+    try:
+        app.add_middleware(
+            RBACMiddleware,
+            rbac_service=None,  # Will be initialized by middleware
+            enforce_rbac=True,
+            protected_patterns=[
+                "/api/v1/flows/",
+                "/api/v1/projects/",
+                "/api/v1/workspaces/",
+                "/api/v1/rbac/",
+                "/api/v1/files/",
+                "/api/v1/chat/",
+                "/api/v1/endpoints/",
+                "/api/v1/users/",
+                "/api/v1/api_key/",
+                "/api/v1/variables/",
+                "/api/v1/folders/",
+            ],
+            bypass_patterns=[
+                "/health",
+                "/docs",
+                "/openapi.json",
+                "/api/v1/login",
+                "/api/v1/auth/",
+                "/api/v1/public/",
+                "/api/v1/store/",
+                "/api/v1/starter-projects/",
+                "/static/",
+                "/files/",
+                "/",
+            ],
+        )
+        logger.info("RBAC middleware successfully integrated")
+    except Exception as e:
+        logger.warning(f"Failed to initialize RBAC middleware: {e}. Continuing without RBAC enforcement.")
 
     @app.middleware("http")
     async def check_boundary(request: Request, call_next):

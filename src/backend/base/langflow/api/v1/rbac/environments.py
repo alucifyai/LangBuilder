@@ -1,30 +1,38 @@
 """Environment management API endpoints for RBAC system."""
 
-from typing import TYPE_CHECKING
-from langflow.schema.serialize import UUIDstr
+from typing import Annotated, TYPE_CHECKING
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import select, and_
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlmodel import apaginate
+from sqlmodel import and_, select
 
-from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
 from langflow.api.v1.rbac.dependencies import (
-    check_project_permission,
     get_permission_engine,
 )
-from langflow.services.rbac.permission_engine import PermissionEngine
+from langflow.api.v1.rbac.security_middleware import (
+    SecurityRequirement,
+    ValidationRequirement,
+    get_authenticated_user,
+    secure_endpoint,
+)
+from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
+from langflow.schema.serialize import UUIDstr
 from langflow.services.database.models.rbac.environment import (
     Environment,
     EnvironmentCreate,
-    EnvironmentRead,
-    EnvironmentUpdate,
-    EnvironmentType,
     EnvironmentDeployment,
+    EnvironmentRead,
+    EnvironmentType,
+    EnvironmentUpdate,
 )
 from langflow.services.database.models.rbac.project import Project
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
+    pass
 
 router = APIRouter(
     prefix="/environments",
@@ -39,29 +47,56 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[EnvironmentRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_environments(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     project_id: UUIDstr,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    params: Annotated[Params | None, Depends(custom_params
+)],
     search: str | None = None,
     environment_type: EnvironmentType | None = None,
     is_active: bool | None = None,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[EnvironmentRead]:
     """List environments in a project."""
-    
     # Check project permission
-    await check_project_permission(session, current_user, project_id, "environment:read")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="project",
+        action="read",
+        resource_id=project_id,
+        project_id=project_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to list environments: {result.reason}"
+        )
 
     statement = select(Environment).where(Environment.project_id == project_id)
 
     # Apply filters
     if search:
-        statement = statement.where(
-            (Environment.name.ilike(f"%{search}%")) |
-            (Environment.description.ilike(f"%{search}%"))
-        )
+        search_condition = Environment.name.ilike(f"%{search}%")
+        if Environment.description is not None:
+            search_condition = search_condition | Environment.description.ilike(f"%{search}%")
+        statement = statement.where(search_condition)
 
     if environment_type:
         statement = statement.where(Environment.type == environment_type)
@@ -69,27 +104,59 @@ async def list_environments(
     if is_active is not None:
         statement = statement.where(Environment.is_active == is_active)
 
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-    
-    result = await session.exec(statement)
-    environments = result.all()
-
-    return [EnvironmentRead.model_validate(env) for env in environments]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [EnvironmentRead.model_validate(env) for env in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        environments = result.all()
+        return [EnvironmentRead.model_validate(env) for env in environments]
 
 
 @router.post("/", response_model=EnvironmentRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def create_environment(
+    request: Request,
     environment_data: EnvironmentCreate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> EnvironmentRead:
     """Create a new environment."""
-    
     # Check project permission
-    await check_project_permission(
-        session, current_user, environment_data.project_id, "environment:create"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="project",
+        action="create",
+        resource_id=environment_data.project_id,
+        project_id=environment_data.project_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to create environment: {result.reason}"
+        )
 
     # Verify project exists
     project = await session.get(Project, environment_data.project_id)
@@ -119,7 +186,7 @@ async def create_environment(
         created_by=current_user.id,
         workspace_id=project.workspace_id  # Inherit from project
     )
-    
+
     session.add(environment)
     await session.commit()
     await session.refresh(environment)
@@ -128,13 +195,28 @@ async def create_environment(
 
 
 @router.get("/{environment_id}", response_model=EnvironmentRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_environment(
+    request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> EnvironmentRead:
     """Get environment by ID."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -142,23 +224,50 @@ async def get_environment(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:read"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="read",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read environment: {result.reason}"
+        )
 
     return EnvironmentRead.model_validate(environment)
 
 
 @router.put("/{environment_id}", response_model=EnvironmentRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def update_environment(
+    request: Request,
     environment_id: UUIDstr,
     environment_data: EnvironmentUpdate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> EnvironmentRead:
     """Update environment."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -166,10 +275,22 @@ async def update_environment(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:update"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="update",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to update environment: {result.reason}"
+        )
 
     # Update fields
     update_data = environment_data.model_dump(exclude_unset=True)
@@ -183,13 +304,28 @@ async def update_environment(
 
 
 @router.delete("/{environment_id}", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def delete_environment(
+    request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> None:
     """Delete environment."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -197,25 +333,51 @@ async def delete_environment(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:delete"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="delete",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to delete environment: {result.reason}"
+        )
 
     await session.delete(environment)
     await session.commit()
 
 
 @router.get("/{environment_id}/deployments", response_model=list[dict])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_environment_deployments(
+    request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    params: Annotated[Params | None, Depends(custom_params
+)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[dict]:
     """List deployments for environment."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -223,17 +385,39 @@ async def list_environment_deployments(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:read"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="read",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read environment deployments: {result.reason}"
+        )
 
     statement = select(EnvironmentDeployment).where(
         EnvironmentDeployment.environment_id == environment_id
-    ).offset(skip).limit(limit)
-    
-    result = await session.exec(statement)
-    deployments = result.all()
+    )
+
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            deployments = paginated_result.items
+    else:
+        result = await session.exec(statement)
+        deployments = result.all()
 
     return [
         {
@@ -251,14 +435,29 @@ async def list_environment_deployments(
 
 
 @router.post("/{environment_id}/deployments", status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def create_environment_deployment(
+    request: Request,
     environment_id: UUIDstr,
     deployment_data: dict,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> dict:
     """Create a new deployment in environment."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -266,10 +465,22 @@ async def create_environment_deployment(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:deploy"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="create",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to deploy to environment: {result.reason}"
+        )
 
     # Create deployment
     from datetime import datetime
@@ -281,7 +492,7 @@ async def create_environment_deployment(
         created_by=current_user.id,
         created_at=datetime.utcnow(),
     )
-    
+
     session.add(deployment)
     await session.commit()
     await session.refresh(deployment)
@@ -298,15 +509,30 @@ async def create_environment_deployment(
 
 
 @router.get("/{environment_id}/variables", response_model=list[dict])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_environment_variables(
+    request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
-    skip: int = Query(0, ge=0),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    skip: int = Query(0, ge=0
+),
     limit: int = Query(100, ge=1, le=1000),
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[dict]:
     """List variables scoped to environment."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -314,10 +540,22 @@ async def list_environment_variables(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:read"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="read",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read environment variables: {result.reason}"
+        )
 
     # This would query the Variable model with environment_id filter
     # For now, return placeholder response
@@ -325,14 +563,29 @@ async def list_environment_variables(
 
 
 @router.post("/{environment_id}/variables", status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def create_environment_variable(
+    request: Request,
     environment_id: UUIDstr,
     variable_data: dict,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> dict:
     """Create a variable scoped to environment."""
-    
     environment = await session.get(Environment, environment_id)
     if not environment:
         raise HTTPException(
@@ -340,10 +593,22 @@ async def create_environment_variable(
             detail="Environment not found"
         )
 
-    # Check project permission
-    await check_project_permission(
-        session, current_user, environment.project_id, "environment:update"
+    # Check environment permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="environment",
+        action="update",
+        resource_id=environment_id,
+        project_id=environment.project_id,
+        environment_id=environment_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to create environment variables: {result.reason}"
+        )
 
     # This would create a Variable with environment_id scope
     # For now, return placeholder response

@@ -32,7 +32,7 @@ src/backend/base/langflow/
 ├── api/v1/
 │   ├── rbac/                    # NEW - RBAC endpoints
 │   │   ├── workspaces.py       # Workspace management API
-│   │   ├── projects.py         # Project management API  
+│   │   ├── projects.py         # Project management API
 │   │   ├── roles.py           # Role/permission API
 │   │   └── dependencies.py    # Security dependencies
 │   └── [existing APIs]        # Preserved existing APIs
@@ -81,7 +81,7 @@ from langflow.schema.serialize import UUIDstr
 
 **Core Entity Models:**
 1. **Workspace Model** - Multi-tenant organization following existing patterns
-2. **Project Model** - Development project organization within workspaces  
+2. **Project Model** - Development project organization within workspaces
 3. **Environment Model** - Deployment contexts (dev/staging/prod)
 4. **Role Model** - Hierarchical role definitions with inheritance
 5. **Permission Model** - Granular permissions with resource patterns
@@ -96,15 +96,15 @@ from langflow.schema.serialize import UUIDstr
 # Example: workspace.py
 class Workspace(SQLModel, table=True):  # type: ignore[call-arg]
     __tablename__ = "workspace"
-    
+
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(index=True)
     description: str | None = Field(default=None)
-    
+
     # Follow existing User model patterns
     owner_id: UUIDstr = Field(foreign_key="user.id", index=True)
     owner: "User" = Relationship(back_populates="owned_workspaces")
-    
+
     # Timestamps following existing pattern
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -115,7 +115,7 @@ class Workspace(SQLModel, table=True):  # type: ignore[call-arg]
 # Enhance src/backend/base/langflow/services/database/models/user/model.py
 class User(SQLModel, table=True):
     # Existing fields preserved...
-    
+
     # Add RBAC relationships (backward compatible)
     owned_workspaces: list["Workspace"] = Relationship(back_populates="owner")
     role_assignments: list["RoleAssignment"] = Relationship(back_populates="user")
@@ -128,7 +128,7 @@ class User(SQLModel, table=True):
 def upgrade():
     # Create RBAC tables using existing migration patterns
     # Maintain backward compatibility with existing data
-    
+
 def downgrade():
     # Rollback support following existing patterns
 ```
@@ -204,7 +204,7 @@ async def check_workspace_permission(
 class PermissionEngine:
     def __init__(self, redis_client=None):
         # Use existing Redis configuration if available
-        
+
     async def check_permission(
         self,
         session: AsyncSession,
@@ -238,7 +238,7 @@ from langflow.services.base import Service
 
 class RBACService(Service):
     """RBAC service following existing LangBuilder service patterns"""
-    
+
     async def evaluate_permission(self, ...):
         # Hierarchical permission evaluation
         # Cache integration with existing Redis
@@ -249,7 +249,7 @@ class RBACService(Service):
 ```
 User Permission Check
 ├── Direct Role Assignments
-├── Group Membership Roles  
+├── Group Membership Roles
 ├── Inherited Scope Permissions
 │   ├── Workspace Level
 │   ├── Project Level
@@ -266,10 +266,10 @@ User Permission Check
 # src/backend/base/langflow/integrations/sso/
 class SSOProvider(ABC):
     """Base class following existing integration patterns"""
-    
+
 class OIDCProvider(SSOProvider):
     """OpenID Connect integration"""
-    
+
 class SAML2Provider(SSOProvider):
     """SAML 2.0 integration"""
 ```

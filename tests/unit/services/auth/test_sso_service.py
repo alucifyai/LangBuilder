@@ -1,14 +1,18 @@
 """Unit tests for SSO service."""
 
-import pytest
-import json
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
+import pytest
 from langflow.services.auth.sso_service import (
-    SSOService, OIDCProvider, OAuth2Provider, SSOUserClaims,
-    SSOAuthenticationResult, SSOFlowState, SSOProtocol
+    OAuth2Provider,
+    OIDCProvider,
+    SSOAuthenticationResult,
+    SSOFlowState,
+    SSOProtocol,
+    SSOService,
+    SSOUserClaims,
 )
 
 
@@ -55,7 +59,7 @@ class TestSSOService:
         provider_id = str(mock_sso_config.id)
         redirect_uri = "https://app.example.com/callback"
 
-        with patch.object(sso_service, 'get_provider') as mock_get_provider:
+        with patch.object(sso_service, "get_provider") as mock_get_provider:
             mock_provider = MagicMock(spec=OIDCProvider)
             mock_provider.initiate_flow.return_value = "https://oidc.example.com/auth?client_id=test&state=abc123"
             mock_get_provider.return_value = mock_provider
@@ -105,7 +109,7 @@ class TestSSOService:
             flow_state=SSOFlowState.COMPLETED,
         )
 
-        with patch.object(sso_service, 'get_provider') as mock_get_provider:
+        with patch.object(sso_service, "get_provider") as mock_get_provider:
             mock_provider = MagicMock()
             mock_provider.handle_callback.return_value = auth_result
             mock_get_provider.return_value = mock_provider
@@ -175,7 +179,7 @@ class TestSSOService:
         new_user.username = "newuser@example.com"
         new_user.email = "newuser@example.com"
 
-        with patch.object(sso_service, '_provision_user_groups', return_value=None):
+        with patch.object(sso_service, "_provision_user_groups", return_value=None):
             user = await sso_service.provision_user_from_sso(
                 session=mock_session,
                 user_claims=user_claims,
@@ -197,7 +201,7 @@ class TestSSOService:
         # Mock existing user
         mock_session.exec.return_value.first.return_value = mock_user
 
-        with patch.object(sso_service, '_provision_user_groups', return_value=None):
+        with patch.object(sso_service, "_provision_user_groups", return_value=None):
             user = await sso_service.provision_user_from_sso(
                 session=mock_session,
                 user_claims=user_claims,
@@ -280,7 +284,7 @@ class TestOIDCProvider:
             "userinfo_endpoint": "https://oidc.example.com/userinfo",
         }
 
-        with patch.object(oidc_provider, '_get_discovery_document', return_value=discovery_doc):
+        with patch.object(oidc_provider, "_get_discovery_document", return_value=discovery_doc):
             auth_url = await oidc_provider.initiate_flow(redirect_uri, state, nonce)
 
         assert auth_url.startswith("https://oidc.example.com/auth")

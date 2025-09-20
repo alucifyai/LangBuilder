@@ -1,26 +1,23 @@
 #!/usr/bin/env python3
-"""
-Validation script for RBAC Phase 2 implementation.
+"""Validation script for RBAC Phase 2 implementation.
 
 This script validates that all Phase 2 deliverables have been properly implemented
 according to the requirements in RBAC_IMPLEMENTATION_PLAN.md.
 """
 
 import ast
-import importlib.util
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-import re
+
 
 # Color codes for output
 class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    BOLD = '\033[1m'
-    END = '\033[0m'
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
 
 def print_success(message: str):
     print(f"{Colors.GREEN}✓{Colors.END} {message}")
@@ -123,7 +120,7 @@ class RBACPhase2Validator:
 
             # Parse the Python file to extract function names
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 tree = ast.parse(content)
@@ -155,7 +152,7 @@ class RBACPhase2Validator:
                     print_warning(f"{filename}: Router missing RBAC tags")
 
                 # Check for response models
-                if 'responses={' in content:
+                if "responses={" in content:
                     print_success(f"{filename}: Router has response metadata")
                 else:
                     print_warning(f"{filename}: Router missing response metadata")
@@ -175,7 +172,7 @@ class RBACPhase2Validator:
             return False
 
         try:
-            with open(engine_file, 'r') as f:
+            with open(engine_file) as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -203,8 +200,7 @@ class RBACPhase2Validator:
                 if missing_methods:
                     print_error(f"PermissionEngine missing methods: {missing_methods}")
                     return False
-                else:
-                    print_success("All required PermissionEngine methods implemented")
+                print_success("All required PermissionEngine methods implemented")
 
                 # Check for caching implementation
                 if "redis" in content.lower() or "cache" in content.lower():
@@ -249,7 +245,7 @@ class RBACPhase2Validator:
                 continue
 
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 tree = ast.parse(content)
@@ -287,7 +283,7 @@ class RBACPhase2Validator:
             return False
 
         try:
-            with open(main_router_file, 'r') as f:
+            with open(main_router_file) as f:
                 content = f.read()
 
             required_routers = [
@@ -326,7 +322,7 @@ class RBACPhase2Validator:
                 continue
 
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 # Check for LangBuilder type aliases import
@@ -357,11 +353,10 @@ class RBACPhase2Validator:
                         print_success(f"{file_path.name}: Proper imports detected")
                     else:
                         print_warning(f"{file_path.name}: May have import issues")
+                elif "from langflow.api.utils import CurrentActiveUser, DbSession" in content:
+                    print_success(f"{file_path.name}: Proper imports detected")
                 else:
-                    if "from langflow.api.utils import CurrentActiveUser, DbSession" in content:
-                        print_success(f"{file_path.name}: Proper imports detected")
-                    else:
-                        print_warning(f"{file_path.name}: May have import issues")
+                    print_warning(f"{file_path.name}: May have import issues")
 
             except Exception as e:
                 print_error(f"Error checking {file_path.name}: {e}")
@@ -393,7 +388,7 @@ class RBACPhase2Validator:
             test_path = self.test_path / test_file
             if test_path.exists():
                 try:
-                    with open(test_path, 'r') as f:
+                    with open(test_path) as f:
                         content = f.read()
 
                     # Count test methods
@@ -433,7 +428,7 @@ class RBACPhase2Validator:
                 continue
 
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 # Count docstrings
@@ -451,9 +446,8 @@ class RBACPhase2Validator:
         if documentation_score >= 0.8:
             print_success(f"Documentation coverage: {documentation_score:.1%}")
             return True
-        else:
-            print_warning(f"Documentation coverage: {documentation_score:.1%} (needs improvement)")
-            return False
+        print_warning(f"Documentation coverage: {documentation_score:.1%} (needs improvement)")
+        return False
 
     def print_summary(self):
         """Print validation summary."""
@@ -493,7 +487,7 @@ class RBACPhase2Validator:
                 continue
 
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 ast.parse(content)
@@ -511,9 +505,8 @@ class RBACPhase2Validator:
         if not syntax_errors:
             print_success("All Python files have valid syntax")
             return True
-        else:
-            print_error(f"Found {len(syntax_errors)} syntax errors")
-            return False
+        print_error(f"Found {len(syntax_errors)} syntax errors")
+        return False
 
 
 def main():
@@ -522,7 +515,7 @@ def main():
     script_dir = Path(__file__).parent
     base_path = script_dir.parent
 
-    print_info(f"RBAC Phase 2 Validation Script")
+    print_info("RBAC Phase 2 Validation Script")
     print_info(f"Script location: {script_dir}")
     print_info(f"Base path: {base_path}")
 
@@ -539,9 +532,8 @@ def main():
     if syntax_ok and validation_ok:
         print_success("RBAC Phase 2 implementation validation PASSED")
         return 0
-    else:
-        print_error("RBAC Phase 2 implementation validation FAILED")
-        return 1
+    print_error("RBAC Phase 2 implementation validation FAILED")
+    return 1
 
 
 if __name__ == "__main__":

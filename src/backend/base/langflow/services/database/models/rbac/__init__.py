@@ -26,6 +26,7 @@ from .environment import (
     EnvironmentUpdate,
 )
 from .permission import (
+    SYSTEM_PERMISSIONS,
     Permission,
     PermissionAction,
     PermissionCheck,
@@ -33,7 +34,6 @@ from .permission import (
     PermissionRead,
     ResourceType,
     RolePermission,
-    SYSTEM_PERMISSIONS,
 )
 from .project import (
     Project,
@@ -43,13 +43,13 @@ from .project import (
     ProjectUpdate,
 )
 from .role import (
+    SYSTEM_ROLES,
     Role,
     RoleCreate,
     RoleHierarchy,
     RoleRead,
     RoleType,
     RoleUpdate,
-    SYSTEM_ROLES,
 )
 from .role_assignment import (
     AssignmentScope,

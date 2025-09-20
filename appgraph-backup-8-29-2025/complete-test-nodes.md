@@ -13,7 +13,7 @@ Based on comprehensive analysis of the test suites across backend and frontend, 
 - **Integration**: Custom fixtures for user auth, API keys, flows
 
 **Frontend Testing:**
-- **Unit Tests**: Jest + React Testing Library  
+- **Unit Tests**: Jest + React Testing Library
 - **E2E Tests**: Playwright
 - **Component Testing**: Custom test utilities + mock stores
 - **API Testing**: Mock implementations with real request patterns
@@ -22,7 +22,7 @@ Based on comprehensive analysis of the test suites across backend and frontend, 
 ```
 Backend:
 ├── unit/           # Isolated component testing
-├── integration/    # Cross-component interaction testing  
+├── integration/    # Cross-component interaction testing
 ├── performance/    # Load testing and benchmarks
 └── locust/        # Distributed load testing
 
@@ -41,7 +41,7 @@ Frontend:
 # Test: test_create_flow
 GIVEN: Valid flow creation payload
 WHEN: POST /api/v1/flows/
-THEN: 
+THEN:
   - Status: 201 CREATED
   - Response includes all required fields: id, name, data, description, etc.
   - Flow persisted to database with user_id association
@@ -68,7 +68,7 @@ THEN:
   - Includes compressed responses for performance
 
 # Test: test_read_flows_user_isolation
-GIVEN: Multiple users with different flows  
+GIVEN: Multiple users with different flows
 WHEN: User requests flow list
 THEN:
   - Only returns flows owned by requesting user
@@ -158,7 +158,7 @@ THEN:
 
 # Cache Behavior in Cycles:
 - Cycle vertices have cache=False for outputs
-- Non-cycle vertices maintain cache=True  
+- Non-cycle vertices maintain cache=True
 - Prevents infinite caching loops
 ```
 
@@ -190,7 +190,7 @@ WHEN: Events processed through agent pipeline
 THEN:
   - Chain start events initialize message structure
   - Tool events create structured content blocks
-  - Tool errors handled with proper formatting  
+  - Tool errors handled with proper formatting
   - Chain end events mark completion
   - Message state maintained throughout execution
   - Event ordering preserved
@@ -200,14 +200,14 @@ THEN:
 
 ### 5. E2E User Workflow Testing
 
-#### API Code Generation Testing  
+#### API Code Generation Testing
 ```typescript
 // Test: tweaksTest.spec.ts - curl_api_generation
 GIVEN: Flow with components and tweaks
 WHEN: User generates API code snippets
 THEN:
   - cURL code generated and copied to clipboard
-  - Tweaks modifications update generated code  
+  - Tweaks modifications update generated code
   - Different formats (Python, JS, cURL) supported
   - Input schema correctly reflected
   - Code changes when flow parameters modified
@@ -234,7 +234,7 @@ THEN:
 
 // Component Configuration Flow:
 1. Search and drag component to canvas
-2. Modify component parameters (collection_name, persist_directory)  
+2. Modify component parameters (collection_name, persist_directory)
 3. Publish flow and access API modal
 4. Verify tweaks section reflects modifications
 5. Check all code generation formats contain updates
@@ -243,9 +243,9 @@ THEN:
 ### 6. State Management Testing
 
 #### Store Isolation and Reset Testing
-```typescript  
+```typescript
 // Test: authStore.test.ts
-GIVEN: Multiple Zustand stores with interdependencies  
+GIVEN: Multiple Zustand stores with interdependencies
 WHEN: Logout or state reset triggered
 THEN:
   - AuthStore state reset to defaults
@@ -277,7 +277,7 @@ THEN:
 ```python
 # Test: test_run_flow_with_caching_invalid_input_format
 GIVEN: API endpoint expecting string input
-WHEN: Object/dictionary sent instead  
+WHEN: Object/dictionary sent instead
 THEN:
   - Returns 422 Unprocessable Entity
   - Proper error message format
@@ -291,7 +291,7 @@ THEN:
 GIVEN: Non-existent flow ID
 WHEN: Flow execution requested
 THEN:
-  - Returns 404 Not Found  
+  - Returns 404 Not Found
   - Error message includes flow identifier
   - No sensitive information leaked
   - Proper error response format
@@ -309,7 +309,7 @@ THEN:
 ```
 
 #### Memory Leak Prevention
-```python  
+```python
 # Test: test_mcp_memory_leak.py
 GIVEN: MCP component with potential memory issues
 WHEN: Component executed repeatedly
@@ -327,7 +327,7 @@ THEN:
 #### Field Validation Rules
 ```python
 # Flow Model Validation Tests:
-endpoint_name: 
+endpoint_name:
   - Pattern: /^[a-zA-Z0-9_-]+$/
   - Unique per user
   - Nullable
@@ -338,7 +338,7 @@ icon_bg_color:
   - 7 character length requirement
 
 access_type:
-  - Enum: ['PRIVATE', 'PUBLIC'] 
+  - Enum: ['PRIVATE', 'PUBLIC']
   - Default: 'PRIVATE'
   - Database constraint enforcement
 ```
@@ -372,7 +372,7 @@ THEN:
 ```python
 # Real workflow simulation:
 1. User creates flow
-2. Adds multiple components  
+2. Adds multiple components
 3. Configures connections
 4. Tests in playground
 5. Publishes for API access
@@ -380,7 +380,7 @@ THEN:
 
 # Each step validated for:
 - State consistency
-- Data persistence  
+- Data persistence
 - User experience flow
 - Error recovery
 - Performance characteristics
@@ -392,7 +392,7 @@ THEN:
 - **API Endpoints**: 95% coverage across all routes
 - **Database Models**: 100% CRUD operations tested
 - **Graph Engine**: Core algorithms and edge cases covered
-- **Component System**: Dynamic imports, lifecycle, error handling  
+- **Component System**: Dynamic imports, lifecycle, error handling
 - **Authentication**: Login, logout, session management, user isolation
 - **Frontend Stores**: State management, persistence, cross-store interactions
 
@@ -406,7 +406,7 @@ THEN:
 
 ### Quality Assurance
 - **Acceptance Criteria**: Clear behavioral specifications
-- **Test Data**: Realistic scenarios and edge cases  
+- **Test Data**: Realistic scenarios and edge cases
 - **Automation**: CI/CD integration with automated test execution
 - **Coverage Metrics**: Code coverage tracking and reporting
 - **Regression Testing**: Automated detection of introduced bugs

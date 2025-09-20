@@ -8,8 +8,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import PermissionGuard from "../components/rbac/PermissionGuard";
+import { PermissionGuard } from "../components/rbac/PermissionGuard";
 import { AuthContext } from "../contexts/authContext";
 import { RBACProvider } from "../contexts/rbacContext";
 import RBACAdminPage from "../pages/AdminPage/RBAC";
@@ -17,41 +16,41 @@ import RoleManagementPage from "../pages/AdminPage/RBAC/RoleManagementPage";
 import WorkspaceManagementPage from "../pages/AdminPage/RBAC/WorkspaceManagementPage";
 
 // Mock dependencies
-vi.mock("@/controllers/API/queries/rbac", () => ({
-  useGetWorkspaces: vi.fn(() => ({
-    mutate: vi.fn(),
+jest.mock("@/controllers/API/queries/rbac", () => ({
+  useGetWorkspaces: jest.fn(() => ({
+    mutate: jest.fn(),
     isPending: false,
     isIdle: false,
   })),
-  useCreateWorkspace: vi.fn(() => ({
-    mutate: vi.fn(),
+  useCreateWorkspace: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
-  useUpdateWorkspace: vi.fn(() => ({
-    mutate: vi.fn(),
+  useUpdateWorkspace: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
-  useDeleteWorkspace: vi.fn(() => ({
-    mutate: vi.fn(),
+  useDeleteWorkspace: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
-  useGetRoles: vi.fn(() => ({
-    mutate: vi.fn(),
+  useGetRoles: jest.fn(() => ({
+    mutate: jest.fn(),
     isPending: false,
     isIdle: false,
   })),
-  useCreateRole: vi.fn(() => ({
-    mutate: vi.fn(),
+  useCreateRole: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
-  useUpdateRole: vi.fn(() => ({
-    mutate: vi.fn(),
+  useUpdateRole: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
-  useDeleteRole: vi.fn(() => ({
-    mutate: vi.fn(),
+  useDeleteRole: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
-  useCheckPermission: vi.fn(() => ({
-    mutate: vi.fn(),
+  useCheckPermission: jest.fn(() => ({
+    mutate: jest.fn(),
   })),
 }));
 
-vi.mock("@/customization/components/custom-loader", () => ({
+jest.mock("@/customization/components/custom-loader", () => ({
   default: () => <div data-testid="loading">Loading...</div>,
 }));
 
@@ -75,7 +74,7 @@ const renderWithProviders = (component: React.ReactElement) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ userData: mockUser, logout: vi.fn() }}>
+      <AuthContext.Provider value={{ userData: mockUser, logout: jest.fn() }}>
         <RBACProvider>{component}</RBACProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -84,11 +83,11 @@ const renderWithProviders = (component: React.ReactElement) => {
 
 describe("Phase 6 RBAC Frontend Integration", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe("RBAC Admin Dashboard", () => {
@@ -155,14 +154,14 @@ describe("Phase 6 RBAC Frontend Integration", () => {
     ];
 
     it("should display workspace list", async () => {
-      const mockGetWorkspaces = vi.fn();
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useGetWorkspaces,
-      ).mockReturnValue({
-        mutate: mockGetWorkspaces,
-        isPending: false,
-        isIdle: false,
-      });
+      const mockGetWorkspaces = jest.fn();
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useGetWorkspaces)
+        .mockReturnValue({
+          mutate: mockGetWorkspaces,
+          isPending: false,
+          isIdle: false,
+        });
 
       renderWithProviders(<WorkspaceManagementPage />);
 
@@ -197,12 +196,12 @@ describe("Phase 6 RBAC Frontend Integration", () => {
     });
 
     it("should handle workspace creation", async () => {
-      const mockCreateWorkspace = vi.fn();
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useCreateWorkspace,
-      ).mockReturnValue({
-        mutate: mockCreateWorkspace,
-      });
+      const mockCreateWorkspace = jest.fn();
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useCreateWorkspace)
+        .mockReturnValue({
+          mutate: mockCreateWorkspace,
+        });
 
       renderWithProviders(<WorkspaceManagementPage />);
 
@@ -271,13 +270,13 @@ describe("Phase 6 RBAC Frontend Integration", () => {
 
   describe("Permission Guard Component", () => {
     it("should render children when permission is granted", async () => {
-      const mockCheckPermission = vi.fn().mockResolvedValue(true);
+      const mockCheckPermission = jest.fn().mockResolvedValue(true);
 
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useCheckPermission,
-      ).mockReturnValue({
-        mutate: mockCheckPermission,
-      });
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useCheckPermission)
+        .mockReturnValue({
+          mutate: mockCheckPermission,
+        });
 
       renderWithProviders(
         <PermissionGuard permission="test:permission">
@@ -291,13 +290,13 @@ describe("Phase 6 RBAC Frontend Integration", () => {
     });
 
     it("should render fallback when permission is denied", async () => {
-      const mockCheckPermission = vi.fn().mockResolvedValue(false);
+      const mockCheckPermission = jest.fn().mockResolvedValue(false);
 
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useCheckPermission,
-      ).mockReturnValue({
-        mutate: mockCheckPermission,
-      });
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useCheckPermission)
+        .mockReturnValue({
+          mutate: mockCheckPermission,
+        });
 
       renderWithProviders(
         <PermissionGuard
@@ -319,11 +318,11 @@ describe("Phase 6 RBAC Frontend Integration", () => {
         .fn()
         .mockImplementation(() => new Promise(() => {}));
 
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useCheckPermission,
-      ).mockReturnValue({
-        mutate: mockCheckPermission,
-      });
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useCheckPermission)
+        .mockReturnValue({
+          mutate: mockCheckPermission,
+        });
 
       renderWithProviders(
         <PermissionGuard permission="test:permission">
@@ -339,14 +338,14 @@ describe("Phase 6 RBAC Frontend Integration", () => {
 
   describe("API Integration", () => {
     it("should call workspace API with correct parameters", async () => {
-      const mockGetWorkspaces = vi.fn();
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useGetWorkspaces,
-      ).mockReturnValue({
-        mutate: mockGetWorkspaces,
-        isPending: false,
-        isIdle: false,
-      });
+      const mockGetWorkspaces = jest.fn();
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useGetWorkspaces)
+        .mockReturnValue({
+          mutate: mockGetWorkspaces,
+          isPending: false,
+          isIdle: false,
+        });
 
       renderWithProviders(<WorkspaceManagementPage />);
 
@@ -362,22 +361,22 @@ describe("Phase 6 RBAC Frontend Integration", () => {
     });
 
     it("should handle API errors gracefully", async () => {
-      const mockGetWorkspaces = vi.fn();
-      const mockCreateWorkspace = vi.fn();
+      const mockGetWorkspaces = jest.fn();
+      const mockCreateWorkspace = jest.fn();
 
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useGetWorkspaces,
-      ).mockReturnValue({
-        mutate: mockGetWorkspaces,
-        isPending: false,
-        isIdle: false,
-      });
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useGetWorkspaces)
+        .mockReturnValue({
+          mutate: mockGetWorkspaces,
+          isPending: false,
+          isIdle: false,
+        });
 
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useCreateWorkspace,
-      ).mockReturnValue({
-        mutate: mockCreateWorkspace,
-      });
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useCreateWorkspace)
+        .mockReturnValue({
+          mutate: mockCreateWorkspace,
+        });
 
       renderWithProviders(<WorkspaceManagementPage />);
 
@@ -421,7 +420,7 @@ describe("Phase 6 RBAC Frontend Integration", () => {
 
   describe("Performance", () => {
     it("should not re-render unnecessarily", () => {
-      const renderSpy = vi.fn();
+      const renderSpy = jest.fn();
 
       const TestComponent = () => {
         renderSpy();
@@ -509,13 +508,13 @@ describe("Phase 6 Component Integration Tests", () => {
     });
 
     it("should cache permission results", async () => {
-      const mockCheckPermission = vi.fn().mockResolvedValue(true);
+      const mockCheckPermission = jest.fn().mockResolvedValue(true);
 
-      vi.mocked(
-        require("@/controllers/API/queries/rbac").useCheckPermission,
-      ).mockReturnValue({
-        mutate: mockCheckPermission,
-      });
+      jest
+        .mocked(require("@/controllers/API/queries/rbac").useCheckPermission)
+        .mockReturnValue({
+          mutate: mockCheckPermission,
+        });
 
       renderWithProviders(
         <>
@@ -710,6 +709,3 @@ describe("Phase 6 Component Integration Tests", () => {
     });
   });
 });
-
-// Export for potential use in other test files
-export { renderWithProviders, createQueryClient };

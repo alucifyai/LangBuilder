@@ -12,7 +12,7 @@ This document provides comprehensive documentation for the Phase 1 implementatio
 
 **Hierarchical Organization Models:**
 - **Workspace** (`workspace.py`): Top-level organization unit supporting multi-tenancy
-- **Project** (`project.py`): Project organization within workspaces  
+- **Project** (`project.py`): Project organization within workspaces
 - **Environment** (`environment.py`): Deployment contexts (dev, staging, prod)
 
 **Access Control Models:**
@@ -62,7 +62,7 @@ CREATE TABLE workspace (
     deletion_requested_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    
+
     CONSTRAINT unique_workspace_name_per_owner UNIQUE (owner_id, name)
 );
 ```
@@ -74,19 +74,19 @@ CREATE TABLE role_assignment (
     role_id UUID NOT NULL REFERENCES role(id),
     assignment_type VARCHAR(50) NOT NULL, -- user, group, service_account
     scope_type VARCHAR(50) NOT NULL,      -- workspace, project, environment, flow, component
-    
+
     -- Assignee (one of these will be populated)
     user_id UUID REFERENCES user(id),
     group_id UUID REFERENCES user_group(id),
     service_account_id UUID REFERENCES service_account(id),
-    
+
     -- Scope (hierarchical)
     workspace_id UUID REFERENCES workspace(id),
     project_id UUID REFERENCES project(id),
     environment_id UUID REFERENCES environment(id),
     flow_id UUID REFERENCES flow(id),
     component_id UUID,
-    
+
     -- Temporal and conditional constraints
     is_active BOOLEAN DEFAULT TRUE,
     is_inherited BOOLEAN DEFAULT FALSE,
@@ -95,7 +95,7 @@ CREATE TABLE role_assignment (
     conditions JSON,
     ip_restrictions JSON,
     time_restrictions JSON,
-    
+
     -- Assignment metadata
     reason TEXT,
     assigned_by_id UUID NOT NULL REFERENCES user(id),
@@ -103,9 +103,9 @@ CREATE TABLE role_assignment (
     approval_date TIMESTAMP WITH TIME ZONE,
     assigned_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    
+
     CONSTRAINT unique_role_assignment UNIQUE (
-        role_id, user_id, workspace_id, project_id, 
+        role_id, user_id, workspace_id, project_id,
         environment_id, flow_id, component_id
     )
 );
@@ -139,7 +139,7 @@ The system includes 30+ predefined permissions covering:
 
 **Predefined Roles:**
 - **Super Admin**: Full system access (priority: 1000)
-- **Workspace Owner**: Full workspace control (priority: 950) 
+- **Workspace Owner**: Full workspace control (priority: 950)
 - **Workspace Admin**: Workspace administration (priority: 900)
 - **Project Admin**: Project administration (priority: 800)
 - **Developer**: Create, edit, deploy flows (priority: 600)
@@ -301,7 +301,7 @@ Workspace (tenant isolation)
 
 **Inheritance Rules:**
 - Workspace permissions apply to all projects within workspace
-- Project permissions apply to all environments and flows within project  
+- Project permissions apply to all environments and flows within project
 - Environment permissions apply to all flows within environment
 - Explicit denials override inherited permissions
 
@@ -427,7 +427,7 @@ curl -X POST http://localhost:8000/api/v1/rbac/roles/initialize-system-roles \
 
 ### Permission Engine Performance:
 - **Cold Permissions**: <100ms p95 latency
-- **Cached Permissions**: <10ms p95 latency  
+- **Cached Permissions**: <10ms p95 latency
 - **Bulk Checks**: 50+ permissions in <200ms
 - **Cache Hit Rate**: >90% in typical workloads
 
@@ -450,7 +450,7 @@ curl -X POST http://localhost:8000/api/v1/rbac/roles/initialize-system-roles \
 ```python
 # New RBAC relationships added to User model
 owned_workspaces: list[Workspace]
-owned_projects: list[Project] 
+owned_projects: list[Project]
 owned_environments: list[Environment]
 created_roles: list[Role]
 role_assignments: list[RoleAssignment]
@@ -462,7 +462,7 @@ group_memberships: list[UserGroupMembership]
 # New RBAC relationships added to Flow model
 project_id: UUID | None
 project: Project | None
-environment_id: UUID | None  
+environment_id: UUID | None
 environment: Environment | None
 role_assignments: list[RoleAssignment]
 ```

@@ -1,7 +1,7 @@
 """Test configuration and fixtures for RBAC API tests."""
 
 import asyncio
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from uuid import uuid4
 
 import pytest
@@ -9,10 +9,10 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.services.database.models.user.model import User
-from langflow.services.database.models.rbac.workspace import Workspace
 from langflow.services.database.models.rbac.project import Project
 from langflow.services.database.models.rbac.role import Role
+from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.database.models.user.model import User
 from langflow.services.rbac.permission_engine import PermissionEngine
 
 
@@ -30,7 +30,9 @@ async def async_session() -> AsyncGenerator[AsyncSession, None]:
     # This would typically connect to a test database
     # For now, this is a placeholder that would need proper implementation
     # with database setup and teardown
-    pass
+
+    # Placeholder implementation
+    yield None  # type: ignore
 
 
 @pytest.fixture
@@ -111,7 +113,6 @@ def client() -> TestClient:
     """Create a test client."""
     # This would need to be implemented with proper app setup
     # For now, this is a placeholder
-    pass
 
 
 # Test data constants

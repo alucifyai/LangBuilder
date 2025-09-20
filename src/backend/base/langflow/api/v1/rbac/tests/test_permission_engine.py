@@ -1,12 +1,13 @@
 """Tests for the RBAC permission engine."""
 
-import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import uuid4
 
-from langflow.services.rbac.permission_engine import PermissionEngine, PermissionResult
-from langflow.services.database.models.user.model import User
+import pytest
+
 from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.database.models.user.model import User
+from langflow.services.rbac.permission_engine import PermissionResult
 
 
 class TestPermissionEngine:
@@ -122,10 +123,10 @@ class TestPermissionEngine:
     async def test_cache_invalidation(self, permission_engine, async_session):
         """Test that cache invalidation works correctly."""
         user_id = uuid4()
-        
+
         # Invalidate user cache
         await permission_engine.invalidate_user_cache(user_id)
-        
+
         # Invalidate resource cache
         resource_id = uuid4()
         await permission_engine.invalidate_resource_cache("workspace", resource_id)
@@ -137,7 +138,6 @@ class TestPermissionEngine:
         """Test that hierarchical permissions work correctly."""
         # This would test workspace -> project -> environment -> flow hierarchy
         # For now, it's a placeholder
-        pass
 
     async def test_permission_result_structure(self, permission_engine, async_session):
         """Test that PermissionResult has correct structure."""
@@ -229,7 +229,7 @@ class TestPermissionEnginePerformance:
     async def test_permission_check_latency(self, permission_engine, async_session):
         """Test that permission checks meet latency requirements (<100ms p95)."""
         import time
-        
+
         user = User(
             id=uuid4(),
             username="testuser",
@@ -242,7 +242,7 @@ class TestPermissionEnginePerformance:
         latencies = []
         for _ in range(100):
             start_time = time.perf_counter()
-            
+
             await permission_engine.check_permission(
                 session=async_session,
                 user=user,
@@ -250,14 +250,14 @@ class TestPermissionEnginePerformance:
                 action="read",
                 resource_id=uuid4(),
             )
-            
+
             end_time = time.perf_counter()
             latencies.append((end_time - start_time) * 1000)  # Convert to ms
 
         # Calculate p95 latency
         latencies.sort()
         p95_latency = latencies[int(0.95 * len(latencies))]
-        
+
         # Should be under 100ms for p95
         assert p95_latency < 100, f"P95 latency {p95_latency}ms exceeds 100ms requirement"
 

@@ -1,0 +1,605 @@
+apiVersion: langflow.org/v1
+kind: RBACPolicy
+metadata:
+  name: production-enterprise-rbac
+  workspace: production
+  description: Enterprise-grade RBAC configuration for production workspace
+  labels:
+    environment: production
+    template: enterprise
+    compliance: soc2
+    team: platform
+  annotations:
+    created-by: security-team
+    last-reviewed: "2024-01-20"
+    compliance-reviewed: "2024-01-15"
+    security-approved: "true"
+spec:
+  # Comprehensive permissions for enterprise environment
+  permissions:
+    # Flow permissions
+    - name: flow:read
+      description: Read flows and their configurations
+      resourceType: flow
+      action: read
+      conditions:
+        ip_restrictions: ["10.0.0.0/8", "172.16.0.0/12"]
+      metadata:
+        sensitivity: low
+        compliance: required
+
+    - name: flow:write
+      description: Create and modify flows
+      resourceType: flow
+      action: write
+      conditions:
+        requires_approval: true
+        approval_threshold: 2
+      metadata:
+        sensitivity: medium
+        compliance: required
+
+    - name: flow:execute
+      description: Execute flows in controlled environment
+      resourceType: flow
+      action: execute
+      conditions:
+        audit_required: true
+        resource_limits:
+          max_cpu: "2000m"
+          max_memory: "4Gi"
+      metadata:
+        sensitivity: medium
+        compliance: required
+
+    - name: flow:deploy
+      description: Deploy flows to production
+      resourceType: flow
+      action: deploy
+      conditions:
+        requires_approval: true
+        approval_threshold: 3
+        break_glass_eligible: false
+      metadata:
+        sensitivity: high
+        compliance: critical
+
+    - name: flow:audit
+      description: Access flow execution audit logs
+      resourceType: flow
+      action: audit
+      metadata:
+        sensitivity: high
+        compliance: required
+
+    # Project permissions
+    - name: project:read
+      description: Read project information and settings
+      resourceType: project
+      action: read
+      metadata:
+        sensitivity: low
+
+    - name: project:write
+      description: Modify project settings and configuration
+      resourceType: project
+      action: write
+      conditions:
+        requires_approval: true
+      metadata:
+        sensitivity: medium
+
+    - name: project:admin
+      description: Full project administration
+      resourceType: project
+      action: admin
+      conditions:
+        requires_approval: true
+        approval_threshold: 2
+      metadata:
+        sensitivity: high
+
+    # Environment permissions
+    - name: environment:read
+      description: Read environment configurations
+      resourceType: environment
+      action: read
+      metadata:
+        sensitivity: low
+
+    - name: environment:write
+      description: Modify environment settings
+      resourceType: environment
+      action: write
+      conditions:
+        requires_approval: true
+      metadata:
+        sensitivity: high
+
+    # Data and security permissions
+    - name: data:read
+      description: Read data sources and datasets
+      resourceType: data
+      action: read
+      conditions:
+        data_classification: ["public", "internal"]
+      metadata:
+        sensitivity: medium
+        compliance: required
+
+    - name: data:write
+      description: Modify data sources
+      resourceType: data
+      action: write
+      conditions:
+        requires_approval: true
+        data_classification: ["internal"]
+      metadata:
+        sensitivity: high
+        compliance: critical
+
+    - name: secrets:read
+      description: Read secrets and credentials
+      resourceType: secrets
+      action: read
+      conditions:
+        requires_approval: true
+        audit_required: true
+      metadata:
+        sensitivity: critical
+        compliance: critical
+
+    - name: audit:read
+      description: Read audit logs and compliance reports
+      resourceType: audit
+      action: read
+      metadata:
+        sensitivity: high
+        compliance: required
+
+    - name: workspace:admin
+      description: Full workspace administration
+      resourceType: workspace
+      action: admin
+      conditions:
+        requires_approval: true
+        approval_threshold: 3
+        break_glass_eligible: true
+      metadata:
+        sensitivity: critical
+        compliance: critical
+
+  # Enterprise role hierarchy
+  roles:
+    - name: guest
+      description: Limited read-only access for external stakeholders
+      type: custom
+      permissions:
+        - flow:read
+        - project:read
+      priority: 50
+      metadata:
+        level: guest
+        max_session_duration: 2h
+        requires_sponsor: true
+      tags:
+        - external
+        - limited
+        - temporary
+
+    - name: analyst
+      description: Data analysts with read access to flows and data
+      type: custom
+      permissions:
+        - flow:read
+        - flow:execute
+        - project:read
+        - environment:read
+        - data:read
+      priority: 100
+      metadata:
+        level: analyst
+        department: analytics
+        data_access: internal
+      tags:
+        - analytics
+        - data-access
+        - standard
+
+    - name: developer
+      description: Developers who can create and modify flows
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - project:read
+        - environment:read
+        - data:read
+      priority: 200
+      metadata:
+        level: developer
+        department: engineering
+        approval_required: true
+      tags:
+        - development
+        - engineering
+        - approved
+
+    - name: senior-developer
+      description: Senior developers with additional project access
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - flow:audit
+        - project:read
+        - project:write
+        - environment:read
+        - data:read
+        - data:write
+      priority: 250
+      metadata:
+        level: senior
+        department: engineering
+        mentorship: true
+      tags:
+        - senior
+        - engineering
+        - mentor
+
+    - name: lead
+      description: Team leads with deployment and project management access
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - flow:deploy
+        - flow:audit
+        - project:read
+        - project:write
+        - environment:read
+        - environment:write
+        - data:read
+        - data:write
+      priority: 300
+      metadata:
+        level: lead
+        department: engineering
+        team_size: 5-10
+      tags:
+        - leadership
+        - deployment
+        - management
+
+    - name: security-officer
+      description: Security officers with audit and compliance access
+      type: custom
+      permissions:
+        - flow:read
+        - flow:audit
+        - project:read
+        - environment:read
+        - data:read
+        - secrets:read
+        - audit:read
+      priority: 350
+      metadata:
+        level: security
+        department: security
+        clearance: high
+      tags:
+        - security
+        - compliance
+        - audit
+
+    - name: manager
+      description: Engineering managers with broad operational access
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - flow:deploy
+        - flow:audit
+        - project:read
+        - project:write
+        - project:admin
+        - environment:read
+        - environment:write
+        - data:read
+        - data:write
+        - audit:read
+      priority: 400
+      metadata:
+        level: manager
+        department: engineering
+        team_size: 10-25
+      tags:
+        - management
+        - operations
+        - strategic
+
+    - name: admin
+      description: System administrators with full workspace access
+      type: custom
+      permissions:
+        - flow:read
+        - flow:write
+        - flow:execute
+        - flow:deploy
+        - flow:audit
+        - project:read
+        - project:write
+        - project:admin
+        - environment:read
+        - environment:write
+        - data:read
+        - data:write
+        - secrets:read
+        - audit:read
+        - workspace:admin
+      priority: 500
+      metadata:
+        level: admin
+        department: infrastructure
+        break_glass: true
+      tags:
+        - administration
+        - infrastructure
+        - emergency
+
+  # Enterprise user groups with departmental organization
+  groups:
+    - name: data-science-team
+      description: Core data science team
+      type: team
+      members:
+        - alice.smith@company.com
+        - bob.johnson@company.com
+        - carol.davis@company.com
+      autoAssignRoles:
+        - analyst
+      membershipRules:
+        department: "data-science"
+        clearance_level: "confidential"
+      maxMembers: 15
+      metadata:
+        department: data-science
+        manager: alice.smith@company.com
+        budget_code: DS-2024
+      tags:
+        - data-science
+        - analytics
+        - research
+
+    - name: ml-engineering-team
+      description: Machine learning engineering team
+      type: team
+      members:
+        - david.wilson@company.com
+        - eva.brown@company.com
+        - frank.miller@company.com
+      autoAssignRoles:
+        - developer
+      membershipRules:
+        department: "ml-engineering"
+        certification: "ml-engineer"
+      maxMembers: 12
+      metadata:
+        department: ml-engineering
+        manager: david.wilson@company.com
+        budget_code: MLE-2024
+      tags:
+        - ml-engineering
+        - production
+        - deployment
+
+    - name: platform-team
+      description: Platform and infrastructure team
+      type: team
+      members:
+        - grace.taylor@company.com
+        - henry.anderson@company.com
+      autoAssignRoles:
+        - lead
+      membershipRules:
+        department: "platform"
+        clearance_level: "secret"
+      maxMembers: 8
+      metadata:
+        department: platform
+        manager: grace.taylor@company.com
+        budget_code: PLAT-2024
+        oncall_rotation: true
+      tags:
+        - platform
+        - infrastructure
+        - oncall
+
+    - name: security-team
+      description: Security and compliance team
+      type: team
+      members:
+        - irene.clark@company.com
+        - jack.lewis@company.com
+      autoAssignRoles:
+        - security-officer
+      membershipRules:
+        department: "security"
+        clearance_level: "top-secret"
+        background_check: "complete"
+      maxMembers: 5
+      metadata:
+        department: security
+        manager: irene.clark@company.com
+        budget_code: SEC-2024
+        compliance_officer: true
+      tags:
+        - security
+        - compliance
+        - governance
+
+    - name: executive-team
+      description: Executive and senior leadership
+      type: team
+      members:
+        - ceo@company.com
+        - cto@company.com
+        - cso@company.com
+      autoAssignRoles:
+        - manager
+      membershipRules:
+        executive_level: "c-suite"
+        board_approval: true
+      maxMembers: 10
+      metadata:
+        department: executive
+        governance: true
+        strategic_access: true
+      tags:
+        - executive
+        - leadership
+        - strategic
+
+  # Enterprise role assignments with governance
+  assignments:
+    # Executive assignments
+    - user: ceo@company.com
+      roles:
+        - admin
+      scopeType: workspace
+      metadata:
+        reason: chief-executive-officer
+        approved_by: board-of-directors
+        review_cycle: annual
+
+    - user: cto@company.com
+      roles:
+        - admin
+      scopeType: workspace
+      metadata:
+        reason: chief-technology-officer
+        approved_by: ceo@company.com
+        review_cycle: annual
+
+    - user: cso@company.com
+      roles:
+        - security-officer
+        - manager
+      scopeType: workspace
+      metadata:
+        reason: chief-security-officer
+        approved_by: ceo@company.com
+        review_cycle: annual
+
+    # Department head assignments
+    - user: alice.smith@company.com
+      roles:
+        - manager
+      scopeType: workspace
+      metadata:
+        reason: data-science-director
+        approved_by: cto@company.com
+        review_cycle: annual
+
+    - user: grace.taylor@company.com
+      roles:
+        - lead
+        - admin
+      scopeType: workspace
+      metadata:
+        reason: platform-director
+        approved_by: cto@company.com
+        review_cycle: annual
+
+    - user: irene.clark@company.com
+      roles:
+        - security-officer
+        - manager
+      scopeType: workspace
+      metadata:
+        reason: security-director
+        approved_by: cso@company.com
+        review_cycle: annual
+
+    # Team lead assignments
+    - user: david.wilson@company.com
+      roles:
+        - lead
+      scopeType: workspace
+      metadata:
+        reason: ml-engineering-lead
+        approved_by: alice.smith@company.com
+        review_cycle: annual
+
+    # Group-based assignments
+    - group: data-science-team
+      roles:
+        - analyst
+      scopeType: workspace
+      metadata:
+        reason: department-membership
+        approved_by: alice.smith@company.com
+        review_cycle: quarterly
+
+    - group: ml-engineering-team
+      roles:
+        - developer
+      scopeType: workspace
+      metadata:
+        reason: department-membership
+        approved_by: david.wilson@company.com
+        review_cycle: quarterly
+
+    - group: platform-team
+      roles:
+        - lead
+      scopeType: workspace
+      metadata:
+        reason: infrastructure-access
+        approved_by: grace.taylor@company.com
+        review_cycle: quarterly
+
+    - group: security-team
+      roles:
+        - security-officer
+      scopeType: workspace
+      metadata:
+        reason: security-governance
+        approved_by: irene.clark@company.com
+        review_cycle: monthly
+
+    # Temporary contractor access
+    - user: contractor.external@vendor.com
+      roles:
+        - guest
+      scopeType: workspace
+      expiresAt: "2024-06-30T23:59:59Z"
+      conditions:
+        sponsor: grace.taylor@company.com
+        daily_checkin: true
+        vpn_required: true
+      metadata:
+        reason: infrastructure-consulting
+        vendor: "TechConsult Inc"
+        contract_number: "TC-2024-001"
+        approved_by: grace.taylor@company.com
+
+    # Audit and compliance access
+    - user: external.auditor@auditfirm.com
+      roles:
+        - security-officer
+      scopeType: workspace
+      expiresAt: "2024-03-31T23:59:59Z"
+      conditions:
+        audit_engagement: "SOC2-2024"
+        supervised_access: true
+        data_export_forbidden: true
+      metadata:
+        reason: compliance-audit
+        audit_firm: "ComplianceAuditors LLC"
+        engagement: "SOC2-2024"
+        approved_by: irene.clark@company.com

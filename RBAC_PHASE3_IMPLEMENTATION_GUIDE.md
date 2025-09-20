@@ -3,9 +3,9 @@
 
 ---
 
-**Version**: 1.0.0  
-**Date**: September 17, 2024  
-**Target Audience**: Developers, DevOps Engineers, System Administrators  
+**Version**: 1.0.0
+**Date**: September 17, 2024
+**Target Audience**: Developers, DevOps Engineers, System Administrators
 **Prerequisites**: RBAC Phase 1 (Data Models) and Phase 2 (API Layer) completed
 
 ---
@@ -60,34 +60,34 @@ graph TB
         ROLE[RoleService]
         ENGINE[PermissionEngine]
     end
-    
+
     subgraph "Phase 2 API Layer"
         API[FastAPI Routers]
         DEPS[Dependencies]
     end
-    
+
     subgraph "Phase 1 Data Layer"
         MODELS[SQLModel Entities]
         DB[(PostgreSQL)]
     end
-    
+
     subgraph "External Systems"
         IDP[Identity Providers]
         SCIM_SYS[SCIM Systems]
         CACHE[(Redis Cache)]
     end
-    
+
     RBAC --> ENGINE
     RBAC --> AUDIT
     RBAC --> ROLE
     SSO --> IDP
     SCIM --> SCIM_SYS
     ENGINE --> CACHE
-    
+
     API --> RBAC
     API --> SSO
     API --> SCIM
-    
+
     RBAC --> MODELS
     SSO --> MODELS
     SCIM --> MODELS
@@ -109,7 +109,7 @@ graph TB
 
 ## 🔧 **CORE SERVICES**
 
-### **1. RBACService** 
+### **1. RBACService**
 *Primary business logic for access control*
 
 ```python
@@ -179,7 +179,7 @@ user = await sso_service.provision_user_from_sso(
 
 **Supported Protocols:**
 - 🔐 **OIDC (OpenID Connect)** - Google, Microsoft, Okta
-- 🔐 **OAuth2** - GitHub, GitLab, custom providers  
+- 🔐 **OAuth2** - GitHub, GitLab, custom providers
 - 🔐 **SAML2** - Enterprise identity providers (interface ready)
 
 ### **3. SCIMService**
@@ -389,7 +389,7 @@ CREATE TABLE sso_configuration (
     created_by_id VARCHAR(32) REFERENCES user(id)
 );
 
--- SCIM Configuration  
+-- SCIM Configuration
 CREATE TABLE scim_configuration (
     id VARCHAR(32) PRIMARY KEY,
     provider_name VARCHAR(255) NOT NULL,
@@ -509,7 +509,7 @@ The services are automatically registered through the LangBuilder service factor
 class RBACServiceFactory(ServiceFactory):
     def __init__(self):
         super().__init__(RBACService)
-    
+
     def create(self, cache_service: "CacheService" = None):
         return RBACService(cache_service=cache_service)
 ```
@@ -759,7 +759,7 @@ groups:
           severity: warning
         annotations:
           summary: "RBAC permission evaluation latency is high"
-          
+
       - alert: LowCacheHitRatio
         expr: rbac_cache_hit_ratio < 0.8
         for: 10m
@@ -767,7 +767,7 @@ groups:
           severity: warning
         annotations:
           summary: "RBAC cache hit ratio is below threshold"
-          
+
       - alert: SSOFailureRate
         expr: rate(rbac_sso_failures_total[5m]) > 0.05
         for: 2m
@@ -891,7 +891,7 @@ async def validate_break_glass_access(
     # Validate justification length
     if len(justification.strip()) < 50:
         raise ValueError("Break-glass access requires detailed justification (minimum 50 characters)")
-    
+
     # Check user's break-glass permissions
     has_permission = await self.evaluate_permission(
         session=session,
@@ -899,10 +899,10 @@ async def validate_break_glass_access(
         resource_type="system",
         action="break_glass_access"
     )
-    
+
     if not has_permission.allowed:
         raise PermissionError("User does not have break-glass access permissions")
-    
+
     # Log break-glass request
     await self._log_break_glass_access(
         session=session,
@@ -911,7 +911,7 @@ async def validate_break_glass_access(
         target_resource_type=target_resource_type,
         target_resource_id=target_resource_id
     )
-    
+
     return True
 ```
 
@@ -944,7 +944,7 @@ graph TB
         L2[L2: Redis Cache<br/>30ms lookup]
         L3[L3: Database<br/>100ms lookup]
     end
-    
+
     REQUEST[Permission Request] --> L1
     L1 -->|Cache Miss| L2
     L2 -->|Cache Miss| L3
@@ -963,7 +963,7 @@ PERMISSION_CACHE_CONFIG = {
         "ttl_seconds": 300,  # 5 minutes
         "cleanup_interval": 60  # Cleanup every minute
     },
-    
+
     # Redis cache settings
     "redis_cache": {
         "host": "localhost",
@@ -973,7 +973,7 @@ PERMISSION_CACHE_CONFIG = {
         "ttl_seconds": 900,  # 15 minutes
         "key_prefix": "rbac:perm:"
     },
-    
+
     # Cache invalidation strategy
     "invalidation": {
         "on_role_change": True,
@@ -990,20 +990,20 @@ PERMISSION_CACHE_CONFIG = {
 
 ```sql
 -- Performance-critical indexes
-CREATE INDEX CONCURRENTLY idx_rbac_audit_log_composite 
+CREATE INDEX CONCURRENTLY idx_rbac_audit_log_composite
 ON rbac_audit_log(actor_id, created_at, event_category);
 
-CREATE INDEX CONCURRENTLY idx_role_assignment_user_scope 
-ON role_assignment(user_id, scope_type, scope_id) 
+CREATE INDEX CONCURRENTLY idx_role_assignment_user_scope
+ON role_assignment(user_id, scope_type, scope_id)
 WHERE is_active = true;
 
-CREATE INDEX CONCURRENTLY idx_permission_resource_action 
-ON permission(resource_type, action) 
+CREATE INDEX CONCURRENTLY idx_permission_resource_action
+ON permission(resource_type, action)
 WHERE is_active = true;
 
 -- Partial indexes for common queries
-CREATE INDEX CONCURRENTLY idx_sso_session_active 
-ON sso_session(user_id, expires_at) 
+CREATE INDEX CONCURRENTLY idx_sso_session_active
+ON sso_session(user_id, expires_at)
 WHERE status = 'active';
 ```
 
@@ -1012,13 +1012,13 @@ WHERE status = 'active';
 ```python
 # Optimized batch permission query
 async def batch_get_user_permissions(
-    self, 
-    session: AsyncSession, 
-    user_id: str, 
+    self,
+    session: AsyncSession,
+    user_id: str,
     resource_requests: List[Dict]
 ) -> List[PermissionResult]:
     """Optimized batch permission retrieval with single query."""
-    
+
     # Single query to get all user roles and permissions
     query = select(
         RoleAssignment.scope_type,
@@ -1038,10 +1038,10 @@ async def batch_get_user_permissions(
         Role.is_active == True,
         RolePermission.is_granted == True
     )
-    
+
     result = await session.exec(query)
     permissions_data = result.all()
-    
+
     # Process results efficiently
     return self._process_batch_permissions(permissions_data, resource_requests)
 ```
@@ -1058,20 +1058,20 @@ async def batch_evaluate_permissions(
     permission_requests: List[Dict[str, Any]]
 ) -> List[PermissionResult]:
     """Optimized batch permission evaluation."""
-    
+
     # Group requests by cache availability
     cached_results = []
     uncached_requests = []
-    
+
     for request in permission_requests:
         cache_key = self._generate_cache_key(user.id, request)
         cached_result = await self._get_cached_result(cache_key)
-        
+
         if cached_result:
             cached_results.append(cached_result)
         else:
             uncached_requests.append(request)
-    
+
     # Process uncached requests in parallel
     if uncached_requests:
         tasks = [
@@ -1079,12 +1079,12 @@ async def batch_evaluate_permissions(
             for request in uncached_requests
         ]
         uncached_results = await asyncio.gather(*tasks)
-        
+
         # Cache results asynchronously
         asyncio.create_task(self._batch_cache_results(uncached_results))
     else:
         uncached_results = []
-    
+
     return cached_results + uncached_results
 ```
 
@@ -1168,32 +1168,32 @@ curl -X POST "http://localhost:7860/api/v1/rbac/scim/users/test-provision" \
 **Problem**: Slow audit log queries
 ```sql
 -- Check table sizes
-SELECT 
+SELECT
     schemaname,
     tablename,
     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
-WHERE tablename LIKE '%audit%' 
+FROM pg_tables
+WHERE tablename LIKE '%audit%'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
 -- Check index usage
-SELECT 
+SELECT
     schemaname,
     tablename,
     indexname,
     idx_scan,
     idx_tup_read,
     idx_tup_fetch
-FROM pg_stat_user_indexes 
+FROM pg_stat_user_indexes
 WHERE tablename = 'rbac_audit_log'
 ORDER BY idx_scan DESC;
 
 -- Optimize slow queries
-EXPLAIN ANALYZE 
-SELECT * FROM rbac_audit_log 
-WHERE actor_id = 'user-123' 
-    AND created_at >= '2024-09-01'::timestamp 
-ORDER BY created_at DESC 
+EXPLAIN ANALYZE
+SELECT * FROM rbac_audit_log
+WHERE actor_id = 'user-123'
+    AND created_at >= '2024-09-01'::timestamp
+ORDER BY created_at DESC
 LIMIT 100;
 ```
 
@@ -1211,10 +1211,10 @@ from datetime import datetime
 
 async def check_rbac_health():
     """Comprehensive RBAC health check."""
-    
+
     base_url = "http://localhost:7860"
     results = {}
-    
+
     async with httpx.AsyncClient() as client:
         # 1. Basic health check
         try:
@@ -1222,7 +1222,7 @@ async def check_rbac_health():
             results["health"] = response.json() if response.status_code == 200 else "FAILED"
         except Exception as e:
             results["health"] = f"ERROR: {e}"
-        
+
         # 2. Permission evaluation test
         try:
             response = await client.post(
@@ -1232,28 +1232,28 @@ async def check_rbac_health():
             results["permission_evaluation"] = "OK" if response.status_code == 200 else "FAILED"
         except Exception as e:
             results["permission_evaluation"] = f"ERROR: {e}"
-        
+
         # 3. Cache connectivity
         try:
             response = await client.get(f"{base_url}/api/v1/rbac/cache/stats")
             results["cache"] = "OK" if response.status_code == 200 else "FAILED"
         except Exception as e:
             results["cache"] = f"ERROR: {e}"
-        
+
         # 4. Database connectivity
         try:
             response = await client.get(f"{base_url}/api/v1/rbac/database/health")
             results["database"] = "OK" if response.status_code == 200 else "FAILED"
         except Exception as e:
             results["database"] = f"ERROR: {e}"
-    
+
     # Print results
     print(f"RBAC Health Check - {datetime.now()}")
     print("=" * 50)
     for component, status in results.items():
         emoji = "✅" if status == "OK" else "❌"
         print(f"{emoji} {component.upper()}: {status}")
-    
+
     return all(status == "OK" for status in results.values())
 
 if __name__ == "__main__":
@@ -1271,7 +1271,7 @@ tail -f /var/log/langflow/rbac_service.log | grep -E "(ERROR|WARN)"
 grep "permission_evaluation" /var/log/langflow/rbac_service.log | \
   awk '{print $NF}' | \
   sort -n | \
-  awk 'BEGIN{sum=0; count=0} {sum+=$1; count++; values[count]=$1} 
+  awk 'BEGIN{sum=0; count=0} {sum+=$1; count++; values[count]=$1}
        END{
          print "Count:", count
          print "Average:", sum/count "ms"

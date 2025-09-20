@@ -4,35 +4,49 @@
 # from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import select, func
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlmodel import apaginate
+from loguru import logger
+from sqlmodel import func, select
 
-from langflow.api.utils import CurrentActiveUser, DbSession
-from langflow.services.rbac.permission_engine import PermissionEngine
+from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
 from langflow.api.v1.rbac.dependencies import (
-    check_role_permission,
-    check_workspace_permission,
-    get_workspace_by_id,
+    create_audit_context,
+    get_audit_service,
     get_permission_engine,
 )
+from langflow.api.v1.rbac.security_middleware import (
+    ROLE_READ_SECURITY,
+    ROLE_VALIDATION,
+    ROLE_WRITE_SECURITY,
+    SecurityRequirement,
+    ValidationRequirement,
+    get_authenticated_user,
+    secure_endpoint,
+)
+from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
 from langflow.schema.serialize import UUIDstr
+from langflow.services.database.models.rbac.permission import (
+    Permission,
+    PermissionRead,
+    RolePermissionCreate,
+    RolePermissionRead,
+)
 from langflow.services.database.models.rbac.role import (
     Role,
     RoleCreate,
     RoleRead,
     RoleUpdate,
-    RoleType,
 )
-from langflow.services.database.models.rbac.permission import (
-    Permission,
-    PermissionRead,
-)
+from langflow.services.rbac.audit_service import AuditService
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
+    pass
 
 router = APIRouter(
     prefix="/roles",
@@ -47,14 +61,21 @@ router = APIRouter(
 
 
 @router.post("/", response_model=RoleRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=ROLE_WRITE_SECURITY,
+    validation_req=ROLE_VALIDATION,
+    audit_enabled=True,
+)
 async def create_role(
     role_data: RoleCreate,
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine),
+    audit_service: AuditService = Depends(get_audit_service),
 ) -> RoleRead:
     """Create a new role."""
-
     # Validate workspace if specified
     workspace = None
     if role_data.workspace_id:
@@ -80,13 +101,12 @@ async def create_role(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Insufficient permissions to create roles in this workspace: {result.reason}"
             )
-    else:
-        # System-level role creation requires superuser
-        if not current_user.is_superuser:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only superusers can create system-level roles"
-            )
+    # System-level role creation requires superuser
+    elif not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only superusers can create system-level roles"
+        )
 
     # Check if role name already exists in workspace/system
     statement = select(Role).where(
@@ -130,26 +150,52 @@ async def create_role(
     await session.commit()
     await session.refresh(role)
 
-    # TODO: Log audit event
+    # Log audit event
+    try:
+        context = create_audit_context(
+            workspace_id=role.workspace_id,
+            additional_data={"role_name": role.name, "role_type": role.type}
+        )
+        await audit_service.log_role_management_event(
+            session=session,
+            actor=current_user,
+            action="create_role",
+            target_user_id=None,
+            role_id=role.id,
+            context=context,
+            details={"role_name": role.name, "role_type": role.type, "workspace_id": str(role.workspace_id) if role.workspace_id else None}
+        )
+    except Exception as e:
+        logger.error(f"Failed to log role creation audit event: {e}")
 
     return RoleRead.model_validate(role)
 
 
 @router.get("/", response_model=list[RoleRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_roles(
     session: DbSession,
     current_user: CurrentActiveUser,
+    params: Annotated[Params | None, Depends(custom_params)],
     permission_engine: PermissionEngine = Depends(get_permission_engine),
     workspace_id: UUIDstr | None = Query(None),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
     search: str | None = None,
     type: str | None = None,  # noqa: A002
     is_system: bool | None = None,
     is_active: bool | None = None,
 ) -> list[RoleRead]:
     """List roles accessible to current user."""
-
     statement = select(Role)
 
     # Filter by workspace if specified
@@ -178,29 +224,28 @@ async def list_roles(
             )
 
         statement = statement.where(Role.workspace_id == workspace_id)
+    # Filter by user's accessible workspaces + system roles
+    elif current_user.is_superuser:
+        # Superusers can see all roles
+        pass
     else:
-        # Filter by user's accessible workspaces + system roles
-        if current_user.is_superuser:
-            # Superusers can see all roles
-            pass
-        else:
-            # Regular users can see roles in their workspaces + system roles
-            accessible_workspace_subquery = select(Workspace.id).where(
-                Workspace.owner_id == current_user.id,
-                Workspace.is_deleted == False
-            )
+        # Regular users can see roles in their workspaces + system roles
+        accessible_workspace_subquery = select(Workspace.id).where(
+            Workspace.owner_id == current_user.id,
+            Workspace.is_deleted == False
+        )
 
-            statement = statement.where(
-                (Role.workspace_id.in_(accessible_workspace_subquery)) |
-                (Role.workspace_id.is_(None))  # System roles
-            )
+        statement = statement.where(
+            (Role.workspace_id.in_(accessible_workspace_subquery)) |
+            (Role.workspace_id.is_(None))  # System roles
+        )
 
     # Apply additional filters
     if search:
-        statement = statement.where(
-            (Role.name.ilike(f"%{search}%")) |
-            (Role.description.ilike(f"%{search}%"))
-        )
+        search_condition = Role.name.ilike(f"%{search}%")
+        if Role.description is not None:
+            search_condition = search_condition | Role.description.ilike(f"%{search}%")
+        statement = statement.where(search_condition)
 
     if type:
         statement = statement.where(Role.type == type)
@@ -211,16 +256,34 @@ async def list_roles(
     if is_active is not None:
         statement = statement.where(Role.is_active == is_active)
 
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-
-    result = await session.exec(statement)
-    roles = result.all()
-
-    return [RoleRead.model_validate(role) for role in roles]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [RoleRead.model_validate(role) for role in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        roles = result.all()
+        return [RoleRead.model_validate(role) for role in roles]
 
 
 @router.get("/{role_id}", response_model=RoleRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_role(
     role_id: UUIDstr,
     session: DbSession,
@@ -256,14 +319,27 @@ async def get_role(
 
 
 @router.put("/{role_id}", response_model=RoleRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def update_role(
     role_id: UUIDstr,
     role_data: "RoleUpdate",
     session: DbSession,
     current_user: CurrentActiveUser,
+    audit_service: AuditService = Depends(get_audit_service),
 ) -> "RoleRead":
     """Update role."""
-    from langflow.services.database.models.rbac.role import Role, RoleRead, RoleUpdate
+    from langflow.services.database.models.rbac.role import Role, RoleRead
 
     role = await session.get(Role, role_id)
     if not role or not role.is_active:
@@ -321,16 +397,45 @@ async def update_role(
     await session.commit()
     await session.refresh(role)
 
-    # TODO: Log audit event
+    # Log audit event
+    try:
+        context = create_audit_context(
+            workspace_id=role.workspace_id,
+            additional_data={"role_name": role.name, "updated_fields": list(role_data.model_dump(exclude_unset=True).keys())}
+        )
+        await audit_service.log_role_management_event(
+            session=session,
+            actor=current_user,
+            action="update_role",
+            target_user_id=None,
+            role_id=role.id,
+            context=context,
+            details={"role_name": role.name, "updated_fields": list(role_data.model_dump(exclude_unset=True).keys())}
+        )
+    except Exception as e:
+        logger.error(f"Failed to log role update audit event: {e}")
 
     return RoleRead.model_validate(role)
 
 
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def delete_role(
     role_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
+    audit_service: AuditService = Depends(get_audit_service),
 ):
     """Delete role (deactivate)."""
     from langflow.services.database.models.rbac.role import Role
@@ -384,18 +489,46 @@ async def delete_role(
     role.updated_at = datetime.now(timezone.utc)
     await session.commit()
 
-    # TODO: Log audit event
+    # Log audit event
+    try:
+        context = create_audit_context(
+            workspace_id=role.workspace_id,
+            additional_data={"role_name": role.name}
+        )
+        await audit_service.log_role_management_event(
+            session=session,
+            actor=current_user,
+            action="delete_role",
+            target_user_id=None,
+            role_id=role.id,
+            context=context,
+            details={"role_name": role.name, "deletion_type": "deactivate"}
+        )
+    except Exception as e:
+        logger.error(f"Failed to log role deletion audit event: {e}")
 
 
 @router.get("/{role_id}/permissions", response_model=list[PermissionRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_role_permissions(
     role_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> list["PermissionRead"]:
     """List permissions assigned to role."""
+    from langflow.services.database.models.rbac.permission import PermissionRead, RolePermission
     from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.permission import Permission, PermissionRead, RolePermission
 
     role = await session.get(Role, role_id)
     if not role or not role.is_active:
@@ -425,42 +558,56 @@ async def list_role_permissions(
     return permissions
 
 
-@router.post("/{role_id}/permissions", status_code=status.HTTP_201_CREATED)
+@router.post("/{role_id}/permissions", response_model=RolePermissionRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def assign_permission_to_role(
     role_id: UUIDstr,
-    permission_data: dict,
+    permission_data: RolePermissionCreate,
     session: DbSession,
     current_user: CurrentActiveUser,
-) -> dict:
-    """Assign permission to role."""
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
+    audit_service: AuditService = Depends(get_audit_service),
+) -> RolePermissionRead:
+    """Assign permission to role with RBAC security and standardized workflow."""
+    from langflow.services.database.models.rbac.permission import RolePermission
     from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.permission import Permission, RolePermission
 
+    # Check permission to assign permissions to roles
+    permission_check = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="role",
+        action="update",
+        resource_id=role_id,
+    )
+
+    if not permission_check.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to assign permissions to role: {permission_check.reason}"
+        )
+
+    # Verify role exists and is active
     role = await session.get(Role, role_id)
     if not role or not role.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Role not found"
+            detail="Role not found or inactive"
         )
 
-    permission_id = permission_data.get("permission_id")
-    if not permission_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="permission_id is required"
-        )
-
-    # Convert permission_id to UUIDstr if it's a string
-    if isinstance(permission_id, str):
-        try:
-            permission_id = UUIDstr(permission_id)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid permission_id format"
-            )
-
-    permission = await session.get(Permission, permission_id)
+    # Verify permission exists
+    permission = await session.get(Permission, permission_data.permission_id)
     if not permission:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -470,7 +617,7 @@ async def assign_permission_to_role(
     # Check if assignment already exists
     statement = select(RolePermission).where(
         RolePermission.role_id == role_id,
-        RolePermission.permission_id == permission_id
+        RolePermission.permission_id == permission_data.permission_id
     )
     result = await session.exec(statement)
     existing = result.first()
@@ -481,33 +628,63 @@ async def assign_permission_to_role(
             detail="Permission already assigned to role"
         )
 
-    # Create role permission assignment
+    # Create role permission assignment with standardized data
     role_permission = RolePermission(
         role_id=role_id,
-        permission_id=permission_id,
+        permission_id=permission_data.permission_id,
+        is_granted=permission_data.is_granted,
+        conditions=permission_data.conditions,
+        expires_at=permission_data.expires_at,
+        metadata=permission_data.metadata,
         granted_by_id=current_user.id,
-        granted_at=datetime.now(timezone.utc),
-        reason=permission_data.get("reason")
+        granted_at=datetime.now(timezone.utc)
     )
 
     session.add(role_permission)
     await session.commit()
+    await session.refresh(role_permission, ["permission"])
 
-    # TODO: Log audit event
+    # Log audit event
+    try:
+        context = create_audit_context(
+            workspace_id=role.workspace_id,
+            additional_data={"role_name": role.name, "permission_id": str(permission_data.permission_id)}
+        )
+        await audit_service.log_role_management_event(
+            session=session,
+            actor=current_user,
+            action="assign_permission_to_role",
+            target_user_id=None,
+            role_id=role_id,
+            context=context,
+            details={"role_name": role.name, "permission_id": str(permission_data.permission_id), "permission_code": permission.code}
+        )
+    except Exception as e:
+        logger.error(f"Failed to log permission assignment audit event: {e}")
 
-    return {
-        "message": "Permission assigned successfully",
-        "role_id": str(role_id),
-        "permission_id": str(permission_id)
-    }
+    # Return standardized typed response
+    return RolePermissionRead.model_validate(role_permission)
 
 
 @router.delete("/{role_id}/permissions/{permission_id}", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def remove_permission_from_role(
     role_id: UUIDstr,
     permission_id: UUIDstr,
     session: DbSession,
     current_user: CurrentActiveUser,
+    audit_service: AuditService = Depends(get_audit_service),
 ):
     """Remove permission from role."""
     from langflow.services.database.models.rbac.permission import RolePermission
@@ -528,19 +705,51 @@ async def remove_permission_from_role(
     await session.delete(role_permission)
     await session.commit()
 
-    # TODO: Log audit event
+    # Log audit event
+    try:
+        from langflow.services.database.models.rbac.role import Role
+        role = await session.get(Role, role_id)
+        if role:
+            context = create_audit_context(
+                workspace_id=role.workspace_id,
+                additional_data={"role_name": role.name, "permission_id": str(permission_id)}
+            )
+            await audit_service.log_role_management_event(
+                session=session,
+                actor=current_user,
+                action="remove_permission_from_role",
+                target_user_id=None,
+                role_id=role_id,
+                context=context,
+                details={"role_name": role.name, "permission_id": str(permission_id)}
+            )
+    except Exception as e:
+        logger.error(f"Failed to log permission removal audit event: {e}")
 
 
 @router.put("/{role_id}/permissions", status_code=status.HTTP_200_OK)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def update_role_permissions(
     role_id: UUIDstr,
     permission_data: dict,
     session: DbSession,
     current_user: CurrentActiveUser,
+    audit_service: AuditService = Depends(get_audit_service),
 ) -> dict:
     """Update role permissions (batch operation)."""
+    from langflow.services.database.models.rbac.permission import RolePermission
     from langflow.services.database.models.rbac.role import Role
-    from langflow.services.database.models.rbac.permission import Permission, RolePermission
 
     # Validate role exists
     role = await session.get(Role, role_id)
@@ -625,7 +834,23 @@ async def update_role_permissions(
 
     await session.commit()
 
-    # TODO: Log audit event
+    # Log audit event
+    try:
+        context = create_audit_context(
+            workspace_id=role.workspace_id,
+            additional_data={"role_name": role.name, "permissions_added": len(to_add), "permissions_removed": len(to_remove)}
+        )
+        await audit_service.log_role_management_event(
+            session=session,
+            actor=current_user,
+            action="update_role_permissions",
+            target_user_id=None,
+            role_id=role_id,
+            context=context,
+            details={"role_name": role.name, "permissions_added": len(to_add), "permissions_removed": len(to_remove)}
+        )
+    except Exception as e:
+        logger.error(f"Failed to log role permissions update audit event: {e}")
 
     return {
         "message": "Role permissions updated successfully",
@@ -635,12 +860,23 @@ async def update_role_permissions(
 
 
 @router.post("/initialize-system-roles", status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def initialize_system_roles(
     session: DbSession,
     current_user: CurrentActiveUser,
 ) -> dict:
     """Initialize system roles and permissions."""
-
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -651,17 +887,18 @@ async def initialize_system_roles(
     created_roles = 0
 
     # Create system permissions
-    from langflow.services.database.models.rbac.permission import Permission, SYSTEM_PERMISSIONS
-    from langflow.services.database.models.rbac.role import Role, SYSTEM_ROLES
+    from langflow.services.database.models.rbac.permission import SYSTEM_PERMISSIONS
+    from langflow.services.database.models.rbac.role import SYSTEM_ROLES, Role
 
     for perm_data in SYSTEM_PERMISSIONS:
-        statement = select(Permission).where(Permission.code == perm_data["code"])
+        perm_dict = dict(perm_data)  # Ensure it's treated as a dict
+        statement = select(Permission).where(Permission.code == perm_dict["code"])
         result = await session.exec(statement)
         existing = result.first()
 
         if not existing:
             # Only add is_system=True if not already specified in perm_data
-            permission_data = perm_data.copy()
+            permission_data = perm_dict.copy()
             if "is_system" not in permission_data:
                 permission_data["is_system"] = True
 
@@ -673,7 +910,7 @@ async def initialize_system_roles(
     for role_key, role_data in SYSTEM_ROLES.items():
         statement = select(Role).where(
             Role.name == role_data["name"],
-            Role.workspace_id.is_(None)
+            Role.workspace_id is None
         )
         result = await session.exec(statement)
         existing = result.first()

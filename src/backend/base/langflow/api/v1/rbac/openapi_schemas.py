@@ -1,9 +1,9 @@
 """OpenAPI schemas and documentation for RBAC API endpoints."""
 
-from typing import Dict, Any
+from typing import Any
 
 # Common error responses used across all RBAC endpoints
-COMMON_RESPONSES: Dict[int, Dict[str, Any]] = {
+COMMON_RESPONSES: dict[int, dict[str, Any]] = {
     401: {
         "description": "Unauthorized - Invalid or missing authentication",
         "content": {
@@ -15,7 +15,7 @@ COMMON_RESPONSES: Dict[int, Dict[str, Any]] = {
         }
     },
     403: {
-        "description": "Forbidden - Insufficient permissions", 
+        "description": "Forbidden - Insufficient permissions",
         "content": {
             "application/json": {
                 "example": {
@@ -80,7 +80,7 @@ PERMISSION_CHECK_RESPONSES = {
     }
 }
 
-# Batch permission check response schemas  
+# Batch permission check response schemas
 BATCH_PERMISSION_CHECK_RESPONSES = {
     200: {
         "description": "Batch permission check results",
@@ -204,7 +204,7 @@ ROLE_EXAMPLES = {
         "description": "Example role response with permissions",
         "value": {
             "id": "789e1234-e89b-12d3-a456-426614174222",
-            "name": "Project Contributor", 
+            "name": "Project Contributor",
             "description": "Can view and edit project content",
             "workspace_id": "123e4567-e89b-12d3-a456-426614174000",
             "type": "custom",
@@ -262,7 +262,7 @@ API_TAGS = [
         "description": "Role-Based Access Control system for managing permissions and access to resources"
     },
     {
-        "name": "Workspaces", 
+        "name": "Workspaces",
         "description": "Workspace management - top-level containers for organizing projects and teams"
     },
     {
@@ -288,7 +288,7 @@ The Role-Based Access Control (RBAC) API provides comprehensive access managemen
 ### Key Features
 
 - **Multi-tenant Workspaces**: Isolated environments for different teams and organizations
-- **Hierarchical Permissions**: Inheritance from workspace → project → environment → flow levels  
+- **Hierarchical Permissions**: Inheritance from workspace → project → environment → flow levels
 - **High-Performance Caching**: Sub-100ms permission checks with Redis caching
 - **Flexible Role System**: Custom roles and system-defined roles with granular permissions
 - **Audit Trail**: Complete audit logging of all permission changes and access attempts
@@ -298,7 +298,7 @@ The Role-Based Access Control (RBAC) API provides comprehensive access managemen
 ```
 Workspace (top-level)
 ├── Projects
-│   ├── Environments  
+│   ├── Environments
 │   │   └── Deployments
 │   └── Flows
 ├── Roles (workspace-scoped)
@@ -311,7 +311,7 @@ Permissions follow the format `resource:action` (e.g., `workspace:read`, `projec
 
 Common actions:
 - `read` - View resource details
-- `create` - Create new resources 
+- `create` - Create new resources
 - `update` - Modify existing resources
 - `delete` - Remove resources
 - `manage` - Full administrative access

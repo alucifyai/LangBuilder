@@ -24,6 +24,7 @@ from langflow.api.v1 import (
     variables_router,
     workspaces_router,
 )
+from langflow.api.v1.scim import router as scim_router
 from langflow.api.v1.voice_mode import router as voice_mode_router
 from langflow.api.v2 import files_router as files_router_v2
 from langflow.api.v2 import mcp_router as mcp_router_v2
@@ -53,6 +54,8 @@ router_v1.include_router(starter_projects_router)
 router_v1.include_router(mcp_router)
 router_v1.include_router(voice_mode_router)
 router_v1.include_router(mcp_projects_router)
+# SCIM provisioning endpoints
+router_v1.include_router(scim_router)
 # Unified RBAC router (includes all RBAC endpoints under /rbac prefix)
 router_v1.include_router(rbac_router)
 # Individual RBAC routers (for backwards compatibility)

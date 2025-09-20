@@ -1,33 +1,41 @@
 """Role Assignment management API endpoints for RBAC system."""
 
-from typing import TYPE_CHECKING
-from langflow.schema.serialize import UUIDstr
+from typing import Annotated, TYPE_CHECKING
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import select, and_, or_
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlmodel import apaginate
 from sqlalchemy.orm import selectinload
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlmodel import and_, select
 
-from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
 from langflow.api.v1.rbac.dependencies import (
-    check_workspace_permission,
     get_permission_engine,
 )
-from langflow.services.rbac.permission_engine import PermissionEngine
+from langflow.api.v1.rbac.security_middleware import (
+    SecurityRequirement,
+    ValidationRequirement,
+    get_authenticated_user,
+    secure_endpoint,
+)
+from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
+from langflow.schema.serialize import UUIDstr
+from langflow.services.database.models.rbac.role import Role
 from langflow.services.database.models.rbac.role_assignment import (
+    AssignmentScope,
+    AssignmentType,
     RoleAssignment,
+    RoleAssignmentApproval,
     RoleAssignmentCreate,
     RoleAssignmentRead,
     RoleAssignmentUpdate,
-    RoleAssignmentApproval,
-    AssignmentType,
-    AssignmentScope,
 )
-from langflow.services.database.models.rbac.role import Role
 from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
+    pass
 
 router = APIRouter(
     prefix="/role-assignments",
@@ -42,22 +50,49 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[RoleAssignmentRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="role_assignment",
+        action="read",
+        require_workspace_access=True,
+        audit_action="list_role_assignments",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_role_assignments(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     workspace_id: UUIDstr,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    params: Annotated[Params | None, Depends(custom_params
+)],
     user_id: UUIDstr | None = None,
     role_id: UUIDstr | None = None,
     assignment_type: AssignmentType | None = None,
     scope: AssignmentScope | None = None,
     is_active: bool | None = None,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[RoleAssignmentRead]:
     """List role assignments in a workspace."""
+    # Check workspace permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=workspace_id,
+        workspace_id=workspace_id,
+    )
 
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(session, current_user, workspace_id, "role_assignment:read")
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read role assignments: {result.reason}"
+        )
 
     statement = select(RoleAssignment).options(
         selectinload(RoleAssignment.role),
@@ -83,11 +118,18 @@ async def list_role_assignments(
     if is_active is not None:
         statement = statement.where(RoleAssignment.is_active == is_active)
 
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-
-    result = await session.exec(statement)
-    assignments = result.all()
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            assignments = paginated_result.items
+    else:
+        result = await session.exec(statement)
+        assignments = result.all()
 
     # Convert to readable format with relationship data
     assignment_reads = []
@@ -96,15 +138,15 @@ async def list_role_assignments(
 
         # Add related names
         if assignment.role:
-            assignment_dict['role_name'] = assignment.role.name
+            assignment_dict["role_name"] = assignment.role.name
         if assignment.user:
-            assignment_dict['user_name'] = assignment.user.username
+            assignment_dict["user_name"] = assignment.user.username
         if assignment.workspace:
-            assignment_dict['workspace_name'] = assignment.workspace.name
+            assignment_dict["workspace_name"] = assignment.workspace.name
         if assignment.assigned_by:
-            assignment_dict['assigned_by_name'] = assignment.assigned_by.username
+            assignment_dict["assigned_by_name"] = assignment.assigned_by.username
         if assignment.approved_by:
-            assignment_dict['approved_by_name'] = assignment.approved_by.username
+            assignment_dict["approved_by_name"] = assignment.approved_by.username
 
         assignment_reads.append(RoleAssignmentRead.model_validate(assignment_dict))
 
@@ -112,17 +154,45 @@ async def list_role_assignments(
 
 
 @router.post("/", response_model=RoleAssignmentRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="role_assignment",
+        action="create",
+        require_workspace_access=True,
+        audit_action="create_role_assignment",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+        validate_role_exists=True,
+        validate_user_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def create_role_assignment(
+    request: Request,
     assignment_data: RoleAssignmentCreate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> RoleAssignmentRead:
     """Create a new role assignment."""
+    # Check workspace permission
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="create",
+        resource_id=assignment_data.workspace_id,
+        workspace_id=assignment_data.workspace_id,
+    )
 
-    # TODO: Fix permission check - use proper FastAPI dependency
-    # await check_workspace_permission(
-    #     session, current_user, assignment_data.workspace_id, "role_assignment:create"
-    # )
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to create role assignments: {result.reason}"
+        )
 
     # Verify workspace exists
     workspace = await session.get(Workspace, assignment_data.workspace_id)
@@ -169,7 +239,7 @@ async def create_role_assignment(
 
     # Create role assignment with proper field mapping
     assignment_dict = assignment_data.model_dump()
-    assignment_dict['assigned_by_id'] = current_user.id
+    assignment_dict["assigned_by_id"] = current_user.id
 
     assignment = RoleAssignment(**assignment_dict)
 
@@ -183,27 +253,42 @@ async def create_role_assignment(
 
     # Add related names
     if assignment.role:
-        assignment_dict['role_name'] = assignment.role.name
+        assignment_dict["role_name"] = assignment.role.name
     if assignment.user:
-        assignment_dict['user_name'] = assignment.user.username
+        assignment_dict["user_name"] = assignment.user.username
     if assignment.workspace:
-        assignment_dict['workspace_name'] = assignment.workspace.name
+        assignment_dict["workspace_name"] = assignment.workspace.name
     if assignment.assigned_by:
-        assignment_dict['assigned_by_name'] = assignment.assigned_by.username
+        assignment_dict["assigned_by_name"] = assignment.assigned_by.username
     if assignment.approved_by:
-        assignment_dict['approved_by_name'] = assignment.approved_by.username
+        assignment_dict["approved_by_name"] = assignment.approved_by.username
 
     return RoleAssignmentRead.model_validate(assignment_dict)
 
 
 @router.get("/{assignment_id}", response_model=RoleAssignmentRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="role_assignment",
+        action="read",
+        require_workspace_access=True,
+        audit_action="read_role_assignment",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_role_assignment(
+    request: Request,
     assignment_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> RoleAssignmentRead:
     """Get role assignment by ID."""
-
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -212,23 +297,48 @@ async def get_role_assignment(
         )
 
     # Check workspace permission
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(
-    #     session, current_user, assignment.workspace_id, "role_assignment:read"
-    # )
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=assignment.workspace_id,
+        workspace_id=assignment.workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read role assignment: {result.reason}"
+        )
 
     return RoleAssignmentRead.model_validate(assignment)
 
 
 @router.put("/{assignment_id}", response_model=RoleAssignmentRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="role_assignment",
+        action="update",
+        require_workspace_access=True,
+        audit_action="update_role_assignment",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def update_role_assignment(
+    request: Request,
     assignment_id: UUIDstr,
     assignment_data: RoleAssignmentUpdate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> RoleAssignmentRead:
     """Update role assignment."""
-
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -237,10 +347,20 @@ async def update_role_assignment(
         )
 
     # Check workspace permission
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(
-    #     session, current_user, assignment.workspace_id, "role_assignment:update"
-    # )
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=assignment.workspace_id,
+        workspace_id=assignment.workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to update role assignment: {result.reason}"
+        )
 
     # Update fields
     update_data = assignment_data.model_dump(exclude_unset=True)
@@ -254,13 +374,28 @@ async def update_role_assignment(
 
 
 @router.delete("/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def delete_role_assignment(
+    request: Request,
     assignment_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> None:
     """Delete role assignment (deactivate)."""
-
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -269,10 +404,20 @@ async def delete_role_assignment(
         )
 
     # Check workspace permission
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(
-    #     session, current_user, assignment.workspace_id, "role_assignment:delete"
-    # )
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="delete",
+        resource_id=assignment.workspace_id,
+        workspace_id=assignment.workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to delete role assignment: {result.reason}"
+        )
 
     # Soft delete by setting is_active to False
     assignment.is_active = False
@@ -280,22 +425,49 @@ async def delete_role_assignment(
 
 
 @router.get("/user/{user_id}", response_model=list[RoleAssignmentRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_user_role_assignments(
+    request: Request,
     user_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    params: Annotated[Params | None, Depends(custom_params
+)],
     workspace_id: UUIDstr | None = None,
     include_inherited: bool = Query(True, description="Include inherited role assignments"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[RoleAssignmentRead]:
     """List all role assignments for a specific user."""
-
     # If workspace_id is provided, check permission for that workspace
     # Otherwise, user can only see their own assignments
     if workspace_id:
-        # TODO: Fix permission check to use proper FastAPI dependency
-        # await check_workspace_permission(session, current_user, workspace_id, "role_assignment:read")
+        # Check workspace permission
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="workspace",
+            action="read",
+            resource_id=workspace_id,
+            workspace_id=workspace_id,
+        )
+
+        if not result.allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions to read user role assignments: {result.reason}"
+            )
         statement = select(RoleAssignment).where(
             and_(
                 RoleAssignment.user_id == user_id,
@@ -317,24 +489,45 @@ async def list_user_role_assignments(
             )
         )
 
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-
-    result = await session.exec(statement)
-    assignments = result.all()
-
-    return [RoleAssignmentRead.model_validate(assignment) for assignment in assignments]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [RoleAssignmentRead.model_validate(assignment) for assignment in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        assignments = result.all()
+        return [RoleAssignmentRead.model_validate(assignment) for assignment in assignments]
 
 
 @router.post("/{assignment_id}/approve", response_model=RoleAssignmentRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def approve_role_assignment(
+    request: Request,
     assignment_id: UUIDstr,
     approval_data: RoleAssignmentApproval,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> RoleAssignmentRead:
     """Approve a pending role assignment."""
-
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -343,10 +536,20 @@ async def approve_role_assignment(
         )
 
     # Check workspace permission
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(
-    #     session, current_user, assignment.workspace_id, "role_assignment:approve"
-    # )
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=assignment.workspace_id,
+        workspace_id=assignment.workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to approve role assignment: {result.reason}"
+        )
 
     # Update approval status
     from datetime import datetime
@@ -362,14 +565,29 @@ async def approve_role_assignment(
 
 
 @router.post("/{assignment_id}/reject", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def reject_role_assignment(
+    request: Request,
     assignment_id: UUIDstr,
     approval_data: RoleAssignmentApproval,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> None:
     """Reject a pending role assignment."""
-
     assignment = await session.get(RoleAssignment, assignment_id)
     if not assignment:
         raise HTTPException(
@@ -378,10 +596,20 @@ async def reject_role_assignment(
         )
 
     # Check workspace permission
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(
-    #     session, current_user, assignment.workspace_id, "role_assignment:approve"
-    # )
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=assignment.workspace_id,
+        workspace_id=assignment.workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to reject role assignment: {result.reason}"
+        )
 
     # Update rejection status
     from datetime import datetime
@@ -394,56 +622,119 @@ async def reject_role_assignment(
 
 
 @router.get("/pending", response_model=list[RoleAssignmentRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_pending_assignments(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     workspace_id: UUIDstr,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    params: Annotated[Params | None, Depends(custom_params
+)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[RoleAssignmentRead]:
     """List pending role assignments requiring approval."""
-
     # Check workspace permission
-    # TODO: Fix permission check to use proper FastAPI dependency
-    # await check_workspace_permission(session, current_user, workspace_id, "role_assignment:approve")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=workspace_id,
+        workspace_id=workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to list pending role assignments: {result.reason}"
+        )
 
     statement = select(RoleAssignment).where(
         and_(
             RoleAssignment.workspace_id == workspace_id,
-            RoleAssignment.approved_by.is_(None),
+            RoleAssignment.approved_by is None,
             RoleAssignment.is_active == False
         )
-    ).offset(skip).limit(limit)
+    )
 
-    result = await session.exec(statement)
-    assignments = result.all()
-
-    return [RoleAssignmentRead.model_validate(assignment) for assignment in assignments]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [RoleAssignmentRead.model_validate(assignment) for assignment in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        assignments = result.all()
+        return [RoleAssignmentRead.model_validate(assignment) for assignment in assignments]
 
 
 @router.post("/bulk", response_model=list[RoleAssignmentRead], status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def bulk_create_role_assignments(
+    request: Request,
     assignments_data: list[RoleAssignmentCreate],
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> list[RoleAssignmentRead]:
     """Create multiple role assignments at once."""
-
     if len(assignments_data) > 50:  # Reasonable bulk limit
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Maximum 50 role assignments allowed per bulk operation"
         )
 
+    # Pre-check permissions for all workspaces to avoid partial failures
+    workspace_ids = {assignment_data.workspace_id for assignment_data in assignments_data}
+    for workspace_id in workspace_ids:
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="workspace",
+            action="create",
+            resource_id=workspace_id,
+            workspace_id=workspace_id,
+        )
+
+        if not result.allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions to create role assignments in workspace {workspace_id}: {result.reason}"
+            )
+
     created_assignments = []
 
     for assignment_data in assignments_data:
         try:
-            # Check workspace permission for each assignment
-            # TODO: Fix permission check to use proper FastAPI dependency
-            # await check_workspace_permission(
-            #     session, current_user, assignment_data.workspace_id, "role_assignment:create"
-            # )
 
             # Create assignment
             assignment = RoleAssignment(
@@ -459,7 +750,7 @@ async def bulk_create_role_assignments(
             await session.rollback()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Failed to create role assignment: {str(e)}"
+                detail=f"Failed to create role assignment: {e!s}"
             )
 
     await session.commit()

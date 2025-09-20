@@ -3,23 +3,33 @@
 # NO future annotations per Phase 1 requirements
 # from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from langflow.schema.serialize import UUIDstr
+from typing import Annotated, TYPE_CHECKING
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlmodel import apaginate
 from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
 from langflow.api.v1.rbac.dependencies import get_permission_engine
-from langflow.services.rbac.permission_engine import PermissionEngine
+from langflow.api.v1.rbac.security_middleware import (
+    SecurityRequirement,
+    ValidationRequirement,
+    get_authenticated_user,
+    secure_endpoint,
+)
+from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
+from langflow.schema.serialize import UUIDstr
 from langflow.services.database.models.rbac.permission import (
+    SYSTEM_PERMISSIONS,
     Permission,
     PermissionRead,
-    SYSTEM_PERMISSIONS,
 )
+from langflow.services.rbac.permission_engine import PermissionEngine
+
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
+    pass
 
 router = APIRouter(
     prefix="/permissions",
@@ -34,17 +44,30 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[PermissionRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_permissions(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    params: Annotated[Params | None, Depends(custom_params
+)],
     search: str | None = None,
     resource_type: str | None = None,
     action: str | None = None,
 ) -> list[PermissionRead]:
     """List available permissions in the system."""
-
     # Only superusers can list all permissions
     if not current_user.is_superuser:
         raise HTTPException(
@@ -56,11 +79,15 @@ async def list_permissions(
 
     # Apply filters
     if search:
-        statement = statement.where(
-            (Permission.name.ilike(f"%{search}%")) |
-            (Permission.description.ilike(f"%{search}%")) |
-            (Permission.code.ilike(f"%{search}%"))
-        )
+        search_conditions = [Permission.name.ilike(f"%{search}%")]
+        if Permission.description is not None:
+            search_conditions.append(Permission.description.ilike(f"%{search}%"))
+        search_conditions.append(Permission.code.ilike(f"%{search}%"))
+
+        combined_condition = search_conditions[0]
+        for condition in search_conditions[1:]:
+            combined_condition = combined_condition | condition
+        statement = statement.where(combined_condition)
 
     if resource_type:
         statement = statement.where(Permission.resource_type == resource_type)
@@ -68,23 +95,42 @@ async def list_permissions(
     if action:
         statement = statement.where(Permission.action == action)
 
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-
-    result = await session.exec(statement)
-    permissions = result.all()
-
-    return [PermissionRead.model_validate(permission) for permission in permissions]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [PermissionRead.model_validate(permission) for permission in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        permissions = result.all()
+        return [PermissionRead.model_validate(permission) for permission in permissions]
 
 
 @router.get("/{permission_id}", response_model=PermissionRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_permission(
+    request: Request,
     permission_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ) -> PermissionRead:
     """Get permission by ID."""
-
     # Only superusers can view permission details
     if not current_user.is_superuser:
         raise HTTPException(
@@ -103,14 +149,28 @@ async def get_permission(
 
 
 @router.post("/check-permission", response_model=dict)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def check_permission(
+    request: Request,
     permission_check: dict,
     session: DbSession,
-    current_user: CurrentActiveUser,
-    permission_engine: PermissionEngine = Depends(get_permission_engine),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> dict:
     """Check if current user has a specific permission."""
-
     resource_type = permission_check.get("resource_type")
     action = permission_check.get("action")
     resource_id = permission_check.get("resource_id")
@@ -144,14 +204,28 @@ async def check_permission(
 
 
 @router.post("/batch-check-permission", response_model=list[dict])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def batch_check_permissions(
+    request: Request,
     permission_checks: list[dict],
     session: DbSession,
-    current_user: CurrentActiveUser,
-    permission_engine: PermissionEngine = Depends(get_permission_engine),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> list[dict]:
     """Check multiple permissions at once for better performance."""
-
     if len(permission_checks) > 50:  # Reasonable batch limit
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -197,7 +271,7 @@ async def batch_check_permissions(
         except Exception as e:
             results.append({
                 "allowed": False,
-                "reason": f"Error checking permission: {str(e)}",
+                "reason": f"Error checking permission: {e!s}",
                 "cached": False,
             })
 
@@ -205,12 +279,25 @@ async def batch_check_permissions(
 
 
 @router.post("/initialize-system-permissions", status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def initialize_system_permissions(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ) -> dict:
     """Initialize system permissions."""
-
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -221,13 +308,14 @@ async def initialize_system_permissions(
 
     # Create system permissions
     for perm_data in SYSTEM_PERMISSIONS:
-        statement = select(Permission).where(Permission.code == perm_data["code"])
+        perm_dict = dict(perm_data)  # Ensure it's treated as a dict
+        statement = select(Permission).where(Permission.code == perm_dict["code"])
         result = await session.exec(statement)
         existing = result.first()
 
         if not existing:
             # Only add is_system=True if not already specified in perm_data
-            permission_data = perm_data.copy()
+            permission_data = perm_dict.copy()
             if "is_system" not in permission_data:
                 permission_data["is_system"] = True
 
@@ -244,12 +332,25 @@ async def initialize_system_permissions(
 
 
 @router.get("/resource-types", response_model=list[str])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_resource_types(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ) -> list[str]:
     """List available resource types."""
-
     statement = select(Permission.resource_type).distinct()
     result = await session.exec(statement)
     resource_types = result.all()
@@ -258,13 +359,27 @@ async def list_resource_types(
 
 
 @router.get("/actions", response_model=list[str])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_actions(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
-    resource_type: str | None = Query(None),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    resource_type: str | None = Query(None
+),
 ) -> list[str]:
     """List available actions, optionally filtered by resource type."""
-
     statement = select(Permission.action).distinct()
 
     if resource_type:

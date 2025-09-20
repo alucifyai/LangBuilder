@@ -5,22 +5,21 @@ This script validates the Phase 3 business logic services implementation
 for compliance with requirements and performance targets.
 """
 
-import asyncio
 import importlib
 import inspect
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+
 
 # Color codes for terminal output
 class Colors:
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BOLD = '\033[1m'
-    END = '\033[0m'
+    BLUE = "\033[94m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
 
 def print_info(message: str):
     print(f"{Colors.BLUE}ℹ{Colors.END} {message}")
@@ -73,8 +72,8 @@ def validate_python_syntax():
         full_path = base_path / file_path
         if full_path.exists():
             try:
-                with open(full_path, 'r') as f:
-                    compile(f.read(), str(full_path), 'exec')
+                with open(full_path) as f:
+                    compile(f.read(), str(full_path), "exec")
                 print_success(f"{file_path}: Syntax OK")
             except SyntaxError as e:
                 print_error(f"{file_path}: Syntax Error - {e}")
@@ -109,15 +108,15 @@ def validate_service_architecture():
             service = getattr(module, service_class)
 
             # Check if service extends base Service class
-            if hasattr(service, '__bases__'):
+            if hasattr(service, "__bases__"):
                 base_classes = [base.__name__ for base in service.__bases__]
-                if 'Service' in base_classes:
+                if "Service" in base_classes:
                     print_success(f"{service_class}: Extends Service base class")
                 else:
                     print_warning(f"{service_class}: Does not extend Service base class")
 
             # Check for required service attributes
-            if hasattr(service, 'name'):
+            if hasattr(service, "name"):
                 print_success(f"{service_class}: Has 'name' attribute")
             else:
                 print_warning(f"{service_class}: Missing 'name' attribute")
@@ -152,12 +151,12 @@ def validate_business_logic_requirements():
 
         # Check required methods
         required_methods = [
-            'evaluate_permission',
-            'batch_evaluate_permissions',
-            'assign_role_to_user',
-            'revoke_role_from_user',
-            'check_workspace_access',
-            'validate_break_glass_access',
+            "evaluate_permission",
+            "batch_evaluate_permissions",
+            "assign_role_to_user",
+            "revoke_role_from_user",
+            "check_workspace_access",
+            "validate_break_glass_access",
         ]
 
         for method in required_methods:
@@ -173,12 +172,12 @@ def validate_business_logic_requirements():
 
     # Check SSO service requirements
     try:
-        from langflow.services.auth.sso_service import SSOService, SSOProtocol
+        from langflow.services.auth.sso_service import SSOProtocol, SSOService
 
         required_sso_methods = [
-            'initiate_sso_flow',
-            'handle_sso_callback',
-            'provision_user_from_sso',
+            "initiate_sso_flow",
+            "handle_sso_callback",
+            "provision_user_from_sso",
         ]
 
         for method in required_sso_methods:
@@ -201,12 +200,12 @@ def validate_business_logic_requirements():
         from langflow.services.rbac.audit_service import AuditService, ComplianceFramework
 
         required_audit_methods = [
-            'log_authentication_event',
-            'log_authorization_event',
-            'log_role_management_event',
-            'search_audit_logs',
-            'generate_compliance_report',
-            'export_audit_logs',
+            "log_authentication_event",
+            "log_authorization_event",
+            "log_role_management_event",
+            "search_audit_logs",
+            "generate_compliance_report",
+            "export_audit_logs",
         ]
 
         for method in required_audit_methods:
@@ -235,18 +234,18 @@ def validate_performance_targets():
 
         # Check caching implementation
         engine = PermissionEngine()
-        if hasattr(engine, '_memory_cache'):
+        if hasattr(engine, "_memory_cache"):
             print_success("PermissionEngine: Has memory cache implementation")
         else:
             print_warning("PermissionEngine: No memory cache found")
 
-        if hasattr(engine, 'redis_client'):
+        if hasattr(engine, "redis_client"):
             print_success("PermissionEngine: Supports Redis caching")
         else:
             print_warning("PermissionEngine: No Redis caching support")
 
         # Check batch processing
-        if hasattr(engine, 'batch_check_permissions'):
+        if hasattr(engine, "batch_check_permissions"):
             print_success("PermissionEngine: Has batch processing capability")
         else:
             print_error("PermissionEngine: Missing batch processing")
@@ -255,12 +254,12 @@ def validate_performance_targets():
         # Check performance monitoring
         from langflow.services.rbac.service import RBACService
         service = RBACService()
-        if hasattr(service, '_performance_metrics'):
+        if hasattr(service, "_performance_metrics"):
             print_success("RBACService: Has performance metrics tracking")
         else:
             print_warning("RBACService: No performance metrics tracking")
 
-        if hasattr(service, 'get_performance_metrics'):
+        if hasattr(service, "get_performance_metrics"):
             print_success("RBACService: Has performance metrics getter")
         else:
             print_warning("RBACService: No performance metrics getter")
@@ -278,8 +277,8 @@ def validate_integration_patterns():
         sys.path.insert(0, str(base_path))
 
         # Check if RBAC factory exists and follows pattern
-        from langflow.services.rbac.factory import RBACServiceFactory
         from langflow.services.factory import ServiceFactory
+        from langflow.services.rbac.factory import RBACServiceFactory
 
         if issubclass(RBACServiceFactory, ServiceFactory):
             print_success("RBACServiceFactory: Extends ServiceFactory")
@@ -288,7 +287,7 @@ def validate_integration_patterns():
             validation_results["integration_patterns"] = False
 
         # Check service registration
-        if hasattr(RBACServiceFactory, 'create'):
+        if hasattr(RBACServiceFactory, "create"):
             print_success("RBACServiceFactory: Has create method")
         else:
             print_error("RBACServiceFactory: Missing create method")
@@ -303,7 +302,7 @@ def validate_integration_patterns():
 
         for file_path in rbac_files:
             if file_path.exists():
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 # Check for Phase 1 compliance patterns
@@ -342,7 +341,7 @@ def validate_test_coverage():
     for test_file in test_files:
         test_path = base_path / test_file
         if test_path.exists():
-            with open(test_path, 'r') as f:
+            with open(test_path) as f:
                 content = f.read()
 
             # Count test methods

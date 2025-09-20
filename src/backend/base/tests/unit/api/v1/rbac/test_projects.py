@@ -1,28 +1,27 @@
 """Test suite for projects RBAC API endpoints."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
+import pytest
 from fastapi import HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.v1.rbac.projects import (
     create_project,
-    list_projects,
-    get_project,
-    update_project,
     delete_project,
+    get_project,
+    get_project_statistics,
     list_project_environments,
     list_project_flows,
-    get_project_statistics,
+    list_projects,
+    update_project,
 )
 from langflow.services.database.models.rbac.project import (
     Project,
     ProjectCreate,
     ProjectUpdate,
-    ProjectStatistics,
 )
 from langflow.services.database.models.rbac.workspace import Workspace
 from langflow.services.database.models.user.model import User
@@ -98,12 +97,12 @@ class TestCreateProject:
     """Test project creation endpoint."""
 
     @pytest.mark.asyncio
-    async def test_create_project_success(self, mock_session, mock_user, mock_permission_engine, 
+    async def test_create_project_success(self, mock_session, mock_user, mock_permission_engine,
                                          project_create_data, sample_workspace):
         """Test successful project creation."""
         # Mock workspace lookup
         mock_session.get.return_value = sample_workspace
-        
+
         # Mock no existing project
         mock_result = AsyncMock()
         mock_result.first.return_value = None
@@ -117,7 +116,7 @@ class TestCreateProject:
 
         mock_session.refresh = AsyncMock()
 
-        with patch('langflow.api.v1.rbac.projects.Project') as MockProject:
+        with patch("langflow.api.v1.rbac.projects.Project") as MockProject:
             MockProject.return_value = created_project
 
             result = await create_project(
@@ -133,7 +132,7 @@ class TestCreateProject:
             mock_session.refresh.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_create_project_workspace_not_found(self, mock_session, mock_user, 
+    async def test_create_project_workspace_not_found(self, mock_session, mock_user,
                                                      mock_permission_engine, project_create_data):
         """Test project creation with non-existent workspace."""
         # Mock no workspace found
@@ -151,13 +150,13 @@ class TestCreateProject:
         assert "Workspace not found" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_create_project_permission_denied(self, mock_session, mock_user, 
-                                                   mock_permission_engine, project_create_data, 
+    async def test_create_project_permission_denied(self, mock_session, mock_user,
+                                                   mock_permission_engine, project_create_data,
                                                    sample_workspace):
         """Test project creation with insufficient permissions."""
         # Mock workspace lookup
         mock_session.get.return_value = sample_workspace
-        
+
         # Mock permission denied
         mock_permission_engine.check_permission.return_value = PermissionResult(
             allowed=False,
@@ -178,13 +177,13 @@ class TestCreateProject:
         assert "Insufficient permissions" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_create_project_duplicate_name(self, mock_session, mock_user, 
-                                                mock_permission_engine, project_create_data, 
+    async def test_create_project_duplicate_name(self, mock_session, mock_user,
+                                                mock_permission_engine, project_create_data,
                                                 sample_workspace):
         """Test project creation with duplicate name."""
         # Mock workspace lookup
         mock_session.get.return_value = sample_workspace
-        
+
         # Mock existing project
         existing_project = MagicMock(spec=Project)
         mock_result = AsyncMock()
@@ -207,7 +206,7 @@ class TestListProjects:
     """Test project listing endpoint."""
 
     @pytest.mark.asyncio
-    async def test_list_projects_success(self, mock_session, mock_user, mock_permission_engine, 
+    async def test_list_projects_success(self, mock_session, mock_user, mock_permission_engine,
                                         sample_project):
         """Test successful project listing."""
         # Mock database query result
@@ -229,14 +228,14 @@ class TestListProjects:
         assert len(result) == 1
 
     @pytest.mark.asyncio
-    async def test_list_projects_with_workspace_filter(self, mock_session, mock_user, 
+    async def test_list_projects_with_workspace_filter(self, mock_session, mock_user,
                                                       mock_permission_engine, sample_workspace):
         """Test project listing with workspace filter."""
         workspace_id = sample_workspace.id
-        
+
         # Mock workspace lookup
         mock_session.get.return_value = sample_workspace
-        
+
         # Mock empty results
         mock_result = AsyncMock()
         mock_result.all.return_value = []
@@ -254,14 +253,14 @@ class TestListProjects:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_list_projects_workspace_access_denied(self, mock_session, mock_user, 
+    async def test_list_projects_workspace_access_denied(self, mock_session, mock_user,
                                                         mock_permission_engine, sample_workspace):
         """Test project listing with workspace access denied."""
         workspace_id = sample_workspace.id
-        
+
         # Mock workspace lookup
         mock_session.get.return_value = sample_workspace
-        
+
         # Mock permission denied
         mock_permission_engine.check_permission.return_value = PermissionResult(
             allowed=False,

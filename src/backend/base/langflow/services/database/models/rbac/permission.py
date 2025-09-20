@@ -1,18 +1,19 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Union
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Union, List
+from uuid import uuid4
 
 from pydantic import field_validator
-from sqlalchemy import JSON, Column, Text, UniqueConstraint
+from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-# if TYPE_CHECKING:
-#     from langflow.services.database.models.rbac.role import Role
+if TYPE_CHECKING:
+    from langflow.services.database.models.rbac.role import Role
 
 
 class PermissionAction(str, Enum):
@@ -68,18 +69,18 @@ class PermissionBase(SQLModel):
     """Base permission model for defining access rights."""
 
     name: str = Field(index=True)
-    description: str | None = Field(default=None, sa_column=Column(Text))
+    description: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # Permission definition
     resource_type: ResourceType = Field(index=True)
     action: PermissionAction = Field(index=True)
 
     # Scope and conditions
-    scope: str | None = Field(default="*")  # Glob pattern for resource matching
-    conditions: dict | None = Field(default={}, sa_column=Column(JSON))  # Additional conditions
+    scope: Union[str, None] = Field(default="*")  # Glob pattern for resource matching
+    conditions: Union[dict, None] = Field(default={}, sa_column=Column(JSON))  # Additional conditions
 
     # Permission metadata
-    category: str | None = Field(default=None, index=True)  # Grouping for UI
+    category: Union[str, None] = Field(default=None, index=True)  # Grouping for UI
     is_system: bool = Field(default=False)  # System permissions cannot be modified
     is_dangerous: bool = Field(default=False)  # Requires additional confirmation
     requires_mfa: bool = Field(default=False)  # Requires MFA for this action
@@ -99,7 +100,7 @@ class PermissionBase(SQLModel):
 
     @field_validator("scope")
     @classmethod
-    def validate_scope(cls, v: str | None) -> str:
+    def validate_scope(cls, v: Union[str, None]) -> str:
         if v is None:
             return "*"
         # Validate glob pattern
@@ -114,13 +115,13 @@ class Permission(PermissionBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "permission"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Permission code for fast lookup
     code: str = Field(index=True, unique=True)  # e.g., "flow:create", "workspace:manage"
 
     # Relationships
-    role_permissions: list["RolePermission"] = Relationship(
+    role_permissions: Mapped[List["RolePermission"]] = Relationship(
         back_populates="permission",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -136,25 +137,25 @@ class RolePermission(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "role_permission"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Foreign keys
-    role_id: UUIDstr = Field(foreign_key="role.id", index=True)
-    permission_id: UUIDstr = Field(foreign_key="permission.id", index=True)
+    role_id: UUIDstr = Field(foreign_key="role.id", sa_type=CHAR(32))
+    permission_id: UUIDstr = Field(foreign_key="permission.id", sa_type=CHAR(32))
 
     # Permission modifiers
     is_granted: bool = Field(default=True)  # True for grant, False for explicit deny
-    conditions: dict | None = Field(default={}, sa_column=Column(JSON))  # Runtime conditions
-    expires_at: datetime | None = Field(default=None)  # Temporary permissions
+    conditions: Union[dict, None] = Field(default={}, sa_column=Column(JSON))  # Runtime conditions
+    expires_at: Union[datetime, None] = Field(default=None)  # Temporary permissions
 
     # Metadata
-    granted_by_id: UUIDstr = Field(foreign_key="user.id")
+    granted_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
     granted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    reason: str | None = Field(default=None, sa_column=Column(Text))
+    reason: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # Relationships
-    role: "Role" = Relationship(back_populates="permissions")
-    permission: "Permission" = Relationship(back_populates="role_permissions")
+    role: Mapped["Role"] = Relationship(back_populates="permissions")
+    permission: Mapped["Permission"] = Relationship(back_populates="role_permissions")
 
     # Unique constraints
     __table_args__ = (
@@ -232,13 +233,13 @@ class PermissionCreate(SQLModel):
     """Schema for creating a permission."""
 
     name: str
-    description: str | None = None
+    description: Union[str, None] = None
     code: str
     resource_type: ResourceType
     action: PermissionAction
-    scope: str | None = "*"
-    conditions: dict | None = Field(default=None, sa_column=Column(JSON))
-    category: str | None = None
+    scope: Union[str, None] = "*"
+    conditions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    category: Union[str, None] = None
     is_dangerous: bool = False
     requires_mfa: bool = False
 
@@ -248,7 +249,7 @@ class PermissionRead(PermissionBase):
 
     id: UUIDstr
     code: str
-    role_count: int | None = None
+    role_count: Union[int, None] = None
 
 
 class PermissionCheck(SQLModel):
@@ -256,6 +257,33 @@ class PermissionCheck(SQLModel):
 
     user_id: UUIDstr
     resource_type: ResourceType
-    resource_id: UUIDstr | None = None
+    resource_id: Union[UUIDstr, None] = None
     action: PermissionAction
-    context: dict | None = Field(default=None, sa_column=Column(JSON))
+    context: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+
+
+class RolePermissionCreate(SQLModel):
+    """Schema for creating a role-permission assignment."""
+
+    permission_id: UUIDstr
+    is_granted: bool = True
+    conditions: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    expires_at: Union[datetime, None] = None
+    metadata: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+
+
+class RolePermissionRead(SQLModel):
+    """Schema for reading role-permission assignment data."""
+
+    id: UUIDstr
+    role_id: UUIDstr
+    permission_id: UUIDstr
+    is_granted: bool
+    conditions: Union[dict, None] = None
+    expires_at: Union[datetime, None] = None
+    metadata: Union[dict, None] = None
+    created_at: datetime
+    updated_at: Union[datetime, None] = None
+
+    # Nested permission data
+    permission: Union[PermissionRead, None] = None

@@ -22,7 +22,7 @@ After thorough analysis of the Phase 2 implementation against the Phase 1 data l
 - `/api/v1/rbac/roles.py` (line 3)
 - `/api/v1/rbac/permissions.py` (line 3)
 
-**Impact**: 
+**Impact**:
 - SQLModel relationship mapping conflicts
 - Runtime type resolution errors
 - Potential circular import issues
@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 ```python
 # PROBLEMATIC - Direct runtime imports
 from langflow.services.database.models.rbac.workspace import Workspace
-from langflow.services.database.models.rbac.project import Project  
+from langflow.services.database.models.rbac.project import Project
 from langflow.services.database.models.rbac.environment import Environment
 from langflow.services.database.models.rbac.role import Role
 from langflow.services.database.models.flow.model import Flow
@@ -88,7 +88,7 @@ async def get_workspace_by_id(
 **Required Fix**:
 ```python
 # WRONG - Sync operations
-role = session.get(Role, role_id)  
+role = session.get(Role, role_id)
 existing = session.query(Role).filter(...).first()
 
 # CORRECT - Async operations
@@ -271,7 +271,7 @@ async def get_role_by_id(
 ) -> "Role":
     """Get role by ID or raise 404."""
     from langflow.services.database.models.rbac.role import Role
-    
+
     role = await session.get(Role, role_id)  # ASYNC
     if not role or not role.is_active:
         raise HTTPException(
@@ -293,7 +293,7 @@ async def check_workspace_permission(permission: str):
     ) -> "Workspace":
         # Import inside function
         from langflow.services.database.models.rbac.workspace import Workspace
-        
+
         # Get workspace with proper async
         workspace = await session.get(Workspace, workspace_id)
         if not workspace or workspace.is_deleted:
@@ -301,7 +301,7 @@ async def check_workspace_permission(permission: str):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Workspace not found"
             )
-        
+
         # Check permission
         result = await permission_engine.check_permission(
             session=session,
@@ -311,14 +311,14 @@ async def check_workspace_permission(permission: str):
             resource_id=workspace.id,
             workspace_id=workspace.id,
         )
-        
+
         if not result.allowed:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Insufficient permissions: {permission}"
             )
         return workspace
-    
+
     return dependency
 ```
 
@@ -333,16 +333,16 @@ async def check_role_exists(
     """Check if role exists using proper async SQLModel pattern."""
     from langflow.services.database.models.rbac.role import Role
     from sqlmodel import select
-    
+
     statement = select(Role).where(
         Role.workspace_id == workspace_id,
         Role.name == role_name,
         Role.is_active == True
     )
-    
+
     if exclude_id:
         statement = statement.where(Role.id != exclude_id)
-    
+
     result = await session.exec(statement)
     return result.first() is not None
 ```
@@ -400,7 +400,7 @@ The Phase 2 implementation has **critical violations** of Phase 1 data layer pat
 
 ---
 
-**Audit Date**: September 17, 2024  
-**Auditor**: Claude AI Assistant  
-**Severity**: **CRITICAL** - Must fix before deployment  
+**Audit Date**: September 17, 2024
+**Auditor**: Claude AI Assistant
+**Severity**: **CRITICAL** - Must fix before deployment
 **Estimated Fix Time**: 4-6 hours for all issues

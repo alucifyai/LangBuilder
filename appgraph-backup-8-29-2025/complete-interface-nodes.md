@@ -17,7 +17,7 @@ Based on deep analysis of the frontend codebase, here are all the interface comp
 - Remember me functionality
 - Redirect to dashboard after successful login
 
-### 2. SignUpPage  
+### 2. SignUpPage
 **Route:** `/signup`
 **Components:**
 - Registration form with username/password/confirm password
@@ -195,7 +195,7 @@ Based on deep analysis of the frontend codebase, here are all the interface comp
 - **DropdownComponent** (`src/components/core/dropdownComponent`): Custom dropdown with keyboard navigation
 
 #### Advanced Input Components
-- **InputComponent** (`src/components/core/parameterRenderComponent/components/inputComponent`): 
+- **InputComponent** (`src/components/core/parameterRenderComponent/components/inputComponent`):
   - Multi-mode support (text, password, dropdown, object selection)
   - Global variable integration
   - Validation feedback
@@ -225,7 +225,7 @@ Based on deep analysis of the frontend codebase, here are all the interface comp
 
 ### Zustand Store System
 **Global State Stores:**
-1. **authStore** (`src/stores/authStore.ts`): 
+1. **authStore** (`src/stores/authStore.ts`):
    - User authentication state (login, logout, token refresh)
    - User profile data and permissions
    - Auto-login configuration
@@ -480,12 +480,12 @@ interface ParameterComponentType {
   --primary: 220 14% 96%;
   --primary-foreground: 220.9 39.3% 11%;
   --primary-hover: 210 40% 92%;
-  
+
   /* Accent Colors */
   --accent-emerald: 142.1 76.2% 36.3%;
   --accent-pink: 330 81% 60%;
   --accent-purple: 262.1 83.3% 57.8%;
-  
+
   /* Data Type Colors */
   --datatype-yellow: 47.9 95.8% 53.1%;
   --datatype-blue: 200 98% 39%;

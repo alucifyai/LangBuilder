@@ -1,18 +1,18 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union, List
 from uuid import UUID, uuid4
 
-from sqlalchemy import JSON, Column, Index, Text
+from sqlalchemy import CHAR, JSON, Column, Index, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
 
-# if TYPE_CHECKING:
-#     from langflow.services.database.models.rbac.workspace import Workspace
-#     from langflow.services.database.models.user.model import User
+if TYPE_CHECKING:
+    from langflow.services.database.models.rbac.workspace import Workspace
+    from langflow.services.database.models.user.model import User
 
 
 class AuditEventType(str, Enum):
@@ -95,36 +95,36 @@ class AuditLogBase(SQLModel):
 
     # Actor information
     actor_type: ActorType = Field(index=True)
-    actor_id: UUIDstr | None = Field(index=True, nullable=True)
-    actor_name: str | None = Field(default=None)
-    actor_email: str | None = Field(default=None)
+    actor_id: Union[UUIDstr, None] = Field(sa_type=CHAR(32))
+    actor_name: Union[str, None] = Field(default=None)
+    actor_email: Union[str, None] = Field(default=None)
 
     # Target resource
-    resource_type: str | None = Field(default=None, index=True)
-    resource_id: UUIDstr | None = Field(default=None, index=True)
-    resource_name: str | None = Field(default=None)
+    resource_type: Union[str, None] = Field(default=None, index=True)
+    resource_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    resource_name: Union[str, None] = Field(default=None)
 
     # Context
-    workspace_id: UUIDstr | None = Field(default=None, foreign_key="workspace.id", index=True)
-    project_id: UUIDstr | None = Field(default=None, index=True)
-    environment_id: UUIDstr | None = Field(default=None)
+    workspace_id: Union[UUIDstr, None] = Field(default=None, foreign_key="workspace.id", sa_type=CHAR(32))
+    project_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    environment_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
 
     # Request information
-    ip_address: str | None = Field(default=None, index=True)
-    user_agent: str | None = Field(default=None)
-    session_id: str | None = Field(default=None, index=True)
-    request_id: str | None = Field(default=None, index=True)
-    api_endpoint: str | None = Field(default=None)
-    http_method: str | None = Field(default=None)
+    ip_address: Union[str, None] = Field(default=None, index=True)
+    user_agent: Union[str, None] = Field(default=None)
+    session_id: Union[str, None] = Field(default=None, index=True)
+    request_id: Union[str, None] = Field(default=None, index=True)
+    api_endpoint: Union[str, None] = Field(default=None)
+    http_method: Union[str, None] = Field(default=None)
 
     # Additional data
-    error_message: str | None = Field(default=None, sa_column=Column(Text))
-    event_metadata: dict | None = Field(default={}, sa_column=Column(JSON))
+    error_message: Union[str, None] = Field(default=None, sa_column=Column(Text))
+    event_metadata: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
 
     # Compliance fields
     retention_required: bool = Field(default=True)  # For compliance retention
     sensitive_data_accessed: bool = Field(default=False)
-    compliance_tags: list[str] | None = Field(default=[], sa_column=Column(JSON))
+    compliance_tags: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
 
     # Timestamp (immutable)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), index=True)
@@ -135,7 +135,7 @@ class AuditLog(AuditLogBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "audit_log"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
 
     # Relationships (nullable for system events)
     user: Union["User", None] = Relationship(
@@ -169,28 +169,32 @@ class AuditLogRead(AuditLogBase):
 class AuditLogFilter(SQLModel):
     """Schema for filtering audit logs."""
 
-    event_types: list[AuditEventType] | None = None
-    actor_types: list[ActorType] | None = None
-    actor_id: UUID | None = None
-    resource_type: str | None = None
-    resource_id: UUID | None = None
-    workspace_id: UUID | None = None
-    project_id: UUID | None = None
+    event_types: Union[List[AuditEventType], None] = None
+    actor_types: Union[List[ActorType], None] = None
+    actor_id: Union[UUID, None] = None
+    resource_type: Union[str, None] = None
+    resource_id: Union[UUID, None] = None
+    workspace_id: Union[UUID, None] = None
+    project_id: Union[UUID, None] = None
     outcome: AuditOutcome | None = None
-    ip_address: str | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    ip_address: Union[str, None] = None
+    start_date: Union[datetime, None] = None
+    end_date: Union[datetime, None] = None
     sensitive_data_only: bool = False
-    compliance_tags: list[str] | None = None
+    compliance_tags: Union[List[str], None] = None
 
 
 class AuditLogExport(SQLModel):
     """Schema for audit log export requests."""
 
-    filter: AuditLogFilter
+    workspace_id: UUIDstr
     format: str = "json"  # json, csv, xlsx
+    start_date: Union[datetime, None] = None
+    end_date: Union[datetime, None] = None
+    event_types: Union[List[AuditEventType], None] = None
+    resource_types: Union[List[str], None] = None
     include_metadata: bool = True
-    encryption_key: str | None = None  # For encrypted exports
+    encryption_key: Union[str, None] = None  # For encrypted exports
     retention_days: int = 7  # How long to keep the export
 
 
@@ -215,14 +219,14 @@ class ComplianceReport(SQLModel):
     report_type: str  # SOC2, ISO27001, GDPR, CCPA
     period_start: datetime
     period_end: datetime
-    workspace_id: UUID | None = None
+    workspace_id: Union[UUID, None] = None
 
     # Report sections
-    access_summary: dict | None = Field(default=None, sa_column=Column(JSON))
-    permission_changes: list[dict] | None = Field(default=None, sa_column=Column(JSON))
-    security_incidents: list[dict] | None = Field(default=None, sa_column=Column(JSON))
-    data_access_logs: list[dict] | None = Field(default=None, sa_column=Column(JSON))
-    user_activity: dict | None = Field(default=None, sa_column=Column(JSON))
+    access_summary: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
+    permission_changes: Union[List[dict], None] = Field(default=None, sa_column=Column(JSON))
+    security_incidents: Union[List[dict], None] = Field(default=None, sa_column=Column(JSON))
+    data_access_logs: Union[List[dict], None] = Field(default=None, sa_column=Column(JSON))
+    user_activity: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
 
     # Compliance metrics
     total_logins: int = 0
@@ -232,7 +236,7 @@ class ComplianceReport(SQLModel):
     security_alerts: int = 0
 
     # Attestation
-    generated_by: str | None = None
+    generated_by: Union[str, None] = None
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    approved_by: str | None = None
-    approval_date: datetime | None = None
+    approved_by: Union[str, None] = None
+    approval_date: Union[datetime, None] = None

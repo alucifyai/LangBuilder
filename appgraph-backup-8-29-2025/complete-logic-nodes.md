@@ -10,7 +10,7 @@ Based on comprehensive analysis of the backend and frontend codebases, here are 
 **States**: `DRAFT` → `BUILDING` → `READY` → `RUNNING` → `ERROR/SUCCESS`
 
 **Flow Creation Process:**
-1. **Validation Phase**: 
+1. **Validation Phase**:
    - Name uniqueness checking with auto-increment (`MyFlow` → `MyFlow (1)`)
    - Endpoint name validation (regex: `^[a-zA-Z0-9_-]+$`)
    - Icon background color validation (hex color format)
@@ -79,7 +79,7 @@ interface FlowValidationRules {
 ```python
 class GraphStates:
     VERTICES_TO_RUN = "vertices_to_run"
-    VERTICES_BEING_RUN = "vertices_being_run" 
+    VERTICES_BEING_RUN = "vertices_being_run"
     INACTIVATED_VERTICES = "inactivated_vertices"
     ACTIVATED_VERTICES = "activated_vertices"
     RUN_QUEUE = "run_queue"
@@ -112,7 +112,7 @@ class GraphStates:
 
 **Event Delivery Types:**
 - **STREAMING**: Real-time Server-Sent Events
-- **POLLING**: Periodic status checking  
+- **POLLING**: Periodic status checking
 - **DIRECT**: Immediate response (testing only)
 
 ### 4. Event-Driven System
@@ -128,12 +128,12 @@ enum EventTypes {
   'build_end' = 'Build completed',
   'vertices_sorted' = 'Vertices prepared',
   'end_vertex' = 'Vertex completed',
-  
-  // Message Events  
+
+  // Message Events
   'add_message' = 'Message added',
   'remove_message' = 'Message removed',
   'token' = 'Token streaming',
-  
+
   // System Events
   'error' = 'Error occurred',
   'end' = 'Process ended'
@@ -154,7 +154,7 @@ enum EventTypes {
 
 1. **Schema Validation** (Pydantic):
    - Type checking and coercion
-   - Required field validation  
+   - Required field validation
    - Format validation (email, URL, regex)
    - Range and constraint validation
 
@@ -175,14 +175,14 @@ enum EventTypes {
 def validate_request(request: RequestModel):
     # 1. Schema validation
     validated_data = RequestModel.model_validate(request)
-    
+
     # 2. Business rules
     check_user_permissions(validated_data.user_id)
     check_resource_limits(validated_data)
-    
-    # 3. Data consistency  
+
+    # 3. Data consistency
     verify_references(validated_data)
-    
+
     return validated_data
 ```
 
@@ -194,14 +194,14 @@ class LangflowExceptions:
     ComponentBuildError:     # Component compilation/execution errors
         - message: str
         - formatted_traceback: str
-        
+
     StreamingError:          # Real-time streaming failures
         - cause: Exception
         - source: Source
-        
+
     JobQueueNotFoundError:   # Job queue management errors
         - job_id: str
-        
+
     ValidationError:         # Input validation failures
         - field_errors: dict
 ```
@@ -249,7 +249,7 @@ class LangflowExceptions:
 
 1. **Optimistic Updates**:
    - Frontend immediately reflects user actions
-   - Backend validation occurs asynchronously  
+   - Backend validation occurs asynchronously
    - Rollback on validation failures
 
 2. **Event-Driven Sync**:
@@ -337,7 +337,7 @@ interface AccessRules {
 ### State Transition Monitoring
 - **Database triggers** for audit logging
 - **Event emission** on state changes
-- **Metric collection** for performance monitoring  
+- **Metric collection** for performance monitoring
 - **Error tracking** with stack traces
 - **User activity** logging for analytics
 

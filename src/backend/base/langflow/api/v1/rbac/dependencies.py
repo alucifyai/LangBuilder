@@ -3,17 +3,18 @@
 # NO future annotations per Phase 1 requirements
 # from __future__ import annotations
 
+from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from fastapi import Depends, HTTPException, Path, status
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.api.utils import get_session, CurrentActiveUser, DbSession
-from langflow.services.auth.utils import get_current_active_user
-from langflow.services.rbac.permission_engine import PermissionEngine
+from langflow.api.utils import CurrentActiveUser, get_session
 from langflow.schema.serialize import UUIDstr
+from langflow.services.rbac.audit_service import AuditService
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow
@@ -55,8 +56,7 @@ class PermissionChecker:
             return True
 
         # Check workspace permission (inherits from workspace)
-        from langflow.services.database.models.rbac.workspace import Workspace
-        if hasattr(project, 'workspace'):
+        if hasattr(project, "workspace"):
             workspace = project.workspace
         else:
             # Need to fetch workspace
@@ -71,7 +71,7 @@ class PermissionChecker:
             return True
 
         # Check project permission (inherits from project)
-        if hasattr(environment, 'project'):
+        if hasattr(environment, "project"):
             project = environment.project
             return self.has_project_permission(project, action)
 
@@ -84,7 +84,7 @@ class PermissionChecker:
             return True
 
         # Flow owner has access
-        if hasattr(flow, 'user_id') and flow.user_id == self.user.id:
+        if hasattr(flow, "user_id") and flow.user_id == self.user.id:
             return True
 
         return False
@@ -96,7 +96,7 @@ class PermissionChecker:
             return True
 
         # Check workspace permission
-        if hasattr(role, 'workspace'):
+        if hasattr(role, "workspace"):
             workspace = role.workspace
             return self.has_workspace_permission(workspace, action)
 
@@ -298,9 +298,9 @@ def check_flow_permission(permission: str):
             resource_type="flow",
             action=permission.split(":")[-1],
             resource_id=flow.id,
-            workspace_id=getattr(flow, 'workspace_id', None),
-            project_id=getattr(flow, 'project_id', None),
-            environment_id=getattr(flow, 'environment_id', None),
+            workspace_id=getattr(flow, "workspace_id", None),
+            project_id=getattr(flow, "project_id", None),
+            environment_id=getattr(flow, "environment_id", None),
         )
 
         if not result.allowed:
@@ -361,7 +361,6 @@ async def check_api_key_permissions(
 ) -> bool:
     """Check if API key has required permissions for resource."""
     from langflow.services.database.models.api_key.model import ApiKey
-    from sqlmodel import select
 
     # Get API key from database using async SQLModel pattern
     statement = select(ApiKey).where(
@@ -394,3 +393,29 @@ async def check_api_key_permissions(
             return False
 
     return True
+
+
+def get_audit_service() -> AuditService:
+    """Get audit service instance."""
+    return AuditService()
+
+
+def create_audit_context(
+    workspace_id: UUIDstr | None = None,
+    client_ip: str | None = None,
+    user_agent: str | None = None,
+    session_id: str | None = None,
+    request_id: str | None = None,
+    **additional_data
+) -> "AuditContext":
+    """Create audit context for logging."""
+    from langflow.services.rbac.audit_service import AuditContext
+
+    return AuditContext(
+        workspace_id=workspace_id,
+        client_ip=client_ip,
+        user_agent=user_agent,
+        session_id=session_id,
+        request_id=request_id,
+        additional_data=additional_data
+    )

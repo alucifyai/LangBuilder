@@ -1,0 +1,1881 @@
+{
+  "audit_metadata": {
+    "timestamp": "2025-09-20T08:59:05.314085+00:00",
+    "auditor": "RBAC Comprehensive Audit Framework",
+    "version": "1.0",
+    "scope": "Complete RBAC Implementation"
+  },
+  "executive_summary": {
+    "total_findings": 176,
+    "critical_issues": 0,
+    "high_severity": 33,
+    "medium_severity": 101,
+    "low_severity": 31,
+    "informational": 11,
+    "overall_risk_level": "HIGH"
+  },
+  "audit_results": {
+    "database_models": {
+      "status": "completed",
+      "models_found": 11,
+      "missing_models": []
+    },
+    "api_endpoints": {
+      "status": "completed",
+      "endpoints_found": 12,
+      "missing_endpoints": []
+    },
+    "service_layer": {
+      "status": "completed",
+      "services_found": 24,
+      "missing_services": []
+    },
+    "authentication": {
+      "status": "completed",
+      "auth_files_found": 24,
+      "missing_auth_files": []
+    },
+    "authorization": {
+      "status": "completed",
+      "auth_z_files_found": 56
+    },
+    "data_access": {
+      "status": "completed",
+      "data_files_audited": 2
+    },
+    "security_patterns": {
+      "status": "completed"
+    },
+    "compliance": {},
+    "performance": {},
+    "architecture": {}
+  },
+  "detailed_findings": [
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in user_group.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/user_group.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.214920+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "MEDIUM",
+      "title": "Missing Import in conditional_policy.py",
+      "description": "Missing essential import: Relationship",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/conditional_policy.py",
+      "line_number": null,
+      "recommendation": "Add import for Relationship",
+      "timestamp": "2025-09-20T08:59:05.216155+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in conditional_policy.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/conditional_policy.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.216175+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Potential Plain Text Password in sso_configuration.py",
+      "description": "Password field detected without hashing",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/sso_configuration.py",
+      "line_number": null,
+      "recommendation": "Ensure passwords are properly hashed",
+      "timestamp": "2025-09-20T08:59:05.217635+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in sso_configuration.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/sso_configuration.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.217656+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in permission.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/permission.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.218929+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in service_account.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/service_account.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.220080+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in role.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/role.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.220904+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "LOW",
+      "title": "Missing Audit Fields in role_assignment.py",
+      "description": "Missing audit fields: created_at",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/role_assignment.py",
+      "line_number": null,
+      "recommendation": "Add audit timestamp fields",
+      "timestamp": "2025-09-20T08:59:05.221760+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in role_assignment.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/role_assignment.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.221769+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in environment.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/environment.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.222639+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Potential Plain Text Password in audit_log.py",
+      "description": "Password field detected without hashing",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/audit_log.py",
+      "line_number": null,
+      "recommendation": "Ensure passwords are properly hashed",
+      "timestamp": "2025-09-20T08:59:05.224458+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "LOW",
+      "title": "Missing Audit Fields in audit_log.py",
+      "description": "Missing audit fields: created_at, updated_at",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/audit_log.py",
+      "line_number": null,
+      "recommendation": "Add audit timestamp fields",
+      "timestamp": "2025-09-20T08:59:05.224474+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in audit_log.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/audit_log.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.224483+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "INFO",
+      "title": "No Soft Delete in project.py",
+      "description": "Consider implementing soft delete for audit trails",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/database/models/rbac/project.py",
+      "line_number": null,
+      "recommendation": "Add soft delete capability",
+      "timestamp": "2025-09-20T08:59:05.225210+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in user_group.py",
+      "description": "Relationship created_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242136+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in user_group.py",
+      "description": "Relationship user points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242140+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in user_group.py",
+      "description": "Relationship group points to non-existent model UserGroup",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create usergroup.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242142+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in user_group.py",
+      "description": "Relationship added_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242144+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in sso_configuration.py",
+      "description": "Relationship created_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242146+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in service_account.py",
+      "description": "Relationship created_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242148+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in service_account.py",
+      "description": "Relationship service_account points to non-existent model ServiceAccount",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create serviceaccount.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242150+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in service_account.py",
+      "description": "Relationship created_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242152+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in role.py",
+      "description": "Relationship created_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242153+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in role_assignment.py",
+      "description": "Relationship assigned_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242155+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in environment.py",
+      "description": "Relationship owner points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242157+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in environment.py",
+      "description": "Relationship deployed_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242159+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in workspace.py",
+      "description": "Relationship owner points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242161+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in workspace.py",
+      "description": "Relationship invited_by points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242162+00:00"
+    },
+    {
+      "category": "database_models",
+      "severity": "HIGH",
+      "title": "Orphaned Relationship in project.py",
+      "description": "Relationship owner points to non-existent model User",
+      "file_path": null,
+      "line_number": null,
+      "recommendation": "Create user.py or fix relationship",
+      "timestamp": "2025-09-20T08:59:05.242164+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in service_accounts.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/service_accounts.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.242771+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "No Audit Logging in service_accounts.py",
+      "description": "No audit logging patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/service_accounts.py",
+      "line_number": null,
+      "recommendation": "Add audit logging for sensitive operations",
+      "timestamp": "2025-09-20T08:59:05.242814+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Missing Import in openapi_schemas.py",
+      "description": "Missing essential import: APIRouter",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add import for APIRouter",
+      "timestamp": "2025-09-20T08:59:05.243136+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Missing Import in openapi_schemas.py",
+      "description": "Missing essential import: Depends",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add import for Depends",
+      "timestamp": "2025-09-20T08:59:05.243145+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Missing Import in openapi_schemas.py",
+      "description": "Missing essential import: HTTPException",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add import for HTTPException",
+      "timestamp": "2025-09-20T08:59:05.243151+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "HIGH",
+      "title": "No Authentication in openapi_schemas.py",
+      "description": "No authentication dependencies found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add authentication dependencies to all endpoints",
+      "timestamp": "2025-09-20T08:59:05.243162+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "HIGH",
+      "title": "No Authorization in openapi_schemas.py",
+      "description": "No authorization patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add authorization checks to all endpoints",
+      "timestamp": "2025-09-20T08:59:05.243180+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in openapi_schemas.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.243202+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "No Error Handling in openapi_schemas.py",
+      "description": "No HTTPException usage found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add proper error handling",
+      "timestamp": "2025-09-20T08:59:05.243208+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "LOW",
+      "title": "Missing READ Operations in openapi_schemas.py",
+      "description": "No GET endpoints found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add READ operations",
+      "timestamp": "2025-09-20T08:59:05.243339+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "LOW",
+      "title": "Missing CREATE Operations in openapi_schemas.py",
+      "description": "No POST endpoints found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/openapi_schemas.py",
+      "line_number": null,
+      "recommendation": "Add CREATE operations",
+      "timestamp": "2025-09-20T08:59:05.243341+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in audit.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/audit.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.243605+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in roles.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/roles.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.244002+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "HIGH",
+      "title": "No Authentication in iac.py",
+      "description": "No authentication dependencies found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/iac.py",
+      "line_number": null,
+      "recommendation": "Add authentication dependencies to all endpoints",
+      "timestamp": "2025-09-20T08:59:05.244401+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in role_assignments.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/role_assignments.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.244826+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "No Audit Logging in role_assignments.py",
+      "description": "No audit logging patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/role_assignments.py",
+      "line_number": null,
+      "recommendation": "Add audit logging for sensitive operations",
+      "timestamp": "2025-09-20T08:59:05.244870+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in environments.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/environments.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.245123+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "No Audit Logging in environments.py",
+      "description": "No audit logging patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/environments.py",
+      "line_number": null,
+      "recommendation": "Add audit logging for sensitive operations",
+      "timestamp": "2025-09-20T08:59:05.245156+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in permissions.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/permissions.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.245378+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "No Audit Logging in permissions.py",
+      "description": "No audit logging patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/permissions.py",
+      "line_number": null,
+      "recommendation": "Add audit logging for sensitive operations",
+      "timestamp": "2025-09-20T08:59:05.245398+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in user_groups.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/user_groups.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.245696+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in projects.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/projects.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.245982+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Missing Import in dependencies.py",
+      "description": "Missing essential import: APIRouter",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/dependencies.py",
+      "line_number": null,
+      "recommendation": "Add import for APIRouter",
+      "timestamp": "2025-09-20T08:59:05.246411+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "MEDIUM",
+      "title": "Limited Input Validation in dependencies.py",
+      "description": "No clear input validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/dependencies.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive input validation",
+      "timestamp": "2025-09-20T08:59:05.246446+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "LOW",
+      "title": "Missing READ Operations in dependencies.py",
+      "description": "No GET endpoints found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/dependencies.py",
+      "line_number": null,
+      "recommendation": "Add READ operations",
+      "timestamp": "2025-09-20T08:59:05.246488+00:00"
+    },
+    {
+      "category": "api_endpoints",
+      "severity": "LOW",
+      "title": "Missing CREATE Operations in dependencies.py",
+      "description": "No POST endpoints found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/dependencies.py",
+      "line_number": null,
+      "recommendation": "Add CREATE operations",
+      "timestamp": "2025-09-20T08:59:05.246490+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in iac_service.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/iac_service.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.247489+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in service.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/service.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.247851+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in runtime_enforcement.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/runtime_enforcement.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.248198+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in conditional_permissions.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/conditional_permissions.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.248600+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in data_access_wrapper.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/data_access_wrapper.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.248995+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in advanced_rbac.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/advanced_rbac.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.249428+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in advanced_rbac.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/advanced_rbac.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.249487+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in environment_permissions.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/environment_permissions.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.249850+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in environment_permissions.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/environment_permissions.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.249911+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in break_glass.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/break_glass.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.250280+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in compliance_audit.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/compliance_audit.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.250779+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in factory.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/factory.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.251012+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "Limited Error Handling in factory.py",
+      "description": "No try-except blocks found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/factory.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive error handling",
+      "timestamp": "2025-09-20T08:59:05.251015+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "LOW",
+      "title": "No Logging in factory.py",
+      "description": "No logging functionality found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/factory.py",
+      "line_number": null,
+      "recommendation": "Add logging for debugging and audit",
+      "timestamp": "2025-09-20T08:59:05.251018+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "INFO",
+      "title": "No Async Patterns in factory.py",
+      "description": "No async/await patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/factory.py",
+      "line_number": null,
+      "recommendation": "Consider async patterns for performance",
+      "timestamp": "2025-09-20T08:59:05.251021+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in factory.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/factory.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.251024+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in integration.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/integration.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.251262+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in integration.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/integration.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.251302+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in flow_integration.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/flow_integration.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.251559+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in advanced_features_service.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/advanced_features_service.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.251977+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in audit_service.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/audit_service.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.252291+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in audit_service.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/audit_service.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.252369+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in exceptions.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/exceptions.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.252741+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in role_service.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/role_service.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.253030+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "Limited Error Handling in role_service.py",
+      "description": "No try-except blocks found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/role_service.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive error handling",
+      "timestamp": "2025-09-20T08:59:05.253054+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in sso_integration.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/sso_integration.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.253467+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in service_account_manager.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/service_account_manager.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.253864+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in middleware.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/middleware.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.254234+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in middleware.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/middleware.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.254285+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in dependencies.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/dependencies.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.254563+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in permission_engine.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/permission_engine.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.254831+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in conditional_policy_manager.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/conditional_policy_manager.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.255273+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Dependency Injection in validation.py",
+      "description": "No dependency injection patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/validation.py",
+      "line_number": null,
+      "recommendation": "Implement dependency injection",
+      "timestamp": "2025-09-20T08:59:05.255500+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "Limited Error Handling in validation.py",
+      "description": "No try-except blocks found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/validation.py",
+      "line_number": null,
+      "recommendation": "Add comprehensive error handling",
+      "timestamp": "2025-09-20T08:59:05.255512+00:00"
+    },
+    {
+      "category": "service_layer",
+      "severity": "MEDIUM",
+      "title": "No Data Validation in decorators.py",
+      "description": "No validation patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/decorators.py",
+      "line_number": null,
+      "recommendation": "Add data validation to service methods",
+      "timestamp": "2025-09-20T08:59:05.255926+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in service.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/service.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.256963+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in enhanced_auth.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/enhanced_auth.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.257299+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in enhanced_auth.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/enhanced_auth.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.257329+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in enhanced_auth.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/enhanced_auth.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.257393+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in scoped_auth_middleware.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scoped_auth_middleware.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.257622+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in scoped_auth_middleware.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scoped_auth_middleware.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.257642+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in scoped_auth_middleware.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scoped_auth_middleware.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.257697+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in mcp_auth.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/mcp_auth.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.257938+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in mcp_auth.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/mcp_auth.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.257955+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in mcp_auth.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/mcp_auth.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.257996+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in __init__.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/__init__.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.258063+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Weak Password Handling in scim_service.py",
+      "description": "Password handling without proper hashing detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_service.py",
+      "line_number": null,
+      "recommendation": "Use bcrypt or similar for password hashing",
+      "timestamp": "2025-09-20T08:59:05.258442+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Hardcoded Secrets in scim_service.py",
+      "description": "Potential hardcoded secrets detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_service.py",
+      "line_number": null,
+      "recommendation": "Use environment variables for secrets",
+      "timestamp": "2025-09-20T08:59:05.258543+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in scim_service.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_service.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.258578+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in scim_service.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_service.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.258626+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in scim_service.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_service.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.258778+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in factory.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/factory.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.259008+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Weak Password Handling in saml2_provider.py",
+      "description": "Password handling without proper hashing detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/saml2_provider.py",
+      "line_number": null,
+      "recommendation": "Use bcrypt or similar for password hashing",
+      "timestamp": "2025-09-20T08:59:05.259298+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in saml2_provider.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/saml2_provider.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.259473+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in utils.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/utils.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.260431+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in utils.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/utils.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.260848+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in authorization_patterns.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/authorization_patterns.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.261237+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in authorization_patterns.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/authorization_patterns.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.261265+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in authorization_patterns.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/authorization_patterns.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.261331+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in secure_data_access.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/secure_data_access.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.261727+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in secure_data_access.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/secure_data_access.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.261835+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Weak Password Handling in sso_service.py",
+      "description": "Password handling without proper hashing detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/sso_service.py",
+      "line_number": null,
+      "recommendation": "Use bcrypt or similar for password hashing",
+      "timestamp": "2025-09-20T08:59:05.262155+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Hardcoded Secrets in sso_service.py",
+      "description": "Potential hardcoded secrets detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/sso_service.py",
+      "line_number": null,
+      "recommendation": "Use environment variables for secrets",
+      "timestamp": "2025-09-20T08:59:05.262209+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in sso_service.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/sso_service.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.262256+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in sso_service.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/sso_service.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.262380+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Weak Password Handling in ldap_provider.py",
+      "description": "Password handling without proper hashing detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/ldap_provider.py",
+      "line_number": null,
+      "recommendation": "Use bcrypt or similar for password hashing",
+      "timestamp": "2025-09-20T08:59:05.262670+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in ldap_provider.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/ldap_provider.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.262746+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in ldap_provider.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/ldap_provider.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.262852+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in scim_scheduler.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_scheduler.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.263149+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in scim_scheduler.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scim_scheduler.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.263203+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in auth.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/auth.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.263441+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in service.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/service.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.263638+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Weak Password Handling in constants.py",
+      "description": "Password handling without proper hashing detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/constants.py",
+      "line_number": null,
+      "recommendation": "Use bcrypt or similar for password hashing",
+      "timestamp": "2025-09-20T08:59:05.263823+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in constants.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/constants.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.263830+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in constants.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/constants.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.263837+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in __init__.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/__init__.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.264341+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in feature_flags.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/feature_flags.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.264447+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in factory.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/factory.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.264552+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in utils.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/utils.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.264663+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "HIGH",
+      "title": "Weak Password Handling in security_config.py",
+      "description": "Password handling without proper hashing detected",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/security_config.py",
+      "line_number": null,
+      "recommendation": "Use bcrypt or similar for password hashing",
+      "timestamp": "2025-09-20T08:59:05.265045+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "No Token Expiration in security_config.py",
+      "description": "No token expiration logic found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/security_config.py",
+      "line_number": null,
+      "recommendation": "Implement token expiration",
+      "timestamp": "2025-09-20T08:59:05.265344+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in security_config.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/security_config.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.265538+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in security_config.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/security_config.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.265892+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in manager.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/manager.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.266010+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "title": "Insecure Session Config in base.py",
+      "description": "Session security flags not found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/base.py",
+      "line_number": null,
+      "recommendation": "Add Secure and HttpOnly flags to sessions",
+      "timestamp": "2025-09-20T08:59:05.266340+00:00"
+    },
+    {
+      "category": "authentication",
+      "severity": "LOW",
+      "title": "No MFA Support in base.py",
+      "description": "No multi-factor authentication support",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/base.py",
+      "line_number": null,
+      "recommendation": "Consider implementing MFA for enhanced security",
+      "timestamp": "2025-09-20T08:59:05.266459+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in iac_service.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/iac_service.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.279638+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in conditional_permissions.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/conditional_permissions.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.280293+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in advanced_rbac.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/advanced_rbac.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.280715+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in __init__.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/__init__.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.281211+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in compliance_audit.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/compliance_audit.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.281562+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in factory.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/factory.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.281800+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in integration.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/integration.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.281906+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in flow_integration.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/flow_integration.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.282088+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in exceptions.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/exceptions.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.282878+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in role_service.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/role_service.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.283041+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in sso_integration.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/sso_integration.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.283250+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in conditional_policy_manager.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/conditional_policy_manager.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.284286+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in validation.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/rbac/validation.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.284573+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in utils.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/utils.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.284880+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in log_router.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/log_router.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.285053+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in router.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/router.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.285147+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Role Validation in router.py",
+      "description": "Role references without validation",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/router.py",
+      "line_number": null,
+      "recommendation": "Add role validation logic",
+      "timestamp": "2025-09-20T08:59:05.285153+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "HIGH",
+      "title": "No Workspace Isolation in router.py",
+      "description": "Workspace references without isolation checks",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/router.py",
+      "line_number": null,
+      "recommendation": "Implement workspace isolation checks",
+      "timestamp": "2025-09-20T08:59:05.285161+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in files.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/files.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.285254+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in __init__.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/__init__.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.285378+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Role Validation in __init__.py",
+      "description": "Role references without validation",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/__init__.py",
+      "line_number": null,
+      "recommendation": "Add role validation logic",
+      "timestamp": "2025-09-20T08:59:05.285384+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "HIGH",
+      "title": "No Workspace Isolation in __init__.py",
+      "description": "Workspace references without isolation checks",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/__init__.py",
+      "line_number": null,
+      "recommendation": "Implement workspace isolation checks",
+      "timestamp": "2025-09-20T08:59:05.285391+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in rbac_advanced.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac_advanced.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.286164+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in flows.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/flows.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.286516+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Role Validation in __init__.py",
+      "description": "Role references without validation",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/__init__.py",
+      "line_number": null,
+      "recommendation": "Add role validation logic",
+      "timestamp": "2025-09-20T08:59:05.288232+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "HIGH",
+      "title": "No Workspace Isolation in __init__.py",
+      "description": "Workspace references without isolation checks",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/__init__.py",
+      "line_number": null,
+      "recommendation": "Implement workspace isolation checks",
+      "timestamp": "2025-09-20T08:59:05.288241+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in conftest.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/tests/conftest.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.289508+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "HIGH",
+      "title": "No Workspace Isolation in test_workspaces.py",
+      "description": "Workspace references without isolation checks",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/rbac/tests/test_workspaces.py",
+      "line_number": null,
+      "recommendation": "Implement workspace isolation checks",
+      "timestamp": "2025-09-20T08:59:05.289624+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Permission Checks in conditional_policy_schemas.py",
+      "description": "No permission checking patterns found",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/schemas/conditional_policy_schemas.py",
+      "line_number": null,
+      "recommendation": "Implement permission checking mechanisms",
+      "timestamp": "2025-09-20T08:59:05.289845+00:00"
+    },
+    {
+      "category": "authorization",
+      "severity": "MEDIUM",
+      "title": "No Role Validation in conditional_policy_schemas.py",
+      "description": "Role references without validation",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v1/schemas/conditional_policy_schemas.py",
+      "line_number": null,
+      "recommendation": "Add role validation logic",
+      "timestamp": "2025-09-20T08:59:05.289864+00:00"
+    },
+    {
+      "category": "data_access",
+      "severity": "HIGH",
+      "title": "Potential SQL Injection in files.py",
+      "description": "Unsafe SQL pattern detected: select.*%",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/api/v2/files.py",
+      "line_number": null,
+      "recommendation": "Use parameterized queries or SQLModel query builder",
+      "timestamp": "2025-09-20T08:59:05.310492+00:00"
+    },
+    {
+      "category": "security_patterns",
+      "severity": "MEDIUM",
+      "title": "Missing Security Setting: password_policy",
+      "description": "Security configuration missing password_policy",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/settings/security_config.py",
+      "line_number": null,
+      "recommendation": "Add password_policy configuration",
+      "timestamp": "2025-09-20T08:59:05.311866+00:00"
+    },
+    {
+      "category": "security_patterns",
+      "severity": "MEDIUM",
+      "title": "Missing Security Middleware",
+      "description": "Missing middleware: Authentication",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/main.py",
+      "line_number": null,
+      "recommendation": "Add all essential security middleware",
+      "timestamp": "2025-09-20T08:59:05.312913+00:00"
+    },
+    {
+      "category": "security_patterns",
+      "severity": "MEDIUM",
+      "title": "Incomplete Middleware in scoped_auth_middleware.py",
+      "description": "Middleware missing request/response handling",
+      "file_path": "/Users/dongmingjiang/GB/LangBuilder/src/backend/base/langflow/services/auth/scoped_auth_middleware.py",
+      "line_number": null,
+      "recommendation": "Implement complete middleware pattern",
+      "timestamp": "2025-09-20T08:59:05.313354+00:00"
+    }
+  ],
+  "recommendations": [
+    "\ud83d\udd12 SECURITY: Implement comprehensive security controls across all layers",
+    "\ud83c\udfd7\ufe0f ARCHITECTURE: Consider architectural review to address systemic issues",
+    "\ud83d\udccb COMPLIANCE: Implement audit logging for all sensitive operations",
+    "\ud83d\udd0d MONITORING: Set up continuous security monitoring and alerting",
+    "\ud83d\udcda DOCUMENTATION: Create comprehensive RBAC documentation and runbooks",
+    "\ud83e\uddea TESTING: Implement comprehensive security testing suite",
+    "\ud83d\udc65 TRAINING: Provide security training for development team"
+  ],
+  "compliance_assessment": {
+    "SOC2": {
+      "status": "PARTIAL",
+      "missing_controls": [
+        "Continuous monitoring",
+        "Incident response"
+      ],
+      "implemented_controls": [
+        "Access controls",
+        "Audit logging"
+      ]
+    },
+    "ISO27001": {
+      "status": "PARTIAL",
+      "missing_controls": [
+        "Risk assessment",
+        "Security training"
+      ],
+      "implemented_controls": [
+        "Access management",
+        "Authentication"
+      ]
+    },
+    "GDPR": {
+      "status": "NEEDS_REVIEW",
+      "missing_controls": [
+        "Data minimization",
+        "Right to be forgotten"
+      ],
+      "implemented_controls": [
+        "Access controls",
+        "Audit trails"
+      ]
+    },
+    "NIST": {
+      "status": "PARTIAL",
+      "missing_controls": [
+        "Continuous monitoring",
+        "Incident response"
+      ],
+      "implemented_controls": [
+        "Identity management",
+        "Access control"
+      ]
+    }
+  },
+  "security_score": {
+    "overall_score": 0,
+    "grade": "F",
+    "breakdown": {
+      "authentication": 0,
+      "authorization": 0,
+      "data_access": 85,
+      "api_security": 0,
+      "database_security": 0
+    }
+  }
+}

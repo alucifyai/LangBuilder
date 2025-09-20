@@ -45,19 +45,19 @@ flowchart TD
     %% Main Navigation Flow
     LoginPage -->|"✅ successful login"| FlowDashboard
     AuthGuard -->|"🔒 authentication required"| LoginPage
-    
+
     %% Dashboard Navigation
     FlowDashboard -->|"✏️ edit flow"| FlowEditor
     FlowDashboard -->|"🎮 test flow"| PlaygroundInterface
     FlowDashboard -->|"⚙️ settings"| SettingsPage
     FlowDashboard -->|"🏪 browse store"| StorePage
     FlowDashboard -->|"📋 templates"| TemplateGallery
-    
+
     %% Editor Navigation
     FlowEditor -->|"🎮 test flow"| PlaygroundInterface
     FlowEditor -->|"🏪 import components"| StorePage
     FlowEditor -->|"💬 playground modal"| IOModal
-    
+
     %% Cross-Page Navigation
     PlaygroundInterface -->|"✏️ back to editor"| FlowEditor
     SettingsPage -->|"📁 file management"| FileManagementPage
@@ -76,7 +76,7 @@ flowchart TD
     FlowEditor -.->|contains| FlowToolbar
     FlowEditor -.->|contains| ComponentSidebar
     FlowEditor -.->|contains| ReactFlowCanvas
-    
+
     %% Component Relationships within Playground
     PlaygroundInterface -.->|contains| MessageList
     PlaygroundInterface -.->|contains| ChatInput

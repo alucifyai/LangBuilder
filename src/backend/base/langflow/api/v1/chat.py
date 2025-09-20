@@ -36,6 +36,13 @@ from langflow.api.utils import (
     parse_exception,
     verify_public_flow_and_get_user,
 )
+from langflow.services.auth.authorization_patterns import (
+    get_enhanced_enforcement_context,
+    RequireFlowExecute,
+    RequireFlowRead,
+    get_authorized_user,
+)
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
 from langflow.api.v1.schemas import (
     CancelFlowResponse,
     FlowDataRequest,
@@ -77,6 +84,9 @@ async def retrieve_vertices_order(
     stop_component_id: str | None = None,
     start_component_id: str | None = None,
     session: DbSession,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    _flow_execute_check: Annotated[bool, RequireFlowExecute] = True,
 ) -> VerticesOrderResponse:
     """Retrieve the vertices order for a given flow.
 
@@ -150,10 +160,12 @@ async def build_flow(
     stop_component_id: str | None = None,
     start_component_id: str | None = None,
     log_builds: bool = True,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     queue_service: Annotated[JobQueueService, Depends(get_queue_service)],
     flow_name: str | None = None,
     event_delivery: EventDeliveryType = EventDeliveryType.POLLING,
+    _flow_execute_check: Annotated[bool, RequireFlowExecute] = True,
 ):
     """Build and process a flow, returning a job ID for event polling.
 
@@ -505,6 +517,9 @@ async def _stream_vertex(flow_id: str, vertex_id: str, chat_service: ChatService
 async def build_vertex_stream(
     flow_id: uuid.UUID,
     vertex_id: str,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    _flow_execute_check: Annotated[bool, RequireFlowExecute] = True,
 ):
     """Build a vertex instead of the entire graph.
 

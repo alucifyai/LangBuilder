@@ -20,7 +20,7 @@ type User {
   last_login_at: DateTime
   store_api_key: String
   optins: JSON
-  
+
   # Relationships
   api_keys: [ApiKey!]!
   flows: [Flow!]!
@@ -37,7 +37,7 @@ type ApiKey {
   last_used_at: DateTime
   total_uses: Int!
   is_active: Boolean!
-  
+
   # Relationships
   user_id: UUID!
   user: User!
@@ -63,7 +63,7 @@ type Flow {
   action_description: String
   access_type: AccessTypeEnum!  # PRIVATE or PUBLIC
   fs_path: String  # File system path
-  
+
   # Relationships
   user_id: UUID
   user: User!
@@ -76,7 +76,7 @@ type Folder {
   name: String!
   description: String
   auth_settings: JSON  # Authentication settings for the folder/project
-  
+
   # Relationships
   parent_id: UUID
   parent: Folder
@@ -95,7 +95,7 @@ type Variable {
   default_fields: [String!]
   created_at: DateTime
   updated_at: DateTime
-  
+
   # Relationships
   user_id: UUID!
   user: User!
@@ -110,7 +110,7 @@ type GlobalVariable {
   is_secret: Boolean!
   created_at: DateTime!
   updated_at: DateTime!
-  
+
   # Relationships
   user_id: UUID  # null for system-wide variables
   user: User
@@ -130,7 +130,7 @@ type Message {
   properties: JSON  # Properties object
   category: String!
   content_blocks: [JSON!]  # Voice Mode support
-  
+
   # Relationships
   flow_id: UUID
 }
@@ -145,7 +145,7 @@ type Transaction {
   outputs: JSON  # Serialized with length limits
   status: String!
   error: String
-  
+
   # Relationships
   flow_id: UUID!
 }
@@ -158,7 +158,7 @@ type VertexBuild {
   artifacts: JSON  # Serialized with limits
   params: String  # Serialized parameters
   valid: Boolean!
-  
+
   # Relationships
   flow_id: UUID!
 }
@@ -172,7 +172,7 @@ type File {
   provider: String  # Storage provider (e.g., 'local', 's3')
   created_at: DateTime!
   updated_at: DateTime!
-  
+
   # Relationships
   user_id: UUID!
   user: User!
@@ -256,7 +256,7 @@ type Credential {
   updated_at: DateTime!
   expires_at: DateTime
   is_active: Boolean!
-  
+
   # Relationships
   user_id: UUID!
   user: User!
@@ -276,7 +276,7 @@ type Store {
   author: String!
   created_at: DateTime!
   updated_at: DateTime!
-  
+
   # Relationships
   user_id: UUID!
   user: User!
@@ -287,7 +287,7 @@ type StoreRating {
   rating: Int!
   review: String
   created_at: DateTime!
-  
+
   # Relationships
   store_id: UUID!
   user_id: UUID!

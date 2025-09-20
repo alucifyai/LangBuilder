@@ -479,7 +479,7 @@ from langflow.services.rbac.permission_engine import PermissionEngine
 
 async def my_business_logic(session, user, flow_id):
     permission_engine = PermissionEngine()
-    
+
     result = await permission_engine.check_permission(
         session=session,
         user=user,
@@ -487,10 +487,10 @@ async def my_business_logic(session, user, flow_id):
         action="execute",
         resource_id=flow_id,
     )
-    
+
     if not result.allowed:
         raise HTTPException(403, detail=f"Access denied: {result.reason}")
-    
+
     # Continue with business logic
 ```
 

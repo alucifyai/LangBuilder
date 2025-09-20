@@ -1,20 +1,21 @@
-# from __future__ import annotations
-
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Union, List
 from uuid import UUID, uuid4
 
 from sqlalchemy import Text, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
-from langflow.services.database.models.flow.model import Flow, FlowRead
-from langflow.services.database.models.user.model import User
 from langflow.schema.serialize import UUIDstr
+
+if TYPE_CHECKING:
+    from langflow.services.database.models.flow.model import Flow, FlowRead
+    from langflow.services.database.models.user.model import User
 
 
 class FolderBase(SQLModel):
     name: str = Field(index=True)
-    description: str | None = Field(default=None, sa_column=Column(Text))
-    auth_settings: dict | None = Field(
+    description: Union[str, None] = Field(default=None, sa_column=Column(Text))
+    auth_settings: Union[dict, None] = Field(
         default=None,
         sa_column=Column(JSON, nullable=True),
         description="Authentication settings for the folder/project",
@@ -22,17 +23,17 @@ class FolderBase(SQLModel):
 
 
 class Folder(FolderBase, table=True):  # type: ignore[call-arg]
-    id: UUID | None = Field(default_factory=uuid4, primary_key=True)
-    parent_id: UUID | None = Field(default=None, foreign_key="folder.id")
+    id: Union[UUID, None] = Field(default_factory=uuid4, primary_key=True)
+    parent_id: Union[UUID, None] = Field(default=None, foreign_key="folder.id")
 
     parent: Union["Folder", None] = Relationship(
         back_populates="children",
         sa_relationship_kwargs={"remote_side": "Folder.id"},
     )
-    children: list["Folder"] = Relationship(back_populates="parent")
-    user_id: UUIDstr | None = Field(default=None, foreign_key="user.id")
-    user: User = Relationship(back_populates="folders")
-    flows: list["Flow"] = Relationship(
+    children: Mapped[List["Folder"]] = Relationship(back_populates="parent")
+    user_id: Union[UUIDstr, None] = Field(default=None, foreign_key="user.id")
+    user: Mapped["User"] = Relationship(back_populates="folders")
+    flows: Mapped[List["Flow"]] = Relationship(
         back_populates="folder", sa_relationship_kwargs={"cascade": "all, delete, delete-orphan"}
     )
 
@@ -40,25 +41,25 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
 
 
 class FolderCreate(FolderBase):
-    components_list: list[UUID] | None = None
-    flows_list: list[UUID] | None = None
+    components_list: Union[List[UUID], None] = None
+    flows_list: Union[List[UUID], None] = None
 
 
 class FolderRead(FolderBase):
     id: UUID
-    parent_id: UUID | None = Field()
+    parent_id: Union[UUID, None] = Field()
 
 
 class FolderReadWithFlows(FolderBase):
     id: UUID
-    parent_id: UUID | None = Field()
-    flows: list[FlowRead] = Field(default=[])
+    parent_id: Union[UUID, None] = Field()
+    flows: List["FlowRead"] = Field(default=[])
 
 
 class FolderUpdate(SQLModel):
-    name: str | None = None
-    description: str | None = None
-    parent_id: UUID | None = None
-    components: list[UUID] = Field(default_factory=list)
-    flows: list[UUID] = Field(default_factory=list)
-    auth_settings: dict | None = Field(default=None, sa_column=Column(JSON))
+    name: Union[str, None] = None
+    description: Union[str, None] = None
+    parent_id: Union[UUID, None] = None
+    components: List[UUID] = Field(default_factory=list)
+    flows: List[UUID] = Field(default_factory=list)
+    auth_settings: Union[dict, None] = Field(default=None, sa_column=Column(JSON))

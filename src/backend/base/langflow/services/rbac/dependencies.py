@@ -18,9 +18,8 @@ from typing import TYPE_CHECKING, Annotated, Optional
 from fastapi import Depends, HTTPException, Request, status
 from loguru import logger
 from sqlmodel.ext.asyncio.session import AsyncSession
-from starlette.middleware.base import BaseHTTPMiddleware
 
-from langflow.services.auth.utils import api_key_security, get_current_active_user
+from langflow.services.auth.utils import get_current_active_user
 from langflow.services.deps import get_session
 
 if TYPE_CHECKING:
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
 
 class RBACPermissionChecker:
     """RBAC permission checker for dependency injection.
-    
+
     This class provides a callable dependency that can be used to check
     specific permissions in FastAPI endpoints.
     """
@@ -46,12 +45,12 @@ class RBACPermissionChecker:
         cache_result: bool = True
     ):
         """Initialize permission checker.
-        
+
         Args:
             resource_type: Type of resource being accessed (e.g., 'flow', 'project')
             action: Action being performed (e.g., 'read', 'write', 'delete')
             resource_id_param: Parameter name for resource ID (e.g., 'flow_id')
-            workspace_id_param: Parameter name for workspace ID 
+            workspace_id_param: Parameter name for workspace ID
             project_id_param: Parameter name for project ID
             allow_superuser_bypass: Whether superusers bypass permission checks
             cache_result: Whether to cache permission results
@@ -71,15 +70,15 @@ class RBACPermissionChecker:
         session: AsyncSession = Depends(get_session)
     ) -> "User":
         """Check RBAC permissions and return user if authorized.
-        
+
         Args:
             request: FastAPI request object
             current_user: Current authenticated user
             session: Database session
-            
+
         Returns:
             User: Current user if permissions are granted
-            
+
         Raises:
             HTTPException: If permissions are denied
         """
@@ -326,10 +325,10 @@ async def check_custom_permission(
     project_id: str | None = None
 ) -> bool:
     """Check custom RBAC permission.
-    
+
     This function allows for programmatic permission checking outside
     of the dependency injection system.
-    
+
     Args:
         user: User to check permissions for
         session: Database session
@@ -338,7 +337,7 @@ async def check_custom_permission(
         resource_id: Specific resource ID
         workspace_id: Workspace scope
         project_id: Project scope
-        
+
     Returns:
         bool: True if permission is granted
     """
@@ -382,17 +381,17 @@ def require_permission(
     project_id_param: str | None = None
 ):
     """Decorator factory for requiring specific permissions.
-    
+
     This decorator can be used on FastAPI endpoints to require specific
     permissions beyond the standard dependency injection.
-    
+
     Args:
         resource_type: Type of resource
         action: Action being performed
         resource_id_param: Parameter name for resource ID
         workspace_id_param: Parameter name for workspace ID
         project_id_param: Parameter name for project ID
-        
+
     Returns:
         Callable: Decorator function
     """

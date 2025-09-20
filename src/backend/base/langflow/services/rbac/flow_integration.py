@@ -19,7 +19,6 @@ from uuid import UUID
 from loguru import logger
 
 from langflow.services.base import Service
-from langflow.services.deps import get_session
 
 if TYPE_CHECKING:
     from sqlmodel.ext.asyncio.session import AsyncSession
@@ -55,7 +54,7 @@ class FlowExecutionContext:
 
 class RBACFlowExecutionGuard:
     """Guard class for RBAC-protected Flow execution.
-    
+
     This class wraps Flow execution with RBAC permission checks,
     providing a seamless integration that maintains backward compatibility
     while adding comprehensive security.
@@ -63,7 +62,7 @@ class RBACFlowExecutionGuard:
 
     def __init__(self, rbac_service: Optional["RBACService"] = None):
         """Initialize Flow execution guard.
-        
+
         Args:
             rbac_service: RBAC service for permission evaluation
         """
@@ -82,7 +81,7 @@ class RBACFlowExecutionGuard:
         use_cache: bool = True
     ) -> FlowExecutionContext:
         """Check permission for Flow execution.
-        
+
         Args:
             session: Database session
             user: User requesting execution
@@ -91,10 +90,10 @@ class RBACFlowExecutionGuard:
             workspace_id: Workspace context
             project_id: Project context
             use_cache: Whether to use permission caching
-            
+
         Returns:
             FlowExecutionContext: Execution context with permission status
-            
+
         Raises:
             PermissionError: If execution is not permitted
         """
@@ -222,10 +221,10 @@ class RBACFlowExecutionGuard:
         session_id: str | None = None
     ) -> dict:
         """Execute Flow with RBAC permission checking.
-        
+
         This method wraps Flow execution with comprehensive permission checks
         while maintaining compatibility with existing execution patterns.
-        
+
         Args:
             session: Database session
             user: User requesting execution
@@ -235,10 +234,10 @@ class RBACFlowExecutionGuard:
             workspace_id: Workspace context
             project_id: Project context
             session_id: Session ID for execution tracking
-            
+
         Returns:
             dict: Flow execution results
-            
+
         Raises:
             PermissionError: If execution is not permitted
         """
@@ -329,12 +328,12 @@ class RBACFlowExecutionGuard:
 
     def _get_cached_permission(self, user_id: UUID, flow_id: str, execution_type: str) -> bool | None:
         """Get cached permission result.
-        
+
         Args:
             user_id: User ID
             flow_id: Flow ID
             execution_type: Type of execution
-            
+
         Returns:
             bool or None: Cached permission result or None if not cached
         """
@@ -353,7 +352,7 @@ class RBACFlowExecutionGuard:
 
     def _cache_permission(self, user_id: UUID, flow_id: str, execution_type: str, result: bool) -> None:
         """Cache permission result.
-        
+
         Args:
             user_id: User ID
             flow_id: Flow ID
@@ -383,7 +382,7 @@ class RBACFlowExecutionGuard:
         project_id: str | None = None
     ) -> None:
         """Log Flow execution event for audit purposes.
-        
+
         Args:
             session: Database session
             user: User who executed the Flow
@@ -422,7 +421,7 @@ class RBACFlowExecutionGuard:
 
     def get_cache_stats(self) -> dict:
         """Get permission cache statistics.
-        
+
         Returns:
             dict: Cache statistics
         """
@@ -433,7 +432,7 @@ class RBACFlowExecutionGuard:
 
     def get_metrics(self) -> dict:
         """Get performance metrics for Flow execution.
-        
+
         Returns:
             dict: Performance metrics
         """
@@ -447,7 +446,7 @@ class RBACFlowExecutionGuard:
 
 class RBACFlowIntegrationService(Service):
     """Service for RBAC Flow integration.
-    
+
     This service follows LangBuilder service patterns and provides
     factory methods for creating RBAC-protected Flow execution.
     """
@@ -477,7 +476,7 @@ class RBACFlowIntegrationService(Service):
 
     def get_execution_guard(self) -> RBACFlowExecutionGuard:
         """Get the Flow execution guard.
-        
+
         Returns:
             RBACFlowExecutionGuard: Guard for Flow execution permission checking
         """
@@ -495,7 +494,7 @@ class RBACFlowIntegrationService(Service):
         project_id: str | None = None
     ) -> bool:
         """Check if user has access to a Flow.
-        
+
         Args:
             session: Database session
             user: User to check access for
@@ -503,7 +502,7 @@ class RBACFlowIntegrationService(Service):
             action: Action to check (read, write, execute, delete)
             workspace_id: Workspace context
             project_id: Project context
-            
+
         Returns:
             bool: True if access is granted
         """

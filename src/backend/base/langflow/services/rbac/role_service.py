@@ -50,7 +50,7 @@ class RoleValidationResult:
     is_valid: bool
     errors: list[str]
     warnings: list[str]
-    suggested_permissions: list[str] = None
+    suggested_permissions: list[str] | None = None
 
 
 @dataclass
@@ -216,7 +216,7 @@ class RoleService(Service):
         if workspace_id:
             existing_query = existing_query.where(Role.workspace_id == workspace_id)
         else:
-            existing_query = existing_query.where(Role.workspace_id.is_(None))
+            existing_query = existing_query.where(Role.workspace_id is None)
 
         existing_result = await session.exec(existing_query)
         existing_role = existing_result.first()
@@ -342,7 +342,7 @@ class RoleService(Service):
             query = query.where(
                 or_(
                     Role.workspace_id == workspace_id,
-                    Role.workspace_id.is_(None)  # Include global roles
+                    Role.workspace_id is None  # Include global roles
                 )
             )
 
@@ -436,7 +436,7 @@ class RoleService(Service):
             assignment_query = assignment_query.where(
                 or_(
                     RoleAssignment.workspace_id == workspace_id,
-                    RoleAssignment.workspace_id.is_(None)  # System-wide roles
+                    RoleAssignment.workspace_id is None  # System-wide roles
                 )
             )
 
@@ -444,7 +444,7 @@ class RoleService(Service):
             assignment_query = assignment_query.where(
                 or_(
                     RoleAssignment.project_id == project_id,
-                    RoleAssignment.project_id.is_(None)
+                    RoleAssignment.project_id is None
                 )
             )
 
@@ -452,7 +452,7 @@ class RoleService(Service):
             assignment_query = assignment_query.where(
                 or_(
                     RoleAssignment.environment_id == environment_id,
-                    RoleAssignment.environment_id.is_(None)
+                    RoleAssignment.environment_id is None
                 )
             )
 

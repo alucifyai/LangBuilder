@@ -2,29 +2,29 @@
 
 from __future__ import annotations
 
-import pytest
-from pydantic import ValidationError
 from uuid import uuid4
 
+import pytest
 from langflow.services.database.models.rbac.project import (
     Project,
     ProjectCreate,
     ProjectRead,
+    ProjectStatus,
     ProjectUpdate,
-    ProjectStatus
 )
+from pydantic import ValidationError
 
 
 class TestProjectStatus:
     """Test ProjectStatus enum."""
-    
+
     def test_project_status_values(self):
         """Test ProjectStatus enum values."""
         assert ProjectStatus.ACTIVE == "active"
         assert ProjectStatus.INACTIVE == "inactive"
         assert ProjectStatus.ARCHIVED == "archived"
         assert ProjectStatus.DRAFT == "draft"
-    
+
     def test_project_status_enumeration(self):
         """Test ProjectStatus enumeration."""
         statuses = list(ProjectStatus)
@@ -37,18 +37,18 @@ class TestProjectStatus:
 
 class TestProject:
     """Test Project model."""
-    
+
     def test_project_creation_minimal(self):
         """Test project creation with minimal required fields."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         project = Project(
             name="Test Project",
             workspace_id=workspace_id,
             created_by_id=created_by_id
         )
-        
+
         assert project.name == "Test Project"
         assert project.workspace_id == workspace_id
         assert project.created_by_id == created_by_id
@@ -61,12 +61,12 @@ class TestProject:
         assert project.tags == []  # Default value
         assert project.created_at is not None
         assert project.updated_at is not None
-    
+
     def test_project_creation_full(self):
         """Test project creation with all fields."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         project = Project(
             name="Full Test Project",
             workspace_id=workspace_id,
@@ -87,7 +87,7 @@ class TestProject:
             },
             tags=["ml", "production", "critical"]
         )
-        
+
         assert project.name == "Full Test Project"
         assert project.workspace_id == workspace_id
         assert project.created_by_id == created_by_id
@@ -100,7 +100,7 @@ class TestProject:
         assert project.metadata["department"] == "engineering"
         assert project.metadata["priority"] == "high"
         assert project.tags == ["ml", "production", "critical"]
-    
+
     def test_project_name_validation_empty(self):
         """Test project name validation with empty string."""
         with pytest.raises(ValidationError) as exc_info:
@@ -109,9 +109,9 @@ class TestProject:
                 workspace_id=uuid4(),
                 created_by_id=uuid4()
             )
-        
+
         assert "Project name cannot be empty" in str(exc_info.value)
-    
+
     def test_project_name_validation_whitespace(self):
         """Test project name validation with whitespace only."""
         with pytest.raises(ValidationError) as exc_info:
@@ -120,22 +120,22 @@ class TestProject:
                 workspace_id=uuid4(),
                 created_by_id=uuid4()
             )
-        
+
         assert "Project name cannot be empty" in str(exc_info.value)
-    
+
     def test_project_name_validation_too_long(self):
         """Test project name validation with too long string."""
         long_name = "a" * 256  # Exceeds 255 character limit
-        
+
         with pytest.raises(ValidationError) as exc_info:
             Project(
                 name=long_name,
                 workspace_id=uuid4(),
                 created_by_id=uuid4()
             )
-        
+
         assert "Project name cannot exceed 255 characters" in str(exc_info.value)
-    
+
     def test_project_name_validation_valid(self):
         """Test project name validation with valid input."""
         project = Project(
@@ -143,10 +143,10 @@ class TestProject:
             workspace_id=uuid4(),
             created_by_id=uuid4()
         )
-        
+
         # Name should be stripped
         assert project.name == "Valid Project Name"
-    
+
     def test_project_settings_validation_dict(self):
         """Test project settings validation with dict input."""
         settings_dict = {
@@ -154,16 +154,16 @@ class TestProject:
             "backup_interval_hours": 24,
             "max_flows": 100
         }
-        
+
         project = Project(
             name="Test Project",
             workspace_id=uuid4(),
             created_by_id=uuid4(),
             settings=settings_dict
         )
-        
+
         assert project.settings == settings_dict
-    
+
     def test_project_settings_validation_invalid_type(self):
         """Test project settings validation with invalid type."""
         with pytest.raises(ValidationError) as exc_info:
@@ -173,9 +173,9 @@ class TestProject:
                 created_by_id=uuid4(),
                 settings="invalid_settings"  # Should be dict
             )
-        
+
         assert "Settings must be a dictionary" in str(exc_info.value)
-    
+
     def test_project_metadata_validation_dict(self):
         """Test project metadata validation with dict input."""
         metadata_dict = {
@@ -183,16 +183,16 @@ class TestProject:
             "budget": 50000,
             "deadline": "2024-12-31"
         }
-        
+
         project = Project(
             name="Test Project",
             workspace_id=uuid4(),
             created_by_id=uuid4(),
             metadata=metadata_dict
         )
-        
+
         assert project.metadata == metadata_dict
-    
+
     def test_project_metadata_validation_invalid_type(self):
         """Test project metadata validation with invalid type."""
         with pytest.raises(ValidationError) as exc_info:
@@ -202,24 +202,24 @@ class TestProject:
                 created_by_id=uuid4(),
                 metadata="invalid_metadata"  # Should be dict
             )
-        
+
         assert "Metadata must be a dictionary" in str(exc_info.value)
 
 
 class TestProjectCreate:
     """Test ProjectCreate schema."""
-    
+
     def test_project_create_minimal(self):
         """Test project creation schema with minimal data."""
         project_data = ProjectCreate(name="New Project")
-        
+
         assert project_data.name == "New Project"
         assert project_data.description is None
         assert project_data.status == ProjectStatus.ACTIVE  # Default
         assert project_data.settings is None
         assert project_data.metadata is None
         assert project_data.tags is None
-    
+
     def test_project_create_full(self):
         """Test project creation schema with full data."""
         project_data = ProjectCreate(
@@ -230,7 +230,7 @@ class TestProjectCreate:
             metadata={"priority": "medium"},
             tags=["new", "draft"]
         )
-        
+
         assert project_data.name == "New Full Project"
         assert project_data.description == "A new project with all fields"
         assert project_data.status == ProjectStatus.DRAFT
@@ -241,7 +241,7 @@ class TestProjectCreate:
 
 class TestProjectRead:
     """Test ProjectRead schema."""
-    
+
     def test_project_read_structure(self):
         """Test project read schema structure."""
         project_data = ProjectRead(
@@ -262,7 +262,7 @@ class TestProjectRead:
             environment_count=3,
             collaborator_count=5
         )
-        
+
         assert project_data.id is not None
         assert project_data.name == "Read Project"
         assert project_data.workspace_id is not None
@@ -275,14 +275,14 @@ class TestProjectRead:
 
 class TestProjectUpdate:
     """Test ProjectUpdate schema."""
-    
+
     def test_project_update_partial(self):
         """Test project update schema with partial data."""
         update_data = ProjectUpdate(
             name="Updated Project Name",
             description="Updated description"
         )
-        
+
         assert update_data.name == "Updated Project Name"
         assert update_data.description == "Updated description"
         assert update_data.status is None
@@ -291,7 +291,7 @@ class TestProjectUpdate:
         assert update_data.settings is None
         assert update_data.metadata is None
         assert update_data.tags is None
-    
+
     def test_project_update_full(self):
         """Test project update schema with all fields."""
         update_data = ProjectUpdate(
@@ -304,7 +304,7 @@ class TestProjectUpdate:
             metadata={"archived_reason": "completed"},
             tags=["archived", "completed"]
         )
-        
+
         assert update_data.name == "Fully Updated Project"
         assert update_data.description == "Fully updated description"
         assert update_data.status == ProjectStatus.ARCHIVED
@@ -317,7 +317,7 @@ class TestProjectUpdate:
 
 class TestProjectValidationEdgeCases:
     """Test edge cases for project validation."""
-    
+
     def test_project_name_unicode(self):
         """Test project name with unicode characters."""
         project = Project(
@@ -326,7 +326,7 @@ class TestProjectValidationEdgeCases:
             created_by_id=uuid4()
         )
         assert project.name == "项目测试 🚀"
-    
+
     def test_project_settings_empty_dict(self):
         """Test project with empty settings dict."""
         project = Project(
@@ -336,7 +336,7 @@ class TestProjectValidationEdgeCases:
             settings={}
         )
         assert project.settings == {}
-    
+
     def test_project_settings_complex_structure(self):
         """Test project with complex settings structure."""
         complex_settings = {
@@ -365,19 +365,19 @@ class TestProjectValidationEdgeCases:
                 "data_retention_days": 365
             }
         }
-        
+
         project = Project(
             name="Complex Project",
             workspace_id=uuid4(),
             created_by_id=uuid4(),
             settings=complex_settings
         )
-        
+
         assert project.settings == complex_settings
         assert project.settings["collaboration"]["real_time_editing"] is True
         assert project.settings["execution"]["resource_limits"]["cpu_cores"] == 4
         assert project.settings["security"]["data_retention_days"] == 365
-    
+
     def test_project_metadata_complex_structure(self):
         """Test project with complex metadata structure."""
         complex_metadata = {
@@ -413,24 +413,24 @@ class TestProjectValidationEdgeCases:
                 "audit_requirements": True
             }
         }
-        
+
         project = Project(
             name="Enterprise Project",
             workspace_id=uuid4(),
             created_by_id=uuid4(),
             metadata=complex_metadata
         )
-        
+
         assert project.metadata == complex_metadata
         assert project.metadata["business"]["budget"]["allocated"] == 100000
         assert "python" in project.metadata["technical"]["technologies"]
         assert project.metadata["compliance"]["audit_requirements"] is True
-    
+
     def test_project_status_transitions(self):
         """Test project status transitions and implications."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         # Draft project
         draft_project = Project(
             name="Draft Project",
@@ -443,7 +443,7 @@ class TestProjectValidationEdgeCases:
         assert draft_project.status == ProjectStatus.DRAFT
         assert draft_project.is_active is True
         assert draft_project.is_archived is False
-        
+
         # Active project
         active_project = Project(
             name="Active Project",
@@ -456,7 +456,7 @@ class TestProjectValidationEdgeCases:
         assert active_project.status == ProjectStatus.ACTIVE
         assert active_project.is_active is True
         assert active_project.is_archived is False
-        
+
         # Inactive project
         inactive_project = Project(
             name="Inactive Project",
@@ -469,7 +469,7 @@ class TestProjectValidationEdgeCases:
         assert inactive_project.status == ProjectStatus.INACTIVE
         assert inactive_project.is_active is False
         assert inactive_project.is_archived is False
-        
+
         # Archived project
         archived_project = Project(
             name="Archived Project",
@@ -482,12 +482,12 @@ class TestProjectValidationEdgeCases:
         assert archived_project.status == ProjectStatus.ARCHIVED
         assert archived_project.is_active is False
         assert archived_project.is_archived is True
-    
+
     def test_project_tags_categorization(self):
         """Test project categorization through tags."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         # ML/AI project
         ml_project = Project(
             name="ML Project",
@@ -498,7 +498,7 @@ class TestProjectValidationEdgeCases:
         assert "machine-learning" in ml_project.tags
         assert "ai" in ml_project.tags
         assert "data-science" in ml_project.tags
-        
+
         # Web development project
         web_project = Project(
             name="Web Project",
@@ -509,7 +509,7 @@ class TestProjectValidationEdgeCases:
         assert "web" in web_project.tags
         assert "frontend" in web_project.tags
         assert "react" in web_project.tags
-        
+
         # Infrastructure project
         infra_project = Project(
             name="Infrastructure Project",
@@ -520,7 +520,7 @@ class TestProjectValidationEdgeCases:
         assert "infrastructure" in infra_project.tags
         assert "devops" in infra_project.tags
         assert "kubernetes" in infra_project.tags
-    
+
     def test_project_creation_with_all_none_optionals(self):
         """Test project creation with all optional fields as None."""
         project = Project(
@@ -532,7 +532,7 @@ class TestProjectValidationEdgeCases:
             metadata=None,
             tags=None
         )
-        
+
         assert project.name == "Minimal Project"
         assert project.description is None
         # settings, metadata, and tags should get default values
@@ -543,12 +543,12 @@ class TestProjectValidationEdgeCases:
 
 class TestProjectBusinessLogic:
     """Test business logic related to projects."""
-    
+
     def test_project_lifecycle_states(self):
         """Test project lifecycle state management."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         # New project starts as draft
         new_project = Project(
             name="New Project",
@@ -559,7 +559,7 @@ class TestProjectBusinessLogic:
         assert new_project.status == ProjectStatus.DRAFT
         assert new_project.is_active is True  # Can still be edited
         assert new_project.is_archived is False
-        
+
         # Active project in production
         prod_project = Project(
             name="Production Project",
@@ -571,12 +571,12 @@ class TestProjectBusinessLogic:
         assert prod_project.status == ProjectStatus.ACTIVE
         assert prod_project.metadata["environment"] == "production"
         assert prod_project.metadata["criticality"] == "high"
-    
+
     def test_project_collaboration_settings(self):
         """Test project collaboration and sharing settings."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         # Public project with open collaboration
         public_project = Project(
             name="Public Project",
@@ -597,7 +597,7 @@ class TestProjectBusinessLogic:
         )
         assert public_project.settings["visibility"] == "public"
         assert public_project.settings["collaboration"]["allow_comments"] is True
-        
+
         # Private project with restricted access
         private_project = Project(
             name="Private Project",
@@ -618,12 +618,12 @@ class TestProjectBusinessLogic:
         )
         assert private_project.settings["visibility"] == "private"
         assert private_project.settings["collaboration"]["allow_comments"] is False
-    
+
     def test_project_resource_management(self):
         """Test project resource limits and quotas."""
         workspace_id = uuid4()
         created_by_id = uuid4()
-        
+
         project = Project(
             name="Resource Limited Project",
             workspace_id=workspace_id,
@@ -649,7 +649,7 @@ class TestProjectBusinessLogic:
                 }
             }
         )
-        
+
         assert project.settings["limits"]["max_flows"] == 100
         assert project.settings["quotas"]["api_calls_per_day"] == 10000
         assert project.metadata["resource_usage"]["current_flows"] == 25

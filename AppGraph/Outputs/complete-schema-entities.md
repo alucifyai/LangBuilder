@@ -25,7 +25,7 @@ type User {
     dialog_dismissed: false,
     discord_clicked: false
   })
-  
+
   # Relationships
   api_keys: [ApiKey!]! @cascade(delete)
   flows: [Flow!]!
@@ -45,7 +45,7 @@ type ApiKey {
   last_used_at: DateTime
   total_uses: Int! @default(0)
   is_active: Boolean! @default(true)
-  
+
   # Foreign Keys
   user_id: UUID! @indexed @foreign(user.id)
   user: User!
@@ -74,13 +74,13 @@ type Flow {
   action_description: String
   access_type: AccessTypeEnum! @default(PRIVATE)  # PRIVATE or PUBLIC
   fs_path: String  # File system path
-  
+
   # Foreign Keys
   user_id: UUID @indexed @foreign(user.id)
   user: User!
   folder_id: UUID @indexed @foreign(folder.id)
   folder: Folder
-  
+
   # Unique Constraints
   @unique([user_id, name])
   @unique([user_id, endpoint_name])
@@ -95,17 +95,17 @@ type Folder {
   name: String! @indexed
   description: String
   auth_settings: JSON  # Authentication settings for the folder/project
-  
+
   # Foreign Keys
   parent_id: UUID @foreign(folder.id)
   parent: Folder
   user_id: UUID @foreign(user.id)
   user: User!
-  
+
   # Relationships
   children: [Folder!]!
   flows: [Flow!]! @cascade(delete)
-  
+
   # Unique Constraints
   @unique([user_id, name])
 }
@@ -122,7 +122,7 @@ type Variable {
   default_fields: [String!]
   created_at: DateTime @default(now)
   updated_at: DateTime
-  
+
   # Foreign Keys
   user_id: UUID! @foreign(user.id)
   user: User!
@@ -145,7 +145,7 @@ type Message {
   properties: JSON  # Properties object
   category: String! @default("message")
   content_blocks: [JSON!] @default([])
-  
+
   # Foreign Keys
   flow_id: UUID @foreign(flow.id)
 }
@@ -163,7 +163,7 @@ type Transaction {
   outputs: JSON  # Serialized with length limits
   status: String!
   error: String
-  
+
   # Foreign Keys
   flow_id: UUID! @foreign(flow.id)
 }
@@ -180,7 +180,7 @@ type VertexBuild {
   artifacts: JSON  # Serialized with limits
   params: String  # Serialized parameters
   valid: Boolean!
-  
+
   # Foreign Keys
   flow_id: UUID! @foreign(flow.id)
 }
@@ -198,7 +198,7 @@ type File {
   provider: String  # Storage provider (e.g., 'local', 's3')
   created_at: DateTime! @default(now)
   updated_at: DateTime! @default(now)
-  
+
   # Foreign Keys
   user_id: UUID! @foreign(user.id)
   user: User!

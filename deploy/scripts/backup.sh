@@ -38,9 +38,9 @@ echo ""
 # Create backup directory
 create_backup_dir() {
     log_info "Creating backup directory..."
-    
+
     mkdir -p "$BACKUP_DIR/$BACKUP_NAME"
-    
+
     if [ $? -eq 0 ]; then
         log_success "Backup directory created: $BACKUP_DIR/$BACKUP_NAME"
     else
@@ -69,17 +69,17 @@ log_error() {
 # Backup database
 backup_database() {
     log_info "Backing up PostgreSQL database..."
-    
+
     cd "$DEPLOY_DIR"
-    
+
     # Create database dump
     if docker-compose exec -T db pg_dump -U langflow langflow > "$BACKUP_DIR/$BACKUP_NAME/database.sql"; then
         log_success "Database backup completed"
-        
+
         # Get database size
         local db_size=$(du -h "$BACKUP_DIR/$BACKUP_NAME/database.sql" | cut -f1)
         log_info "Database backup size: $db_size"
-        
+
         # Create compressed backup if enabled
         if [ "$COMPRESS" = "true" ]; then
             log_info "Compressing database backup..."
@@ -95,10 +95,10 @@ backup_database() {
 # Backup configuration files
 backup_configuration() {
     log_info "Backing up configuration files..."
-    
+
     # Create config backup directory
     mkdir -p "$BACKUP_DIR/$BACKUP_NAME/config"
-    
+
     # Backup environment file
     if [ -f "$DEPLOY_DIR/.env" ]; then
         cp "$DEPLOY_DIR/.env" "$BACKUP_DIR/$BACKUP_NAME/config/env_$TIMESTAMP"
@@ -106,7 +106,7 @@ backup_configuration() {
     else
         log_warning "Environment file not found"
     fi
-    
+
     # Backup docker-compose file
     if [ -f "$DEPLOY_DIR/docker-compose.yml" ]; then
         cp "$DEPLOY_DIR/docker-compose.yml" "$BACKUP_DIR/$BACKUP_NAME/config/docker-compose_$TIMESTAMP.yml"
@@ -114,19 +114,19 @@ backup_configuration() {
     else
         log_warning "Docker Compose file not found"
     fi
-    
+
     # Backup nginx configuration
     if [ -f "$DEPLOY_DIR/nginx-rbac.conf" ]; then
         cp "$DEPLOY_DIR/nginx-rbac.conf" "$BACKUP_DIR/$BACKUP_NAME/config/nginx-rbac_$TIMESTAMP.conf"
         log_success "Nginx RBAC configuration backed up"
     fi
-    
+
     # Backup deployment scripts
     if [ -d "$DEPLOY_DIR/scripts" ]; then
         cp -r "$DEPLOY_DIR/scripts" "$BACKUP_DIR/$BACKUP_NAME/config/"
         log_success "Deployment scripts backed up"
     fi
-    
+
     # Backup custom configurations
     if [ -d "$DEPLOY_DIR/custom" ]; then
         cp -r "$DEPLOY_DIR/custom" "$BACKUP_DIR/$BACKUP_NAME/config/"
@@ -137,19 +137,19 @@ backup_configuration() {
 # Backup volumes and data
 backup_volumes() {
     log_info "Backing up Docker volumes..."
-    
+
     cd "$DEPLOY_DIR"
-    
+
     # Create volumes backup directory
     mkdir -p "$BACKUP_DIR/$BACKUP_NAME/volumes"
-    
+
     # Get list of volumes
     local volumes=$(docker-compose config --volumes 2>/dev/null || echo "")
-    
+
     if [ -n "$volumes" ]; then
         for volume in $volumes; do
             log_info "Backing up volume: $volume"
-            
+
             # Create volume backup using docker
             if docker run --rm -v "${volume}:/source:ro" -v "$BACKUP_DIR/$BACKUP_NAME/volumes:/backup" alpine tar czf "/backup/${volume}_${TIMESTAMP}.tar.gz" -C /source .; then
                 log_success "Volume $volume backed up"
@@ -168,19 +168,19 @@ backup_images() {
         log_info "Skipping Docker image backup (INCLUDE_IMAGES=false)"
         return
     fi
-    
+
     log_info "Backing up Docker images..."
-    
+
     # Create images backup directory
     mkdir -p "$BACKUP_DIR/$BACKUP_NAME/images"
-    
+
     # Backup custom RBAC images
     local images=("langbuilder-rbac-backend:latest" "langbuilder-rbac-frontend:latest")
-    
+
     for image in "${images[@]}"; do
         if docker image inspect "$image" > /dev/null 2>&1; then
             log_info "Backing up image: $image"
-            
+
             local image_file=$(echo "$image" | tr '/:' '_')
             if docker save "$image" | gzip > "$BACKUP_DIR/$BACKUP_NAME/images/${image_file}_${TIMESTAMP}.tar.gz"; then
                 log_success "Image $image backed up"
@@ -196,19 +196,19 @@ backup_images() {
 # Backup application data
 backup_application_data() {
     log_info "Backing up application data..."
-    
+
     cd "$DEPLOY_DIR"
-    
+
     # Create app data backup directory
     mkdir -p "$BACKUP_DIR/$BACKUP_NAME/app_data"
-    
+
     # Backup RBAC specific data if it exists
     if docker-compose exec -T backend test -d /app/data/rbac 2>/dev/null; then
         log_info "Backing up RBAC application data..."
         docker-compose exec -T backend tar czf - -C /app/data rbac > "$BACKUP_DIR/$BACKUP_NAME/app_data/rbac_data_$TIMESTAMP.tar.gz"
         log_success "RBAC application data backed up"
     fi
-    
+
     # Backup logs if accessible
     if docker-compose exec -T backend test -d /app/logs 2>/dev/null; then
         log_info "Backing up application logs..."
@@ -220,7 +220,7 @@ backup_application_data() {
 # Create system info snapshot
 create_system_info() {
     log_info "Creating system information snapshot..."
-    
+
     # Create system info file
     cat > "$BACKUP_DIR/$BACKUP_NAME/system_info.txt" << EOF
 LangBuilder with RBAC - System Information
@@ -234,27 +234,27 @@ Docker Compose Version: $(docker-compose --version)
 
 Service Status:
 EOF
-    
+
     cd "$DEPLOY_DIR"
-    
+
     # Add service status
     echo "" >> "$BACKUP_DIR/$BACKUP_NAME/system_info.txt"
     docker-compose ps >> "$BACKUP_DIR/$BACKUP_NAME/system_info.txt" 2>/dev/null || echo "Could not retrieve service status" >> "$BACKUP_DIR/$BACKUP_NAME/system_info.txt"
-    
+
     # Add environment info (sanitized)
     echo "" >> "$BACKUP_DIR/$BACKUP_NAME/system_info.txt"
     echo "Environment Configuration (sanitized):" >> "$BACKUP_DIR/$BACKUP_NAME/system_info.txt"
     if [ -f ".env" ]; then
         grep -E "^[A-Z_]+=.*$" .env | sed 's/=.*/=***/' >> "$BACKUP_DIR/$BACKUP_NAME/system_info.txt"
     fi
-    
+
     log_success "System information snapshot created"
 }
 
 # Create backup manifest
 create_manifest() {
     log_info "Creating backup manifest..."
-    
+
     cat > "$BACKUP_DIR/$BACKUP_NAME/MANIFEST.txt" << EOF
 LangBuilder with RBAC - Backup Manifest
 =======================================
@@ -283,7 +283,7 @@ Restoration Instructions:
 For detailed restoration instructions, see:
 docs/COMPREHENSIVE_DEPLOYMENT_GUIDE.md#backup--restoration
 EOF
-    
+
     log_success "Backup manifest created"
 }
 
@@ -293,18 +293,18 @@ compress_backup() {
         log_info "Skipping backup compression"
         return
     fi
-    
+
     log_info "Compressing entire backup..."
-    
+
     cd "$BACKUP_DIR"
-    
+
     if tar czf "${BACKUP_NAME}.tar.gz" "$BACKUP_NAME/"; then
         log_success "Backup compressed to ${BACKUP_NAME}.tar.gz"
-        
+
         # Get compressed size
         local compressed_size=$(du -h "${BACKUP_NAME}.tar.gz" | cut -f1)
         log_info "Compressed backup size: $compressed_size"
-        
+
         # Remove uncompressed directory
         rm -rf "$BACKUP_NAME/"
         log_info "Uncompressed backup directory removed"
@@ -317,13 +317,13 @@ compress_backup() {
 # Clean old backups
 cleanup_old_backups() {
     log_info "Cleaning up old backups (older than $RETENTION_DAYS days)..."
-    
+
     # Find and remove old backup files
     find "$BACKUP_DIR" -name "langbuilder_rbac_backup_*.tar.gz" -mtime +$RETENTION_DAYS -type f -delete 2>/dev/null || true
     find "$BACKUP_DIR" -name "langbuilder_rbac_backup_*" -mtime +$RETENTION_DAYS -type d -exec rm -rf {} + 2>/dev/null || true
-    
+
     log_success "Old backups cleaned up"
-    
+
     # Show remaining backups
     local backup_count=$(find "$BACKUP_DIR" -name "langbuilder_rbac_backup_*" | wc -l)
     log_info "Remaining backups: $backup_count"
@@ -332,11 +332,11 @@ cleanup_old_backups() {
 # Validate backup
 validate_backup() {
     log_info "Validating backup..."
-    
+
     local backup_path
     if [ "$COMPRESS" = "true" ]; then
         backup_path="$BACKUP_DIR/${BACKUP_NAME}.tar.gz"
-        
+
         # Test archive integrity
         if tar tzf "$backup_path" > /dev/null 2>&1; then
             log_success "Backup archive is valid"
@@ -346,7 +346,7 @@ validate_backup() {
         fi
     else
         backup_path="$BACKUP_DIR/$BACKUP_NAME"
-        
+
         # Check if manifest exists
         if [ -f "$backup_path/MANIFEST.txt" ]; then
             log_success "Backup directory structure is valid"
@@ -355,11 +355,11 @@ validate_backup() {
             return 1
         fi
     fi
-    
+
     # Get backup size
     local backup_size=$(du -h "$backup_path" | cut -f1)
     log_info "Total backup size: $backup_size"
-    
+
     return 0
 }
 
@@ -375,7 +375,7 @@ generate_report() {
     echo -e "   🗓️  Created: $(date)"
     echo -e "   ⏱️  Retention: $RETENTION_DAYS days"
     echo ""
-    
+
     if [ "$COMPRESS" = "true" ]; then
         local backup_file="$BACKUP_DIR/${BACKUP_NAME}.tar.gz"
         if [ -f "$backup_file" ]; then
@@ -393,7 +393,7 @@ generate_report() {
             echo -e "   💾 Size: $size"
         fi
     fi
-    
+
     echo ""
     echo -e "${BLUE}Contents:${NC}"
     echo -e "   🗄️  Database dump"
@@ -403,7 +403,7 @@ generate_report() {
     if [ "$INCLUDE_IMAGES" = "true" ]; then
         echo -e "   🐳 Docker images"
     fi
-    
+
     echo ""
     echo -e "${GREEN}✅ Backup completed successfully!${NC}"
     echo ""
@@ -474,16 +474,16 @@ done
 # Main backup process
 main() {
     local start_time=$(date +%s)
-    
+
     # Pre-flight checks
     if [ ! -f "$DEPLOY_DIR/docker-compose.yml" ]; then
         log_error "Docker Compose file not found in $DEPLOY_DIR"
         exit 1
     fi
-    
+
     # Create backup directory
     create_backup_dir
-    
+
     # Run backup steps
     backup_database
     backup_configuration
@@ -492,26 +492,26 @@ main() {
     backup_application_data
     create_system_info
     create_manifest
-    
+
     # Validate backup before compression
     validate_backup
-    
+
     # Compress if enabled
     compress_backup
-    
+
     # Final validation
     validate_backup
-    
+
     # Cleanup old backups
     cleanup_old_backups
-    
+
     # Calculate duration
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
+
     # Generate report
     generate_report
-    
+
     log_success "Backup completed in ${duration} seconds"
 }
 

@@ -5,27 +5,22 @@ SCIM 2.0 protocol and LangBuilder service patterns.
 """
 
 # NO future annotations per Phase 1 requirements
-from typing import TYPE_CHECKING
-
-import hashlib
-import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
 
 from loguru import logger
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langflow.services.base import Service
 from langflow.schema.serialize import UUIDstr
+from langflow.services.base import Service
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.rbac.sso_configuration import SSOConfiguration
-    from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
+    from langflow.services.database.models.rbac.user_group import UserGroup
     from langflow.services.database.models.user.model import User
 
 
@@ -58,12 +53,12 @@ class SCIMUserStatus(str, Enum):
 class SCIMName:
     """SCIM name structure."""
 
-    formatted: Optional[str] = None
-    family_name: Optional[str] = None
-    given_name: Optional[str] = None
-    middle_name: Optional[str] = None
-    honorific_prefix: Optional[str] = None
-    honorific_suffix: Optional[str] = None
+    formatted: str | None = None
+    family_name: str | None = None
+    given_name: str | None = None
+    middle_name: str | None = None
+    honorific_prefix: str | None = None
+    honorific_suffix: str | None = None
 
 
 @dataclass
@@ -87,771 +82,918 @@ class SCIMGroup:
 class SCIMUserResource(BaseModel):
     """SCIM User resource representation."""
 
-    id: Optional[str] = None
-    external_id: Optional[str] = None
+    id: str | None = None
+    external_id: str | None = None
     user_name: str
-    name: Optional[SCIMName] = None
-    display_name: Optional[str] = None
-    emails: List[SCIMEmail] = []
+    name: SCIMName | None = None
+    display_name: str | None = None
+    emails: list[SCIMEmail] = []
     active: bool = True
-    groups: List[SCIMGroup] = []
-    title: Optional[str] = None
-    department: Optional[str] = None
-    organization: Optional[str] = None
-    manager: Optional[str] = None
-    meta: Optional[Dict[str, Any]] = None
+    groups: list[SCIMGroup] = []
+    title: str | None = None
+    department: str | None = None
+    organization: str | None = None
+    created: datetime | None = None
+    last_modified: datetime | None = None
 
 
 class SCIMGroupResource(BaseModel):
     """SCIM Group resource representation."""
 
-    id: Optional[str] = None
-    external_id: Optional[str] = None
+    id: str | None = None
+    external_id: str | None = None
     display_name: str
-    description: Optional[str] = None
-    members: List[Dict[str, str]] = []
-    meta: Optional[Dict[str, Any]] = None
+    members: list[dict[str, str]] = []
+    created: datetime | None = None
+    last_modified: datetime | None = None
 
 
 @dataclass
-class SCIMProvisioningEvent:
-    """SCIM provisioning event for audit logging."""
+class SCIMSyncResult:
+    """Result of SCIM synchronization operation."""
 
-    operation: SCIMOperationType
+    success: bool
     resource_type: SCIMResourceType
-    resource_id: str
-    external_id: Optional[str]
-    success: bool
-    error_message: Optional[str] = None
-    changes: Optional[Dict[str, Any]] = None
-    timestamp: datetime = None
-
-    def __post_init__(self):
-        if self.timestamp is None:
-            self.timestamp = datetime.now(timezone.utc)
-
-
-class SCIMProvisioningResult(BaseModel):
-    """Result of SCIM provisioning operation."""
-
-    success: bool
-    resource_id: Optional[str] = None
-    external_id: Optional[str] = None
     operation: SCIMOperationType
-    error_code: Optional[str] = None
-    error_message: Optional[str] = None
-    changes_applied: List[str] = []
-    warnings: List[str] = []
+    resource_id: str | None = None
+    error_message: str | None = None
+    changes_applied: list[str] = None
 
 
-class SCIMService(Service):
-    """SCIM provisioning service following LangBuilder patterns.
+class SCIMUserSynchronizer:
+    """Handles SCIM user synchronization with LangBuilder users."""
 
-    Provides automated user and group lifecycle management with:
-    - Real-time SSO synchronization
-    - Differential updates for performance
-    - Comprehensive audit logging
-    - Error handling and reconciliation
-    - Compliance with SCIM 2.0 protocol
-    """
+    def __init__(self, session: AsyncSession):
+        """Initialize user synchronizer.
 
-    name = "scim_service"
+        Args:
+            session: Database session for operations
+        """
+        self.session = session
 
-    def __init__(self):
-        """Initialize SCIM service."""
-        self._provisioning_stats = {
-            "users_created": 0,
-            "users_updated": 0,
-            "users_deactivated": 0,
-            "groups_created": 0,
-            "groups_updated": 0,
-            "errors": 0,
-        }
-
-    async def provision_user(
+    async def sync_user(
         self,
-        session: AsyncSession,
         scim_user: SCIMUserResource,
         provider_id: UUIDstr,
         dry_run: bool = False,
-    ) -> SCIMProvisioningResult:
-        """Provision or update user from SCIM data.
+    ) -> SCIMSyncResult:
+        """Synchronize SCIM user with LangBuilder user.
 
         Args:
-            session: Database session
             scim_user: SCIM user resource
             provider_id: SSO provider ID
-            dry_run: If True, validate but don't persist changes
+            dry_run: If True, only validate without making changes
 
         Returns:
-            Provisioning result with operation details
+            Synchronization result
         """
         try:
-            # Validate required fields
-            if not scim_user.user_name:
-                return SCIMProvisioningResult(
-                    success=False,
-                    operation=SCIMOperationType.CREATE,
-                    error_code="missing_username",
-                    error_message="Username is required for user provisioning",
-                )
 
-            if not scim_user.emails:
-                return SCIMProvisioningResult(
-                    success=False,
-                    operation=SCIMOperationType.CREATE,
-                    error_code="missing_email",
-                    error_message="Email is required for user provisioning",
-                )
-
-            primary_email = next((e.value for e in scim_user.emails if e.primary), scim_user.emails[0].value)
-
-            # Check if user exists by username or external_id
-            existing_user = await self._find_existing_user(session, scim_user)
+            # Find existing user by external ID or email
+            existing_user = await self._find_existing_user(scim_user)
 
             if existing_user:
-                return await self._update_user(session, existing_user, scim_user, provider_id, dry_run)
-            else:
-                return await self._create_user(session, scim_user, provider_id, dry_run)
+                # Update existing user
+                return await self._update_user(
+                    existing_user, scim_user, provider_id, dry_run
+                )
+            # Create new user
+            return await self._create_user(scim_user, provider_id, dry_run)
 
         except Exception as e:
-            logger.error(f"SCIM user provisioning failed: {e}")
-            self._provisioning_stats["errors"] += 1
-
-            return SCIMProvisioningResult(
+            logger.error(f"SCIM user sync failed: {e}")
+            return SCIMSyncResult(
                 success=False,
-                operation=SCIMOperationType.CREATE,
-                error_code="provisioning_error",
-                error_message=str(e),
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.UPDATE,
+                error_message=str(e)
             )
 
-    async def provision_group(
+    async def deactivate_user(
         self,
-        session: AsyncSession,
-        scim_group: SCIMGroupResource,
+        user_identifier: str,
         provider_id: UUIDstr,
         dry_run: bool = False,
-    ) -> SCIMProvisioningResult:
-        """Provision or update group from SCIM data.
+    ) -> SCIMSyncResult:
+        """Deactivate user from SCIM provider.
 
         Args:
-            session: Database session
-            scim_group: SCIM group resource
+            user_identifier: User external ID or email
             provider_id: SSO provider ID
-            dry_run: If True, validate but don't persist changes
+            dry_run: If True, only validate without making changes
 
         Returns:
-            Provisioning result with operation details
-        """
-        try:
-            # Validate required fields
-            if not scim_group.display_name:
-                return SCIMProvisioningResult(
-                    success=False,
-                    operation=SCIMOperationType.CREATE,
-                    error_code="missing_display_name",
-                    error_message="Display name is required for group provisioning",
-                )
-
-            # Check if group exists
-            existing_group = await self._find_existing_group(session, scim_group, provider_id)
-
-            if existing_group:
-                return await self._update_group(session, existing_group, scim_group, provider_id, dry_run)
-            else:
-                return await self._create_group(session, scim_group, provider_id, dry_run)
-
-        except Exception as e:
-            logger.error(f"SCIM group provisioning failed: {e}")
-            self._provisioning_stats["errors"] += 1
-
-            return SCIMProvisioningResult(
-                success=False,
-                operation=SCIMOperationType.CREATE,
-                error_code="provisioning_error",
-                error_message=str(e),
-            )
-
-    async def deprovision_user(
-        self,
-        session: AsyncSession,
-        user_id: UUIDstr,
-        external_id: Optional[str] = None,
-        hard_delete: bool = False,
-    ) -> SCIMProvisioningResult:
-        """Deprovision user (deactivate or delete).
-
-        Args:
-            session: Database session
-            user_id: Internal user ID
-            external_id: External user ID from provider
-            hard_delete: If True, delete user; if False, deactivate
-
-        Returns:
-            Provisioning result
+            Synchronization result
         """
         try:
             from langflow.services.database.models.user.model import User
 
-            user = await session.get(User, user_id)
+            # Find user
+            user_query = select(User).where(
+                (User.external_id == user_identifier) |
+                (User.email == user_identifier)
+            )
+            result = await self.session.exec(user_query)
+            user = result.first()
+
             if not user:
-                return SCIMProvisioningResult(
+                return SCIMSyncResult(
                     success=False,
-                    operation=SCIMOperationType.DELETE,
-                    error_code="user_not_found",
-                    error_message=f"User {user_id} not found",
-                )
-
-            if hard_delete:
-                # Hard delete - remove user and all associations
-                await self._hard_delete_user(session, user)
-                operation = SCIMOperationType.DELETE
-                self._provisioning_stats["users_deactivated"] += 1
-            else:
-                # Soft delete - deactivate user
-                user.is_active = False
-                user.deactivated_at = datetime.now(timezone.utc)
-                await session.commit()
-                operation = SCIMOperationType.DEACTIVATE
-                self._provisioning_stats["users_deactivated"] += 1
-
-            # Log provisioning event
-            await self._log_provisioning_event(
-                SCIMProvisioningEvent(
-                    operation=operation,
                     resource_type=SCIMResourceType.USER,
+                    operation=SCIMOperationType.DEACTIVATE,
+                    error_message=f"User {user_identifier} not found"
+                )
+
+            if dry_run:
+                return SCIMSyncResult(
+                    success=True,
+                    resource_type=SCIMResourceType.USER,
+                    operation=SCIMOperationType.DEACTIVATE,
                     resource_id=str(user.id),
-                    external_id=external_id,
-                    success=True,
-                    changes={"deactivated": True} if not hard_delete else {"deleted": True},
+                    changes_applied=["User would be deactivated"]
                 )
-            )
 
-            return SCIMProvisioningResult(
+            # Deactivate user
+            user.is_active = False
+            user.updated_at = datetime.now(timezone.utc)
+
+            await self.session.commit()
+
+            logger.info(f"SCIM: Deactivated user {user.email}")
+
+            return SCIMSyncResult(
                 success=True,
-                operation=operation,
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.DEACTIVATE,
                 resource_id=str(user.id),
-                external_id=external_id,
-                changes_applied=["user_deactivated" if not hard_delete else "user_deleted"],
+                changes_applied=["User deactivated"]
             )
 
         except Exception as e:
-            logger.error(f"SCIM user deprovisioning failed: {e}")
-            self._provisioning_stats["errors"] += 1
-
-            return SCIMProvisioningResult(
+            logger.error(f"SCIM user deactivation failed: {e}")
+            return SCIMSyncResult(
                 success=False,
-                operation=SCIMOperationType.DELETE,
-                error_code="deprovisioning_error",
-                error_message=str(e),
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.DEACTIVATE,
+                error_message=str(e)
             )
 
-    async def sync_group_memberships(
-        self,
-        session: AsyncSession,
-        group_id: UUIDstr,
-        member_external_ids: List[str],
-        provider_id: UUIDstr,
-    ) -> SCIMProvisioningResult:
-        """Synchronize group memberships from SCIM data.
-
-        Args:
-            session: Database session
-            group_id: Internal group ID
-            member_external_ids: List of external user IDs that should be in group
-            provider_id: SSO provider ID
-
-        Returns:
-            Provisioning result with membership changes
-        """
-        try:
-            from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
-            from langflow.services.database.models.user.model import User
-
-            group = await session.get(UserGroup, group_id)
-            if not group:
-                return SCIMProvisioningResult(
-                    success=False,
-                    operation=SCIMOperationType.UPDATE,
-                    error_code="group_not_found",
-                    error_message=f"Group {group_id} not found",
-                )
-
-            # Get current memberships
-            current_query = select(UserGroupMembership).where(
-                UserGroupMembership.group_id == group_id,
-                UserGroupMembership.is_active == True,
-            )
-            current_result = await session.exec(current_query)
-            current_memberships = {str(m.user_id): m for m in current_result.all()}
-
-            # Get users by external IDs
-            target_users = {}
-            for external_id in member_external_ids:
-                user_query = select(User).where(User.external_id == external_id)
-                user_result = await session.exec(user_query)
-                user = user_result.first()
-                if user:
-                    target_users[str(user.id)] = user
-
-            changes_applied = []
-
-            # Add new memberships
-            for user_id, user in target_users.items():
-                if user_id not in current_memberships:
-                    membership = UserGroupMembership(
-                        user_id=user.id,
-                        group_id=group.id,
-                        is_active=True,
-                    )
-                    session.add(membership)
-                    changes_applied.append(f"added_user_{user.username}")
-
-            # Remove old memberships
-            for user_id, membership in current_memberships.items():
-                if user_id not in target_users:
-                    membership.is_active = False
-                    membership.removed_at = datetime.now(timezone.utc)
-                    changes_applied.append(f"removed_user_{user_id}")
-
-            await session.commit()
-
-            # Log provisioning event
-            await self._log_provisioning_event(
-                SCIMProvisioningEvent(
-                    operation=SCIMOperationType.UPDATE,
-                    resource_type=SCIMResourceType.GROUP,
-                    resource_id=str(group.id),
-                    external_id=group.external_id,
-                    success=True,
-                    changes={"membership_changes": changes_applied},
-                )
-            )
-
-            return SCIMProvisioningResult(
-                success=True,
-                operation=SCIMOperationType.UPDATE,
-                resource_id=str(group.id),
-                changes_applied=changes_applied,
-            )
-
-        except Exception as e:
-            logger.error(f"SCIM group membership sync failed: {e}")
-            self._provisioning_stats["errors"] += 1
-
-            return SCIMProvisioningResult(
-                success=False,
-                operation=SCIMOperationType.UPDATE,
-                error_code="sync_error",
-                error_message=str(e),
-            )
-
-    async def reconcile_provisioning(
-        self,
-        session: AsyncSession,
-        provider_id: UUIDstr,
-        scim_users: List[SCIMUserResource],
-        scim_groups: List[SCIMGroupResource],
-    ) -> Dict[str, Any]:
-        """Reconcile all users and groups from SCIM provider.
-
-        Args:
-            session: Database session
-            provider_id: SSO provider ID
-            scim_users: Complete list of users from provider
-            scim_groups: Complete list of groups from provider
-
-        Returns:
-            Reconciliation summary with statistics
-        """
-        reconciliation_start = datetime.now(timezone.utc)
-        results = {
-            "users": {"processed": 0, "created": 0, "updated": 0, "errors": 0},
-            "groups": {"processed": 0, "created": 0, "updated": 0, "errors": 0},
-            "duration_seconds": 0,
-            "timestamp": reconciliation_start.isoformat(),
-        }
-
-        try:
-            # Process groups first (users may reference groups)
-            for scim_group in scim_groups:
-                results["groups"]["processed"] += 1
-
-                group_result = await self.provision_group(session, scim_group, provider_id)
-                if group_result.success:
-                    if group_result.operation == SCIMOperationType.CREATE:
-                        results["groups"]["created"] += 1
-                    else:
-                        results["groups"]["updated"] += 1
-                else:
-                    results["groups"]["errors"] += 1
-                    logger.warning(f"Group provisioning failed: {group_result.error_message}")
-
-            # Process users
-            for scim_user in scim_users:
-                results["users"]["processed"] += 1
-
-                user_result = await self.provision_user(session, scim_user, provider_id)
-                if user_result.success:
-                    if user_result.operation == SCIMOperationType.CREATE:
-                        results["users"]["created"] += 1
-                    else:
-                        results["users"]["updated"] += 1
-                else:
-                    results["users"]["errors"] += 1
-                    logger.warning(f"User provisioning failed: {user_result.error_message}")
-
-            # Calculate duration
-            duration = (datetime.now(timezone.utc) - reconciliation_start).total_seconds()
-            results["duration_seconds"] = duration
-
-            logger.info(f"SCIM reconciliation completed: {results}")
-
-            return results
-
-        except Exception as e:
-            logger.error(f"SCIM reconciliation failed: {e}")
-            results["duration_seconds"] = (datetime.now(timezone.utc) - reconciliation_start).total_seconds()
-            results["reconciliation_error"] = str(e)
-
-            return results
-
-    def get_provisioning_statistics(self) -> Dict[str, Any]:
-        """Get current provisioning statistics.
-
-        Returns:
-            Dictionary with provisioning metrics
-        """
-        return self._provisioning_stats.copy()
-
-    async def _find_existing_user(
-        self,
-        session: AsyncSession,
-        scim_user: SCIMUserResource,
-    ) -> Optional["User"]:
-        """Find existing user by username, email, or external_id."""
+    async def _find_existing_user(self, scim_user: SCIMUserResource) -> Optional["User"]:
+        """Find existing user by external ID or email."""
         from langflow.services.database.models.user.model import User
 
-        # Try by external_id first
+        # Try by external ID first
         if scim_user.external_id:
-            query = select(User).where(User.external_id == scim_user.external_id)
-            result = await session.exec(query)
+            user_query = select(User).where(User.external_id == scim_user.external_id)
+            result = await self.session.exec(user_query)
             user = result.first()
             if user:
                 return user
 
-        # Try by username
-        query = select(User).where(User.username == scim_user.user_name)
-        result = await session.exec(query)
-        user = result.first()
-        if user:
-            return user
+        # Try by primary email
+        primary_email = None
+        for email in scim_user.emails:
+            if email.primary:
+                primary_email = email.value
+                break
 
-        # Try by email
-        if scim_user.emails:
-            primary_email = next((e.value for e in scim_user.emails if e.primary), scim_user.emails[0].value)
-            query = select(User).where(User.email == primary_email)
-            result = await session.exec(query)
-            user = result.first()
-            if user:
-                return user
+        if not primary_email and scim_user.emails:
+            primary_email = scim_user.emails[0].value
 
-        return None
-
-    async def _find_existing_group(
-        self,
-        session: AsyncSession,
-        scim_group: SCIMGroupResource,
-        provider_id: UUIDstr,
-    ) -> Optional["UserGroup"]:
-        """Find existing group by name or external_id."""
-        from langflow.services.database.models.rbac.user_group import UserGroup
-
-        # Try by external_id first
-        if scim_group.external_id:
-            query = select(UserGroup).where(
-                UserGroup.external_id == scim_group.external_id,
-                UserGroup.sso_provider_id == provider_id,
-            )
-            result = await session.exec(query)
-            group = result.first()
-            if group:
-                return group
-
-        # Try by display name
-        query = select(UserGroup).where(
-            UserGroup.name == scim_group.display_name,
-            UserGroup.sso_provider_id == provider_id,
-        )
-        result = await session.exec(query)
-        group = result.first()
-        if group:
-            return group
+        if primary_email:
+            user_query = select(User).where(User.email == primary_email)
+            result = await self.session.exec(user_query)
+            return result.first()
 
         return None
 
     async def _create_user(
         self,
-        session: AsyncSession,
         scim_user: SCIMUserResource,
         provider_id: UUIDstr,
         dry_run: bool,
-    ) -> SCIMProvisioningResult:
+    ) -> SCIMSyncResult:
         """Create new user from SCIM data."""
+        import secrets
+
         from langflow.services.database.models.user.model import User
 
-        primary_email = next((e.value for e in scim_user.emails if e.primary), scim_user.emails[0].value)
+        try:
+            # Get primary email
+            primary_email = None
+            for email in scim_user.emails:
+                if email.primary:
+                    primary_email = email.value
+                    break
 
-        if dry_run:
-            return SCIMProvisioningResult(
-                success=True,
-                operation=SCIMOperationType.CREATE,
-                changes_applied=["user_would_be_created"],
-            )
+            if not primary_email and scim_user.emails:
+                primary_email = scim_user.emails[0].value
 
-        # Create user
-        user = User(
-            username=scim_user.user_name,
-            email=primary_email,
-            external_id=scim_user.external_id,
-            is_active=scim_user.active,
-            is_superuser=False,
-        )
+            if not primary_email:
+                return SCIMSyncResult(
+                    success=False,
+                    resource_type=SCIMResourceType.USER,
+                    operation=SCIMOperationType.CREATE,
+                    error_message="No email address provided in SCIM user"
+                )
 
-        # Set name fields if available
-        if scim_user.name:
-            if scim_user.name.given_name:
-                user.first_name = scim_user.name.given_name
-            if scim_user.name.family_name:
-                user.last_name = scim_user.name.family_name
+            # Extract name information
+            first_name = None
+            last_name = None
+            if scim_user.name:
+                first_name = scim_user.name.given_name
+                last_name = scim_user.name.family_name
 
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
+            # Generate display name
+            display_name = scim_user.display_name
+            if not display_name and scim_user.name and scim_user.name.formatted:
+                display_name = scim_user.name.formatted
+            elif not display_name and first_name and last_name:
+                display_name = f"{first_name} {last_name}"
+            elif not display_name:
+                display_name = scim_user.user_name
 
-        self._provisioning_stats["users_created"] += 1
+            if dry_run:
+                return SCIMSyncResult(
+                    success=True,
+                    resource_type=SCIMResourceType.USER,
+                    operation=SCIMOperationType.CREATE,
+                    changes_applied=[
+                        f"User {primary_email} would be created",
+                        f"Username: {scim_user.user_name}",
+                        f"Display name: {display_name}",
+                        f"Active: {scim_user.active}"
+                    ]
+                )
 
-        # Log provisioning event
-        await self._log_provisioning_event(
-            SCIMProvisioningEvent(
-                operation=SCIMOperationType.CREATE,
-                resource_type=SCIMResourceType.USER,
-                resource_id=str(user.id),
+            # Create user
+            new_user = User(
+                username=scim_user.user_name,
+                email=primary_email,
+                first_name=first_name,
+                last_name=last_name,
                 external_id=scim_user.external_id,
-                success=True,
-                changes={"username": scim_user.user_name, "email": primary_email},
+                is_active=scim_user.active,
+                is_superuser=False,
+                password=secrets.token_urlsafe(32),  # Random password, SSO will be used
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
             )
-        )
 
-        return SCIMProvisioningResult(
-            success=True,
-            operation=SCIMOperationType.CREATE,
-            resource_id=str(user.id),
-            external_id=scim_user.external_id,
-            changes_applied=["user_created"],
-        )
+            self.session.add(new_user)
+            await self.session.commit()
+            await self.session.refresh(new_user)
+
+            logger.info(f"SCIM: Created user {new_user.email}")
+
+            return SCIMSyncResult(
+                success=True,
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.CREATE,
+                resource_id=str(new_user.id),
+                changes_applied=[
+                    "User created",
+                    f"Email: {primary_email}",
+                    f"Username: {scim_user.user_name}",
+                    f"Active: {scim_user.active}"
+                ]
+            )
+
+        except Exception as e:
+            logger.error(f"SCIM user creation failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.CREATE,
+                error_message=str(e)
+            )
 
     async def _update_user(
         self,
-        session: AsyncSession,
-        user: "User",
+        existing_user: "User",
         scim_user: SCIMUserResource,
         provider_id: UUIDstr,
         dry_run: bool,
-    ) -> SCIMProvisioningResult:
-        """Update existing user from SCIM data."""
-        changes_applied = []
+    ) -> SCIMSyncResult:
+        """Update existing user with SCIM data."""
+        try:
+            changes = []
 
-        # Check for changes
-        primary_email = next((e.value for e in scim_user.emails if e.primary), scim_user.emails[0].value)
+            # Get primary email
+            primary_email = None
+            for email in scim_user.emails:
+                if email.primary:
+                    primary_email = email.value
+                    break
 
-        if user.email != primary_email:
-            if not dry_run:
-                user.email = primary_email
-            changes_applied.append("email_updated")
+            if not primary_email and scim_user.emails:
+                primary_email = scim_user.emails[0].value
 
-        if user.is_active != scim_user.active:
-            if not dry_run:
-                user.is_active = scim_user.active
-            changes_applied.append("status_updated")
-
-        if scim_user.external_id and user.external_id != scim_user.external_id:
-            if not dry_run:
-                user.external_id = scim_user.external_id
-            changes_applied.append("external_id_updated")
-
-        # Update name fields if available
-        if scim_user.name:
-            if scim_user.name.given_name and user.first_name != scim_user.name.given_name:
+            # Check for changes
+            if primary_email and existing_user.email != primary_email:
+                changes.append(f"Email: {existing_user.email} -> {primary_email}")
                 if not dry_run:
-                    user.first_name = scim_user.name.given_name
-                changes_applied.append("first_name_updated")
+                    existing_user.email = primary_email
 
-            if scim_user.name.family_name and user.last_name != scim_user.name.family_name:
+            if scim_user.user_name != existing_user.username:
+                changes.append(f"Username: {existing_user.username} -> {scim_user.user_name}")
                 if not dry_run:
-                    user.last_name = scim_user.name.family_name
-                changes_applied.append("last_name_updated")
+                    existing_user.username = scim_user.user_name
 
-        if changes_applied and not dry_run:
-            await session.commit()
-            self._provisioning_stats["users_updated"] += 1
+            if scim_user.active != existing_user.is_active:
+                changes.append(f"Active: {existing_user.is_active} -> {scim_user.active}")
+                if not dry_run:
+                    existing_user.is_active = scim_user.active
 
-        # Log provisioning event if changes were made
-        if changes_applied:
-            await self._log_provisioning_event(
-                SCIMProvisioningEvent(
-                    operation=SCIMOperationType.UPDATE,
-                    resource_type=SCIMResourceType.USER,
-                    resource_id=str(user.id),
-                    external_id=scim_user.external_id,
-                    success=True,
-                    changes={"updated_fields": changes_applied},
-                )
+            # Update name fields if provided
+            if scim_user.name:
+                if scim_user.name.given_name and existing_user.first_name != scim_user.name.given_name:
+                    changes.append(f"First name: {existing_user.first_name} -> {scim_user.name.given_name}")
+                    if not dry_run:
+                        existing_user.first_name = scim_user.name.given_name
+
+                if scim_user.name.family_name and existing_user.last_name != scim_user.name.family_name:
+                    changes.append(f"Last name: {existing_user.last_name} -> {scim_user.name.family_name}")
+                    if not dry_run:
+                        existing_user.last_name = scim_user.name.family_name
+
+            # Update external ID if provided
+            if scim_user.external_id and existing_user.external_id != scim_user.external_id:
+                changes.append(f"External ID: {existing_user.external_id} -> {scim_user.external_id}")
+                if not dry_run:
+                    existing_user.external_id = scim_user.external_id
+
+            if changes and not dry_run:
+                existing_user.updated_at = datetime.now(timezone.utc)
+                await self.session.commit()
+
+            if changes:
+                logger.info(f"SCIM: Updated user {existing_user.email} with {len(changes)} changes")
+
+            return SCIMSyncResult(
+                success=True,
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.UPDATE,
+                resource_id=str(existing_user.id),
+                changes_applied=changes if changes else ["No changes needed"]
             )
 
-        return SCIMProvisioningResult(
-            success=True,
-            operation=SCIMOperationType.UPDATE,
-            resource_id=str(user.id),
-            external_id=scim_user.external_id,
-            changes_applied=changes_applied,
+        except Exception as e:
+            logger.error(f"SCIM user update failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.USER,
+                operation=SCIMOperationType.UPDATE,
+                error_message=str(e)
+            )
+
+
+class SCIMGroupSynchronizer:
+    """Handles SCIM group synchronization with LangBuilder user groups."""
+
+    def __init__(self, session: AsyncSession):
+        """Initialize group synchronizer.
+
+        Args:
+            session: Database session for operations
+        """
+        self.session = session
+
+    async def sync_group(
+        self,
+        scim_group: SCIMGroupResource,
+        provider_id: UUIDstr,
+        dry_run: bool = False,
+    ) -> SCIMSyncResult:
+        """Synchronize SCIM group with LangBuilder user group.
+
+        Args:
+            scim_group: SCIM group resource
+            provider_id: SSO provider ID
+            dry_run: If True, only validate without making changes
+
+        Returns:
+            Synchronization result
+        """
+        try:
+
+            # Find existing group by external ID or name
+            existing_group = await self._find_existing_group(scim_group, provider_id)
+
+            if existing_group:
+                # Update existing group
+                return await self._update_group(
+                    existing_group, scim_group, provider_id, dry_run
+                )
+            # Create new group
+            return await self._create_group(scim_group, provider_id, dry_run)
+
+        except Exception as e:
+            logger.error(f"SCIM group sync failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.UPDATE,
+                error_message=str(e)
+            )
+
+    async def sync_group_membership(
+        self,
+        group_id: str,
+        member_ids: list[str],
+        provider_id: UUIDstr,
+        dry_run: bool = False,
+    ) -> list[SCIMSyncResult]:
+        """Synchronize group membership.
+
+        Args:
+            group_id: Group external ID
+            member_ids: List of user external IDs
+            provider_id: SSO provider ID
+            dry_run: If True, only validate without making changes
+
+        Returns:
+            List of synchronization results
+        """
+        results = []
+
+        try:
+            from langflow.services.database.models.rbac.user_group import UserGroup, UserGroupMembership
+            from langflow.services.database.models.user.model import User
+
+            # Find the group
+            group_query = select(UserGroup).where(
+                UserGroup.external_id == group_id,
+                UserGroup.sso_provider_id == UUID(provider_id)
+            )
+            result = await self.session.exec(group_query)
+            group = result.first()
+
+            if not group:
+                results.append(SCIMSyncResult(
+                    success=False,
+                    resource_type=SCIMResourceType.GROUP,
+                    operation=SCIMOperationType.UPDATE,
+                    error_message=f"Group {group_id} not found"
+                ))
+                return results
+
+            # Get current group members
+            current_members_query = select(UserGroupMembership).where(
+                UserGroupMembership.group_id == group.id,
+                UserGroupMembership.is_active is True
+            )
+            current_members_result = await self.session.exec(current_members_query)
+            current_memberships = current_members_result.all()
+
+            current_user_ids = {str(membership.user_id) for membership in current_memberships}
+
+            # Get target users
+            target_users = []
+            for member_id in member_ids:
+                user_query = select(User).where(
+                    (User.external_id == member_id) | (User.email == member_id)
+                )
+                user_result = await self.session.exec(user_query)
+                user = user_result.first()
+                if user:
+                    target_users.append(user)
+
+            target_user_ids = {str(user.id) for user in target_users}
+
+            # Users to add
+            users_to_add = [user for user in target_users if str(user.id) not in current_user_ids]
+
+            # Users to remove (current members not in target list)
+            users_to_remove_ids = current_user_ids - target_user_ids
+
+            # Add new members
+            for user in users_to_add:
+                if dry_run:
+                    results.append(SCIMSyncResult(
+                        success=True,
+                        resource_type=SCIMResourceType.GROUP,
+                        operation=SCIMOperationType.UPDATE,
+                        resource_id=str(group.id),
+                        changes_applied=[f"User {user.email} would be added to group"]
+                    ))
+                else:
+                    membership = UserGroupMembership(
+                        user_id=user.id,
+                        group_id=group.id,
+                        is_active=True,
+                        created_at=datetime.now(timezone.utc)
+                    )
+                    self.session.add(membership)
+
+                    results.append(SCIMSyncResult(
+                        success=True,
+                        resource_type=SCIMResourceType.GROUP,
+                        operation=SCIMOperationType.UPDATE,
+                        resource_id=str(group.id),
+                        changes_applied=[f"User {user.email} added to group"]
+                    ))
+
+            # Remove members no longer in SCIM group
+            for membership in current_memberships:
+                if str(membership.user_id) in users_to_remove_ids:
+                    if dry_run:
+                        results.append(SCIMSyncResult(
+                            success=True,
+                            resource_type=SCIMResourceType.GROUP,
+                            operation=SCIMOperationType.UPDATE,
+                            resource_id=str(group.id),
+                            changes_applied=["User membership would be removed from group"]
+                        ))
+                    else:
+                        membership.is_active = False
+                        membership.updated_at = datetime.now(timezone.utc)
+
+                        results.append(SCIMSyncResult(
+                            success=True,
+                            resource_type=SCIMResourceType.GROUP,
+                            operation=SCIMOperationType.UPDATE,
+                            resource_id=str(group.id),
+                            changes_applied=["User membership removed from group"]
+                        ))
+
+            if not dry_run:
+                await self.session.commit()
+
+            logger.info(f"SCIM: Synchronized membership for group {group.name}")
+
+        except Exception as e:
+            logger.error(f"SCIM group membership sync failed: {e}")
+            results.append(SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.UPDATE,
+                error_message=str(e)
+            ))
+
+        return results
+
+    async def _find_existing_group(
+        self,
+        scim_group: SCIMGroupResource,
+        provider_id: UUIDstr,
+    ) -> Optional["UserGroup"]:
+        """Find existing group by external ID or name."""
+        from langflow.services.database.models.rbac.user_group import UserGroup
+
+        # Try by external ID first
+        if scim_group.external_id:
+            group_query = select(UserGroup).where(
+                UserGroup.external_id == scim_group.external_id,
+                UserGroup.sso_provider_id == UUID(provider_id)
+            )
+            result = await self.session.exec(group_query)
+            group = result.first()
+            if group:
+                return group
+
+        # Try by display name
+        group_query = select(UserGroup).where(
+            UserGroup.name == scim_group.display_name,
+            UserGroup.sso_provider_id == UUID(provider_id)
         )
+        result = await self.session.exec(group_query)
+        return result.first()
 
     async def _create_group(
         self,
-        session: AsyncSession,
         scim_group: SCIMGroupResource,
         provider_id: UUIDstr,
         dry_run: bool,
-    ) -> SCIMProvisioningResult:
+    ) -> SCIMSyncResult:
         """Create new group from SCIM data."""
         from langflow.services.database.models.rbac.user_group import UserGroup
 
-        if dry_run:
-            return SCIMProvisioningResult(
-                success=True,
-                operation=SCIMOperationType.CREATE,
-                changes_applied=["group_would_be_created"],
-            )
+        try:
+            if dry_run:
+                return SCIMSyncResult(
+                    success=True,
+                    resource_type=SCIMResourceType.GROUP,
+                    operation=SCIMOperationType.CREATE,
+                    changes_applied=[
+                        f"Group {scim_group.display_name} would be created",
+                        f"External ID: {scim_group.external_id}",
+                        f"Members: {len(scim_group.members)}"
+                    ]
+                )
 
-        # Create group
-        group = UserGroup(
-            name=scim_group.display_name,
-            description=scim_group.description or f"SCIM group: {scim_group.display_name}",
-            external_id=scim_group.external_id,
-            sso_provider_id=UUID(provider_id),
-            is_active=True,
-        )
-
-        session.add(group)
-        await session.commit()
-        await session.refresh(group)
-
-        self._provisioning_stats["groups_created"] += 1
-
-        # Log provisioning event
-        await self._log_provisioning_event(
-            SCIMProvisioningEvent(
-                operation=SCIMOperationType.CREATE,
-                resource_type=SCIMResourceType.GROUP,
-                resource_id=str(group.id),
+            # Create group
+            new_group = UserGroup(
+                name=scim_group.display_name,
+                description=f"SCIM group: {scim_group.display_name}",
                 external_id=scim_group.external_id,
-                success=True,
-                changes={"name": scim_group.display_name},
+                sso_provider_id=UUID(provider_id),
+                is_active=True,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
             )
-        )
 
-        return SCIMProvisioningResult(
-            success=True,
-            operation=SCIMOperationType.CREATE,
-            resource_id=str(group.id),
-            external_id=scim_group.external_id,
-            changes_applied=["group_created"],
-        )
+            self.session.add(new_group)
+            await self.session.commit()
+            await self.session.refresh(new_group)
+
+            logger.info(f"SCIM: Created group {new_group.name}")
+
+            return SCIMSyncResult(
+                success=True,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.CREATE,
+                resource_id=str(new_group.id),
+                changes_applied=[
+                    "Group created",
+                    f"Name: {scim_group.display_name}",
+                    f"External ID: {scim_group.external_id}"
+                ]
+            )
+
+        except Exception as e:
+            logger.error(f"SCIM group creation failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.CREATE,
+                error_message=str(e)
+            )
 
     async def _update_group(
         self,
-        session: AsyncSession,
-        group: "UserGroup",
+        existing_group: "UserGroup",
         scim_group: SCIMGroupResource,
         provider_id: UUIDstr,
         dry_run: bool,
-    ) -> SCIMProvisioningResult:
-        """Update existing group from SCIM data."""
-        changes_applied = []
-
-        # Check for changes
-        if group.name != scim_group.display_name:
-            if not dry_run:
-                group.name = scim_group.display_name
-            changes_applied.append("name_updated")
-
-        if scim_group.description and group.description != scim_group.description:
-            if not dry_run:
-                group.description = scim_group.description
-            changes_applied.append("description_updated")
-
-        if scim_group.external_id and group.external_id != scim_group.external_id:
-            if not dry_run:
-                group.external_id = scim_group.external_id
-            changes_applied.append("external_id_updated")
-
-        if changes_applied and not dry_run:
-            await session.commit()
-            self._provisioning_stats["groups_updated"] += 1
-
-        # Log provisioning event if changes were made
-        if changes_applied:
-            await self._log_provisioning_event(
-                SCIMProvisioningEvent(
-                    operation=SCIMOperationType.UPDATE,
-                    resource_type=SCIMResourceType.GROUP,
-                    resource_id=str(group.id),
-                    external_id=scim_group.external_id,
-                    success=True,
-                    changes={"updated_fields": changes_applied},
-                )
-            )
-
-        return SCIMProvisioningResult(
-            success=True,
-            operation=SCIMOperationType.UPDATE,
-            resource_id=str(group.id),
-            external_id=scim_group.external_id,
-            changes_applied=changes_applied,
-        )
-
-    async def _hard_delete_user(self, session: AsyncSession, user: "User") -> None:
-        """Permanently delete user and all associated data."""
-        from langflow.services.database.models.rbac.role_assignment import RoleAssignment
-        from langflow.services.database.models.rbac.user_group import UserGroupMembership
-
-        # Remove role assignments
-        role_query = select(RoleAssignment).where(RoleAssignment.user_id == user.id)
-        role_result = await session.exec(role_query)
-        for assignment in role_result.all():
-            await session.delete(assignment)
-
-        # Remove group memberships
-        group_query = select(UserGroupMembership).where(UserGroupMembership.user_id == user.id)
-        group_result = await session.exec(group_query)
-        for membership in group_result.all():
-            await session.delete(membership)
-
-        # Delete user
-        await session.delete(user)
-        await session.commit()
-
-    async def _log_provisioning_event(self, event: SCIMProvisioningEvent) -> None:
-        """Log SCIM provisioning event for audit trail."""
+    ) -> SCIMSyncResult:
+        """Update existing group with SCIM data."""
         try:
-            logger.info(
-                f"SCIM {event.operation}: {event.resource_type} {event.resource_id} "
-                f"(external: {event.external_id}) - {'SUCCESS' if event.success else 'FAILED'}"
-            )
+            changes = []
 
-            if event.error_message:
-                logger.error(f"SCIM error: {event.error_message}")
+            # Check for changes
+            if scim_group.display_name != existing_group.name:
+                changes.append(f"Name: {existing_group.name} -> {scim_group.display_name}")
+                if not dry_run:
+                    existing_group.name = scim_group.display_name
+
+            if scim_group.external_id and existing_group.external_id != scim_group.external_id:
+                changes.append(f"External ID: {existing_group.external_id} -> {scim_group.external_id}")
+                if not dry_run:
+                    existing_group.external_id = scim_group.external_id
+
+            if changes and not dry_run:
+                existing_group.updated_at = datetime.now(timezone.utc)
+                await self.session.commit()
+
+            if changes:
+                logger.info(f"SCIM: Updated group {existing_group.name} with {len(changes)} changes")
+
+            return SCIMSyncResult(
+                success=True,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.UPDATE,
+                resource_id=str(existing_group.id),
+                changes_applied=changes if changes else ["No changes needed"]
+            )
 
         except Exception as e:
-            logger.error(f"Failed to log SCIM provisioning event: {e}")
+            logger.error(f"SCIM group update failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.UPDATE,
+                error_message=str(e)
+            )
+
+
+class SCIMProvisioningService(Service):
+    """SCIM provisioning service for automated user lifecycle management."""
+
+    name = "scim_provisioning_service"
+
+    def __init__(self):
+        super().__init__()
+        self._sync_stats = {
+            "users_created": 0,
+            "users_updated": 0,
+            "users_deactivated": 0,
+            "groups_created": 0,
+            "groups_updated": 0,
+            "last_sync": None,
+        }
+
+    async def initialize_service(self) -> None:
+        """Initialize SCIM provisioning service."""
+        logger.info("SCIM provisioning service initialized")
+
+    async def process_scim_user(
+        self,
+        session: AsyncSession,
+        scim_user_data: dict[str, Any],
+        provider_id: UUIDstr,
+        operation: SCIMOperationType = SCIMOperationType.UPDATE,
+        dry_run: bool = False,
+    ) -> SCIMSyncResult:
+        """Process SCIM user operation.
+
+        Args:
+            session: Database session
+            scim_user_data: Raw SCIM user data
+            provider_id: SSO provider ID
+            operation: Type of operation to perform
+            dry_run: If True, only validate without making changes
+
+        Returns:
+            Synchronization result
+        """
+        try:
+            # Parse SCIM user data
+            scim_user = self._parse_scim_user(scim_user_data)
+
+            user_sync = SCIMUserSynchronizer(session)
+
+            if operation == SCIMOperationType.DEACTIVATE:
+                result = await user_sync.deactivate_user(
+                    scim_user.external_id or scim_user.user_name,
+                    provider_id,
+                    dry_run
+                )
+            else:
+                result = await user_sync.sync_user(scim_user, provider_id, dry_run)
+
+            # Update stats
+            if result.success and not dry_run:
+                if result.operation == SCIMOperationType.CREATE:
+                    self._sync_stats["users_created"] += 1
+                elif result.operation == SCIMOperationType.UPDATE:
+                    self._sync_stats["users_updated"] += 1
+                elif result.operation == SCIMOperationType.DEACTIVATE:
+                    self._sync_stats["users_deactivated"] += 1
+
+            return result
+
+        except Exception as e:
+            logger.error(f"SCIM user processing failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.USER,
+                operation=operation,
+                error_message=str(e)
+            )
+
+    async def process_scim_group(
+        self,
+        session: AsyncSession,
+        scim_group_data: dict[str, Any],
+        provider_id: UUIDstr,
+        dry_run: bool = False,
+    ) -> SCIMSyncResult:
+        """Process SCIM group operation.
+
+        Args:
+            session: Database session
+            scim_group_data: Raw SCIM group data
+            provider_id: SSO provider ID
+            dry_run: If True, only validate without making changes
+
+        Returns:
+            Synchronization result
+        """
+        try:
+            # Parse SCIM group data
+            scim_group = self._parse_scim_group(scim_group_data)
+
+            group_sync = SCIMGroupSynchronizer(session)
+            result = await group_sync.sync_group(scim_group, provider_id, dry_run)
+
+            # Update stats
+            if result.success and not dry_run:
+                if result.operation == SCIMOperationType.CREATE:
+                    self._sync_stats["groups_created"] += 1
+                elif result.operation == SCIMOperationType.UPDATE:
+                    self._sync_stats["groups_updated"] += 1
+
+            # Sync group membership if group data contains members
+            if result.success and scim_group.members:
+                member_ids = [member.get("value", "") for member in scim_group.members]
+                await group_sync.sync_group_membership(
+                    scim_group.external_id or scim_group.id,
+                    member_ids,
+                    provider_id,
+                    dry_run
+                )
+
+            return result
+
+        except Exception as e:
+            logger.error(f"SCIM group processing failed: {e}")
+            return SCIMSyncResult(
+                success=False,
+                resource_type=SCIMResourceType.GROUP,
+                operation=SCIMOperationType.UPDATE,
+                error_message=str(e)
+            )
+
+    def _parse_scim_user(self, scim_data: dict[str, Any]) -> SCIMUserResource:
+        """Parse raw SCIM user data into structured format."""
+        # Extract name information
+        name = None
+        if "name" in scim_data:
+            name_data = scim_data["name"]
+            name = SCIMName(
+                formatted=name_data.get("formatted"),
+                family_name=name_data.get("familyName"),
+                given_name=name_data.get("givenName"),
+                middle_name=name_data.get("middleName"),
+                honorific_prefix=name_data.get("honorificPrefix"),
+                honorific_suffix=name_data.get("honorificSuffix"),
+            )
+
+        # Extract emails
+        emails = []
+        if "emails" in scim_data:
+            for email_data in scim_data["emails"]:
+                emails.append(SCIMEmail(
+                    value=email_data["value"],
+                    type=email_data.get("type", "work"),
+                    primary=email_data.get("primary", False)
+                ))
+
+        # Extract groups
+        groups = []
+        if "groups" in scim_data:
+            for group_data in scim_data["groups"]:
+                groups.append(SCIMGroup(
+                    value=group_data["value"],
+                    display=group_data.get("display", ""),
+                    type=group_data.get("type", "direct")
+                ))
+
+        return SCIMUserResource(
+            id=scim_data.get("id"),
+            external_id=scim_data.get("externalId"),
+            user_name=scim_data["userName"],
+            name=name,
+            display_name=scim_data.get("displayName"),
+            emails=emails,
+            active=scim_data.get("active", True),
+            groups=groups,
+            title=scim_data.get("title"),
+            department=scim_data.get("department"),
+            organization=scim_data.get("organization"),
+        )
+
+    def _parse_scim_group(self, scim_data: dict[str, Any]) -> SCIMGroupResource:
+        """Parse raw SCIM group data into structured format."""
+        members = scim_data.get("members", [])
+
+        return SCIMGroupResource(
+            id=scim_data.get("id"),
+            external_id=scim_data.get("externalId"),
+            display_name=scim_data["displayName"],
+            members=members,
+        )
+
+    def get_sync_statistics(self) -> dict[str, Any]:
+        """Get synchronization statistics.
+
+        Returns:
+            Dictionary with sync statistics
+        """
+        return {
+            **self._sync_stats,
+            "last_sync": self._sync_stats["last_sync"].isoformat() if self._sync_stats["last_sync"] else None
+        }
+
+    async def bulk_sync_users(
+        self,
+        session: AsyncSession,
+        scim_users: list[dict[str, Any]],
+        provider_id: UUIDstr,
+        dry_run: bool = False,
+    ) -> list[SCIMSyncResult]:
+        """Bulk synchronize multiple users.
+
+        Args:
+            session: Database session
+            scim_users: List of SCIM user data
+            provider_id: SSO provider ID
+            dry_run: If True, only validate without making changes
+
+        Returns:
+            List of synchronization results
+        """
+        results = []
+
+        for user_data in scim_users:
+            result = await self.process_scim_user(
+                session, user_data, provider_id, SCIMOperationType.UPDATE, dry_run
+            )
+            results.append(result)
+
+        if not dry_run:
+            self._sync_stats["last_sync"] = datetime.now(timezone.utc)
+
+        logger.info(f"SCIM: Bulk synced {len(scim_users)} users")
+        return results

@@ -39,7 +39,7 @@ Introduce a customizable, fine-grained Role-Based Access Control (RBAC) system t
 
 ### Management Interfaces
 
-- **Role and permission management available via:** 
+- **Role and permission management available via:**
   - Web-based admin UI
   - RESTful Admin API
   - Configurable via Infrastructure-as-Code (e.g. YAML / Terraform)

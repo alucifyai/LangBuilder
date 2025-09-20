@@ -2,10 +2,10 @@
 
 from fastapi import APIRouter
 
-from .workspaces import router as workspaces_router
-from .projects import router as projects_router  
-from .roles import router as roles_router
 from .permissions import router as permissions_router
+from .projects import router as projects_router
+from .roles import router as roles_router
+from .workspaces import router as workspaces_router
 
 # Import additional routers that need to be created
 try:
@@ -70,9 +70,9 @@ if HAS_ROLE_ASSIGNMENTS:
 
 # Export the main router and individual routers for backwards compatibility
 __all__ = [
-    "rbac_router",
     "permissions_router",
-    "projects_router", 
+    "projects_router",
+    "rbac_router",
     "roles_router",
     "workspaces_router",
 ]

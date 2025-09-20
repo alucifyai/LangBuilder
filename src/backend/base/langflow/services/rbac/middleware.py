@@ -16,13 +16,12 @@ import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
-from fastapi import Depends, HTTPException, Request, Response
+from fastapi import Request, Response
 from loguru import logger
-from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import JSONResponse
 
-from langflow.services.auth.utils import api_key_security, get_current_active_user, get_current_user_by_jwt
+from langflow.services.auth.utils import api_key_security, get_current_user_by_jwt
 from langflow.services.base import Service
 from langflow.services.deps import get_session
 
@@ -56,10 +55,10 @@ class RBACContext:
 
 class RBACMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware for RBAC permission enforcement.
-    
+
     This middleware integrates with existing LangBuilder authentication patterns
     and provides request-level permission enforcement with high performance.
-    
+
     Features:
     - Seamless integration with existing auth middleware
     - High-performance permission evaluation with caching
@@ -77,7 +76,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
         bypass_patterns: list[str] | None = None
     ):
         """Initialize RBAC middleware.
-        
+
         Args:
             app: FastAPI application instance
             rbac_service: RBAC service for permission evaluation
@@ -131,14 +130,14 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         """Process HTTP request with RBAC enforcement.
-        
+
         This method follows the existing LangBuilder middleware pattern and
         integrates with the existing authentication system.
-        
+
         Args:
             request: FastAPI request object
             call_next: Next middleware in the chain
-            
+
         Returns:
             Response: HTTP response with RBAC enforcement applied
         """
@@ -242,10 +241,10 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     def _should_bypass_rbac(self, request: Request) -> bool:
         """Check if request should bypass RBAC checks.
-        
+
         Args:
             request: FastAPI request object
-            
+
         Returns:
             bool: True if request should bypass RBAC
         """
@@ -266,10 +265,10 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     def _requires_rbac_protection(self, request: Request) -> bool:
         """Check if request requires RBAC protection.
-        
+
         Args:
             request: FastAPI request object
-            
+
         Returns:
             bool: True if request requires RBAC protection
         """
@@ -284,14 +283,14 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     async def _extract_rbac_context(self, request: Request, request_id: str) -> RBACContext:
         """Extract RBAC context from request using existing auth patterns.
-        
+
         This method integrates with existing LangBuilder authentication patterns
         to extract user context and build RBAC context.
-        
+
         Args:
             request: FastAPI request object
             request_id: Unique request identifier
-            
+
         Returns:
             RBACContext: RBAC context for the request
         """
@@ -307,10 +306,11 @@ class RBACMiddleware(BaseHTTPMiddleware):
             if auth_header.startswith("Bearer "):
                 token = auth_header[7:]  # Remove "Bearer " prefix
                 try:
-                    # Use existing session to get user
+                    # Use existing session to get user from JWT
                     async with get_session() as session:
                         user = await get_current_user_by_jwt(token, session)
-                        authenticated = True
+                        if user:
+                            authenticated = True
                 except Exception as e:
                     logger.debug("JWT authentication failed", extra={
                         "request_id": request_id,
@@ -373,11 +373,11 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     async def _check_permissions(self, request: Request, context: RBACContext) -> bool:
         """Check RBAC permissions for the request.
-        
+
         Args:
             request: FastAPI request object
             context: RBAC context
-            
+
         Returns:
             bool: True if access is granted, False otherwise
         """
@@ -386,28 +386,32 @@ class RBACMiddleware(BaseHTTPMiddleware):
             if not context.user or not context.authenticated:
                 return False
 
-            # If RBAC service is not available, allow access (degraded mode)
+            # If RBAC service is not available, deny access (secure failure mode)
             if not self.rbac_service:
-                logger.warning("RBAC service not available, allowing access", extra={
+                logger.error("RBAC service not available, denying access for security", extra={
                     "request_id": context.request_id,
                     "path": request.url.path
                 })
-                return True
+                return False
 
             # Determine resource type and action from request
             resource_type, action = self._extract_permission_requirements(request)
 
             if not resource_type or not action:
-                # If we can't determine requirements, allow access (permissive)
-                logger.debug("Could not determine permission requirements, allowing access", extra={
+                # If we can't determine requirements, deny access (secure default)
+                logger.warning("Could not determine permission requirements, denying access for security", extra={
                     "request_id": context.request_id,
-                    "path": request.url.path
+                    "path": request.url.path,
+                    "method": request.method
                 })
-                return True
+                return False
 
-            # Use RBAC service to check permissions
+            # Use permission engine to check permissions
+            from langflow.services.rbac.permission_engine import PermissionEngine
+            permission_engine = PermissionEngine()
+
             async with get_session() as session:
-                result = await self.rbac_service.evaluate_permission(
+                result = await permission_engine.check_permission(
                     session=session,
                     user=context.user,
                     resource_type=resource_type,
@@ -417,24 +421,26 @@ class RBACMiddleware(BaseHTTPMiddleware):
                     project_id=context.project_id
                 )
 
-                return result.granted
+                return result.allowed
 
         except Exception as exc:
-            logger.error("Error checking RBAC permissions", extra={
+            logger.error("Error checking RBAC permissions - denying access for security", extra={
                 "request_id": context.request_id,
                 "path": request.url.path,
+                "method": request.method,
+                "user_id": str(context.user.id) if context.user else None,
                 "error": str(exc)
             }, exc_info=True)
 
-            # On error, deny access to be safe
+            # Always deny access on error (fail-secure)
             return False
 
     def _extract_permission_requirements(self, request: Request) -> tuple[str | None, str | None]:
         """Extract required resource type and action from request.
-        
+
         Args:
             request: FastAPI request object
-            
+
         Returns:
             tuple: (resource_type, action) or (None, None) if not determinable
         """
@@ -473,7 +479,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     def _update_metrics(self, processing_time: float, cache_hit: bool = False) -> None:
         """Update performance metrics.
-        
+
         Args:
             processing_time: Time taken to process request in seconds
             cache_hit: Whether the request was served from cache
@@ -488,7 +494,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
     def get_metrics(self) -> dict:
         """Get RBAC middleware performance metrics.
-        
+
         Returns:
             dict: Performance metrics
         """
@@ -511,7 +517,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
 
 class RBACMiddlewareService(Service):
     """Service for managing RBAC middleware integration.
-    
+
     This service follows LangBuilder service patterns and provides
     factory methods for creating and configuring RBAC middleware.
     """
@@ -533,8 +539,8 @@ class RBACMiddlewareService(Service):
                 from langflow.services.rbac.service import RBACService
                 self.rbac_service = RBACService()
                 await self.rbac_service.initialize_service()
-            except ImportError:
-                logger.warning("RBAC service not available, middleware will run in degraded mode")
+            except (ImportError, Exception) as e:
+                logger.warning(f"RBAC service not available, middleware will run in degraded mode: {e}")
 
     def create_middleware(
         self,
@@ -543,12 +549,12 @@ class RBACMiddlewareService(Service):
         bypass_patterns: list[str] | None = None
     ) -> RBACMiddleware:
         """Create RBAC middleware instance.
-        
+
         Args:
             enforce_rbac: Whether to enforce RBAC checks
             protected_patterns: URL patterns requiring RBAC protection
             bypass_patterns: URL patterns that bypass RBAC
-            
+
         Returns:
             RBACMiddleware: Configured middleware instance
         """
@@ -562,7 +568,7 @@ class RBACMiddlewareService(Service):
 
     def get_middleware_metrics(self) -> dict:
         """Get RBAC middleware performance metrics.
-        
+
         Returns:
             dict: Performance metrics or empty dict if no middleware
         """

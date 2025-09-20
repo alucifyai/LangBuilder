@@ -22453,7 +22453,7 @@
               ],
               "vertex_states": [
                 "ACTIVE",
-                "INACTIVE", 
+                "INACTIVE",
                 "ERROR"
               ],
               "execution_phases": [
@@ -22823,7 +22823,7 @@
               ],
               "vertex_state_management": [
                 "set_state(state: str)",
-                "is_active()", 
+                "is_active()",
                 "mark_vertex(vertex_id: str, state: str)",
                 "mark_all_vertices(state: str)",
                 "activate_state_vertices(name: str, caller: str)",
@@ -61375,7 +61375,7 @@
             {
               "id": "scim_integration_entity",
               "type": "schema",
-              "name": "SCIMIntegration", 
+              "name": "SCIMIntegration",
               "description": "SCIM (System for Cross-domain Identity Management) integration for automated user and group provisioning (PRD Story 2.3)",
               "path": "src/backend/base/langflow/services/database/models/rbac/scim_integration.py",
               "graphql_schema_physical": "type SCIMIntegration {\n  id: UUID! @primary\n  name: String! @indexed\n  provider: SCIMProvider! @indexed\n  is_enabled: Boolean! @default(false) @indexed\n  configuration: JSON! @encrypted\n  endpoint_url: String!\n  bearer_token: String! @encrypted\n  \n  # Sync settings\n  sync_users: Boolean! @default(true)\n  sync_groups: Boolean! @default(true)\n  sync_interval_minutes: Int! @default(60)\n  last_sync_at: DateTime\n  last_sync_status: SyncStatus @default(PENDING)\n  last_sync_error: String\n  \n  # Metadata\n  created_at: DateTime! @default(now)\n  updated_at: DateTime! @default(now)\n  \n  # Relationships\n  workspace_id: UUID! @foreign(workspace.id) @indexed\n  workspace: Workspace!\n  created_by_id: UUID! @foreign(user.id) @indexed\n  created_by: User!\n  \n  @@unique([workspace_id, name])\n}\n\nenum SCIMProvider {\n  OKTA\n  AZURE_AD\n  GOOGLE_WORKSPACE\n  GENERIC\n}\n\nenum SyncStatus {\n  PENDING\n  SUCCESS\n  PARTIAL_SUCCESS\n  FAILED\n}",
@@ -61407,7 +61407,7 @@
             },
             {
               "id": "project_entity",
-              "type": "schema", 
+              "type": "schema",
               "name": "Project",
               "description": "Project-level organization entity for flows, environments, and team collaboration with RBAC scoping (PRD requirement)",
               "path": "src/backend/base/langflow/services/database/models/project/model.py",
@@ -61417,7 +61417,7 @@
               "rbac_permissions_required": [
                 "project.create",
                 "project.read",
-                "project.update", 
+                "project.update",
                 "project.delete",
                 "project.manage_members"
               ],
@@ -148526,7 +148526,7 @@
       "type": "schema_relationship",
       "source": "user_group_entity",
       "target": "user_entity",
-      "relationship": "many_to_many", 
+      "relationship": "many_to_many",
       "description": "Users can belong to multiple groups within workspaces for role assignment",
       "label": "group_membership",
       "source_subsystem": "security_administration",
@@ -148550,7 +148550,7 @@
     {
       "id": "rbac_v6_cross_edge_003",
       "type": "schema_relationship",
-      "source": "environment_entity", 
+      "source": "environment_entity",
       "target": "project_entity",
       "relationship": "many_to_one",
       "description": "Environments belong to projects for deployment scoping and RBAC inheritance",

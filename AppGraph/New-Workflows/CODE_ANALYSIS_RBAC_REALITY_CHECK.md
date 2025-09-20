@@ -31,7 +31,7 @@ After analyzing the actual LangBuilder codebase, I discovered a significant disc
 - `variables: list[Variable]`
 - `folders: list[Folder]`
 
-### API Key Model (ACTUAL)  
+### API Key Model (ACTUAL)
 **File**: `src/backend/base/langflow/services/database/models/api_key/model.py`
 **Fields**:
 - `id: UUIDstr`

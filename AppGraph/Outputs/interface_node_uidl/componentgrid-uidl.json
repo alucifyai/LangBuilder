@@ -730,7 +730,7 @@
       }
     },
     "gridLayout": {
-      "type": "reusable-component-style-map", 
+      "type": "reusable-component-style-map",
       "content": {
         "display": "grid",
         "gridTemplateColumns": "repeat(auto-fill, minmax(300px, 1fr))",

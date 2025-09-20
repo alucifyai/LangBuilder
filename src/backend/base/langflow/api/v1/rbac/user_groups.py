@@ -1,33 +1,41 @@
 """User Group management API endpoints for RBAC system."""
 
-from typing import TYPE_CHECKING
-from langflow.schema.serialize import UUIDstr
+from typing import Annotated, TYPE_CHECKING
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import select, and_
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlmodel import apaginate
+from sqlmodel import and_, select
 
-from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
 from langflow.api.v1.rbac.dependencies import (
-    check_workspace_permission,
     get_permission_engine,
 )
-from langflow.services.rbac.permission_engine import PermissionEngine
+from langflow.api.v1.rbac.security_middleware import (
+    SecurityRequirement,
+    ValidationRequirement,
+    get_authenticated_user,
+    secure_endpoint,
+)
+from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
+from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
+from langflow.schema.serialize import UUIDstr
 from langflow.services.database.models.rbac.user_group import (
+    GroupType,
     UserGroup,
     UserGroupCreate,
-    UserGroupRead,
-    UserGroupUpdate,
-    UserGroupSync,
     UserGroupMembership,
     UserGroupMembershipCreate,
     UserGroupMembershipRead,
-    GroupType,
+    UserGroupRead,
+    UserGroupSync,
+    UserGroupUpdate,
 )
 from langflow.services.database.models.rbac.workspace import Workspace
+from langflow.services.rbac.permission_engine import PermissionEngine
 
 if TYPE_CHECKING:
-    from langflow.services.database.models.user.model import User
+    pass
 
 router = APIRouter(
     prefix="/user-groups",
@@ -42,20 +50,47 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[UserGroupRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_user_groups(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     workspace_id: UUIDstr,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    params: Annotated[Params | None, Depends(custom_params
+)],
     search: str | None = None,
     group_type: GroupType | None = None,
     is_active: bool | None = None,
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[UserGroupRead]:
     """List user groups in a workspace."""
-    
     # Check workspace permission
-    await check_workspace_permission(session, current_user, workspace_id, "user_group:read")
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=workspace_id,
+        workspace_id=workspace_id,
+    )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to list user groups: {result.reason}"
+        )
 
     statement = select(UserGroup).where(UserGroup.workspace_id == workspace_id)
 
@@ -72,27 +107,59 @@ async def list_user_groups(
     if is_active is not None:
         statement = statement.where(UserGroup.is_active == is_active)
 
-    # Apply pagination
-    statement = statement.offset(skip).limit(limit)
-    
-    result = await session.exec(statement)
-    groups = result.all()
-
-    return [UserGroupRead.model_validate(group) for group in groups]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [UserGroupRead.model_validate(group) for group in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        groups = result.all()
+        return [UserGroupRead.model_validate(group) for group in groups]
 
 
 @router.post("/", response_model=UserGroupRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def create_user_group(
+    request: Request,
     group_data: UserGroupCreate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> UserGroupRead:
     """Create a new user group."""
-    
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group_data.workspace_id, "user_group:create"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="create",
+        resource_id=group_data.workspace_id,
+        workspace_id=group_data.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to create user group: {result.reason}"
+        )
 
     # Verify workspace exists
     workspace = await session.get(Workspace, group_data.workspace_id)
@@ -121,7 +188,7 @@ async def create_user_group(
         **group_data.model_dump(),
         created_by=current_user.id
     )
-    
+
     session.add(group)
     await session.commit()
     await session.refresh(group)
@@ -130,13 +197,28 @@ async def create_user_group(
 
 
 @router.get("/{group_id}", response_model=UserGroupRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def get_user_group(
+    request: Request,
     group_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> UserGroupRead:
     """Get user group by ID."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -145,22 +227,48 @@ async def get_user_group(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:read"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to read user group: {result.reason}"
+        )
 
     return UserGroupRead.model_validate(group)
 
 
 @router.put("/{group_id}", response_model=UserGroupRead)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def update_user_group(
+    request: Request,
     group_id: UUIDstr,
     group_data: UserGroupUpdate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> UserGroupRead:
     """Update user group."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -169,9 +277,20 @@ async def update_user_group(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:update"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to update user group: {result.reason}"
+        )
 
     # Update fields
     update_data = group_data.model_dump(exclude_unset=True)
@@ -185,13 +304,28 @@ async def update_user_group(
 
 
 @router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def delete_user_group(
+    request: Request,
     group_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> None:
     """Delete user group."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -200,24 +334,49 @@ async def delete_user_group(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:delete"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="delete",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to delete user group: {result.reason}"
+        )
 
     await session.delete(group)
     await session.commit()
 
 
 @router.get("/{group_id}/members", response_model=list[UserGroupMembershipRead])
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def list_group_members(
+    request: Request,
     group_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    params: Annotated[Params | None, Depends(custom_params
+)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[UserGroupMembershipRead]:
     """List members of a user group."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -226,29 +385,64 @@ async def list_group_members(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:read"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="read",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to list group members: {result.reason}"
+        )
 
     statement = select(UserGroupMembership).where(
         UserGroupMembership.group_id == group_id
-    ).offset(skip).limit(limit)
-    
-    result = await session.exec(statement)
-    memberships = result.all()
+    )
 
-    return [UserGroupMembershipRead.model_validate(membership) for membership in memberships]
+    # Apply pagination using fastapi_pagination
+    if params:
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
+            )
+            paginated_result = await apaginate(session, statement, params=params)
+            return [UserGroupMembershipRead.model_validate(membership) for membership in paginated_result.items]
+    else:
+        result = await session.exec(statement)
+        memberships = result.all()
+        return [UserGroupMembershipRead.model_validate(membership) for membership in memberships]
 
 
 @router.post("/{group_id}/members", response_model=UserGroupMembershipRead, status_code=status.HTTP_201_CREATED)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def add_group_member(
+    request: Request,
     group_id: UUIDstr,
     membership_data: UserGroupMembershipCreate,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> UserGroupMembershipRead:
     """Add a user to a group."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -257,9 +451,20 @@ async def add_group_member(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:update"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to add group member: {result.reason}"
+        )
 
     # Check if user is already a member
     statement = select(UserGroupMembership).where(
@@ -282,7 +487,7 @@ async def add_group_member(
         role=membership_data.role,
         added_by=current_user.id
     )
-    
+
     session.add(membership)
     await session.commit()
     await session.refresh(membership)
@@ -291,14 +496,29 @@ async def add_group_member(
 
 
 @router.delete("/{group_id}/members/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def remove_group_member(
+    request: Request,
     group_id: UUIDstr,
     user_id: UUIDstr,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> None:
     """Remove a user from a group."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -307,9 +527,20 @@ async def remove_group_member(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:update"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to remove group member: {result.reason}"
+        )
 
     # Find membership
     statement = select(UserGroupMembership).where(
@@ -320,7 +551,7 @@ async def remove_group_member(
     )
     result = await session.exec(statement)
     membership = result.first()
-    
+
     if not membership:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -332,14 +563,29 @@ async def remove_group_member(
 
 
 @router.post("/{group_id}/sync", response_model=dict)
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="read",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def sync_user_group(
+    request: Request,
     group_id: UUIDstr,
     sync_data: UserGroupSync,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine
+),
 ) -> dict:
     """Sync user group with external provider (SCIM)."""
-    
     group = await session.get(UserGroup, group_id)
     if not group:
         raise HTTPException(
@@ -348,9 +594,20 @@ async def sync_user_group(
         )
 
     # Check workspace permission
-    await check_workspace_permission(
-        session, current_user, group.workspace_id, "user_group:sync"
+    result = await permission_engine.check_permission(
+        session=session,
+        user=current_user,
+        resource_type="workspace",
+        action="update",
+        resource_id=group.workspace_id,
+        workspace_id=group.workspace_id,
     )
+
+    if not result.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions to sync user group: {result.reason}"
+        )
 
     # Only synced groups can be synchronized
     if group.type != GroupType.SYNCED:
@@ -365,7 +622,7 @@ async def sync_user_group(
     # 2. Fetch group membership data
     # 3. Update local memberships to match
     # 4. Log sync results
-    
+
     return {
         "status": "completed",
         "members_added": 0,
