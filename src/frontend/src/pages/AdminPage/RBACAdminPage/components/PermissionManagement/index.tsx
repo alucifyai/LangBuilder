@@ -29,6 +29,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetPermissions } from "@/controllers/API/queries/rbac";
+import useAuthStore from "@/stores/authStore";
+import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
+import PermissionEditModal from "../../../RBAC/components/PermissionEditModal";
+import ConfirmDeleteModal from "../../../RBAC/components/ConfirmDeleteModal";
 import {
   CRUDAction,
   ExtendedAction,
@@ -387,11 +391,132 @@ function PermissionCatalog({
 export default function PermissionManagement() {
   const [selectedPermission, setSelectedPermission] =
     useState<Permission | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+
+  // Modal states
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [editModalMode, setEditModalMode] = useState<"edit" | "create">("edit");
 
   // API integration for fetching permissions
   const getPermissions = useGetPermissions();
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Authentication state management with multiple sources for reliability
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const userData = useAuthStore((state) => state.userData);
+
+  // More robust authentication check
+  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+
+  // Helper function to handle authentication-protected actions
+  const requireAuth = (action: string, callback: () => void) => {
+    console.log("🔐 Authentication check:", {
+      action,
+      isAuthenticated,
+      accessToken: !!accessToken,
+      isFullyAuthenticated,
+      userData: !!userData
+    });
+
+    if (!isFullyAuthenticated) {
+      console.log("❌ Not authenticated, showing modal");
+      setPendingAction(action);
+      setShowAuthModal(true);
+    } else {
+      console.log("✅ Authenticated, executing action:", action);
+      callback();
+    }
+  };
+
+  // Handle authentication success
+  const handleAuthSuccess = () => {
+    console.log("🎉 Authentication successful, executing pending action:", pendingAction);
+
+    // Force a small delay to ensure state updates
+    setTimeout(() => {
+      if (pendingAction === "add-permission") {
+        handleAddPermission();
+      } else if (pendingAction === "edit-permission") {
+        handleEditPermission();
+      } else if (pendingAction === "delete-permission") {
+        handleDeletePermission();
+      } else if (pendingAction === "refresh") {
+        handleRefreshPermissions();
+      }
+      setPendingAction(null);
+    }, 100);
+  };
+
+  // Action handlers
+  const handleAddPermission = () => {
+    console.log("🔧 Add Permission clicked - opening modal");
+    setEditModalMode("create");
+    setSelectedPermission(null);
+    setShowEditModal(true);
+  };
+
+  const handleEditPermission = () => {
+    console.log("🔧 Edit Permission clicked for:", selectedPermission);
+    if (selectedPermission) {
+      setEditModalMode("edit");
+      setShowEditModal(true);
+    }
+  };
+
+  const handleDeletePermission = () => {
+    console.log("🔧 Delete Permission clicked for:", selectedPermission);
+    if (selectedPermission) {
+      setShowDeleteModal(true);
+    }
+  };
+
+  // Modal handlers
+  const handleSavePermission = (permission: Permission) => {
+    console.log("💾 Saving permission:", permission);
+
+    if (editModalMode === "create") {
+      // Add new permission
+      setPermissions(prev => [permission, ...prev]);
+      console.log("✅ New permission added:", permission);
+    } else {
+      // Update existing permission
+      setPermissions(prev =>
+        prev.map(p => p.id === permission.id ? permission : p)
+      );
+      setSelectedPermission(permission);
+      console.log("✅ Permission updated:", permission);
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    console.log("🗑️ Confirming delete for:", selectedPermission);
+    if (selectedPermission) {
+      setPermissions(prev => prev.filter(p => p.id !== selectedPermission.id));
+      setSelectedPermission(null);
+      console.log("✅ Permission deleted:", selectedPermission.id);
+    }
+  };
+
+  const handleRefreshPermissions = () => {
+    setLoading(true);
+    getPermissions.mutate(
+      { limit: 100 },
+      {
+        onSuccess: (data) => {
+          setPermissions(data || []);
+          setLoading(false);
+        },
+        onError: (error) => {
+          console.error("Failed to refresh permissions:", error);
+          setLoading(false);
+        },
+      },
+    );
+  };
 
   // Fetch permissions on component mount
   useEffect(() => {
@@ -433,25 +558,19 @@ export default function PermissionManagement() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
+          {/* Authentication Status Indicator */}
+          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+            <IconComponent
+              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
+              className="h-3 w-3 mr-1"
+            />
+            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
+          </Badge>
+
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setLoading(true);
-              getPermissions.mutate(
-                { limit: 100 },
-                {
-                  onSuccess: (data) => {
-                    setPermissions(data || []);
-                    setLoading(false);
-                  },
-                  onError: (error) => {
-                    console.error("Failed to refresh permissions:", error);
-                    setLoading(false);
-                  },
-                },
-              );
-            }}
+            onClick={() => requireAuth("refresh", handleRefreshPermissions)}
             disabled={loading}
           >
             <IconComponent
@@ -460,7 +579,10 @@ export default function PermissionManagement() {
             />
             Refresh
           </Button>
-          <Button size="sm">
+          <Button
+            size="sm"
+            onClick={() => requireAuth("add-permission", handleAddPermission)}
+          >
             <IconComponent name="Plus" className="h-4 w-4 mr-2" />
             Add Permission
           </Button>
@@ -521,11 +643,23 @@ export default function PermissionManagement() {
                 </p>
               </div>
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    requireAuth("edit-permission", handleEditPermission)
+                  }
+                >
                   <IconComponent name="Edit" className="h-4 w-4 mr-2" />
                   Edit
                 </Button>
-                <Button variant="destructive" size="sm">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() =>
+                    requireAuth("delete-permission", handleDeletePermission)
+                  }
+                >
                   <IconComponent name="Trash2" className="h-4 w-4 mr-2" />
                   Delete
                 </Button>
@@ -534,6 +668,30 @@ export default function PermissionManagement() {
           </CardContent>
         </Card>
       )}
+
+      {/* Authentication Modal */}
+      <AuthenticationModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onSuccess={handleAuthSuccess}
+      />
+
+      {/* Permission Edit/Create Modal */}
+      <PermissionEditModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        permission={selectedPermission}
+        onSave={handleSavePermission}
+        mode={editModalMode}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        open={showDeleteModal}
+        onOpenChange={setShowDeleteModal}
+        permission={selectedPermission}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
