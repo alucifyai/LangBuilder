@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import IconComponent from "@/components/common/genericIconComponent";
 import { useCreateRole } from "../../../../../controllers/API/queries/rbac/use-create-role";
 import { useDeleteRole } from "../../../../../controllers/API/queries/rbac/use-delete-role";
 import { useGetRoles } from "../../../../../controllers/API/queries/rbac/use-get-roles";
 import { useUpdateRole } from "../../../../../controllers/API/queries/rbac/use-update-role";
+import useAuthStore from "../../../../../stores/authStore";
 import PermissionsModal from "./PermissionsModal";
 
 export default function RoleManagement() {
@@ -16,6 +19,12 @@ export default function RoleManagement() {
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedRoleForPermissions, setSelectedRoleForPermissions] =
     useState<any>(null);
+
+  // Authentication state management
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const userData = useAuthStore((state) => state.userData);
+  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
 
   const {
     mutate: fetchRoles,
@@ -77,6 +86,16 @@ export default function RoleManagement() {
     fetchRoles({ search: searchTerm, is_active: true });
   }, []);
 
+  // Debug authentication state changes
+  useEffect(() => {
+    console.log("🔄 RoleManagement: Auth state changed:", {
+      isAuthenticated,
+      accessToken: !!accessToken,
+      isFullyAuthenticated,
+      userData: !!userData
+    });
+  }, [isAuthenticated, accessToken, userData]);
+
   const handleSearch = () => {
     fetchRoles({ search: searchTerm, is_active: true });
   };
@@ -118,22 +137,26 @@ export default function RoleManagement() {
   };
 
   const handlePermissions = (role: any) => {
-    console.log("handlePermissions called with role:", role);
+    console.log("🔧 RoleManagement: handlePermissions called with role:", role);
+    console.log("🔐 RoleManagement auth state:", {
+      isAuthenticated,
+      accessToken: !!accessToken,
+      isFullyAuthenticated,
+      userData: !!userData
+    });
+
     setSelectedRoleForPermissions(role);
     setShowPermissionsModal(true);
-    console.log("showPermissionsModal set to true");
+    console.log("✅ RoleManagement: showPermissionsModal set to true");
   };
 
   const handlePermissionsSave = (roleId: string, permissions: string[]) => {
-    console.log(`Saving permissions for role ${roleId}:`, permissions);
-    // Here you would call an API to update the role permissions
-    // For now, we'll just close the modal and show a success message
-    alert(
-      `Permissions updated for role! (${permissions.length} permissions selected)\n\nIn a real implementation, this would call an API to update the role permissions.`,
-    );
+    console.log(`✅ Parent: Permissions saved for role ${roleId}:`, permissions);
 
     // Refresh roles to get updated data
     fetchRoles({ search: searchTerm, is_active: true });
+
+    console.log("🔄 Refreshing roles list to reflect permission changes");
   };
 
   const handleDeleteRole = (roleId: string) => {
@@ -150,14 +173,30 @@ export default function RoleManagement() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Role Management</h2>
-        <button
-          onClick={() => setIsCreating(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          disabled={isCreatingRole}
-        >
-          {isCreatingRole ? "Creating..." : "Create Role"}
-        </button>
+        <div>
+          <h2 className="text-xl font-semibold">Role Management</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Manage roles and their permissions
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          {/* Authentication Status Indicator */}
+          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+            <IconComponent
+              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
+              className="h-3 w-3 mr-1"
+            />
+            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
+          </Badge>
+
+          <button
+            onClick={() => setIsCreating(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            disabled={isCreatingRole}
+          >
+            {isCreatingRole ? "Creating..." : "Create Role"}
+          </button>
+        </div>
       </div>
 
       {isCreating && (

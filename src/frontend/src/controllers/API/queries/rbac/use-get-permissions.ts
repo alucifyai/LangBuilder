@@ -27,6 +27,7 @@ interface GetPermissionsQueryParams {
   resource_type?: string;
   category?: string;
   is_system?: boolean;
+  workspace_id?: string;
 }
 
 export const useGetPermissions: useMutationFunctionType<
@@ -42,9 +43,14 @@ export const useGetPermissions: useMutationFunctionType<
     resource_type,
     category,
     is_system,
+    workspace_id,
   }: GetPermissionsQueryParams): Promise<Permission[]> {
     let url = `${getURL("RBAC")}/permissions/?skip=${skip}&limit=${limit}`;
 
+    // Add workspace_id as query parameter for workspace validation
+    if (workspace_id) {
+      url += `&workspace_id=${workspace_id}`;
+    }
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }

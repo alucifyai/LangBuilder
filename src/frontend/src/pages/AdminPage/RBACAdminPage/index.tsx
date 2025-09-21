@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useAuthStore from "@/stores/authStore";
 import AuditLogs from "./components/AuditLogs";
 import EnvironmentManagement from "./components/EnvironmentManagement";
 import PermissionManagement from "./components/PermissionManagement";
@@ -14,6 +16,23 @@ import WorkspaceManagement from "./components/WorkspaceManagement";
 export default function RBACAdminPage() {
   const [activeTab, setActiveTab] = useState("permissions");
 
+  // Centralized authentication state management
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const userData = useAuthStore((state) => state.userData);
+  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+
+  // Debug authentication state changes across all tabs
+  useEffect(() => {
+    console.log("🔄 RBACAdminPage: Global auth state changed:", {
+      isAuthenticated,
+      accessToken: !!accessToken,
+      isFullyAuthenticated,
+      userData: !!userData,
+      activeTab
+    });
+  }, [isAuthenticated, accessToken, userData, activeTab]);
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -23,7 +42,15 @@ export default function RBACAdminPage() {
             <IconComponent name="Shield" className="h-6 w-6" />
             <h1 className="text-lg font-semibold">RBAC Management</h1>
           </div>
-          <div className="ml-auto flex items-center space-x-2">
+          <div className="ml-auto flex items-center space-x-4">
+            {/* Global Authentication Status Indicator */}
+            <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+              <IconComponent
+                name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
+                className="h-3 w-3 mr-1"
+              />
+              {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
+            </Badge>
             <span className="text-sm text-muted-foreground">
               Role-Based Access Control Administration
             </span>
