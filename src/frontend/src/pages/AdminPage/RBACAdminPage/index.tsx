@@ -1,14 +1,18 @@
 import { useState } from "react";
-import IconComponent from "@/components/common/genericIconComponent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ComplianceReporting from "./components/ComplianceReporting";
+import IconComponent from "@/components/common/genericIconComponent";
+import PermissionManagement from "./components/PermissionManagement";
 import RoleManagement from "./components/RoleManagement";
-import SystemSettings from "./components/SystemSettings";
-import UserAssignment from "./components/UserAssignment";
 import WorkspaceManagement from "./components/WorkspaceManagement";
+import ProjectManagement from "./components/ProjectManagement";
+import EnvironmentManagement from "./components/EnvironmentManagement";
+import RoleAssignments from "./components/RoleAssignments";
+import UserGroups from "./components/UserGroups";
+import ServiceAccounts from "./components/ServiceAccounts";
+import AuditLogs from "./components/AuditLogs";
 
 export default function RBACAdminPage() {
-  const [activeTab, setActiveTab] = useState("workspaces");
+  const [activeTab, setActiveTab] = useState("permissions");
 
   return (
     <div className="flex h-full flex-col">
@@ -34,13 +38,13 @@ export default function RBACAdminPage() {
         className="flex-1 flex flex-col"
       >
         <div className="border-b bg-muted/50">
-          <TabsList className="grid w-full grid-cols-5 bg-transparent h-12">
+          <TabsList className="grid w-full grid-cols-9 bg-transparent h-12">
             <TabsTrigger
-              value="workspaces"
+              value="permissions"
               className="flex items-center space-x-2 data-[state=active]:bg-background"
             >
-              <IconComponent name="Building2" className="h-4 w-4" />
-              <span>Workspaces</span>
+              <IconComponent name="Key" className="h-4 w-4" />
+              <span>Permissions</span>
             </TabsTrigger>
             <TabsTrigger
               value="roles"
@@ -50,49 +54,93 @@ export default function RBACAdminPage() {
               <span>Roles</span>
             </TabsTrigger>
             <TabsTrigger
-              value="assignments"
+              value="projects"
               className="flex items-center space-x-2 data-[state=active]:bg-background"
             >
-              <IconComponent name="UserCheck" className="h-4 w-4" />
-              <span>Assignments</span>
+              <IconComponent name="Building2" className="h-4 w-4" />
+              <span>Projects</span>
             </TabsTrigger>
             <TabsTrigger
-              value="compliance"
+              value="service-accounts"
               className="flex items-center space-x-2 data-[state=active]:bg-background"
             >
-              <IconComponent name="FileText" className="h-4 w-4" />
-              <span>Compliance</span>
+              <IconComponent name="Bot" className="h-4 w-4" />
+              <span>Service Accounts</span>
             </TabsTrigger>
             <TabsTrigger
-              value="settings"
+              value="environments"
               className="flex items-center space-x-2 data-[state=active]:bg-background"
             >
               <IconComponent name="Settings" className="h-4 w-4" />
-              <span>Settings</span>
+              <span>Environments</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="workspaces"
+              className="flex items-center space-x-2 data-[state=active]:bg-background"
+            >
+              <IconComponent name="Building" className="h-4 w-4" />
+              <span>Workspaces</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="user-groups"
+              className="flex items-center space-x-2 data-[state=active]:bg-background"
+            >
+              <IconComponent name="UserCheck" className="h-4 w-4" />
+              <span>User Groups</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="assignments"
+              className="flex items-center space-x-2 data-[state=active]:bg-background"
+            >
+              <IconComponent name="UserPlus" className="h-4 w-4" />
+              <span>Assignments</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="audit"
+              className="flex items-center space-x-2 data-[state=active]:bg-background"
+            >
+              <IconComponent name="FileText" className="h-4 w-4" />
+              <span>Audit Logs</span>
             </TabsTrigger>
           </TabsList>
         </div>
 
         {/* Tab Content */}
         <div className="flex-1 overflow-hidden">
-          <TabsContent value="workspaces" className="h-full m-0 p-0">
-            <WorkspaceManagement />
+          <TabsContent value="permissions" className="h-full m-0 p-0">
+            <PermissionManagement />
           </TabsContent>
 
           <TabsContent value="roles" className="h-full m-0 p-0">
             <RoleManagement />
           </TabsContent>
 
+          <TabsContent value="projects" className="h-full m-0 p-0">
+            <ProjectManagement />
+          </TabsContent>
+
+          <TabsContent value="service-accounts" className="h-full m-0 p-0">
+            <ServiceAccounts />
+          </TabsContent>
+
+          <TabsContent value="environments" className="h-full m-0 p-0">
+            <EnvironmentManagement />
+          </TabsContent>
+
+          <TabsContent value="workspaces" className="h-full m-0 p-0">
+            <WorkspaceManagement />
+          </TabsContent>
+
+          <TabsContent value="user-groups" className="h-full m-0 p-0">
+            <UserGroups />
+          </TabsContent>
+
           <TabsContent value="assignments" className="h-full m-0 p-0">
-            <UserAssignment />
+            <RoleAssignments />
           </TabsContent>
 
-          <TabsContent value="compliance" className="h-full m-0 p-0">
-            <ComplianceReporting />
-          </TabsContent>
-
-          <TabsContent value="settings" className="h-full m-0 p-0">
-            <SystemSettings />
+          <TabsContent value="audit" className="h-full m-0 p-0">
+            <AuditLogs />
           </TabsContent>
         </div>
       </Tabs>

@@ -709,9 +709,6 @@ describe("Phase 6 Component Integration Tests", () => {
     });
   });
 });
-<<<<<<< HEAD
-=======
 
 // Export for potential use in other test files
 // export { renderWithProviders, createQueryClient };
->>>>>>> f6bd5fb6f343e68f21f9a4621b6e1e6a3360b6e0
