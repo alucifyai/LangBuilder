@@ -180,7 +180,7 @@ export const useCreateUserGroup: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function createUserGroup(
-    data: CreateUserGroupData
+    data: CreateUserGroupData,
   ): Promise<UserGroup> {
     try {
       const url = `${getURL("RBAC")}/user-groups/`;
@@ -265,8 +265,11 @@ export const useDeleteUserGroup: useMutationFunctionType<
     }
   }
 
-  const mutation: UseMutationResult<void, any, { group_id: string }> =
-    mutate(["useDeleteUserGroup"], deleteUserGroup, options || {});
+  const mutation: UseMutationResult<void, any, { group_id: string }> = mutate(
+    ["useDeleteUserGroup"],
+    deleteUserGroup,
+    options || {},
+  );
 
   return mutation;
 };
@@ -314,7 +317,7 @@ export const useAddUserGroupMember: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function addUserGroupMember(
-    data: CreateUserGroupMembershipData
+    data: CreateUserGroupMembershipData,
   ): Promise<UserGroupMembership> {
     try {
       const url = `${getURL("RBAC")}/user-groups/${data.group_id}/members`;
@@ -371,7 +374,11 @@ export const useRemoveUserGroupMember: useMutationFunctionType<
     void,
     any,
     { group_id: string; user_id: string }
-  > = mutate(["useRemoveUserGroupMember"], removeUserGroupMember, options || {});
+  > = mutate(
+    ["useRemoveUserGroupMember"],
+    removeUserGroupMember,
+    options || {},
+  );
 
   return mutation;
 };
@@ -384,7 +391,7 @@ export const useSyncUserGroup: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function syncUserGroup(
-    data: SyncUserGroupData
+    data: SyncUserGroupData,
   ): Promise<{ message: string; sync_status: string }> {
     try {
       const url = `${getURL("RBAC")}/user-groups/${data.group_id}/sync`;

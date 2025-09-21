@@ -1,10 +1,25 @@
 // Permission Management Component - Epic 1: Story 1.1 (AC1-AC8)
 // Implements permission catalog with CRUD and extended actions
 
-import { useState, useMemo, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useEffect, useMemo, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -13,17 +28,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import IconComponent from "@/components/common/genericIconComponent";
-import { Permission, PermissionAction, CRUDAction, ExtendedAction } from "../../types/rbac";
 import { useGetPermissions } from "@/controllers/API/queries/rbac";
+import {
+  CRUDAction,
+  ExtendedAction,
+  Permission,
+  PermissionAction,
+} from "../../types/rbac";
 
 // Mock permission catalog data (PRD AC1: CRUD + Extended actions)
 const MOCK_PERMISSIONS: Permission[] = [
@@ -109,7 +120,7 @@ const EXTENDED_ACTIONS: ExtendedAction[] = [
   "deploy_environment",
   "invite_users",
   "modify_component_settings",
-  "manage_tokens"
+  "manage_tokens",
 ];
 
 interface PermissionCatalogProps {
@@ -117,29 +128,38 @@ interface PermissionCatalogProps {
   onPermissionSelect?: (permission: Permission) => void;
 }
 
-function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect }: PermissionCatalogProps) {
+function PermissionCatalog({
+  permissions = MOCK_PERMISSIONS,
+  onPermissionSelect,
+}: PermissionCatalogProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterAction, setFilterAction] = useState<PermissionAction | "all">("all");
+  const [filterAction, setFilterAction] = useState<PermissionAction | "all">(
+    "all",
+  );
   const [filterResourceType, setFilterResourceType] = useState<string>("all");
 
   const filteredPermissions = useMemo(() => {
     return permissions.filter((permission) => {
       const matchesSearch =
         permission.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        permission.resource_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        permission.resource_type
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         permission.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesAction = filterAction === "all" || permission.action === filterAction;
+      const matchesAction =
+        filterAction === "all" || permission.action === filterAction;
 
       const matchesResourceType =
-        filterResourceType === "all" || permission.resource_type === filterResourceType;
+        filterResourceType === "all" ||
+        permission.resource_type === filterResourceType;
 
       return matchesSearch && matchesAction && matchesResourceType;
     });
   }, [permissions, searchTerm, filterAction, filterResourceType]);
 
   const resourceTypes = useMemo(() => {
-    const types = new Set(permissions.map(p => p.resource_type));
+    const types = new Set(permissions.map((p) => p.resource_type));
     return Array.from(types);
   }, [permissions]);
 
@@ -152,16 +172,26 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
 
   const getActionIcon = (action: PermissionAction) => {
     switch (action) {
-      case "create": return "Plus";
-      case "read": return "Eye";
-      case "update": return "Edit";
-      case "delete": return "Trash2";
-      case "export_flow": return "Download";
-      case "deploy_environment": return "Rocket";
-      case "invite_users": return "UserPlus";
-      case "modify_component_settings": return "Settings";
-      case "manage_tokens": return "Key";
-      default: return "Shield";
+      case "create":
+        return "Plus";
+      case "read":
+        return "Eye";
+      case "update":
+        return "Edit";
+      case "delete":
+        return "Trash2";
+      case "export_flow":
+        return "Download";
+      case "deploy_environment":
+        return "Rocket";
+      case "invite_users":
+        return "UserPlus";
+      case "modify_component_settings":
+        return "Settings";
+      case "manage_tokens":
+        return "Key";
+      default:
+        return "Shield";
     }
   };
 
@@ -190,7 +220,12 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
             className="max-w-sm"
           />
         </div>
-        <Select value={filterAction} onValueChange={(value) => setFilterAction(value as PermissionAction | "all")}>
+        <Select
+          value={filterAction}
+          onValueChange={(value) =>
+            setFilterAction(value as PermissionAction | "all")
+          }
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by action" />
           </SelectTrigger>
@@ -201,13 +236,20 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
             <SelectItem value="update">Update</SelectItem>
             <SelectItem value="delete">Delete</SelectItem>
             <SelectItem value="export_flow">Export Flow</SelectItem>
-            <SelectItem value="deploy_environment">Deploy Environment</SelectItem>
+            <SelectItem value="deploy_environment">
+              Deploy Environment
+            </SelectItem>
             <SelectItem value="invite_users">Invite Users</SelectItem>
-            <SelectItem value="modify_component_settings">Modify Component</SelectItem>
+            <SelectItem value="modify_component_settings">
+              Modify Component
+            </SelectItem>
             <SelectItem value="manage_tokens">Manage Tokens</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={filterResourceType} onValueChange={setFilterResourceType}>
+        <Select
+          value={filterResourceType}
+          onValueChange={setFilterResourceType}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by resource" />
           </SelectTrigger>
@@ -254,18 +296,21 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {permission.resource_type}
-                    </Badge>
+                    <Badge variant="outline">{permission.resource_type}</Badge>
                   </TableCell>
                   <TableCell>{permission.description}</TableCell>
                   <TableCell>
                     <Badge variant={getActionBadgeVariant(permission.action)}>
-                      {CRUD_ACTIONS.includes(permission.action as CRUDAction) ? "CRUD" : "Extended"}
+                      {CRUD_ACTIONS.includes(permission.action as CRUDAction)
+                        ? "CRUD"
+                        : "Extended"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <IconComponent name="ChevronRight" className="h-4 w-4 text-muted-foreground" />
+                    <IconComponent
+                      name="ChevronRight"
+                      className="h-4 w-4 text-muted-foreground"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -282,20 +327,28 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {permissions.filter(p => CRUD_ACTIONS.includes(p.action as CRUDAction)).length}
+              {
+                permissions.filter((p) =>
+                  CRUD_ACTIONS.includes(p.action as CRUDAction),
+                ).length
+              }
             </div>
-            <p className="text-xs text-muted-foreground">
-              Basic operations
-            </p>
+            <p className="text-xs text-muted-foreground">Basic operations</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Extended Actions</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Extended Actions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {permissions.filter(p => EXTENDED_ACTIONS.includes(p.action as ExtendedAction)).length}
+              {
+                permissions.filter((p) =>
+                  EXTENDED_ACTIONS.includes(p.action as ExtendedAction),
+                ).length
+              }
             </div>
             <p className="text-xs text-muted-foreground">
               Specialized operations
@@ -304,18 +357,20 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Resource Types</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Resource Types
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{resourceTypes.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Different resources
-            </p>
+            <p className="text-xs text-muted-foreground">Different resources</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Permissions</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Permissions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{permissions.length}</div>
@@ -330,7 +385,8 @@ function PermissionCatalog({ permissions = MOCK_PERMISSIONS, onPermissionSelect 
 }
 
 export default function PermissionManagement() {
-  const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
+  const [selectedPermission, setSelectedPermission] =
+    useState<Permission | null>(null);
 
   // API integration for fetching permissions
   const getPermissions = useGetPermissions();
@@ -355,7 +411,7 @@ export default function PermissionManagement() {
               setPermissions(MOCK_PERMISSIONS);
               setLoading(false);
             },
-          }
+          },
         );
       } catch (error) {
         console.error("Permission fetch error:", error);
@@ -393,7 +449,7 @@ export default function PermissionManagement() {
                     console.error("Failed to refresh permissions:", error);
                     setLoading(false);
                   },
-                }
+                },
               );
             }}
             disabled={loading}
@@ -414,7 +470,10 @@ export default function PermissionManagement() {
       <div className="flex-1 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <IconComponent name="Loader2" className="h-6 w-6 animate-spin mr-2" />
+            <IconComponent
+              name="Loader2"
+              className="h-6 w-6 animate-spin mr-2"
+            />
             Loading permissions...
           </div>
         ) : (
@@ -430,7 +489,10 @@ export default function PermissionManagement() {
         <Card className="border-t">
           <CardHeader>
             <CardTitle className="text-lg flex items-center space-x-2">
-              <IconComponent name={getActionIcon(selectedPermission.action)} className="h-5 w-5" />
+              <IconComponent
+                name={getActionIcon(selectedPermission.action)}
+                className="h-5 w-5"
+              />
               <span>Permission Details</span>
             </CardTitle>
           </CardHeader>
@@ -447,7 +509,9 @@ export default function PermissionManagement() {
               <div>
                 <label className="text-sm font-medium">Resource Type</label>
                 <div className="mt-1">
-                  <Badge variant="outline">{selectedPermission.resource_type}</Badge>
+                  <Badge variant="outline">
+                    {selectedPermission.resource_type}
+                  </Badge>
                 </div>
               </div>
               <div>
@@ -476,15 +540,25 @@ export default function PermissionManagement() {
 
 function getActionIcon(action: PermissionAction) {
   switch (action) {
-    case "create": return "Plus";
-    case "read": return "Eye";
-    case "update": return "Edit";
-    case "delete": return "Trash2";
-    case "export_flow": return "Download";
-    case "deploy_environment": return "Rocket";
-    case "invite_users": return "UserPlus";
-    case "modify_component_settings": return "Settings";
-    case "manage_tokens": return "Key";
-    default: return "Shield";
+    case "create":
+      return "Plus";
+    case "read":
+      return "Eye";
+    case "update":
+      return "Edit";
+    case "delete":
+      return "Trash2";
+    case "export_flow":
+      return "Download";
+    case "deploy_environment":
+      return "Rocket";
+    case "invite_users":
+      return "UserPlus";
+    case "modify_component_settings":
+      return "Settings";
+    case "manage_tokens":
+      return "Key";
+    default:
+      return "Shield";
   }
 }

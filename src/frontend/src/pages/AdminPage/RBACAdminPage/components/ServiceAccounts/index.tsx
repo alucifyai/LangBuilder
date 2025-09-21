@@ -1,13 +1,18 @@
 // Service Accounts Component - Epic 2: Service account management
 // Implements service accounts with scoped API tokens
 
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useMemo, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +21,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -24,18 +40,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import IconComponent from "@/components/common/genericIconComponent";
-import { ServiceAccount, Scope, PermissionAction, CreateServiceAccountRequest } from "../../types/rbac";
+  CreateServiceAccountRequest,
+  PermissionAction,
+  Scope,
+  ServiceAccount,
+} from "../../types/rbac";
 
 // Mock data
 const MOCK_SERVICE_ACCOUNTS: ServiceAccount[] = [
@@ -82,10 +93,43 @@ const MOCK_SERVICE_ACCOUNTS: ServiceAccount[] = [
 
 // Mock tokens for service accounts
 const MOCK_TOKENS = [
-  { id: "token-1", service_account_id: "sa-1", name: "Production Deploy", scope: { type: "environment", id: "env-prod", name: "Production" }, permissions: ["deploy_environment", "read"], expires_at: "2024-06-01T00:00:00Z", created_at: "2024-01-05T00:00:00Z", last_used: "2024-01-25T14:30:00Z" },
-  { id: "token-2", service_account_id: "sa-1", name: "Read Access", scope: { type: "project", id: "proj-1", name: "Customer Analytics" }, permissions: ["read"], created_at: "2024-01-10T00:00:00Z", last_used: "2024-01-24T10:00:00Z" },
-  { id: "token-3", service_account_id: "sa-2", name: "Monitoring", scope: { type: "workspace", id: "ws-1", name: "Data Science" }, permissions: ["read"], created_at: "2024-01-10T00:00:00Z", last_used: "2024-01-26T09:15:00Z" },
-  { id: "token-4", service_account_id: "sa-4", name: "Backup Token", scope: { type: "workspace", id: "ws-1", name: "Data Science" }, permissions: ["read", "export_flow"], created_at: "2024-01-12T00:00:00Z", last_used: "2024-01-24T02:00:00Z" },
+  {
+    id: "token-1",
+    service_account_id: "sa-1",
+    name: "Production Deploy",
+    scope: { type: "environment", id: "env-prod", name: "Production" },
+    permissions: ["deploy_environment", "read"],
+    expires_at: "2024-06-01T00:00:00Z",
+    created_at: "2024-01-05T00:00:00Z",
+    last_used: "2024-01-25T14:30:00Z",
+  },
+  {
+    id: "token-2",
+    service_account_id: "sa-1",
+    name: "Read Access",
+    scope: { type: "project", id: "proj-1", name: "Customer Analytics" },
+    permissions: ["read"],
+    created_at: "2024-01-10T00:00:00Z",
+    last_used: "2024-01-24T10:00:00Z",
+  },
+  {
+    id: "token-3",
+    service_account_id: "sa-2",
+    name: "Monitoring",
+    scope: { type: "workspace", id: "ws-1", name: "Data Science" },
+    permissions: ["read"],
+    created_at: "2024-01-10T00:00:00Z",
+    last_used: "2024-01-26T09:15:00Z",
+  },
+  {
+    id: "token-4",
+    service_account_id: "sa-4",
+    name: "Backup Token",
+    scope: { type: "workspace", id: "ws-1", name: "Data Science" },
+    permissions: ["read", "export_flow"],
+    created_at: "2024-01-12T00:00:00Z",
+    last_used: "2024-01-24T02:00:00Z",
+  },
 ];
 
 interface ServiceAccountBuilderProps {
@@ -94,36 +138,53 @@ interface ServiceAccountBuilderProps {
   onCancel: () => void;
 }
 
-function ServiceAccountBuilder({ serviceAccount, onSave, onCancel }: ServiceAccountBuilderProps) {
+function ServiceAccountBuilder({
+  serviceAccount,
+  onSave,
+  onCancel,
+}: ServiceAccountBuilderProps) {
   const [name, setName] = useState(serviceAccount?.name || "");
-  const [description, setDescription] = useState(serviceAccount?.description || "");
+  const [description, setDescription] = useState(
+    serviceAccount?.description || "",
+  );
   const [isActive, setIsActive] = useState(serviceAccount?.is_active ?? true);
 
   // Scope and permissions for initial token
-  const [scopeType, setScopeType] = useState<"workspace" | "project" | "environment">("workspace");
+  const [scopeType, setScopeType] = useState<
+    "workspace" | "project" | "environment"
+  >("workspace");
   const [scopeId, setScopeId] = useState("");
-  const [selectedPermissions, setSelectedPermissions] = useState<Set<PermissionAction>>(new Set(["read"]));
+  const [selectedPermissions, setSelectedPermissions] = useState<
+    Set<PermissionAction>
+  >(new Set(["read"]));
 
   const [nameError, setNameError] = useState("");
 
   const availablePermissions: PermissionAction[] = [
-    "read", "create", "update", "delete",
-    "export_flow", "deploy_environment", "invite_users", "modify_component_settings", "manage_tokens"
+    "read",
+    "create",
+    "update",
+    "delete",
+    "export_flow",
+    "deploy_environment",
+    "invite_users",
+    "modify_component_settings",
+    "manage_tokens",
   ];
 
   const mockScopes = {
     workspace: [
       { id: "ws-1", name: "Data Science" },
-      { id: "ws-2", name: "ML Engineering" }
+      { id: "ws-2", name: "ML Engineering" },
     ],
     project: [
       { id: "proj-1", name: "Customer Analytics" },
-      { id: "proj-2", name: "Fraud Detection" }
+      { id: "proj-2", name: "Fraud Detection" },
     ],
     environment: [
       { id: "env-1", name: "Production" },
-      { id: "env-2", name: "Staging" }
-    ]
+      { id: "env-2", name: "Staging" },
+    ],
   };
 
   const handlePermissionToggle = (permission: PermissionAction) => {
@@ -149,7 +210,7 @@ function ServiceAccountBuilder({ serviceAccount, onSave, onCancel }: ServiceAcco
 
     setNameError("");
 
-    const selectedScope = mockScopes[scopeType].find(s => s.id === scopeId);
+    const selectedScope = mockScopes[scopeType].find((s) => s.id === scopeId);
 
     const data: CreateServiceAccountRequest = {
       name: name.trim(),
@@ -167,16 +228,26 @@ function ServiceAccountBuilder({ serviceAccount, onSave, onCancel }: ServiceAcco
 
   const getPermissionIcon = (permission: PermissionAction) => {
     switch (permission) {
-      case "read": return "Eye";
-      case "create": return "Plus";
-      case "update": return "Edit";
-      case "delete": return "Trash2";
-      case "export_flow": return "Download";
-      case "deploy_environment": return "Rocket";
-      case "invite_users": return "UserPlus";
-      case "modify_component_settings": return "Settings";
-      case "manage_tokens": return "Key";
-      default: return "Shield";
+      case "read":
+        return "Eye";
+      case "create":
+        return "Plus";
+      case "update":
+        return "Edit";
+      case "delete":
+        return "Trash2";
+      case "export_flow":
+        return "Download";
+      case "deploy_environment":
+        return "Rocket";
+      case "invite_users":
+        return "UserPlus";
+      case "modify_component_settings":
+        return "Settings";
+      case "manage_tokens":
+        return "Key";
+      default:
+        return "Shield";
     }
   };
 
@@ -192,7 +263,9 @@ function ServiceAccountBuilder({ serviceAccount, onSave, onCancel }: ServiceAcco
             placeholder="e.g., ci-bot, monitoring-service"
             className={nameError ? "border-red-500" : ""}
           />
-          {nameError && <p className="text-sm text-red-500 mt-1">{nameError}</p>}
+          {nameError && (
+            <p className="text-sm text-red-500 mt-1">{nameError}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="sa-description">Description</Label>
@@ -221,16 +294,20 @@ function ServiceAccountBuilder({ serviceAccount, onSave, onCancel }: ServiceAcco
       <div className="space-y-4">
         <h4 className="text-lg font-medium">Initial API Token</h4>
         <p className="text-sm text-muted-foreground">
-          Configure the scope and permissions for the first API token. Additional tokens can be created later.
+          Configure the scope and permissions for the first API token.
+          Additional tokens can be created later.
         </p>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Scope Type</Label>
-            <Select value={scopeType} onValueChange={(value: any) => {
-              setScopeType(value);
-              setScopeId("");
-            }}>
+            <Select
+              value={scopeType}
+              onValueChange={(value: any) => {
+                setScopeType(value);
+                setScopeId("");
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -297,7 +374,10 @@ function ServiceAccountBuilder({ serviceAccount, onSave, onCancel }: ServiceAcco
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={!name.trim() || !scopeId || selectedPermissions.size === 0}>
+        <Button
+          onClick={handleSave}
+          disabled={!name.trim() || !scopeId || selectedPermissions.size === 0}
+        >
           {serviceAccount ? "Update Service Account" : "Create Service Account"}
         </Button>
       </div>
@@ -314,14 +394,20 @@ interface TokensDialogProps {
 function TokensDialog({ serviceAccount, isOpen, onClose }: TokensDialogProps) {
   const [isCreateTokenOpen, setIsCreateTokenOpen] = useState(false);
 
-  const serviceAccountTokens = MOCK_TOKENS.filter(t => t.service_account_id === serviceAccount.id);
+  const serviceAccountTokens = MOCK_TOKENS.filter(
+    (t) => t.service_account_id === serviceAccount.id,
+  );
 
   const handleCreateToken = () => {
     setIsCreateTokenOpen(true);
   };
 
   const handleRevokeToken = (tokenId: string) => {
-    if (confirm("Are you sure you want to revoke this token? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to revoke this token? This action cannot be undone.",
+      )
+    ) {
       alert(`Token ${tokenId} revoked`);
     }
   };
@@ -365,10 +451,16 @@ function TokensDialog({ serviceAccount, isOpen, onClose }: TokensDialogProps) {
                       <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                         <span>Permissions: {token.permissions.join(", ")}</span>
                         {token.last_used && (
-                          <span>Last used: {new Date(token.last_used).toLocaleDateString()}</span>
+                          <span>
+                            Last used:{" "}
+                            {new Date(token.last_used).toLocaleDateString()}
+                          </span>
                         )}
                         {token.expires_at && (
-                          <span>Expires: {new Date(token.expires_at).toLocaleDateString()}</span>
+                          <span>
+                            Expires:{" "}
+                            {new Date(token.expires_at).toLocaleDateString()}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -406,7 +498,7 @@ function ServiceAccountTable({
   onEdit,
   onDelete,
   onToggleActive,
-  onViewTokens
+  onViewTokens,
 }: {
   serviceAccounts: ServiceAccount[];
   onEdit: (sa: ServiceAccount) => void;
@@ -419,12 +511,15 @@ function ServiceAccountTable({
 
   const filteredServiceAccounts = useMemo(() => {
     return serviceAccounts.filter((sa) => {
-      const matchesSearch = sa.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (sa.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+      const matchesSearch =
+        sa.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (sa.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+          false);
 
-      const matchesActive = filterActive === "all" ||
-                           (filterActive === "active" && sa.is_active) ||
-                           (filterActive === "inactive" && !sa.is_active);
+      const matchesActive =
+        filterActive === "all" ||
+        (filterActive === "active" && sa.is_active) ||
+        (filterActive === "inactive" && !sa.is_active);
 
       return matchesSearch && matchesActive;
     });
@@ -501,7 +596,9 @@ function ServiceAccountTable({
                         {new Date(sa.last_used).toLocaleDateString()}
                       </span>
                     ) : (
-                      <span className="text-sm text-muted-foreground">Never</span>
+                      <span className="text-sm text-muted-foreground">
+                        Never
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -515,7 +612,10 @@ function ServiceAccountTable({
                         onClick={() => onToggleActive(sa.id)}
                         title={sa.is_active ? "Deactivate" : "Activate"}
                       >
-                        <IconComponent name={sa.is_active ? "Pause" : "Play"} className="h-4 w-4" />
+                        <IconComponent
+                          name={sa.is_active ? "Pause" : "Play"}
+                          className="h-4 w-4"
+                        />
                       </Button>
                       <Button
                         variant="ghost"
@@ -546,10 +646,14 @@ function ServiceAccountTable({
 }
 
 export default function ServiceAccounts() {
-  const [serviceAccounts, setServiceAccounts] = useState<ServiceAccount[]>(MOCK_SERVICE_ACCOUNTS);
+  const [serviceAccounts, setServiceAccounts] = useState<ServiceAccount[]>(
+    MOCK_SERVICE_ACCOUNTS,
+  );
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingServiceAccount, setEditingServiceAccount] = useState<ServiceAccount | null>(null);
-  const [viewTokensServiceAccount, setViewTokensServiceAccount] = useState<ServiceAccount | null>(null);
+  const [editingServiceAccount, setEditingServiceAccount] =
+    useState<ServiceAccount | null>(null);
+  const [viewTokensServiceAccount, setViewTokensServiceAccount] =
+    useState<ServiceAccount | null>(null);
 
   const handleCreateServiceAccount = (data: CreateServiceAccountRequest) => {
     const newServiceAccount: ServiceAccount = {
@@ -566,7 +670,9 @@ export default function ServiceAccounts() {
     setIsCreateDialogOpen(false);
 
     // Show success message with token creation info
-    alert(`Service account "${data.name}" created successfully with initial token scoped to ${data.scope.type}: ${data.scope.name}`);
+    alert(
+      `Service account "${data.name}" created successfully with initial token scoped to ${data.scope.type}: ${data.scope.name}`,
+    );
   };
 
   const handleUpdateServiceAccount = (data: CreateServiceAccountRequest) => {
@@ -579,27 +685,48 @@ export default function ServiceAccounts() {
       updated_at: new Date().toISOString(),
     };
 
-    setServiceAccounts(serviceAccounts.map(sa => sa.id === editingServiceAccount.id ? updatedServiceAccount : sa));
+    setServiceAccounts(
+      serviceAccounts.map((sa) =>
+        sa.id === editingServiceAccount.id ? updatedServiceAccount : sa,
+      ),
+    );
     setEditingServiceAccount(null);
   };
 
   const handleDeleteServiceAccount = (saId: string) => {
-    if (confirm("Are you sure you want to delete this service account? All associated tokens will be revoked.")) {
-      setServiceAccounts(serviceAccounts.filter(sa => sa.id !== saId));
+    if (
+      confirm(
+        "Are you sure you want to delete this service account? All associated tokens will be revoked.",
+      )
+    ) {
+      setServiceAccounts(serviceAccounts.filter((sa) => sa.id !== saId));
     }
   };
 
   const handleToggleActive = (saId: string) => {
-    setServiceAccounts(serviceAccounts.map(sa =>
-      sa.id === saId ? { ...sa, is_active: !sa.is_active, updated_at: new Date().toISOString() } : sa
-    ));
+    setServiceAccounts(
+      serviceAccounts.map((sa) =>
+        sa.id === saId
+          ? {
+              ...sa,
+              is_active: !sa.is_active,
+              updated_at: new Date().toISOString(),
+            }
+          : sa,
+      ),
+    );
   };
 
   // Calculate statistics
-  const activeAccounts = serviceAccounts.filter(sa => sa.is_active).length;
-  const totalTokens = serviceAccounts.reduce((sum, sa) => sum + sa.token_count, 0);
-  const recentlyUsed = serviceAccounts.filter(sa => sa.last_used &&
-    new Date(sa.last_used) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const activeAccounts = serviceAccounts.filter((sa) => sa.is_active).length;
+  const totalTokens = serviceAccounts.reduce(
+    (sum, sa) => sum + sa.token_count,
+    0,
+  );
+  const recentlyUsed = serviceAccounts.filter(
+    (sa) =>
+      sa.last_used &&
+      new Date(sa.last_used) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
   ).length;
 
   return (
@@ -608,7 +735,8 @@ export default function ServiceAccounts() {
         <div>
           <h2 className="text-2xl font-bold">Service Account Management</h2>
           <p className="text-muted-foreground">
-            Create and manage service accounts with scoped API tokens for automated systems
+            Create and manage service accounts with scoped API tokens for
+            automated systems
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -616,7 +744,10 @@ export default function ServiceAccounts() {
             <IconComponent name="RefreshCw" className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button size="sm">
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -627,7 +758,8 @@ export default function ServiceAccounts() {
               <DialogHeader>
                 <DialogTitle>Create Service Account</DialogTitle>
                 <DialogDescription>
-                  Create a service account for automated systems with scoped permissions.
+                  Create a service account for automated systems with scoped
+                  permissions.
                 </DialogDescription>
               </DialogHeader>
               <ServiceAccountBuilder
@@ -643,7 +775,9 @@ export default function ServiceAccounts() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Accounts</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Accounts
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{serviceAccounts.length}</div>
@@ -690,10 +824,15 @@ export default function ServiceAccounts() {
       </div>
 
       {/* Edit Service Account Dialog */}
-      <Dialog open={!!editingServiceAccount} onOpenChange={() => setEditingServiceAccount(null)}>
+      <Dialog
+        open={!!editingServiceAccount}
+        onOpenChange={() => setEditingServiceAccount(null)}
+      >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Service Account: {editingServiceAccount?.name}</DialogTitle>
+            <DialogTitle>
+              Edit Service Account: {editingServiceAccount?.name}
+            </DialogTitle>
             <DialogDescription>
               Modify service account settings.
             </DialogDescription>

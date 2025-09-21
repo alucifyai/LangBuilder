@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import IconComponent from "@/components/common/genericIconComponent";
-import PermissionManagement from "./components/PermissionManagement";
-import RoleManagement from "./components/RoleManagement";
-import WorkspaceManagement from "./components/WorkspaceManagement";
-import ProjectManagement from "./components/ProjectManagement";
-import EnvironmentManagement from "./components/EnvironmentManagement";
-import RoleAssignments from "./components/RoleAssignments";
-import UserGroups from "./components/UserGroups";
-import ServiceAccounts from "./components/ServiceAccounts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AuditLogs from "./components/AuditLogs";
+import EnvironmentManagement from "./components/EnvironmentManagement";
+import PermissionManagement from "./components/PermissionManagement";
+import ProjectManagement from "./components/ProjectManagement";
+import RoleAssignments from "./components/RoleAssignments";
+import RoleManagement from "./components/RoleManagement";
+import ServiceAccounts from "./components/ServiceAccounts";
+import UserGroups from "./components/UserGroups";
+import WorkspaceManagement from "./components/WorkspaceManagement";
 
 export default function RBACAdminPage() {
   const [activeTab, setActiveTab] = useState("permissions");

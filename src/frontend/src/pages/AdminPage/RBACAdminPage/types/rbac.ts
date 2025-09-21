@@ -15,7 +15,12 @@ export type ExtendedAction =
 export type PermissionAction = CRUDAction | ExtendedAction;
 
 // Hierarchical scope types from PRD
-export type ScopeType = "workspace" | "project" | "environment" | "flow" | "component";
+export type ScopeType =
+  | "workspace"
+  | "project"
+  | "environment"
+  | "flow"
+  | "component";
 
 export interface Scope {
   type: ScopeType;

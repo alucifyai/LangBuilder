@@ -259,8 +259,11 @@ export const useGetAuditLog: useMutationFunctionType<
     }
   }
 
-  const mutation: UseMutationResult<AuditLog, any, { log_id: string }> =
-    mutate(["useGetAuditLog"], getAuditLog, options || {});
+  const mutation: UseMutationResult<AuditLog, any, { log_id: string }> = mutate(
+    ["useGetAuditLog"],
+    getAuditLog,
+    options || {},
+  );
 
   return mutation;
 };
@@ -273,7 +276,7 @@ export const useExportAuditLogs: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function exportAuditLogs(
-    data: ExportAuditLogsData
+    data: ExportAuditLogsData,
   ): Promise<{ download_url: string; export_id: string }> {
     try {
       const url = `${getURL("RBAC")}/audit/logs/export`;
@@ -351,14 +354,10 @@ export function getOutcomeColor(outcome: AuditOutcome): string {
 
 // Helper function to format event type for display
 export function formatEventType(eventType: AuditEventType): string {
-  return eventType
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+  return eventType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 // Helper function to format actor type for display
 export function formatActorType(actorType: ActorType): string {
-  return actorType
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+  return actorType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }

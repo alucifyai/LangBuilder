@@ -208,7 +208,7 @@ export const useCreateServiceAccount: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function createServiceAccount(
-    data: CreateServiceAccountData
+    data: CreateServiceAccountData,
   ): Promise<ServiceAccount> {
     try {
       const url = `${getURL("RBAC")}/service-accounts/`;
@@ -224,8 +224,11 @@ export const useCreateServiceAccount: useMutationFunctionType<
     }
   }
 
-  const mutation: UseMutationResult<ServiceAccount, any, CreateServiceAccountData> =
-    mutate(["useCreateServiceAccount"], createServiceAccount, options || {});
+  const mutation: UseMutationResult<
+    ServiceAccount,
+    any,
+    CreateServiceAccountData
+  > = mutate(["useCreateServiceAccount"], createServiceAccount, options || {});
 
   return mutation;
 };
@@ -307,7 +310,7 @@ export const useCreateServiceAccountToken: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function createServiceAccountToken(
-    data: CreateServiceAccountTokenData
+    data: CreateServiceAccountTokenData,
   ): Promise<ServiceAccountTokenResponse> {
     try {
       const url = `${getURL("RBAC")}/service-accounts/${data.service_account_id}/tokens`;
@@ -327,7 +330,11 @@ export const useCreateServiceAccountToken: useMutationFunctionType<
     ServiceAccountTokenResponse,
     any,
     CreateServiceAccountTokenData
-  > = mutate(["useCreateServiceAccountToken"], createServiceAccountToken, options || {});
+  > = mutate(
+    ["useCreateServiceAccountToken"],
+    createServiceAccountToken,
+    options || {},
+  );
 
   return mutation;
 };
@@ -362,7 +369,11 @@ export const useGetServiceAccountTokens: useMutationFunctionType<
     ServiceAccountToken[],
     any,
     { service_account_id: string }
-  > = mutate(["useGetServiceAccountTokens"], getServiceAccountTokens, options || {});
+  > = mutate(
+    ["useGetServiceAccountTokens"],
+    getServiceAccountTokens,
+    options || {},
+  );
 
   return mutation;
 };
@@ -399,7 +410,11 @@ export const useDeleteServiceAccountToken: useMutationFunctionType<
     void,
     any,
     { service_account_id: string; token_id: string }
-  > = mutate(["useDeleteServiceAccountToken"], deleteServiceAccountToken, options || {});
+  > = mutate(
+    ["useDeleteServiceAccountToken"],
+    deleteServiceAccountToken,
+    options || {},
+  );
 
   return mutation;
 };

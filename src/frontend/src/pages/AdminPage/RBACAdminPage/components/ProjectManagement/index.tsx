@@ -1,12 +1,17 @@
 // Project Management Component - Epic 2: Hierarchy level 2
 // Implements project creation and management within workspaces
 
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useMemo, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +20,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -23,17 +38,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import IconComponent from "@/components/common/genericIconComponent";
-import { Project, Workspace, User } from "../../types/rbac";
+import { Textarea } from "@/components/ui/textarea";
+import { Project, User, Workspace } from "../../types/rbac";
 
 // Mock data for projects and workspaces
 const MOCK_WORKSPACES: Workspace[] = [
@@ -140,11 +146,16 @@ interface ProjectBuilderProps {
   onCancel: () => void;
 }
 
-function ProjectBuilder({ project, workspaces, onSave, onCancel }: ProjectBuilderProps) {
+function ProjectBuilder({
+  project,
+  workspaces,
+  onSave,
+  onCancel,
+}: ProjectBuilderProps) {
   const [name, setName] = useState(project?.name || "");
   const [description, setDescription] = useState(project?.description || "");
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(
-    project?.workspace_id || workspaces[0]?.id || ""
+    project?.workspace_id || workspaces[0]?.id || "",
   );
   const [nameError, setNameError] = useState("");
   const [workspaceError, setWorkspaceError] = useState("");
@@ -189,7 +200,9 @@ function ProjectBuilder({ project, workspaces, onSave, onCancel }: ProjectBuilde
             placeholder="Enter project name"
             className={nameError ? "border-red-500" : ""}
           />
-          {nameError && <p className="text-sm text-red-500 mt-1">{nameError}</p>}
+          {nameError && (
+            <p className="text-sm text-red-500 mt-1">{nameError}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="project-description">Description</Label>
@@ -203,7 +216,10 @@ function ProjectBuilder({ project, workspaces, onSave, onCancel }: ProjectBuilde
         </div>
         <div>
           <Label htmlFor="project-workspace">Workspace *</Label>
-          <Select value={selectedWorkspaceId} onValueChange={setSelectedWorkspaceId}>
+          <Select
+            value={selectedWorkspaceId}
+            onValueChange={setSelectedWorkspaceId}
+          >
             <SelectTrigger className={workspaceError ? "border-red-500" : ""}>
               <SelectValue placeholder="Select workspace" />
             </SelectTrigger>
@@ -220,7 +236,9 @@ function ProjectBuilder({ project, workspaces, onSave, onCancel }: ProjectBuilde
               ))}
             </SelectContent>
           </Select>
-          {workspaceError && <p className="text-sm text-red-500 mt-1">{workspaceError}</p>}
+          {workspaceError && (
+            <p className="text-sm text-red-500 mt-1">{workspaceError}</p>
+          )}
         </div>
       </div>
 
@@ -228,7 +246,10 @@ function ProjectBuilder({ project, workspaces, onSave, onCancel }: ProjectBuilde
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={!name.trim() || !selectedWorkspaceId}>
+        <Button
+          onClick={handleSave}
+          disabled={!name.trim() || !selectedWorkspaceId}
+        >
           {project ? "Update Project" : "Create Project"}
         </Button>
       </div>
@@ -245,17 +266,31 @@ interface ProjectTableProps {
   onViewFlows: (project: Project) => void;
 }
 
-function ProjectTable({ projects, workspaces, onEdit, onDelete, onViewEnvironments, onViewFlows }: ProjectTableProps) {
+function ProjectTable({
+  projects,
+  workspaces,
+  onEdit,
+  onDelete,
+  onViewEnvironments,
+  onViewFlows,
+}: ProjectTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterWorkspace, setFilterWorkspace] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"name" | "environments" | "flows" | "updated">("updated");
+  const [sortBy, setSortBy] = useState<
+    "name" | "environments" | "flows" | "updated"
+  >("updated");
 
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects.filter((project) => {
-      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+      const matchesSearch =
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.description
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ??
+          false);
 
-      const matchesWorkspace = filterWorkspace === "all" || project.workspace_id === filterWorkspace;
+      const matchesWorkspace =
+        filterWorkspace === "all" || project.workspace_id === filterWorkspace;
 
       return matchesSearch && matchesWorkspace;
     });
@@ -269,7 +304,9 @@ function ProjectTable({ projects, workspaces, onEdit, onDelete, onViewEnvironmen
         case "flows":
           return b.flow_count - a.flow_count;
         case "updated":
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          return (
+            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+          );
         default:
           return 0;
       }
@@ -279,12 +316,12 @@ function ProjectTable({ projects, workspaces, onEdit, onDelete, onViewEnvironmen
   }, [projects, searchTerm, filterWorkspace, sortBy]);
 
   const getOwnerName = (ownerId: string) => {
-    const owner = MOCK_USERS.find(u => u.id === ownerId);
+    const owner = MOCK_USERS.find((u) => u.id === ownerId);
     return owner?.name || "Unknown User";
   };
 
   const getWorkspaceName = (workspaceId: string) => {
-    const workspace = workspaces.find(w => w.id === workspaceId);
+    const workspace = workspaces.find((w) => w.id === workspaceId);
     return workspace?.name || "Unknown Workspace";
   };
 
@@ -310,7 +347,10 @@ function ProjectTable({ projects, workspaces, onEdit, onDelete, onViewEnvironmen
             ))}
           </SelectContent>
         </Select>
-        <Select value={sortBy} onValueChange={(value) => setSortBy(value as any)}>
+        <Select
+          value={sortBy}
+          onValueChange={(value) => setSortBy(value as any)}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -351,7 +391,9 @@ function ProjectTable({ projects, workspaces, onEdit, onDelete, onViewEnvironmen
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{getWorkspaceName(project.workspace_id)}</Badge>
+                    <Badge variant="outline">
+                      {getWorkspaceName(project.workspace_id)}
+                    </Badge>
                   </TableCell>
                   <TableCell>{getOwnerName(project.owner_id)}</TableCell>
                   <TableCell>
@@ -414,7 +456,9 @@ export default function ProjectManagement() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   const handleCreateProject = (projectData: CreateProjectRequest) => {
-    const selectedWorkspace = workspaces.find(w => w.id === projectData.workspace_id);
+    const selectedWorkspace = workspaces.find(
+      (w) => w.id === projectData.workspace_id,
+    );
 
     const newProject: Project = {
       id: `proj-${Date.now()}`,
@@ -436,40 +480,60 @@ export default function ProjectManagement() {
   const handleUpdateProject = (projectData: UpdateProjectRequest) => {
     if (!editingProject) return;
 
-    const selectedWorkspace = workspaces.find(w => w.id === projectData.workspace_id);
+    const selectedWorkspace = workspaces.find(
+      (w) => w.id === projectData.workspace_id,
+    );
 
     const updatedProject: Project = {
       ...editingProject,
       name: projectData.name || editingProject.name,
-      description: projectData.description !== undefined ? projectData.description : editingProject.description,
+      description:
+        projectData.description !== undefined
+          ? projectData.description
+          : editingProject.description,
       workspace_id: projectData.workspace_id || editingProject.workspace_id,
       workspace: selectedWorkspace || editingProject.workspace,
       updated_at: new Date().toISOString(),
     };
 
-    setProjects(projects.map(p => p.id === editingProject.id ? updatedProject : p));
+    setProjects(
+      projects.map((p) => (p.id === editingProject.id ? updatedProject : p)),
+    );
     setEditingProject(null);
   };
 
   const handleDeleteProject = (projectId: string) => {
-    if (confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
-      setProjects(projects.filter(p => p.id !== projectId));
+    if (
+      confirm(
+        "Are you sure you want to delete this project? This action cannot be undone.",
+      )
+    ) {
+      setProjects(projects.filter((p) => p.id !== projectId));
     }
   };
 
   const handleViewEnvironments = (project: Project) => {
-    alert(`View environments for ${project.name} - This would open the environment management view`);
+    alert(
+      `View environments for ${project.name} - This would open the environment management view`,
+    );
   };
 
   const handleViewFlows = (project: Project) => {
-    alert(`View flows for ${project.name} - This would open the flow management view`);
+    alert(
+      `View flows for ${project.name} - This would open the flow management view`,
+    );
   };
 
   // Calculate summary statistics
-  const totalEnvironments = projects.reduce((sum, p) => sum + p.environment_count, 0);
+  const totalEnvironments = projects.reduce(
+    (sum, p) => sum + p.environment_count,
+    0,
+  );
   const totalFlows = projects.reduce((sum, p) => sum + p.flow_count, 0);
-  const averageEnvironments = projects.length > 0 ? Math.round(totalEnvironments / projects.length) : 0;
-  const averageFlows = projects.length > 0 ? Math.round(totalFlows / projects.length) : 0;
+  const averageEnvironments =
+    projects.length > 0 ? Math.round(totalEnvironments / projects.length) : 0;
+  const averageFlows =
+    projects.length > 0 ? Math.round(totalFlows / projects.length) : 0;
 
   return (
     <div className="h-full flex flex-col p-6 space-y-6">
@@ -485,7 +549,10 @@ export default function ProjectManagement() {
             <IconComponent name="RefreshCw" className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button size="sm">
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -496,7 +563,8 @@ export default function ProjectManagement() {
               <DialogHeader>
                 <DialogTitle>Create New Project</DialogTitle>
                 <DialogDescription>
-                  Create a new project within a workspace to organize your flows and environments.
+                  Create a new project within a workspace to organize your flows
+                  and environments.
                 </DialogDescription>
               </DialogHeader>
               <ProjectBuilder
@@ -513,7 +581,9 @@ export default function ProjectManagement() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Projects
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{projects.length}</div>
@@ -524,7 +594,9 @@ export default function ProjectManagement() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Environments</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Environments
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalEnvironments}</div>
@@ -546,13 +618,13 @@ export default function ProjectManagement() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Active Workspaces</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Workspaces
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{workspaces.length}</div>
-            <p className="text-xs text-muted-foreground">
-              With projects
-            </p>
+            <p className="text-xs text-muted-foreground">With projects</p>
           </CardContent>
         </Card>
       </div>
@@ -569,7 +641,10 @@ export default function ProjectManagement() {
       </div>
 
       {/* Edit Project Dialog */}
-      <Dialog open={!!editingProject} onOpenChange={() => setEditingProject(null)}>
+      <Dialog
+        open={!!editingProject}
+        onOpenChange={() => setEditingProject(null)}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Project: {editingProject?.name}</DialogTitle>

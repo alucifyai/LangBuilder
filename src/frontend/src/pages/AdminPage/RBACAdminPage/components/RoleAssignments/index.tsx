@@ -1,11 +1,18 @@
 // Role Assignments Component - Epic 2: AC1-AC9
 // Implements role assignments with scope-based permissions
 
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useMemo, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +21,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -23,65 +40,183 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
-import IconComponent from "@/components/common/genericIconComponent";
-import {
-  RoleAssignment,
+  CreateRoleAssignmentRequest,
+  Environment,
+  Project,
   Role,
-  User,
-  UserGroup,
-  ServiceAccount,
+  RoleAssignment,
   Scope,
   ScopeType,
+  ServiceAccount,
+  User,
+  UserGroup,
   Workspace,
-  Project,
-  Environment,
-  CreateRoleAssignmentRequest,
 } from "../../types/rbac";
 
 // Mock data
 const MOCK_USERS: User[] = [
-  { id: "user-1", email: "alice@company.com", name: "Alice Johnson", is_active: true, created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-25T00:00:00Z" },
-  { id: "user-2", email: "bob@company.com", name: "Bob Smith", is_active: true, created_at: "2024-01-02T00:00:00Z", updated_at: "2024-01-24T00:00:00Z" },
-  { id: "user-3", email: "carol@company.com", name: "Carol Davis", is_active: true, created_at: "2024-01-03T00:00:00Z", updated_at: "2024-01-23T00:00:00Z" },
+  {
+    id: "user-1",
+    email: "alice@company.com",
+    name: "Alice Johnson",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-25T00:00:00Z",
+  },
+  {
+    id: "user-2",
+    email: "bob@company.com",
+    name: "Bob Smith",
+    is_active: true,
+    created_at: "2024-01-02T00:00:00Z",
+    updated_at: "2024-01-24T00:00:00Z",
+  },
+  {
+    id: "user-3",
+    email: "carol@company.com",
+    name: "Carol Davis",
+    is_active: true,
+    created_at: "2024-01-03T00:00:00Z",
+    updated_at: "2024-01-23T00:00:00Z",
+  },
 ];
 
 const MOCK_USER_GROUPS: UserGroup[] = [
-  { id: "group-1", name: "Data Team", description: "Data science team", member_count: 5, created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-20T00:00:00Z" },
-  { id: "group-2", name: "Platform", description: "Platform engineering", member_count: 3, created_at: "2024-01-02T00:00:00Z", updated_at: "2024-01-21T00:00:00Z" },
+  {
+    id: "group-1",
+    name: "Data Team",
+    description: "Data science team",
+    member_count: 5,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-20T00:00:00Z",
+  },
+  {
+    id: "group-2",
+    name: "Platform",
+    description: "Platform engineering",
+    member_count: 3,
+    created_at: "2024-01-02T00:00:00Z",
+    updated_at: "2024-01-21T00:00:00Z",
+  },
 ];
 
 const MOCK_SERVICE_ACCOUNTS: ServiceAccount[] = [
-  { id: "sa-1", name: "ci-bot", description: "CI/CD automation", is_active: true, token_count: 2, created_at: "2024-01-05T00:00:00Z", updated_at: "2024-01-25T00:00:00Z" },
+  {
+    id: "sa-1",
+    name: "ci-bot",
+    description: "CI/CD automation",
+    is_active: true,
+    token_count: 2,
+    created_at: "2024-01-05T00:00:00Z",
+    updated_at: "2024-01-25T00:00:00Z",
+  },
 ];
 
 const MOCK_ROLES: Role[] = [
-  { id: "role-1", name: "Editor", description: "Can edit flows", permissions: [], is_system_role: true, version: 1, created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-01T00:00:00Z", created_by: "system" },
-  { id: "role-2", name: "Viewer", description: "Read-only access", permissions: [], is_system_role: true, version: 1, created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-01T00:00:00Z", created_by: "system" },
-  { id: "role-3", name: "Deployer", description: "Can deploy", permissions: [], is_system_role: false, version: 1, created_at: "2024-01-02T00:00:00Z", updated_at: "2024-01-02T00:00:00Z", created_by: "user-1" },
+  {
+    id: "role-1",
+    name: "Editor",
+    description: "Can edit flows",
+    permissions: [],
+    is_system_role: true,
+    version: 1,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+    created_by: "system",
+  },
+  {
+    id: "role-2",
+    name: "Viewer",
+    description: "Read-only access",
+    permissions: [],
+    is_system_role: true,
+    version: 1,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+    created_by: "system",
+  },
+  {
+    id: "role-3",
+    name: "Deployer",
+    description: "Can deploy",
+    permissions: [],
+    is_system_role: false,
+    version: 1,
+    created_at: "2024-01-02T00:00:00Z",
+    updated_at: "2024-01-02T00:00:00Z",
+    created_by: "user-1",
+  },
 ];
 
 const MOCK_WORKSPACES: Workspace[] = [
-  { id: "ws-1", name: "Data Science", owner_id: "user-1", member_count: 12, project_count: 8, settings: {}, created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-15T00:00:00Z" },
-  { id: "ws-2", name: "ML Engineering", owner_id: "user-2", member_count: 6, project_count: 4, settings: {}, created_at: "2024-01-05T00:00:00Z", updated_at: "2024-01-20T00:00:00Z" },
+  {
+    id: "ws-1",
+    name: "Data Science",
+    owner_id: "user-1",
+    member_count: 12,
+    project_count: 8,
+    settings: {},
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-15T00:00:00Z",
+  },
+  {
+    id: "ws-2",
+    name: "ML Engineering",
+    owner_id: "user-2",
+    member_count: 6,
+    project_count: 4,
+    settings: {},
+    created_at: "2024-01-05T00:00:00Z",
+    updated_at: "2024-01-20T00:00:00Z",
+  },
 ];
 
 const MOCK_PROJECTS: Project[] = [
-  { id: "proj-1", name: "Customer Analytics", workspace_id: "ws-1", workspace: MOCK_WORKSPACES[0], owner_id: "user-1", environment_count: 3, flow_count: 12, created_at: "2024-01-02T00:00:00Z", updated_at: "2024-01-25T00:00:00Z" },
-  { id: "proj-2", name: "Fraud Detection", workspace_id: "ws-1", workspace: MOCK_WORKSPACES[0], owner_id: "user-2", environment_count: 2, flow_count: 8, created_at: "2024-01-05T00:00:00Z", updated_at: "2024-01-24T00:00:00Z" },
+  {
+    id: "proj-1",
+    name: "Customer Analytics",
+    workspace_id: "ws-1",
+    workspace: MOCK_WORKSPACES[0],
+    owner_id: "user-1",
+    environment_count: 3,
+    flow_count: 12,
+    created_at: "2024-01-02T00:00:00Z",
+    updated_at: "2024-01-25T00:00:00Z",
+  },
+  {
+    id: "proj-2",
+    name: "Fraud Detection",
+    workspace_id: "ws-1",
+    workspace: MOCK_WORKSPACES[0],
+    owner_id: "user-2",
+    environment_count: 2,
+    flow_count: 8,
+    created_at: "2024-01-05T00:00:00Z",
+    updated_at: "2024-01-24T00:00:00Z",
+  },
 ];
 
 const MOCK_ENVIRONMENTS: Environment[] = [
-  { id: "env-1", name: "Production", project_id: "proj-1", project: MOCK_PROJECTS[0], environment_type: "production", configuration: {}, created_at: "2024-01-03T00:00:00Z", updated_at: "2024-01-24T00:00:00Z" },
-  { id: "env-2", name: "Staging", project_id: "proj-1", project: MOCK_PROJECTS[0], environment_type: "staging", configuration: {}, created_at: "2024-01-03T00:00:00Z", updated_at: "2024-01-25T00:00:00Z" },
+  {
+    id: "env-1",
+    name: "Production",
+    project_id: "proj-1",
+    project: MOCK_PROJECTS[0],
+    environment_type: "production",
+    configuration: {},
+    created_at: "2024-01-03T00:00:00Z",
+    updated_at: "2024-01-24T00:00:00Z",
+  },
+  {
+    id: "env-2",
+    name: "Staging",
+    project_id: "proj-1",
+    project: MOCK_PROJECTS[0],
+    environment_type: "staging",
+    configuration: {},
+    created_at: "2024-01-03T00:00:00Z",
+    updated_at: "2024-01-25T00:00:00Z",
+  },
 ];
 
 const MOCK_ASSIGNMENTS: RoleAssignment[] = [
@@ -127,35 +262,53 @@ interface AssignmentBuilderProps {
   onCancel: () => void;
 }
 
-function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderProps) {
-  const [principalType, setPrincipalType] = useState<"user" | "group" | "service_account">(
-    assignment?.principal_type || "user"
+function AssignmentBuilder({
+  assignment,
+  onSave,
+  onCancel,
+}: AssignmentBuilderProps) {
+  const [principalType, setPrincipalType] = useState<
+    "user" | "group" | "service_account"
+  >(assignment?.principal_type || "user");
+  const [principalId, setPrincipalId] = useState(
+    assignment?.principal_id || "",
   );
-  const [principalId, setPrincipalId] = useState(assignment?.principal_id || "");
   const [roleId, setRoleId] = useState(assignment?.role_id || "");
-  const [scopeType, setScopeType] = useState<ScopeType>(assignment?.scope.type || "workspace");
+  const [scopeType, setScopeType] = useState<ScopeType>(
+    assignment?.scope.type || "workspace",
+  );
   const [scopeId, setScopeId] = useState(assignment?.scope.id || "");
-  const [expiresAt, setExpiresAt] = useState<{from: Date | undefined, to: Date | undefined}>({
+  const [expiresAt, setExpiresAt] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
     from: assignment?.expires_at ? new Date(assignment.expires_at) : undefined,
-    to: undefined
+    to: undefined,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const getPrincipals = () => {
     switch (principalType) {
-      case "user": return MOCK_USERS;
-      case "group": return MOCK_USER_GROUPS;
-      case "service_account": return MOCK_SERVICE_ACCOUNTS;
+      case "user":
+        return MOCK_USERS;
+      case "group":
+        return MOCK_USER_GROUPS;
+      case "service_account":
+        return MOCK_SERVICE_ACCOUNTS;
     }
   };
 
   const getScopes = () => {
     switch (scopeType) {
-      case "workspace": return MOCK_WORKSPACES;
-      case "project": return MOCK_PROJECTS;
-      case "environment": return MOCK_ENVIRONMENTS;
-      default: return [];
+      case "workspace":
+        return MOCK_WORKSPACES;
+      case "project":
+        return MOCK_PROJECTS;
+      case "environment":
+        return MOCK_ENVIRONMENTS;
+      default:
+        return [];
     }
   };
 
@@ -195,10 +348,13 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
         <h4 className="text-lg font-medium">Principal</h4>
         <div>
           <Label>Principal Type</Label>
-          <Select value={principalType} onValueChange={(value) => {
-            setPrincipalType(value as any);
-            setPrincipalId("");
-          }}>
+          <Select
+            value={principalType}
+            onValueChange={(value) => {
+              setPrincipalType(value as any);
+              setPrincipalId("");
+            }}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -211,7 +367,14 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
         </div>
 
         <div>
-          <Label>Select {principalType === "group" ? "Group" : principalType === "service_account" ? "Service Account" : "User"}</Label>
+          <Label>
+            Select{" "}
+            {principalType === "group"
+              ? "Group"
+              : principalType === "service_account"
+                ? "Service Account"
+                : "User"}
+          </Label>
           <Select value={principalId} onValueChange={setPrincipalId}>
             <SelectTrigger className={errors.principal ? "border-red-500" : ""}>
               <SelectValue placeholder="Select principal..." />
@@ -224,7 +387,9 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
               ))}
             </SelectContent>
           </Select>
-          {errors.principal && <p className="text-sm text-red-500 mt-1">{errors.principal}</p>}
+          {errors.principal && (
+            <p className="text-sm text-red-500 mt-1">{errors.principal}</p>
+          )}
         </div>
       </div>
 
@@ -245,14 +410,18 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
                   <div className="flex items-center justify-between w-full">
                     <span>{role.name}</span>
                     {role.is_system_role && (
-                      <Badge variant="outline" className="ml-2 text-xs">System</Badge>
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        System
+                      </Badge>
                     )}
                   </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          {errors.role && <p className="text-sm text-red-500 mt-1">{errors.role}</p>}
+          {errors.role && (
+            <p className="text-sm text-red-500 mt-1">{errors.role}</p>
+          )}
         </div>
       </div>
 
@@ -263,10 +432,13 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
         <h4 className="text-lg font-medium">Scope</h4>
         <div>
           <Label>Scope Level</Label>
-          <Select value={scopeType} onValueChange={(value) => {
-            setScopeType(value as ScopeType);
-            setScopeId("");
-          }}>
+          <Select
+            value={scopeType}
+            onValueChange={(value) => {
+              setScopeType(value as ScopeType);
+              setScopeId("");
+            }}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -297,7 +469,9 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
               ))}
             </SelectContent>
           </Select>
-          {errors.scope && <p className="text-sm text-red-500 mt-1">{errors.scope}</p>}
+          {errors.scope && (
+            <p className="text-sm text-red-500 mt-1">{errors.scope}</p>
+          )}
         </div>
       </div>
 
@@ -308,10 +482,7 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
         <h4 className="text-lg font-medium">Expiration (Optional)</h4>
         <div>
           <Label>Expires At</Label>
-          <DatePickerWithRange
-            date={expiresAt}
-            onDateChange={setExpiresAt}
-          />
+          <DatePickerWithRange date={expiresAt} onDateChange={setExpiresAt} />
           <p className="text-sm text-muted-foreground mt-1">
             Assignment will automatically expire on this date
           </p>
@@ -330,7 +501,13 @@ function AssignmentBuilder({ assignment, onSave, onCancel }: AssignmentBuilderPr
   );
 }
 
-function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignment[], onRevoke: (id: string) => void }) {
+function AssignmentTable({
+  assignments,
+  onRevoke,
+}: {
+  assignments: RoleAssignment[];
+  onRevoke: (id: string) => void;
+}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPrincipalType, setFilterPrincipalType] = useState<string>("all");
   const [filterScope, setFilterScope] = useState<string>("all");
@@ -338,11 +515,11 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
   const filteredAssignments = useMemo(() => {
     return assignments.filter((assignment) => {
       const principalName =
-        assignment.principal_type === "user" ?
-          `${(assignment.principal as User).name} ${(assignment.principal as User).email}` :
-        assignment.principal_type === "group" ?
-          (assignment.principal as UserGroup).name :
-          (assignment.principal as ServiceAccount).name;
+        assignment.principal_type === "user"
+          ? `${(assignment.principal as User).name} ${(assignment.principal as User).email}`
+          : assignment.principal_type === "group"
+            ? (assignment.principal as UserGroup).name
+            : (assignment.principal as ServiceAccount).name;
 
       const matchesSearch =
         principalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -350,7 +527,8 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
         assignment.scope.name.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesPrincipalType =
-        filterPrincipalType === "all" || assignment.principal_type === filterPrincipalType;
+        filterPrincipalType === "all" ||
+        assignment.principal_type === filterPrincipalType;
 
       const matchesScope =
         filterScope === "all" || assignment.scope.type === filterScope;
@@ -361,7 +539,7 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
 
   const getPrincipalDisplay = (assignment: RoleAssignment) => {
     switch (assignment.principal_type) {
-      case "user":
+      case "user": {
         const user = assignment.principal as User;
         return (
           <div>
@@ -369,7 +547,8 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
             <div className="text-sm text-muted-foreground">{user.email}</div>
           </div>
         );
-      case "group":
+      }
+      case "group": {
         const group = assignment.principal as UserGroup;
         return (
           <div>
@@ -382,7 +561,8 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
             </div>
           </div>
         );
-      case "service_account":
+      }
+      case "service_account": {
         const sa = assignment.principal as ServiceAccount;
         return (
           <div>
@@ -390,22 +570,27 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
               <IconComponent name="Bot" className="h-4 w-4 mr-1" />
               {sa.name}
             </div>
-            <div className="text-sm text-muted-foreground">
-              Service Account
-            </div>
+            <div className="text-sm text-muted-foreground">Service Account</div>
           </div>
         );
+      }
     }
   };
 
   const getScopeIcon = (type: string) => {
     switch (type) {
-      case "workspace": return "Building";
-      case "project": return "Folder";
-      case "environment": return "Server";
-      case "flow": return "GitBranch";
-      case "component": return "Box";
-      default: return "Circle";
+      case "workspace":
+        return "Building";
+      case "project":
+        return "Folder";
+      case "environment":
+        return "Server";
+      case "flow":
+        return "GitBranch";
+      case "component":
+        return "Box";
+      default:
+        return "Circle";
     }
   };
 
@@ -418,7 +603,10 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
-        <Select value={filterPrincipalType} onValueChange={setFilterPrincipalType}>
+        <Select
+          value={filterPrincipalType}
+          onValueChange={setFilterPrincipalType}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
@@ -462,7 +650,11 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
                 <TableRow key={assignment.id}>
                   <TableCell>{getPrincipalDisplay(assignment)}</TableCell>
                   <TableCell>
-                    <Badge variant={assignment.role.is_system_role ? "secondary" : "default"}>
+                    <Badge
+                      variant={
+                        assignment.role.is_system_role ? "secondary" : "default"
+                      }
+                    >
                       {assignment.role.name}
                     </Badge>
                   </TableCell>
@@ -473,7 +665,9 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
                         className="h-4 w-4 text-muted-foreground"
                       />
                       <div>
-                        <div className="font-medium">{assignment.scope.name}</div>
+                        <div className="font-medium">
+                          {assignment.scope.name}
+                        </div>
                         <div className="text-xs text-muted-foreground capitalize">
                           {assignment.scope.type}
                         </div>
@@ -484,13 +678,16 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
                     {assignment.expires_at ? (
                       new Date(assignment.expires_at) > new Date() ? (
                         <Badge variant="outline" className="text-yellow-700">
-                          Expires {new Date(assignment.expires_at).toLocaleDateString()}
+                          Expires{" "}
+                          {new Date(assignment.expires_at).toLocaleDateString()}
                         </Badge>
                       ) : (
                         <Badge variant="destructive">Expired</Badge>
                       )
                     ) : (
-                      <Badge variant="outline" className="text-green-700">Active</Badge>
+                      <Badge variant="outline" className="text-green-700">
+                        Active
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell>
@@ -517,18 +714,23 @@ function AssignmentTable({ assignments, onRevoke }: { assignments: RoleAssignmen
 }
 
 export default function RoleAssignments() {
-  const [assignments, setAssignments] = useState<RoleAssignment[]>(MOCK_ASSIGNMENTS);
+  const [assignments, setAssignments] =
+    useState<RoleAssignment[]>(MOCK_ASSIGNMENTS);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const handleCreateAssignment = (assignmentData: CreateRoleAssignmentRequest) => {
+  const handleCreateAssignment = (
+    assignmentData: CreateRoleAssignmentRequest,
+  ) => {
     const principal =
-      assignmentData.principal_type === "user" ?
-        MOCK_USERS.find(u => u.id === assignmentData.principal_id) :
-      assignmentData.principal_type === "group" ?
-        MOCK_USER_GROUPS.find(g => g.id === assignmentData.principal_id) :
-        MOCK_SERVICE_ACCOUNTS.find(s => s.id === assignmentData.principal_id);
+      assignmentData.principal_type === "user"
+        ? MOCK_USERS.find((u) => u.id === assignmentData.principal_id)
+        : assignmentData.principal_type === "group"
+          ? MOCK_USER_GROUPS.find((g) => g.id === assignmentData.principal_id)
+          : MOCK_SERVICE_ACCOUNTS.find(
+              (s) => s.id === assignmentData.principal_id,
+            );
 
-    const role = MOCK_ROLES.find(r => r.id === assignmentData.role_id);
+    const role = MOCK_ROLES.find((r) => r.id === assignmentData.role_id);
 
     const newAssignment: RoleAssignment = {
       id: `assign-${Date.now()}`,
@@ -550,15 +752,21 @@ export default function RoleAssignments() {
   const handleRevokeAssignment = (assignmentId: string) => {
     // PRD AC4: Revoke assignment
     if (confirm("Are you sure you want to revoke this role assignment?")) {
-      setAssignments(assignments.filter(a => a.id !== assignmentId));
+      setAssignments(assignments.filter((a) => a.id !== assignmentId));
     }
   };
 
   // Calculate stats
-  const userAssignments = assignments.filter(a => a.principal_type === "user").length;
-  const groupAssignments = assignments.filter(a => a.principal_type === "group").length;
-  const serviceAccountAssignments = assignments.filter(a => a.principal_type === "service_account").length;
-  const expiringAssignments = assignments.filter(a => a.expires_at).length;
+  const userAssignments = assignments.filter(
+    (a) => a.principal_type === "user",
+  ).length;
+  const groupAssignments = assignments.filter(
+    (a) => a.principal_type === "group",
+  ).length;
+  const serviceAccountAssignments = assignments.filter(
+    (a) => a.principal_type === "service_account",
+  ).length;
+  const expiringAssignments = assignments.filter((a) => a.expires_at).length;
 
   return (
     <div className="h-full flex flex-col p-6 space-y-6">
@@ -566,7 +774,8 @@ export default function RoleAssignments() {
         <div>
           <h2 className="text-2xl font-bold">Role Assignments</h2>
           <p className="text-muted-foreground">
-            Assign roles to users, groups, and service accounts with scope-based permissions
+            Assign roles to users, groups, and service accounts with scope-based
+            permissions
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -574,7 +783,10 @@ export default function RoleAssignments() {
             <IconComponent name="RefreshCw" className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button size="sm">
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -585,7 +797,8 @@ export default function RoleAssignments() {
               <DialogHeader>
                 <DialogTitle>Create Role Assignment</DialogTitle>
                 <DialogDescription>
-                  Assign a role to a user, group, or service account within a specific scope.
+                  Assign a role to a user, group, or service account within a
+                  specific scope.
                 </DialogDescription>
               </DialogHeader>
               <AssignmentBuilder
@@ -601,7 +814,9 @@ export default function RoleAssignments() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">User Assignments</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              User Assignments
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userAssignments}</div>
@@ -610,7 +825,9 @@ export default function RoleAssignments() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Group Assignments</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Group Assignments
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{groupAssignments}</div>
@@ -619,10 +836,14 @@ export default function RoleAssignments() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Service Accounts</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Service Accounts
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{serviceAccountAssignments}</div>
+            <div className="text-2xl font-bold">
+              {serviceAccountAssignments}
+            </div>
             <p className="text-xs text-muted-foreground">Automated access</p>
           </CardContent>
         </Card>

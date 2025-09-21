@@ -1,13 +1,18 @@
 // User Groups Component - Epic 2: Identity management + SCIM integration
 // Implements group management with SCIM synchronization support
 
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useMemo, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +21,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -24,26 +40,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import IconComponent from "@/components/common/genericIconComponent";
-import { UserGroup, User, CreateUserGroupRequest } from "../../types/rbac";
+import { Textarea } from "@/components/ui/textarea";
+import { CreateUserGroupRequest, User, UserGroup } from "../../types/rbac";
 
 // Mock data
 const MOCK_USERS: User[] = [
-  { id: "user-1", email: "alice@company.com", name: "Alice Johnson", is_active: true, created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-25T00:00:00Z" },
-  { id: "user-2", email: "bob@company.com", name: "Bob Smith", is_active: true, created_at: "2024-01-02T00:00:00Z", updated_at: "2024-01-24T00:00:00Z" },
-  { id: "user-3", email: "carol@company.com", name: "Carol Davis", is_active: true, created_at: "2024-01-03T00:00:00Z", updated_at: "2024-01-23T00:00:00Z" },
-  { id: "user-4", email: "david@company.com", name: "David Wilson", is_active: true, created_at: "2024-01-04T00:00:00Z", updated_at: "2024-01-22T00:00:00Z" },
-  { id: "user-5", email: "eve@company.com", name: "Eve Anderson", is_active: false, created_at: "2024-01-05T00:00:00Z", updated_at: "2024-01-21T00:00:00Z" },
+  {
+    id: "user-1",
+    email: "alice@company.com",
+    name: "Alice Johnson",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-25T00:00:00Z",
+  },
+  {
+    id: "user-2",
+    email: "bob@company.com",
+    name: "Bob Smith",
+    is_active: true,
+    created_at: "2024-01-02T00:00:00Z",
+    updated_at: "2024-01-24T00:00:00Z",
+  },
+  {
+    id: "user-3",
+    email: "carol@company.com",
+    name: "Carol Davis",
+    is_active: true,
+    created_at: "2024-01-03T00:00:00Z",
+    updated_at: "2024-01-23T00:00:00Z",
+  },
+  {
+    id: "user-4",
+    email: "david@company.com",
+    name: "David Wilson",
+    is_active: true,
+    created_at: "2024-01-04T00:00:00Z",
+    updated_at: "2024-01-22T00:00:00Z",
+  },
+  {
+    id: "user-5",
+    email: "eve@company.com",
+    name: "Eve Anderson",
+    is_active: false,
+    created_at: "2024-01-05T00:00:00Z",
+    updated_at: "2024-01-21T00:00:00Z",
+  },
 ];
 
 const MOCK_USER_GROUPS: UserGroup[] = [
@@ -105,7 +146,9 @@ interface GroupBuilderProps {
 function GroupBuilder({ group, onSave, onCancel }: GroupBuilderProps) {
   const [name, setName] = useState(group?.name || "");
   const [description, setDescription] = useState(group?.description || "");
-  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [syncWithSCIM, setSyncWithSCIM] = useState(!!group?.external_id);
   const [externalId, setExternalId] = useState(group?.external_id || "");
 
@@ -155,7 +198,9 @@ function GroupBuilder({ group, onSave, onCancel }: GroupBuilderProps) {
             placeholder="Enter group name"
             className={nameError ? "border-red-500" : ""}
           />
-          {nameError && <p className="text-sm text-red-500 mt-1">{nameError}</p>}
+          {nameError && (
+            <p className="text-sm text-red-500 mt-1">{nameError}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="group-description">Description</Label>
@@ -176,7 +221,9 @@ function GroupBuilder({ group, onSave, onCancel }: GroupBuilderProps) {
         <h4 className="text-lg font-medium">SCIM Integration</h4>
         <div className="flex items-center justify-between p-4 border rounded-lg">
           <div>
-            <Label className="text-sm font-medium">Sync with Identity Provider</Label>
+            <Label className="text-sm font-medium">
+              Sync with Identity Provider
+            </Label>
             <p className="text-sm text-muted-foreground">
               Automatically sync group membership from your IdP (SCIM)
             </p>
@@ -210,13 +257,10 @@ function GroupBuilder({ group, onSave, onCancel }: GroupBuilderProps) {
             <p className="text-sm text-muted-foreground">
               {syncWithSCIM
                 ? "Members will be automatically synced from your IdP"
-                : "Select users to add to this group"
-              }
+                : "Select users to add to this group"}
             </p>
           </div>
-          <Badge variant="outline">
-            {selectedUserIds.size} selected
-          </Badge>
+          <Badge variant="outline">{selectedUserIds.size} selected</Badge>
         </div>
 
         {!syncWithSCIM && (
@@ -234,10 +278,15 @@ function GroupBuilder({ group, onSave, onCancel }: GroupBuilderProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor={user.id} className="text-sm font-medium cursor-pointer">
+                      <Label
+                        htmlFor={user.id}
+                        className="text-sm font-medium cursor-pointer"
+                      >
                         {user.name}
                       </Label>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                     <Badge variant={user.is_active ? "outline" : "secondary"}>
                       {user.is_active ? "Active" : "Inactive"}
@@ -268,12 +317,16 @@ interface GroupMembersDialogProps {
   onClose: () => void;
 }
 
-function GroupMembersDialog({ group, isOpen, onClose }: GroupMembersDialogProps) {
+function GroupMembersDialog({
+  group,
+  isOpen,
+  onClose,
+}: GroupMembersDialogProps) {
   const groupMembers = useMemo(() => {
-    const memberIds = MOCK_GROUP_MEMBERSHIPS
-      .filter(m => m.group_id === group.id)
-      .map(m => m.user_id);
-    return MOCK_USERS.filter(u => memberIds.includes(u.id));
+    const memberIds = MOCK_GROUP_MEMBERSHIPS.filter(
+      (m) => m.group_id === group.id,
+    ).map((m) => m.user_id);
+    return MOCK_USERS.filter((u) => memberIds.includes(u.id));
   }, [group.id]);
 
   return (
@@ -284,8 +337,7 @@ function GroupMembersDialog({ group, isOpen, onClose }: GroupMembersDialogProps)
           <DialogDescription>
             {group.external_id
               ? "Members are automatically synced from your identity provider"
-              : "Manually managed group members"
-            }
+              : "Manually managed group members"}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -293,24 +345,36 @@ function GroupMembersDialog({ group, isOpen, onClose }: GroupMembersDialogProps)
             <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
               <IconComponent name="Sync" className="h-4 w-4 text-blue-600" />
               <div className="text-sm">
-                <div className="font-medium text-blue-900">SCIM Synchronized</div>
-                <div className="text-blue-700">External ID: {group.external_id}</div>
+                <div className="font-medium text-blue-900">
+                  SCIM Synchronized
+                </div>
+                <div className="text-blue-700">
+                  External ID: {group.external_id}
+                </div>
               </div>
             </div>
           )}
 
           <div className="space-y-2">
             {groupMembers.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={user.id}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <span className="text-sm font-medium text-blue-900">
-                      {user.name.split(' ').map(n => n[0]).join('')}
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </span>
                   </div>
                   <div>
                     <div className="font-medium">{user.name}</div>
-                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {user.email}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -338,7 +402,13 @@ function GroupMembersDialog({ group, isOpen, onClose }: GroupMembersDialogProps)
   );
 }
 
-function GroupTable({ groups, onEdit, onDelete, onViewMembers, onSync }: {
+function GroupTable({
+  groups,
+  onEdit,
+  onDelete,
+  onViewMembers,
+  onSync,
+}: {
   groups: UserGroup[];
   onEdit: (group: UserGroup) => void;
   onDelete: (groupId: string) => void;
@@ -350,12 +420,15 @@ function GroupTable({ groups, onEdit, onDelete, onViewMembers, onSync }: {
 
   const filteredGroups = useMemo(() => {
     return groups.filter((group) => {
-      const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (group.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+      const matchesSearch =
+        group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (group.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+          false);
 
-      const matchesSync = filterSync === "all" ||
-                         (filterSync === "scim" && group.external_id) ||
-                         (filterSync === "manual" && !group.external_id);
+      const matchesSync =
+        filterSync === "all" ||
+        (filterSync === "scim" && group.external_id) ||
+        (filterSync === "manual" && !group.external_id);
 
       return matchesSearch && matchesSync;
     });
@@ -480,7 +553,9 @@ export default function UserGroups() {
   const [groups, setGroups] = useState<UserGroup[]>(MOCK_USER_GROUPS);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<UserGroup | null>(null);
-  const [viewMembersGroup, setViewMembersGroup] = useState<UserGroup | null>(null);
+  const [viewMembersGroup, setViewMembersGroup] = useState<UserGroup | null>(
+    null,
+  );
 
   const handleCreateGroup = (groupData: CreateUserGroupRequest) => {
     const newGroup: UserGroup = {
@@ -507,13 +582,13 @@ export default function UserGroups() {
       updated_at: new Date().toISOString(),
     };
 
-    setGroups(groups.map(g => g.id === editingGroup.id ? updatedGroup : g));
+    setGroups(groups.map((g) => (g.id === editingGroup.id ? updatedGroup : g)));
     setEditingGroup(null);
   };
 
   const handleDeleteGroup = (groupId: string) => {
     if (confirm("Are you sure you want to delete this group?")) {
-      setGroups(groups.filter(g => g.id !== groupId));
+      setGroups(groups.filter((g) => g.id !== groupId));
     }
   };
 
@@ -524,8 +599,8 @@ export default function UserGroups() {
   };
 
   // Calculate statistics
-  const scimGroups = groups.filter(g => g.external_id).length;
-  const manualGroups = groups.filter(g => !g.external_id).length;
+  const scimGroups = groups.filter((g) => g.external_id).length;
+  const manualGroups = groups.filter((g) => !g.external_id).length;
   const totalMembers = groups.reduce((sum, g) => sum + g.member_count, 0);
 
   return (
@@ -542,7 +617,10 @@ export default function UserGroups() {
             <IconComponent name="RefreshCw" className="h-4 w-4 mr-2" />
             Sync All
           </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button size="sm">
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -553,7 +631,8 @@ export default function UserGroups() {
               <DialogHeader>
                 <DialogTitle>Create User Group</DialogTitle>
                 <DialogDescription>
-                  Create a new user group for organizing team members and permissions.
+                  Create a new user group for organizing team members and
+                  permissions.
                 </DialogDescription>
               </DialogHeader>
               <GroupBuilder
