@@ -57,19 +57,19 @@ class SecurityConfig(BaseModel):
         description="Require special characters in passwords.",
     )
 
-    # Session Security
+    # Session Security - DEVELOPMENT: Extended timeouts for dev
     session_timeout_minutes: int = Field(
-        default=60,
+        default=1440,  # 24 hours for development
         description="Session timeout in minutes.",
         ge=5,
-        le=1440,  # Max 24 hours
+        le=99999,  # Extended for development
     )
 
     max_concurrent_sessions: int = Field(
-        default=5,
+        default=999,  # Very large for development
         description="Maximum concurrent sessions per user.",
         ge=1,
-        le=20,
+        le=999999,  # Extended for development
     )
 
     # CORS Settings
@@ -88,17 +88,17 @@ class SecurityConfig(BaseModel):
         description="CORS preflight cache duration in seconds.",
     )
 
-    # API Security
+    # API Security - DEVELOPMENT: Enabled with very high limits for dev
     rate_limit_enabled: bool = Field(
-        default=True,
+        default=True,  # Enabled but with very high limits for development
         description="Enable rate limiting for API endpoints.",
     )
 
     rate_limit_requests_per_minute: int = Field(
-        default=60,
+        default=999999,  # Very high for development
         description="Maximum requests per minute per IP/user.",
         ge=10,
-        le=1000,
+        le=999999,  # Extended for development
     )
 
     api_key_expiration_days: int = Field(

@@ -4,10 +4,9 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel
 from sqlalchemy import CHAR, JSON, Column
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.api_key.model import ApiKey
@@ -32,7 +31,7 @@ class UserOptin(BaseModel):
 
 class User(SQLModel, table=True):  # type: ignore[call-arg]
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 #    id: UUIDstr = Field(default_factory=uuid4, sa_column=Column(CHAR(32), primary_key=True, unique=True, nullable=False))
     username: str = Field(index=True, unique=True)
     password: str = Field()
@@ -43,17 +42,17 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: Union[datetime, None] = Field(default=None, nullable=True)
 
-    api_keys: Mapped[List["ApiKey"]] = Relationship(
+    api_keys: List["ApiKey"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
     store_api_key: Union[str, None] = Field(default=None, nullable=True)
-    flows: Mapped[List["Flow"]] = Relationship(back_populates="user")
-    variables: Mapped[List["Variable"]] = Relationship(
+    flows: List["Flow"] = Relationship(back_populates="user")
+    variables: List["Variable"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
-    folders: Mapped[List["Folder"]] = Relationship(
+    folders: List["Folder"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )
@@ -62,15 +61,15 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     )
 
     # RBAC relationships
-    owned_workspaces: Mapped[List["Workspace"]] = Relationship(
+    owned_workspaces: List["Workspace"] = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    owned_projects: Mapped[List["Project"]] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
-    owned_environments: Mapped[List["Environment"]] = Relationship(
+    owned_projects: List["Project"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+    owned_environments: List["Environment"] = Relationship(
         back_populates="owner", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_roles: Mapped[List["Role"]] = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    created_roles: List["Role"] = Relationship(back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"})
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
@@ -78,7 +77,7 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "RoleAssignment.user_id == User.id",
         },
     )
-    group_memberships: Mapped[List["UserGroupMembership"]] = Relationship(
+    group_memberships: List["UserGroupMembership"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={
             "cascade": "delete",
@@ -86,10 +85,10 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
             "primaryjoin": "UserGroupMembership.user_id == User.id",
         },
     )
-    created_groups: Mapped[List["UserGroup"]] = Relationship(
+    created_groups: List["UserGroup"] = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
-    created_service_accounts: Mapped[List["ServiceAccount"]] = Relationship(
+    created_service_accounts: List["ServiceAccount"] = Relationship(
         back_populates="created_by", sa_relationship_kwargs={"cascade": "delete"}
     )
 

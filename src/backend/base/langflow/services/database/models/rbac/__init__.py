@@ -4,7 +4,6 @@ This module implements a comprehensive RBAC system with hierarchical scoping,
 supporting workspaces, projects, environments, flows, and components.
 """
 
-from __future__ import annotations
 
 from .audit_log import (
     ActorType,
@@ -69,6 +68,16 @@ from .service_account import (
     ServiceAccountTokenRead,
     ServiceAccountTokenResponse,
     ServiceAccountUpdate,
+)
+from .sso_configuration import (
+    SSOConfiguration,
+    SSOConfigurationCreate,
+    SSOConfigurationRead,
+    SSOConfigurationUpdate,
+    SSOProviderType,
+    SSOStatus,
+    SSOTestRequest,
+    SSOTestResult,
 )
 from .user_group import (
     GroupType,
@@ -155,6 +164,15 @@ __all__ = [
     "ServiceAccountTokenCreate",
     "ServiceAccountTokenRead",
     "ServiceAccountTokenResponse",
+    # SSO Configuration models
+    "SSOConfiguration",
+    "SSOConfigurationCreate",
+    "SSOConfigurationRead",
+    "SSOConfigurationUpdate",
+    "SSOProviderType",
+    "SSOStatus",
+    "SSOTestRequest",
+    "SSOTestResult",
     # Audit log models
     "AuditLog",
     "AuditLogRead",

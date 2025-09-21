@@ -1,11 +1,8 @@
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Union
 from uuid import uuid4
 
 from pydantic import ValidationInfo, field_validator
-from sqlalchemy.orm import Mapped
 from sqlmodel import JSON, Column, DateTime, Field, Relationship, SQLModel, func
 
 from langflow.schema.serialize import UUIDstr
@@ -47,7 +44,7 @@ class Variable(VariableBase, table=True):  # type: ignore[call-arg]
     default_fields: list[str] | None = Field(sa_column=Column(JSON))
     # foreign key to user table
     user_id: UUIDstr = Field(description="User ID associated with this variable", foreign_key="user.id")
-    user: Mapped["User"] = Relationship(back_populates="variables")
+    user: "User" = Relationship(back_populates="variables")
 
     # RBAC - Environment scoped variables
     environment_id: UUIDstr | None = Field(default=None, foreign_key="environment.id", nullable=True, index=True)

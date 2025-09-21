@@ -68,25 +68,25 @@ class ThreatProfile:
 @dataclass
 class ProtectionConfig:
     """Brute force protection configuration."""
-    # Basic thresholds
-    max_attempts_per_ip: int = 10
-    max_attempts_per_user: int = 5
-    time_window_seconds: int = 900  # 15 minutes
+    # Basic thresholds - DEVELOPMENT: Set to very large values to effectively disable
+    max_attempts_per_ip: int = 999999
+    max_attempts_per_user: int = 999999
+    time_window_seconds: int = 1  # Very short window
 
-    # Progressive blocking
-    initial_block_duration: int = 300  # 5 minutes
-    max_block_duration: int = 86400  # 24 hours
-    escalation_factor: float = 2.0
+    # Progressive blocking - DEVELOPMENT: Disabled for dev
+    initial_block_duration: int = 0  # No blocking
+    max_block_duration: int = 0  # No blocking
+    escalation_factor: float = 1.0
 
-    # Advanced detection
-    enable_pattern_detection: bool = True
-    enable_distributed_detection: bool = True
-    suspicious_user_agent_threshold: int = 5
-    geographical_spread_threshold: int = 3
+    # Advanced detection - DEVELOPMENT: Disabled for dev
+    enable_pattern_detection: bool = False
+    enable_distributed_detection: bool = False
+    suspicious_user_agent_threshold: int = 999999
+    geographical_spread_threshold: int = 999999
 
-    # Threat response
-    auto_block_critical_threats: bool = True
-    notification_threshold: ThreatLevel = ThreatLevel.HIGH
+    # Threat response - DEVELOPMENT: Disabled for dev
+    auto_block_critical_threats: bool = False
+    notification_threshold: ThreatLevel = ThreatLevel.CRITICAL
 
 
 class BruteForceProtection:

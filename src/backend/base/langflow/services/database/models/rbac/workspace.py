@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Union, List
@@ -6,10 +5,10 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
+# from sqlalchemy.orm import Mapped  # Removed - use quoted strings for SQLModel relationships
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.rbac.audit_log import AuditLog
@@ -17,6 +16,7 @@ if TYPE_CHECKING:
     from langflow.services.database.models.rbac.role import Role
     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
     from langflow.services.database.models.rbac.service_account import ServiceAccount
+    from langflow.services.database.models.rbac.sso_configuration import SSOConfiguration
     from langflow.services.database.models.rbac.user_group import UserGroup
     from langflow.services.database.models.user.model import User
 
@@ -88,43 +88,43 @@ class Workspace(WorkspaceBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "workspace"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Owner relationship
-    owner_id: UUIDstr = Field(foreign_key="user.id", index=True, sa_type=CHAR(32))
-    owner: Mapped["User"] = Relationship(back_populates="owned_workspaces")
+    owner_id: UUIDstr = Field(foreign_key="user.id", index=True, sa_type=UUIDAsString)
+    owner: "User" = Relationship(back_populates="owned_workspaces")
 
     # Relationships
-    projects: Mapped[List["Project"]] = Relationship(
+    projects: List["Project"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    roles: Mapped[List["Role"]] = Relationship(
+    roles: List["Role"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    audit_logs: Mapped[List["AuditLog"]] = Relationship(
+    audit_logs: List["AuditLog"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    user_groups: Mapped[List["UserGroup"]] = Relationship(
+    user_groups: List["UserGroup"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    service_accounts: Mapped[List["ServiceAccount"]] = Relationship(
+    service_accounts: List["ServiceAccount"] = Relationship(
         back_populates="workspace",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
-    # SSO Configurations, comment out until sso_configuratio is part of alembic table setup
-    # sso_configurations: Mapped[List["SSOConfiguration"]] = Relationship(
-    #     back_populates="workspace",
-    #     sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    # )
+    # SSO Configurations
+    sso_configurations: List["SSOConfiguration"] = Relationship(
+        back_populates="workspace",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
     # Unique constraints
     __table_args__ = (UniqueConstraint("owner_id", "name", name="unique_workspace_name_per_owner"),)
@@ -190,28 +190,28 @@ class WorkspaceInvitation(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "workspace_invitation"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
-    workspace_id: UUIDstr = Field(foreign_key="workspace.id", index=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
+    workspace_id: UUIDstr = Field(foreign_key="workspace.id", index=True, sa_type=UUIDAsString)
     email: str = Field(index=True)
-    role_id: Union[UUIDstr, None] = Field(foreign_key="role.id", sa_type=CHAR(32))
+    role_id: Union[UUIDstr, None] = Field(foreign_key="role.id", sa_type=UUIDAsString)
 
     # Invitation details
-    invited_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    invited_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
     invitation_code: str = Field(index=True, unique=True)
     expires_at: datetime = Field()
 
     # Status
     is_accepted: bool = Field(default=False)
     accepted_at: Union[datetime, None] = Field(default=None)
-    accepted_by_id: Union[UUIDstr, None] = Field(foreign_key="user.id", default=None, sa_type=CHAR(32))
+    accepted_by_id: Union[UUIDstr, None] = Field(foreign_key="user.id", default=None, sa_type=UUIDAsString)
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Relationships
-    workspace: Mapped["Workspace"] = Relationship()
+    workspace: "Workspace" = Relationship()
     role: Union["Role", None] = Relationship()
-    invited_by: Mapped["User"] = Relationship(
+    invited_by: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[WorkspaceInvitation.invited_by_id]",
             "primaryjoin": "WorkspaceInvitation.invited_by_id == User.id"

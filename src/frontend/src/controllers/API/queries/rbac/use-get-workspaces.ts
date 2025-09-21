@@ -66,7 +66,7 @@ export const useGetWorkspaces: useMutationFunctionType<
         params.append("is_active", is_active.toString());
       }
 
-      const url = `${getURL("RBAC")}/workspaces/?${params.toString()}`;
+      const url = `${getURL("RBAC")}/workspaces/list?${params.toString()}`;
 
       const res = await api.get(url);
 

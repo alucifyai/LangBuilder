@@ -46,35 +46,36 @@ class AuthRateLimiter:
 
     def __init__(self):
         # Different rate limits for different scenarios
+        # DEVELOPMENT: Set to very large values to effectively disable rate limiting
         self.rules = {
             "login": RateLimitRule(
-                max_attempts=5,
-                window_seconds=300,  # 5 minutes
-                block_duration_seconds=900,  # 15 minutes block after 5 failures
+                max_attempts=999999,
+                window_seconds=1,  # Very short window
+                block_duration_seconds=0,  # No blocking for development
                 name="login"
             ),
             "login_user": RateLimitRule(
-                max_attempts=10,
-                window_seconds=3600,  # 1 hour
-                block_duration_seconds=3600,  # 1 hour block for user-specific attempts
+                max_attempts=999999,
+                window_seconds=1,  # Very short window
+                block_duration_seconds=0,  # No blocking for development
                 name="login_user"
             ),
             "refresh": RateLimitRule(
-                max_attempts=20,
-                window_seconds=300,  # 5 minutes
-                block_duration_seconds=300,  # 5 minutes block
+                max_attempts=999999,
+                window_seconds=1,  # Very short window
+                block_duration_seconds=0,  # No blocking for development
                 name="refresh"
             ),
             "api_key": RateLimitRule(
-                max_attempts=100,
-                window_seconds=3600,  # 1 hour
-                block_duration_seconds=0,  # No blocking, just rate limiting
+                max_attempts=999999,
+                window_seconds=1,  # Very short window
+                block_duration_seconds=0,  # No blocking for development
                 name="api_key"
             ),
             "password_reset": RateLimitRule(
-                max_attempts=3,
-                window_seconds=3600,  # 1 hour
-                block_duration_seconds=3600,  # 1 hour block
+                max_attempts=999999,
+                window_seconds=1,  # Very short window
+                block_duration_seconds=0,  # No blocking for development
                 name="password_reset"
             )
         }

@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
@@ -7,10 +6,9 @@ from uuid import uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.rbac.permission import RolePermission
@@ -36,7 +34,7 @@ class RoleBase(SQLModel):
     type: RoleType = Field(default=RoleType.CUSTOM, index=True)
 
     # Role hierarchy
-    parent_role_id: Union[UUIDstr, None] = Field(default=None, foreign_key="role.id", sa_type=CHAR(32))
+    parent_role_id: Union[UUIDstr, None] = Field(default=None, foreign_key="role.id", sa_type=UUIDAsString)
     priority: int = Field(default=0)  # Higher priority overrides lower
 
     # Role configuration
@@ -46,7 +44,7 @@ class RoleBase(SQLModel):
 
     # Scope definition
     scope_type: Union[str, None] = Field(default="workspace")  # workspace, project, environment, flow, component
-    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))  # ID of the scoped resource
+    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)  # ID of the scoped resource
 
     # Metadata
     role_metadata: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
@@ -81,15 +79,15 @@ class Role(RoleBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "role"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Workspace relationship (null for system roles)
-    workspace_id: Union[UUIDstr, None] = Field(foreign_key="workspace.id", sa_type=CHAR(32))
+    workspace_id: Union[UUIDstr, None] = Field(foreign_key="workspace.id", sa_type=UUIDAsString)
     workspace: Union["Workspace", None] = Relationship(back_populates="roles")
 
     # Creator relationship
-    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    created_by: Mapped["User"] = Relationship(back_populates="created_roles")
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    created_by: "User" = Relationship(back_populates="created_roles")
 
     # Parent role relationship (for hierarchy)
     parent_role: Union["Role", None] = Relationship(
@@ -100,11 +98,11 @@ class Role(RoleBase, table=True):  # type: ignore[call-arg]
     )
 
     # Relationships
-    permissions: Mapped[List["RolePermission"]] = Relationship(
+    permissions: List["RolePermission"] = Relationship(
         back_populates="role",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="role",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )

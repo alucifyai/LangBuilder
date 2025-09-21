@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Union, List
@@ -7,10 +5,9 @@ from uuid import uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow
@@ -58,11 +55,11 @@ class EnvironmentBase(SQLModel):
     is_active: bool = Field(default=True, index=True)
     is_locked: bool = Field(default=False)  # Prevent modifications in production
     locked_at: Union[datetime, None] = Field(default=None)
-    locked_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    locked_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
 
     # Deployment tracking
     last_deployed_at: Union[datetime, None] = Field(default=None)
-    last_deployed_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    last_deployed_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
     deployment_count: int = Field(default=0)
 
     # Timestamps
@@ -95,26 +92,26 @@ class Environment(EnvironmentBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "environment"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Project relationship
-    project_id: UUIDstr = Field(foreign_key="project.id", sa_type=CHAR(32))
-    project: Mapped["Project"] = Relationship(back_populates="environments")
+    project_id: UUIDstr = Field(foreign_key="project.id", sa_type=UUIDAsString)
+    project: "Project" = Relationship(back_populates="environments")
 
     # Owner relationship
-    owner_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    owner: Mapped["User"] = Relationship(back_populates="owned_environments")
+    owner_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    owner: "User" = Relationship(back_populates="owned_environments")
 
     # Relationships
-    flows: Mapped[List["Flow"]] = Relationship(
+    flows: List["Flow"] = Relationship(
         back_populates="environment",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    variables: Mapped[List["Variable"]] = Relationship(
+    variables: List["Variable"] = Relationship(
         back_populates="environment",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="environment",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -195,8 +192,8 @@ class EnvironmentDeployment(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "environment_deployment"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
-    environment_id: UUIDstr = Field(foreign_key="environment.id", index=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
+    environment_id: UUIDstr = Field(foreign_key="environment.id", index=True, sa_type=UUIDAsString)
 
     # Deployment details
     version: str = Field(index=True)
@@ -210,10 +207,10 @@ class EnvironmentDeployment(SQLModel, table=True):  # type: ignore[call-arg]
     error_message: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # Deployment metadata
-    deployed_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    deployed_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
     deployment_config: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
     artifacts: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
 
     # Relationships
-    environment: Mapped["Environment"] = Relationship()
-    deployed_by: Mapped["User"] = Relationship()
+    environment: "Environment" = Relationship()
+    deployed_by: "User" = Relationship()

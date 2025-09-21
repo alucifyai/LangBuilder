@@ -4,10 +4,10 @@ from uuid import uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column
-from sqlalchemy.orm import Mapped
+# from sqlalchemy.orm import Mapped  # Removed - use quoted strings for SQLModel relationships
 from sqlmodel import DateTime, Field, Relationship, SQLModel, func
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 # from langflow.services.database.models.rbac.service_account import ServiceAccount
 
@@ -29,15 +29,15 @@ class ApiKeyBase(SQLModel):
 
 class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True, sa_type=UUIDAsString)
     created_at: Union[datetime, None] = Field(
         default=None, sa_column=Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     )
     api_key: str = Field(index=True, unique=True)
     # User relationship
     # Delete API keys when user is deleted
-    user_id: UUIDstr = Field(index=True, foreign_key="user.id", sa_type=CHAR(32))
-    user: Mapped["User"] = Relationship(back_populates="api_keys")
+    user_id: UUIDstr = Field(index=True, foreign_key="user.id", sa_type=UUIDAsString)
+    user: "User" = Relationship(back_populates="api_keys")
 #    user_id: UUIDstr = Field(sa_column=Column(CHAR(32), ForeignKey("user.id"), index=True, nullable=False))
 #    user: User = Relationship(
 #        back_populates="api_keys"
@@ -45,15 +45,15 @@ class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]
 
     # RBAC - Service account relationship (for service account tokens)
     service_account_id: Union[UUIDstr, None] = Field(
-        default=None, foreign_key="service_account.id", nullable=True, index=True, sa_type=CHAR(32)
+        default=None, foreign_key="service_account.id", nullable=True, index=True, sa_type=UUIDAsString
     )
     service_account: Union["ServiceAccount", None] = Relationship(back_populates="api_keys")
 
     # Token scoping for RBAC
     scoped_permissions: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
     scope_type: Union[str, None] = Field(default=None)  # workspace, project, environment, flow, component
-    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))  # ID of the scoped resource
-    workspace_id: Union[UUIDstr, None] = Field(default=None, foreign_key="workspace.id", nullable=True, index=True, sa_type=CHAR(32))
+    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)  # ID of the scoped resource
+    workspace_id: Union[UUIDstr, None] = Field(default=None, foreign_key="workspace.id", nullable=True, index=True, sa_type=UUIDAsString)
 
 
 class ApiKeyCreate(ApiKeyBase):

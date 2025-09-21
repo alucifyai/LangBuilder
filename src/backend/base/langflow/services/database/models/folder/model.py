@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Union, List
 from uuid import UUID, uuid4
 
 from sqlalchemy import Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
+# from sqlalchemy.orm import Mapped  # Removed - use quoted strings for SQLModel relationships
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 from langflow.schema.serialize import UUIDstr
@@ -30,10 +30,10 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
         back_populates="children",
         sa_relationship_kwargs={"remote_side": "Folder.id"},
     )
-    children: Mapped[List["Folder"]] = Relationship(back_populates="parent")
+    children: List["Folder"] = Relationship(back_populates="parent")
     user_id: Union[UUIDstr, None] = Field(default=None, foreign_key="user.id")
-    user: Mapped["User"] = Relationship(back_populates="folders")
-    flows: Mapped[List["Flow"]] = Relationship(
+    user: "User" = Relationship(back_populates="folders")
+    flows: List["Flow"] = Relationship(
         back_populates="folder", sa_relationship_kwargs={"cascade": "all, delete, delete-orphan"}
     )
 

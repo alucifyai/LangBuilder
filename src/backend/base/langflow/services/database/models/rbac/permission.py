@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
@@ -7,10 +6,9 @@ from uuid import uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.rbac.role import Role
@@ -115,13 +113,13 @@ class Permission(PermissionBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "permission"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Permission code for fast lookup
     code: str = Field(index=True, unique=True)  # e.g., "flow:create", "workspace:manage"
 
     # Relationships
-    role_permissions: Mapped[List["RolePermission"]] = Relationship(
+    role_permissions: List["RolePermission"] = Relationship(
         back_populates="permission",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -137,11 +135,11 @@ class RolePermission(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "role_permission"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Foreign keys
-    role_id: UUIDstr = Field(foreign_key="role.id", sa_type=CHAR(32))
-    permission_id: UUIDstr = Field(foreign_key="permission.id", sa_type=CHAR(32))
+    role_id: UUIDstr = Field(foreign_key="role.id", sa_type=UUIDAsString)
+    permission_id: UUIDstr = Field(foreign_key="permission.id", sa_type=UUIDAsString)
 
     # Permission modifiers
     is_granted: bool = Field(default=True)  # True for grant, False for explicit deny
@@ -149,13 +147,13 @@ class RolePermission(SQLModel, table=True):  # type: ignore[call-arg]
     expires_at: Union[datetime, None] = Field(default=None)  # Temporary permissions
 
     # Metadata
-    granted_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    granted_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
     granted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     reason: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # Relationships
-    role: Mapped["Role"] = Relationship(back_populates="permissions")
-    permission: Mapped["Permission"] = Relationship(back_populates="role_permissions")
+    role: "Role" = Relationship(back_populates="permissions")
+    permission: "Permission" = Relationship(back_populates="role_permissions")
 
     # Unique constraints
     __table_args__ = (

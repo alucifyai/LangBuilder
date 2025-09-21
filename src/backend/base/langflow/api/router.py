@@ -59,7 +59,8 @@ router_v1.include_router(scim_router)
 # Unified RBAC router (includes all RBAC endpoints under /rbac prefix)
 router_v1.include_router(rbac_router)
 # Individual RBAC routers (for backwards compatibility)
-router_v1.include_router(workspaces_router)
+# NOTE: workspaces_router removed - it's already included in rbac_router
+# router_v1.include_router(workspaces_router)  # DUPLICATE - causes parameter conflicts
 router_v1.include_router(rbac_projects_router)
 router_v1.include_router(roles_router)
 router_v1.include_router(permissions_router)

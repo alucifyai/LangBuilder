@@ -4,10 +4,10 @@ from uuid import UUID, uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
+# from sqlalchemy.orm import Mapped  # Removed - use quoted strings for SQLModel relationships
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.api_key.model import ApiKey
@@ -38,7 +38,7 @@ class ServiceAccountBase(SQLModel):
 
     # Scoping
     default_scope_type: Union[str, None] = Field(default="workspace")
-    default_scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    default_scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
     allowed_permissions: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
 
     # Status
@@ -79,22 +79,22 @@ class ServiceAccount(ServiceAccountBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "service_account"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Workspace relationship
-    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=CHAR(32))
-    workspace: Mapped["Workspace"] = Relationship(back_populates="service_accounts")
+    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=UUIDAsString)
+    workspace: "Workspace" = Relationship(back_populates="service_accounts")
 
     # Creator/owner relationship
-    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    created_by: Mapped["User"] = Relationship(back_populates="created_service_accounts")
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    created_by: "User" = Relationship(back_populates="created_service_accounts")
 
     # Relationships
-    api_keys: Mapped[List["ApiKey"]] = Relationship(
+    api_keys: List["ApiKey"] = Relationship(
         back_populates="service_account",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="service_account",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -110,8 +110,8 @@ class ServiceAccountToken(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "service_account_token"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
-    service_account_id: UUIDstr = Field(foreign_key="service_account.id", sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
+    service_account_id: UUIDstr = Field(foreign_key="service_account.id", sa_type=UUIDAsString)
 
     # Token details
     name: str = Field(index=True)
@@ -121,7 +121,7 @@ class ServiceAccountToken(SQLModel, table=True):  # type: ignore[call-arg]
     # Scoping
     scoped_permissions: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
     scope_type: Union[str, None] = Field(default=None)
-    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    scope_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
 
     # Security
     allowed_ips: Union[List[str], None] = Field(default=[], sa_column=Column(JSON))
@@ -135,15 +135,15 @@ class ServiceAccountToken(SQLModel, table=True):  # type: ignore[call-arg]
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: Union[datetime, None] = Field(default=None)
     revoked_at: Union[datetime, None] = Field(default=None)
-    revoked_by_id: Union[UUIDstr, None] = Field(foreign_key="user.id", default=None, sa_type=CHAR(32))
+    revoked_by_id: Union[UUIDstr, None] = Field(foreign_key="user.id", default=None, sa_type=UUIDAsString)
     revoke_reason: Union[str, None] = Field(default=None, sa_column=Column(Text))
 
     # Created by
-    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
 
     # Relationships
-    service_account: Mapped["ServiceAccount"] = Relationship()
-    created_by: Mapped["User"] = Relationship(
+    service_account: "ServiceAccount" = Relationship()
+    created_by: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[ServiceAccountToken.created_by_id]",
             "primaryjoin": "ServiceAccountToken.created_by_id == User.id"

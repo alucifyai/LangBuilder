@@ -1,15 +1,12 @@
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Union, List
 from uuid import uuid4
 
 from sqlalchemy import CHAR, JSON, Column, Index, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow
@@ -63,7 +60,7 @@ class RoleAssignmentBase(SQLModel):
 
     # Assignment details
     reason: Union[str, None] = Field(default=None, sa_column=Column(Text))
-    approved_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    approved_by_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
     approval_date: Union[datetime, None] = Field(default=None)
 
     # Timestamps
@@ -78,26 +75,26 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "role_assignment"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Role relationship
-    role_id: UUIDstr = Field(foreign_key="role.id", sa_type=CHAR(32))
-    role: Mapped["Role"] = Relationship(back_populates="role_assignments")
+    role_id: UUIDstr = Field(foreign_key="role.id", sa_type=UUIDAsString)
+    role: "Role" = Relationship(back_populates="role_assignments")
 
     # Assignee (user, group, or service account)
-    user_id: Union[UUIDstr, None] = Field(foreign_key="user.id", sa_type=CHAR(32))
-    group_id: Union[UUIDstr, None] = Field(foreign_key="user_group.id", sa_type=CHAR(32))
-    service_account_id: Union[UUIDstr, None] = Field(foreign_key="service_account.id", sa_type=CHAR(32))
+    user_id: Union[UUIDstr, None] = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    group_id: Union[UUIDstr, None] = Field(foreign_key="user_group.id", sa_type=UUIDAsString)
+    service_account_id: Union[UUIDstr, None] = Field(foreign_key="service_account.id", sa_type=UUIDAsString)
 
     # Scope relationships (hierarchical)
-    workspace_id: Union[UUIDstr, None] = Field(foreign_key="workspace.id", sa_type=CHAR(32))
-    project_id: Union[UUIDstr, None] = Field(foreign_key="project.id", sa_type=CHAR(32))
-    environment_id: Union[UUIDstr, None] = Field(foreign_key="environment.id", sa_type=CHAR(32))
-    flow_id: Union[UUIDstr, None] = Field(foreign_key="flow.id", sa_type=CHAR(32))
-    component_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))  # Component doesn't have a table yet
+    workspace_id: Union[UUIDstr, None] = Field(foreign_key="workspace.id", sa_type=UUIDAsString)
+    project_id: Union[UUIDstr, None] = Field(foreign_key="project.id", sa_type=UUIDAsString)
+    environment_id: Union[UUIDstr, None] = Field(foreign_key="environment.id", sa_type=UUIDAsString)
+    flow_id: Union[UUIDstr, None] = Field(foreign_key="flow.id", sa_type=UUIDAsString)
+    component_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)  # Component doesn't have a table yet
 
     # Assignment tracking
-    assigned_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    assigned_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
 
     # Relationships
     user: Union["User", None] = Relationship(
@@ -113,7 +110,7 @@ class RoleAssignment(RoleAssignmentBase, table=True):  # type: ignore[call-arg]
     environment: Union["Environment", None] = Relationship(back_populates="role_assignments")
     flow: Union["Flow", None] = Relationship(back_populates="role_assignments")
 
-    assigned_by: Mapped["User"] = Relationship(
+    assigned_by: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[RoleAssignment.assigned_by_id]",
             "primaryjoin": "RoleAssignment.assigned_by_id == User.id"

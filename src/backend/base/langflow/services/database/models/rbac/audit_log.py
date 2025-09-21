@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
@@ -8,7 +7,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import CHAR, JSON, Column, Index, Text
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.rbac.workspace import Workspace
@@ -95,19 +94,19 @@ class AuditLogBase(SQLModel):
 
     # Actor information
     actor_type: ActorType = Field(index=True)
-    actor_id: Union[UUIDstr, None] = Field(sa_type=CHAR(32))
+    actor_id: Union[UUIDstr, None] = Field(sa_type=UUIDAsString)
     actor_name: Union[str, None] = Field(default=None)
     actor_email: Union[str, None] = Field(default=None)
 
     # Target resource
     resource_type: Union[str, None] = Field(default=None, index=True)
-    resource_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    resource_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
     resource_name: Union[str, None] = Field(default=None)
 
     # Context
-    workspace_id: Union[UUIDstr, None] = Field(default=None, foreign_key="workspace.id", sa_type=CHAR(32))
-    project_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
-    environment_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    workspace_id: Union[UUIDstr, None] = Field(default=None, foreign_key="workspace.id", sa_type=UUIDAsString)
+    project_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
+    environment_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
 
     # Request information
     ip_address: Union[str, None] = Field(default=None, index=True)
@@ -135,7 +134,7 @@ class AuditLog(AuditLogBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "audit_log"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Relationships (nullable for system events)
     user: Union["User", None] = Relationship(

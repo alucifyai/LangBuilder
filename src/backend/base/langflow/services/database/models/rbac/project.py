@@ -1,15 +1,12 @@
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Union, List
 from uuid import uuid4
 
 from pydantic import BaseModel, field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow
@@ -32,7 +29,7 @@ class ProjectBase(SQLModel):
     project_metadata: Union[dict, None] = Field(default={}, sa_column=Column(JSON))
 
     # Project settings
-    default_environment_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    default_environment_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
     auto_deploy_enabled: bool = Field(default=False)
     retention_days: int = Field(default=30)  # Data retention policy
 
@@ -64,26 +61,26 @@ class Project(ProjectBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "project"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Workspace relationship
-    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=CHAR(32))
-    workspace: Mapped["Workspace"] = Relationship(back_populates="projects")
+    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=UUIDAsString)
+    workspace: "Workspace" = Relationship(back_populates="projects")
 
     # Owner relationship
-    owner_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    owner: Mapped["User"] = Relationship(back_populates="owned_projects")
+    owner_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    owner: "User" = Relationship(back_populates="owned_projects")
 
     # Relationships
-    environments: Mapped[List["Environment"]] = Relationship(
+    environments: List["Environment"] = Relationship(
         back_populates="project",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    flows: Mapped[List["Flow"]] = Relationship(
+    flows: List["Flow"] = Relationship(
         back_populates="project",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="project",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )

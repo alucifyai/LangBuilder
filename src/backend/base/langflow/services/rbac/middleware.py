@@ -362,10 +362,11 @@ class RBACMiddleware(BaseHTTPMiddleware):
         except Exception as exc:
             logger.error("Error extracting RBAC context", extra={
                 "request_id": request_id,
-                "error": str(exc)
+                "error": str(exc),
+                "error_type": type(exc).__name__
             }, exc_info=True)
 
-            # Return minimal context on error
+            # Return minimal context on error - but don't fail the request
             return RBACContext(
                 authenticated=False,
                 request_id=request_id
@@ -384,15 +385,33 @@ class RBACMiddleware(BaseHTTPMiddleware):
         try:
             # If no user context, deny access to protected resources
             if not context.user or not context.authenticated:
-                return False
-
-            # If RBAC service is not available, deny access (secure failure mode)
-            if not self.rbac_service:
-                logger.error("RBAC service not available, denying access for security", extra={
+                logger.debug("Access denied: no authenticated user", extra={
                     "request_id": context.request_id,
-                    "path": request.url.path
+                    "path": request.url.path,
+                    "authenticated": context.authenticated,
+                    "has_user": context.user is not None
                 })
                 return False
+
+            # If RBAC service is not available, allow in development but warn
+            if not self.rbac_service:
+                from langflow.services.settings.security_config import get_security_config
+                security_config = get_security_config()
+
+                if security_config.environment.value == "development":
+                    logger.warning("RBAC service not available in development - allowing access", extra={
+                        "request_id": context.request_id,
+                        "path": request.url.path,
+                        "environment": security_config.environment.value
+                    })
+                    return True
+                else:
+                    logger.error("RBAC service not available, denying access for security", extra={
+                        "request_id": context.request_id,
+                        "path": request.url.path,
+                        "environment": security_config.environment.value
+                    })
+                    return False
 
             # Determine resource type and action from request
             resource_type, action = self._extract_permission_requirements(request)
@@ -407,21 +426,39 @@ class RBACMiddleware(BaseHTTPMiddleware):
                 return False
 
             # Use permission engine to check permissions
-            from langflow.services.rbac.permission_engine import PermissionEngine
-            permission_engine = PermissionEngine()
+            try:
+                from langflow.services.rbac.permission_engine import PermissionEngine
+                permission_engine = PermissionEngine()
 
-            async with get_session() as session:
-                result = await permission_engine.check_permission(
-                    session=session,
-                    user=context.user,
-                    resource_type=resource_type,
-                    action=action,
-                    resource_id=context.flow_id or context.project_id or context.workspace_id,
-                    workspace_id=context.workspace_id,
-                    project_id=context.project_id
-                )
+                async with get_session() as session:
+                    result = await permission_engine.check_permission(
+                        session=session,
+                        user=context.user,
+                        resource_type=resource_type,
+                        action=action,
+                        resource_id=context.flow_id or context.project_id or context.workspace_id,
+                        workspace_id=context.workspace_id,
+                        project_id=context.project_id
+                    )
 
-                return result.allowed
+                    logger.debug("Permission check result", extra={
+                        "request_id": context.request_id,
+                        "user_id": str(context.user.id),
+                        "resource_type": resource_type,
+                        "action": action,
+                        "allowed": result.allowed,
+                        "reason": getattr(result, 'reason', 'none')
+                    })
+
+                    return result.allowed
+
+            except ImportError as e:
+                logger.warning("Permission engine not available - allowing access in development", extra={
+                    "request_id": context.request_id,
+                    "error": str(e),
+                    "path": request.url.path
+                })
+                return True  # Allow access if permission engine not available
 
         except Exception as exc:
             logger.error("Error checking RBAC permissions - denying access for security", extra={

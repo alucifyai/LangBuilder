@@ -1,6 +1,5 @@
 """SSO Configuration model for enterprise identity provider integration."""
 
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
@@ -9,10 +8,9 @@ from uuid import uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.rbac.workspace import Workspace
@@ -49,7 +47,7 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "sso_configuration"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Basic configuration
     name: str = Field(index=True)  # Human-readable name
@@ -57,8 +55,8 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
     status: SSOStatus = Field(default=SSOStatus.DRAFT, index=True)
 
     # Workspace association
-    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=CHAR(32))
-    workspace: Mapped["Workspace"] = Relationship(back_populates="sso_configurations")
+    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=UUIDAsString)
+    workspace: "Workspace" = Relationship(back_populates="sso_configurations")
 
     # Provider configuration (encrypted in production)
     provider_config: dict = Field(sa_column=Column(JSON))
@@ -109,7 +107,7 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
     # Advanced settings
     auto_provision_users: bool = Field(default=True)
     auto_create_groups: bool = Field(default=True)
-    default_role_id: Union[UUIDstr, None] = Field(default=None, sa_type=CHAR(32))
+    default_role_id: Union[UUIDstr, None] = Field(default=None, sa_type=UUIDAsString)
     session_timeout_minutes: int = Field(default=1440)  # 24 hours
     force_reauth_hours: Union[int, None] = Field(default=None)
     is_active: bool = Field(default=True, index=True)
@@ -124,8 +122,8 @@ class SSOConfiguration(SQLModel, table=True):  # type: ignore[call-arg]
     test_user_email: Union[str, None] = Field(default=None)
 
     # Audit and lifecycle
-    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    created_by: Mapped["User"] = Relationship(
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    created_by: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[SSOConfiguration.created_by_id]",
             "primaryjoin": "SSOConfiguration.created_by_id == User.id"

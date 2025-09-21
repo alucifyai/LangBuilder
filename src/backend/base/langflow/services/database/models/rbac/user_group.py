@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
@@ -7,10 +6,9 @@ from uuid import uuid4
 
 from pydantic import field_validator
 from sqlalchemy import CHAR, JSON, Column, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
 
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 if TYPE_CHECKING:
     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
@@ -72,31 +70,31 @@ class UserGroup(UserGroupBase, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "user_group"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Workspace relationship
-    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=CHAR(32))
-    workspace: Mapped["Workspace"] = Relationship(back_populates="user_groups")
+    workspace_id: UUIDstr = Field(foreign_key="workspace.id", sa_type=UUIDAsString)
+    workspace: "Workspace" = Relationship(back_populates="user_groups")
 
     # Creator relationship
-    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    created_by: Mapped["User"] = Relationship(back_populates="created_groups")
+    created_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    created_by: "User" = Relationship(back_populates="created_groups")
 
     # SSO/SCIM provider relationship
-    sso_provider_id: Union[UUIDstr, None] = Field(foreign_key="sso_configuration.id", default=None, sa_type=CHAR(32))
+    sso_provider_id: Union[UUIDstr, None] = Field(foreign_key="sso_configuration.id", default=None, sa_type=UUIDAsString)
 
     # Relationships
-    members: Mapped[List["UserGroupMembership"]] = Relationship(
+    members: List["UserGroupMembership"] = Relationship(
         back_populates="group",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="group",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
     # Parent group for nested groups
-    parent_group_id: Union[UUIDstr, None] = Field(foreign_key="user_group.id", default=None, sa_type=CHAR(32))
+    parent_group_id: Union[UUIDstr, None] = Field(foreign_key="user_group.id", default=None, sa_type=UUIDAsString)
     parent_group: Union["UserGroup", None] = Relationship(
         sa_relationship_kwargs={
             "remote_side": "UserGroup.id",
@@ -116,11 +114,11 @@ class UserGroupMembership(SQLModel, table=True):  # type: ignore[call-arg]
 
     __tablename__ = "user_group_membership"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
 
     # Foreign keys
-    user_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
-    group_id: UUIDstr = Field(foreign_key="user_group.id", sa_type=CHAR(32))
+    user_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
+    group_id: UUIDstr = Field(foreign_key="user_group.id", sa_type=UUIDAsString)
 
     # Membership details
     role: Union[str, None] = Field(default=None)  # Role within the group (e.g., "leader", "member")
@@ -129,18 +127,18 @@ class UserGroupMembership(SQLModel, table=True):  # type: ignore[call-arg]
     expires_at: Union[datetime, None] = Field(default=None)
 
     # Added by
-    added_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=CHAR(32))
+    added_by_id: UUIDstr = Field(foreign_key="user.id", sa_type=UUIDAsString)
     added_via: Union[str, None] = Field(default="manual")  # manual, scim, rule, invitation
 
     # Relationships
-    user: Mapped["User"] = Relationship(
+    user: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[UserGroupMembership.user_id]",
             "primaryjoin": "UserGroupMembership.user_id == User.id"
         }
     )
-    group: Mapped["UserGroup"] = Relationship(back_populates="members")
-    added_by: Mapped["User"] = Relationship(
+    group: "UserGroup" = Relationship(back_populates="members")
+    added_by: "User" = Relationship(
         sa_relationship_kwargs={
             "foreign_keys": "[UserGroupMembership.added_by_id]",
             "primaryjoin": "UserGroupMembership.added_by_id == User.id"

@@ -61,11 +61,11 @@ async def enhanced_authentication(
 ) -> CurrentActiveUser:
     """Enhanced authentication middleware with comprehensive security checks."""
     try:
-        # Get current user through standard auth flow
-        from langflow.api.utils import get_current_active_user
+        # Get current user through JWT validation
+        from langflow.services.auth.utils import get_current_user_by_jwt
 
         # Enhanced authentication with additional security checks
-        user = await get_current_active_user(token.credentials, session)
+        user = await get_current_user_by_jwt(token.credentials, session)
 
         if not user:
             logger.warning("Authentication failed: Invalid token", extra={

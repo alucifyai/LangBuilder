@@ -243,8 +243,9 @@ async def read_flows(
         A list of flows or a paginated response containing the list of flows or a list of flow headers.
     """
     try:
+        # TEMPORARILY DISABLED: RBAC causing import errors in development
         # SECURITY FIX: Use secure data access service instead of vulnerable user_id filtering
-        secure_data_service = SecureDataAccessService()
+        # secure_data_service = SecureDataAccessService()
 
         default_folder = (await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME))).first()
         default_folder_id = default_folder.id if default_folder else None
@@ -261,7 +262,8 @@ async def read_flows(
         if not folder_id:
             folder_id = default_folder_id
 
-        # Use RBAC-aware secure data access instead of vulnerable user_id filtering
+        # Use RBAC secure data access service
+        secure_data_service = SecureDataAccessService()
         flows = await secure_data_service.get_accessible_flows(
             session=session,
             context=context,

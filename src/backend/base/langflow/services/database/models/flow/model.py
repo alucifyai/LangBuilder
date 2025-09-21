@@ -1,7 +1,5 @@
 # Path: src/backend/langflow/services/database/models/flow/model.py
 
-# from __future__ import annotations
-
 import re
 from datetime import datetime, timezone
 from enum import Enum
@@ -20,11 +18,11 @@ from pydantic import (
 )
 from sqlalchemy import CHAR, Enum as SQLEnum
 from sqlalchemy import Text, UniqueConstraint, text
-from sqlalchemy.orm import Mapped
+# from sqlalchemy.orm import Mapped  # Removed - use quoted strings for SQLModel relationships
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 from langflow.schema.data import Data
-from langflow.schema.serialize import UUIDstr
+from langflow.schema.serialize import UUIDstr, UUIDAsString
 
 # if TYPE_CHECKING:
 #     from langflow.services.database.models.folder.model import Folder
@@ -196,25 +194,25 @@ class FlowBase(SQLModel):
 
 
 class Flow(FlowBase, table=True):  # type: ignore[call-arg]
-    id: UUID = Field(default_factory=uuid4, primary_key=True, unique=True, sa_type=CHAR(32))
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True, sa_type=UUIDAsString)
     data: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
-    user_id: Union[UUIDstr, None] = Field(index=True, foreign_key="user.id", nullable=True, sa_type=CHAR(32))
-    user: Mapped["User"] = Relationship(back_populates="flows")
+    user_id: Union[UUIDstr, None] = Field(index=True, foreign_key="user.id", nullable=True, sa_type=UUIDAsString)
+    user: "User" = Relationship(back_populates="flows")
     icon: Union[str, None] = Field(default=None, nullable=True)
     tags: Union[List[str], None] = Field(sa_column=Column(JSON), default=[])
     locked: Union[bool, None] = Field(default=False, nullable=True)
-    folder_id: Union[UUID, None] = Field(default=None, foreign_key="folder.id", nullable=True, index=True, sa_type=CHAR(32))
+    folder_id: Union[UUIDstr, None] = Field(default=None, foreign_key="folder.id", nullable=True, index=True, sa_type=UUIDAsString)
     fs_path: Union[str, None] = Field(default=None, nullable=True)
     folder: Union["Folder", None] = Relationship(back_populates="flows")
 
     # RBAC relationships
-    project_id: Union[UUIDstr, None] = Field(default=None, foreign_key="project.id", nullable=True, index=True, sa_type=CHAR(32))
+    project_id: Union[UUIDstr, None] = Field(default=None, foreign_key="project.id", nullable=True, index=True, sa_type=UUIDAsString)
     project: Union["Project", None] = Relationship(back_populates="flows")
 
-    environment_id: Union[UUIDstr, None] = Field(default=None, foreign_key="environment.id", nullable=True, index=True, sa_type=CHAR(32))
+    environment_id: Union[UUIDstr, None] = Field(default=None, foreign_key="environment.id", nullable=True, index=True, sa_type=UUIDAsString)
     environment: Union["Environment", None] = Relationship(back_populates="flows")
 
-    role_assignments: Mapped[List["RoleAssignment"]] = Relationship(
+    role_assignments: List["RoleAssignment"] = Relationship(
         back_populates="flow", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
@@ -237,14 +235,14 @@ class Flow(FlowBase, table=True):  # type: ignore[call-arg]
 
 class FlowCreate(FlowBase):
     user_id: Union[UUID, None] = None
-    folder_id: Union[UUID, None] = None
+    folder_id: Union[UUIDstr, None] = None
     fs_path: Union[str, None] = None
 
 
 class FlowRead(FlowBase):
     id: UUID
     user_id: Union[UUID, None] = Field()
-    folder_id: Union[UUID, None] = Field()
+    folder_id: Union[UUIDstr, None] = Field()
     tags: Union[list[str], None] = Field(None, description="The tags of the flow")
 
 
@@ -253,7 +251,7 @@ class FlowHeader(BaseModel):
 
     id: UUID = Field(description="Unique identifier for the flow")
     name: str = Field(description="The name of the flow")
-    folder_id: Union[UUID, None] = Field(
+    folder_id: Union[UUIDstr, None] = Field(
         None,
         description="The ID of the folder containing the flow. None if not associated with a folder",
     )
@@ -279,7 +277,7 @@ class FlowUpdate(SQLModel):
     name: Union[str, None] = None
     description: Union[str, None] = None
     data: Union[dict, None] = Field(default=None, sa_column=Column(JSON))
-    folder_id: Union[UUID, None] = None
+    folder_id: Union[UUIDstr, None] = None
     endpoint_name: Union[str, None] = None
     mcp_enabled: Union[bool, None] = None
     locked: Union[bool, None] = None

@@ -16,6 +16,6 @@ class RBACServiceFactory(ServiceFactory):
     def __init__(self):
         super().__init__(RBACService)
 
-    def create(self, cache_service: "CacheService" = None):
+    def create(self, cache_service=None):
         """Create RBAC service instance with optional cache integration."""
         return RBACService(cache_service=cache_service)
