@@ -305,3 +305,25 @@ async def get_enhanced_enforcement_context(
 4. **Update documentation** to reflect correct token handling
 
 This bug explains why the RBAC authentication was failing and causing the parameter validation errors seen earlier in the FastAPI endpoint analysis.
+
+## Critical Issue: CheckPermissionRequest used in runtime_enforcement.py as core to permission check of various APIs does not exists
+
+You're absolutely right! The CheckPermissionRequest class is not defined in /src/backend/base/langflow/services/rbac/service.py. The import on line 142 in runtime_enforcement.py will fail because
+   the class doesn't exist in that module.
+
+  Looking at the grep results, I can see that CheckPermissionRequest is being imported from langflow.services.rbac.service in multiple files, but the class definition is nowhere to be found. This
+  suggests that either:
+
+  1. The class was removed/never implemented in the service module
+  2. The class should be defined elsewhere
+  3. The import path is incorrect
+
+  This is definitely a broken import that will cause a runtime error when that code path is executed.
+
+  Xiang's further comment: In addition, CheckPermissionRequest class used by call a few lines later to rbac_service.check_permission(), which is a function that does not exist at all. The RBACRuntimeEnforcementService.check_resource_access() that includes this bad import, was used by authorization_patterns.py's check_single_permission(), which is called by permission_validator(), which is used in require_permissions(), all from the same authorization_patterns.py
+
+  On the other hand, RBACService defined in /src/backend/base/langflow/services/rbac/service.py does have another api evaluate_permission() that does exist.
+
+  In addition, rbac api endpoints like rbac/projects appears to be using permission_engine.py's check_permission.
+
+  This seems to be a mess that we need to fix as it is in the lastest code of phase 7 branch as well
