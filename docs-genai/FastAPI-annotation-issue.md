@@ -328,7 +328,7 @@ You're absolutely right! The CheckPermissionRequest class is not defined in /src
 
   This seems to be a mess that we need to fix as it is in the lastest code of phase 7 branch as well
 
-  ## Critical Issue: the Pydantic Union type response does not support forward reference in quotes
+## Critical Issue: the Pydantic Union type response does not support forward reference in quotes
 
   The Pydantic Union type response in project.py's /v1/projects/{project-id} has union type FolderWithPaginatedFlows | FolderReadWithFlows
   and one of them has forward reference. It has forward reference problems. Let me examine the specific model relationships
@@ -338,3 +338,9 @@ You're absolutely right! The CheckPermissionRequest class is not defined in /src
   The oroginal LangBuilder code does not use forward reference here. So it need to include type import outside TypeCheck
 
   Also reference here: https://docs.pydantic.dev/2.10/errors/usage_errors/#class-not-fully-defined
+
+## Critical Issue: secure_data_access code using select(model class) require an extra [0] to get to model class
+
+It appears that the query result is list of Rows, where each element is of type "Row" instead of a model class instance, where Row's [0] is the model class instance
+
+So we need to add some [0] to make /v1/flows/{flow-id} api work
