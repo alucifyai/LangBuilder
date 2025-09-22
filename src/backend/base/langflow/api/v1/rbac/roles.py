@@ -13,6 +13,7 @@ from loguru import logger
 from sqlmodel import func, select
 
 from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.dependencies import (
     create_audit_context,
     get_audit_service,
@@ -70,7 +71,7 @@ async def create_role(
     role_data: RoleCreate,
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine),
     audit_service: AuditService = Depends(get_audit_service),

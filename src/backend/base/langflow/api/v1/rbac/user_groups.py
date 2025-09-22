@@ -7,7 +7,8 @@ from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlmodel import apaginate
 from sqlmodel import and_, select
 
-from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
+from langflow.api.utils import DbSession, custom_params
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.dependencies import (
     get_permission_engine,
 )
@@ -66,7 +67,7 @@ router = APIRouter(
 async def list_user_groups(
     # request: Request,  # TEMPORARILY REMOVED for testing
     session: DbSession,
-    # current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
+    # current_user: Annotated[User, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
     # context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],  # TEMPORARILY REMOVED for testing
     workspace_id: UUIDstr | None = Query(None),
     params: Annotated[Params | None, Depends(custom_params)] = None,
@@ -144,7 +145,7 @@ async def create_user_group(
     # request: Request,  # TEMPORARILY REMOVED for testing
     group_data: UserGroupCreate,
     session: DbSession,
-    # current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
+    # current_user: Annotated[User, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
     # context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],  # TEMPORARILY REMOVED for testing
     # permission_engine: PermissionEngine = Depends(get_permission_engine),  # TEMPORARILY REMOVED for testing
 ) -> UserGroupRead:
@@ -240,7 +241,7 @@ async def get_user_group(
     request: Request,
     group_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -290,7 +291,7 @@ async def update_user_group(
     group_id: UUIDstr,
     group_data: UserGroupUpdate,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -347,7 +348,7 @@ async def delete_user_group(
     request: Request,
     group_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -397,7 +398,7 @@ async def list_group_members(
     request: Request,
     group_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     params: Annotated[Params | None, Depends(custom_params
 )],
@@ -464,7 +465,7 @@ async def add_group_member(
     group_id: UUIDstr,
     membership_data: UserGroupMembershipCreate,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -540,7 +541,7 @@ async def remove_group_member(
     group_id: UUIDstr,
     user_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -607,7 +608,7 @@ async def sync_user_group(
     group_id: UUIDstr,
     sync_data: UserGroupSync,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),

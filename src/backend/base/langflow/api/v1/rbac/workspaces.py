@@ -16,6 +16,7 @@ from fastapi_pagination.ext.sqlmodel import apaginate
 from sqlmodel import or_, select
 
 from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.dependencies import check_workspace_permission, create_audit_context, get_audit_service
 from langflow.api.v1.rbac.security_middleware import (
     WORKSPACE_READ_SECURITY,
@@ -62,7 +63,7 @@ async def create_workspace(
     workspace_data: WorkspaceCreate,
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     audit_service: AuditService = Depends(get_audit_service),
 ) -> WorkspaceRead:

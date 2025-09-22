@@ -14,6 +14,7 @@ from sqlmodel import func, select, desc, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.dependencies import (
     check_project_permission,
     create_audit_context,
@@ -69,7 +70,7 @@ async def create_project(
     project_data: ProjectCreate,
     # request: Request,  # TEMPORARILY REMOVED for testing
     session: DbSession,
-    # current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
+    # current_user: Annotated[User, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
     # context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],  # TEMPORARILY REMOVED for testing
     # permission_engine: PermissionEngine = Depends(get_permission_engine),  # TEMPORARILY REMOVED for testing
     # audit_service: AuditService = Depends(get_audit_service),  # TEMPORARILY REMOVED for testing

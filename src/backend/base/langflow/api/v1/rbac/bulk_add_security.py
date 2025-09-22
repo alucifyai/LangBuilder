@@ -180,7 +180,7 @@ def update_function_signature(content: str, function_name: str) -> str:
             return match.group(0)  # Already has Request
 
         # Check if it has enhanced authentication
-        if "Annotated[CurrentActiveUser, Depends(get_authenticated_user)]" in params:
+        if "Annotated[User, Depends(get_authenticated_user)]" in params:
             return match.group(0)  # Already enhanced
 
         # Add request parameter at the beginning if not empty
@@ -192,7 +192,7 @@ def update_function_signature(content: str, function_name: str) -> str:
         # Update CurrentActiveUser to use enhanced authentication
         new_params = re.sub(
             r"current_user:\s*CurrentActiveUser",
-            "current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)]",
+            "current_user: Annotated[User, Depends(get_authenticated_user)]",
             new_params
         )
 
@@ -201,7 +201,7 @@ def update_function_signature(content: str, function_name: str) -> str:
             # Find where to insert context parameter (after current_user)
             if "current_user:" in new_params:
                 new_params = re.sub(
-                    r"(current_user: Annotated\[CurrentActiveUser, Depends\(get_authenticated_user\)\]),",
+                    r"(current_user: Annotated\[User, Depends\(get_authenticated_user\)\]),",
                     r"\1,\n    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],",
                     new_params
                 )
@@ -227,6 +227,7 @@ def process_file(filepath: Path) -> int:
 
     modified_content = content
     modifications = 0
+    needs_user_import = False
 
     # Process matches in reverse order to avoid offset issues
     for match in reversed(matches):
@@ -247,7 +248,25 @@ def process_file(filepath: Path) -> int:
         # Update function signature
         modified_content = update_function_signature(modified_content, function_name)
 
+        # Check if we're replacing CurrentActiveUser with User
+        if "CurrentActiveUser" in content and "Annotated[User, Depends(get_authenticated_user)]" in modified_content:
+            needs_user_import = True
+
         modifications += 1
+
+    # Add User import if needed
+    if needs_user_import and modifications > 0:
+        # Check if User is already imported
+        if "from langflow.services.database.models.user.model import User" not in modified_content:
+            # Find the import section for langflow.api.utils
+            import_pattern = r"(from langflow\.api\.utils import [^\n]+)"
+            import_match = re.search(import_pattern, modified_content)
+            if import_match:
+                # Add User import after the langflow.api.utils import
+                old_import = import_match.group(0)
+                new_import = old_import + "\nfrom langflow.services.database.models.user.model import User"
+                modified_content = modified_content.replace(old_import, new_import)
+                print(f"   📦 Added User import to {filepath.name}")
 
     if modifications > 0:
         # Write the updated content

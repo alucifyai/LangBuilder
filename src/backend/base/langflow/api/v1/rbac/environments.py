@@ -8,6 +8,7 @@ from fastapi_pagination.ext.sqlmodel import apaginate
 from sqlmodel import and_, select
 
 from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.dependencies import (
     get_permission_engine,
 )
@@ -62,7 +63,7 @@ router = APIRouter(
 async def list_environments(
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     project_id: UUIDstr,
     params: Annotated[Params | None, Depends(custom_params
@@ -136,7 +137,7 @@ async def create_environment(
     request: Request,
     environment_data: EnvironmentCreate,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -211,7 +212,7 @@ async def get_environment(
     request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -262,7 +263,7 @@ async def update_environment(
     environment_id: UUIDstr,
     environment_data: EnvironmentUpdate,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -320,7 +321,7 @@ async def delete_environment(
     request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -371,7 +372,7 @@ async def list_environment_deployments(
     request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     params: Annotated[Params | None, Depends(custom_params
 )],
@@ -452,7 +453,7 @@ async def create_environment_deployment(
     environment_id: UUIDstr,
     deployment_data: dict,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),
@@ -525,7 +526,7 @@ async def list_environment_variables(
     request: Request,
     environment_id: UUIDstr,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     skip: int = Query(0, ge=0
 ),
@@ -580,7 +581,7 @@ async def create_environment_variable(
     environment_id: UUIDstr,
     variable_data: dict,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     permission_engine: PermissionEngine = Depends(get_permission_engine
 ),

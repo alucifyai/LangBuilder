@@ -12,6 +12,7 @@ from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
 from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.security_middleware import (
     SecurityRequirement,
     ValidationRequirement,
@@ -86,7 +87,7 @@ async def export_workspace_config(
     request: Request,
     workspace_id: UUID,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     format: str = "yaml",
     include_system: bool = False,
@@ -146,7 +147,7 @@ async def export_workspace_config(
 async def export_global_config(
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     format: str = "yaml",
     include_system: bool = True,
@@ -199,7 +200,7 @@ async def export_global_config(
 )
 async def validate_config(
     request: Request,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     config: str = Form(..., description="RBAC configuration to validate"),
     format: str = Form(default="yaml", description="Configuration format"),
@@ -239,7 +240,7 @@ async def validate_config(
 async def preview_import(
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     config: str = Form(..., description="RBAC configuration to preview"),
     workspace_id: str | None = Form(default=None, description="Target workspace ID"),
@@ -289,7 +290,7 @@ async def preview_import(
 async def apply_import(
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     config: str = Form(..., description="RBAC configuration to import"),
     workspace_id: str | None = Form(default=None, description="Target workspace ID"),
@@ -347,7 +348,7 @@ async def apply_import(
 async def import_from_file(
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     file: UploadFile = File(..., description="RBAC configuration file"),
     workspace_id: str | None = Form(default=None, description="Target workspace ID"),
@@ -418,7 +419,7 @@ async def import_from_file(
 )
 async def list_templates(
     request: Request,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ) -> list[dict[str, Any]]:
     """List available RBAC configuration templates."""
@@ -467,7 +468,7 @@ async def list_templates(
 )
 async def generate_template(
     http_request: Request,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     request: TemplateRequest,
 ) -> dict[str, Any] | PlainTextResponse:

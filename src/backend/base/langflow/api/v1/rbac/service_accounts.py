@@ -8,6 +8,7 @@ from fastapi_pagination.ext.sqlmodel import apaginate
 from sqlmodel import and_, select
 
 from langflow.api.utils import CurrentActiveUser, DbSession, custom_params
+from langflow.services.database.models.user.model import User
 from langflow.api.v1.rbac.dependencies import (
     get_permission_engine,
 )
@@ -64,7 +65,7 @@ router = APIRouter(
 async def list_service_accounts(
     request: Request,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     workspace_id: UUIDstr,
     params: Annotated[Params | None, Depends(custom_params)],
