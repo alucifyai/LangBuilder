@@ -132,27 +132,27 @@ async def read_projects(
                 continue
 
             # Check if user has access to this project
-            # has_access = await enforcement_service.check_resource_access(
-            #     session=session,
-            #     context=context,
-            #     permission="project:read",
-            #     resource_type="project",
-            #     resource_id=project.id,
-            # )
+            has_access = await enforcement_service.check_resource_access(
+                session=session,
+                context=context,
+                permission="project:read",
+                resource_type="project",
+                resource_id=project.id,
+            )
             has_access = project.user_id == current_user.id
 
             if has_access:
                 accessible_projects.append(project)
 
         # Audit the access
-        # await enforcement_service.audit_enforcement_decision(
-        #     context=context,
-        #     operation="list_projects",
-        #     resource_type="project",
-        #     permission="project:read",
-        #     decision=True,
-        #     reason=f"Retrieved {len(accessible_projects)} accessible projects",
-        # )
+        await enforcement_service.audit_enforcement_decision(
+            context=context,
+            operation="list_projects",
+            resource_type="project",
+            permission="project:read",
+            decision=True,
+            reason=f"Retrieved {len(accessible_projects)} accessible projects",
+        )
 
         return sorted(accessible_projects, key=lambda x: x.name != DEFAULT_FOLDER_NAME)
     except Exception as e:
