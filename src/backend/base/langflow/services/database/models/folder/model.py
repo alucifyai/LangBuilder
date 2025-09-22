@@ -10,6 +10,9 @@ from langflow.schema.serialize import UUIDstr
 if TYPE_CHECKING:
     from langflow.services.database.models.flow.model import Flow, FlowRead
     from langflow.services.database.models.user.model import User
+else:
+    from langflow.services.database.models.flow.model import FlowRead
+
 
 
 class FolderBase(SQLModel):
@@ -53,7 +56,7 @@ class FolderRead(FolderBase):
 class FolderReadWithFlows(FolderBase):
     id: UUID
     parent_id: Union[UUID, None] = Field()
-    flows: List["FlowRead"] = Field(default=[])
+    flows: List[FlowRead] = Field(default=[])
 
 
 class FolderUpdate(SQLModel):

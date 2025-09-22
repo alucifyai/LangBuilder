@@ -531,7 +531,7 @@ async def get_authenticated_user(
         )
 
 
-async def get_authorized_user(
+async def get_rbac_authorized_user(
     user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     session: DbSession,

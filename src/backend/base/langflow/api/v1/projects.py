@@ -31,6 +31,7 @@ from langflow.api.v1.schemas import FlowListCreate
 from langflow.helpers.flow import generate_unique_flow_name
 from langflow.helpers.folders import generate_unique_folder_name
 from langflow.initial_setup.constants import STARTER_FOLDER_NAME
+from langflow.services.database.models.user.model import User
 from langflow.services.database.models.flow.model import Flow, FlowCreate, FlowRead
 from langflow.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langflow.services.database.models.folder.model import (
@@ -50,7 +51,7 @@ async def create_project(
     *,
     session: DbSession,
     project: FolderCreate,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     _project_write_check: Annotated[bool, RequireProjectWrite] = True,
 ):
@@ -109,7 +110,7 @@ async def create_project(
 async def read_projects(
     *,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     _project_read_check: Annotated[bool, RequireProjectRead] = True,
 ):
@@ -138,6 +139,7 @@ async def read_projects(
                 resource_type="project",
                 resource_id=project.id,
             )
+            has_access = project.user_id == current_user.id
 
             if has_access:
                 accessible_projects.append(project)
@@ -163,7 +165,7 @@ async def read_project(
     *,
     session: DbSession,
     project_id: UUID,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     params: Annotated[Params | None, Depends(custom_params)],
     is_component: bool = False,

@@ -25,8 +25,8 @@ security = HTTPBearer(auto_error=False)
 
 async def get_enhanced_enforcement_context(
     request: Request,
-    session: Annotated[DbSession, Depends()],
-    current_user: Annotated[CurrentActiveUser, Depends()],
+    session: DbSession,
+    current_user: CurrentActiveUser,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
 ) -> RuntimeEnforcementContext:
     """Create enhanced enforcement context from request."""
@@ -67,7 +67,7 @@ async def get_enhanced_enforcement_context(
 @router.get("/flows/{flow_id}", response_model=FlowRead)
 async def get_flow_with_enhanced_rbac(
     flow_id: UUID,
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ):
     """Get a flow with comprehensive RBAC and token scoping enforcement."""
@@ -121,7 +121,7 @@ async def get_flow_with_enhanced_rbac(
 
 @router.get("/flows", response_model=list[FlowRead])
 async def list_flows_with_enhanced_rbac(
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     limit: int = 50,
     offset: int = 0,
@@ -172,7 +172,7 @@ async def list_flows_with_enhanced_rbac(
 @router.post("/flows", response_model=FlowRead, status_code=status.HTTP_201_CREATED)
 async def create_flow_with_enhanced_rbac(
     flow_data: FlowCreate,
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ):
     """Create a flow with comprehensive RBAC and token scoping enforcement."""
@@ -261,7 +261,7 @@ async def create_flow_with_enhanced_rbac(
 async def update_flow_with_enhanced_rbac(
     flow_id: UUID,
     flow_data: FlowUpdate,
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ):
     """Update a flow with comprehensive RBAC and token scoping enforcement."""
@@ -325,7 +325,7 @@ async def update_flow_with_enhanced_rbac(
 @router.delete("/flows/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_flow_with_enhanced_rbac(
     flow_id: UUID,
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ):
     """Delete a flow with comprehensive RBAC and token scoping enforcement."""
@@ -382,7 +382,7 @@ async def delete_flow_with_enhanced_rbac(
 
 @router.post("/flows/bulk-operation")
 async def bulk_flow_operation(
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     operation: str = "read",
     flow_ids: list[UUID] | None = None,
@@ -430,7 +430,7 @@ async def bulk_flow_operation(
 @router.get("/flows/{flow_id}/permissions")
 async def get_flow_permissions(
     flow_id: UUID,
-    session: Annotated[DbSession, Depends()],
+    session: DbSession,
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
 ):
     """Get effective permissions for a specific flow."""

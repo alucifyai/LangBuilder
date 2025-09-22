@@ -114,11 +114,11 @@ class SecureDataAccessService:
                     context=context,
                     permission="flow:read",
                     resource_type="flow",
-                    resource_id=flow.id,
+                    resource_id=flow[0].id,
                 )
 
                 if has_flow_access:
-                    accessible_flows.append(flow)
+                    accessible_flows.append(flow[0])
 
             # Audit the data access
             await enforcement_service.audit_enforcement_decision(
@@ -216,7 +216,8 @@ class SecureDataAccessService:
                 reason="Flow access granted",
             )
 
-            return flow
+            # type(flow) is Row, so we need flow[0] to get to Flow type
+            return flow[0]
 
         except Exception as e:
             logger.error(f"Error in secure flow access by ID: {e}")
@@ -306,10 +307,11 @@ class SecureDataAccessService:
             # If there's a workspace association, filter by it
             # (Implementation depends on your folder-workspace relationship model)
 
-            folder_ids = (await session.exec(stmt)).all()
+            folder_rows = (await session.exec(stmt)).all()
 
             accessible_projects = []
-            for folder_id in folder_ids:
+            for folder_row in folder_rows:
+                folder_id = folder_row[0]  # Extract UUID from Row object
                 has_access = await enforcement_service.check_resource_access(
                     session=session,
                     context=context,
@@ -339,8 +341,10 @@ class SecureDataAccessService:
         # For now, return flows owned by user as a safe fallback
         # This should be replaced with proper workspace-based filtering
         stmt = select(Flow.id).where(Flow.user_id == context.user.id)
-        flow_ids = (await session.exec(stmt)).all()
+        flow_rows = (await session.exec(stmt)).all()
 
+        # Extract UUIDs from Row objects
+        flow_ids = [row[0] for row in flow_rows]
         return flow_ids
 
     async def _verify_flow_workspace_access(

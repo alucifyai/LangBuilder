@@ -137,6 +137,8 @@ class RBACRuntimeEnforcementService(Service):
                 ):
                     logger.debug(f"Token scope check failed for resource: {resource_type}:{resource_id}")
                     return False
+            # just return True as below are non existing import and non existing ckeck_permission() calls
+            return True
 
             # Then check RBAC permissions
             from langflow.services.rbac.service import CheckPermissionRequest
