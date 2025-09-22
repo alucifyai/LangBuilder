@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from enum import Enum
 from typing import TYPE_CHECKING, Union, List
 from uuid import uuid4
 
@@ -14,6 +15,17 @@ if TYPE_CHECKING:
     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
     from langflow.services.database.models.rbac.workspace import Workspace
     from langflow.services.database.models.user.model import User
+
+
+class ProjectStatus(str, Enum):
+    """Project status enumeration."""
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    ARCHIVED = "archived"
+    DRAFT = "draft"
+    DEPLOYED = "deployed"
+    MAINTENANCE = "maintenance"
 
 
 class ProjectBase(SQLModel):

@@ -63,7 +63,6 @@ export const useGetEnhancedProjects: useMutationFunctionType<
     is_archived,
     include_legacy = true,
   }: GetEnhancedProjectsParams): Promise<EnhancedProjectsResponse> {
-
     // Get RBAC projects using the working API
     const rbacProjects = await fetchRBACProjects({
       workspace_id,
@@ -75,53 +74,58 @@ export const useGetEnhancedProjects: useMutationFunctionType<
     });
 
     // Add type to RBAC projects
-    const enhancedRBACProjects: RBACProjectEnhanced[] = rbacProjects.projects.map(project => ({
-      ...project,
-      type: "rbac" as const
-    }));
+    const enhancedRBACProjects: RBACProjectEnhanced[] =
+      rbacProjects.projects.map((project) => ({
+        ...project,
+        type: "rbac" as const,
+      }));
 
     // Mock legacy projects for demonstration
-    const mockLegacyProjects: LegacyProject[] = include_legacy ? [
-      {
-        id: "legacy-1",
-        name: "Legacy Data Analysis",
-        description: "Legacy project for data analysis workflows",
-        user_id: "user-1",
-        flow_count: 5,
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-02-10T14:20:00Z",
-        migration_status: "pending",
-        type: "legacy"
-      },
-      {
-        id: "legacy-2",
-        name: "Customer Support Bot",
-        description: "Legacy chatbot for customer support",
-        user_id: "user-2",
-        flow_count: 3,
-        created_at: "2024-02-01T09:15:00Z",
-        updated_at: "2024-03-05T16:45:00Z",
-        migration_status: "pending",
-        type: "legacy"
-      },
-      {
-        id: "legacy-3",
-        name: "Document Processing",
-        description: "Legacy document classification system",
-        user_id: "user-1",
-        flow_count: 8,
-        created_at: "2024-01-20T11:00:00Z",
-        migration_status: "completed",
-        migrated_to_project_id: enhancedRBACProjects[0]?.id,
-        type: "legacy"
-      }
-    ] : [];
+    const mockLegacyProjects: LegacyProject[] = include_legacy
+      ? [
+          {
+            id: "legacy-1",
+            name: "Legacy Data Analysis",
+            description: "Legacy project for data analysis workflows",
+            user_id: "user-1",
+            flow_count: 5,
+            created_at: "2024-01-15T10:30:00Z",
+            updated_at: "2024-02-10T14:20:00Z",
+            migration_status: "pending",
+            type: "legacy",
+          },
+          {
+            id: "legacy-2",
+            name: "Customer Support Bot",
+            description: "Legacy chatbot for customer support",
+            user_id: "user-2",
+            flow_count: 3,
+            created_at: "2024-02-01T09:15:00Z",
+            updated_at: "2024-03-05T16:45:00Z",
+            migration_status: "pending",
+            type: "legacy",
+          },
+          {
+            id: "legacy-3",
+            name: "Document Processing",
+            description: "Legacy document classification system",
+            user_id: "user-1",
+            flow_count: 8,
+            created_at: "2024-01-20T11:00:00Z",
+            migration_status: "completed",
+            migrated_to_project_id: enhancedRBACProjects[0]?.id,
+            type: "legacy",
+          },
+        ]
+      : [];
 
     // Filter legacy projects by search if provided
     const filteredLegacyProjects = search
-      ? mockLegacyProjects.filter(p =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          (p.description && p.description.toLowerCase().includes(search.toLowerCase()))
+      ? mockLegacyProjects.filter(
+          (p) =>
+            p.name.toLowerCase().includes(search.toLowerCase()) ||
+            (p.description &&
+              p.description.toLowerCase().includes(search.toLowerCase())),
         )
       : mockLegacyProjects;
 

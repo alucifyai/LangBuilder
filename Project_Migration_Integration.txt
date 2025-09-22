@@ -40,7 +40,7 @@
 
   POST /projects/
   → FolderCreate model
-  → Folder.model_validate() 
+  → Folder.model_validate()
   → folder table insert
 
   Migration Impact:
@@ -60,7 +60,7 @@
   This explains why you remembered projects existing - they did exist functionally, just stored differently than the
    current RBAC implementation.
 
-> Yes, I am thinking about how to integrate the existing projects in LangBuilder with the RBAC projects. What is your 
+> Yes, I am thinking about how to integrate the existing projects in LangBuilder with the RBAC projects. What is your
   recommendation?
 
 ⏺ Excellent question! This is a critical integration challenge. Based on my analysis of the codebase, here's my
@@ -101,8 +101,8 @@
   # src/backend/base/langflow/services/project_migration.py
   class ProjectMigrationService:
       async def migrate_folder_to_rbac_project(
-          self, 
-          folder_id: UUID, 
+          self,
+          folder_id: UUID,
           workspace_id: UUID,
           environment_id: UUID
       ) -> Project:

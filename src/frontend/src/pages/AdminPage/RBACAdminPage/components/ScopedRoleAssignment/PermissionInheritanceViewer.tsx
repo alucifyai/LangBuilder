@@ -65,7 +65,7 @@ export default function PermissionInheritanceViewer({
     data: permissionsData,
     isSuccess: isPermissionsSuccess,
     isError: isPermissionsError,
-    error: permissionsError
+    error: permissionsError,
     // @ts-ignore - Temporary suppress for testing
   } = useGetPermissions();
 
@@ -74,13 +74,16 @@ export default function PermissionInheritanceViewer({
     data: rolesData,
     isSuccess: isRolesSuccess,
     isError: isRolesError,
-    error: rolesError
+    error: rolesError,
     // @ts-ignore - Temporary suppress for testing
   } = useGetRoles();
 
   // Load role and permission data when inputs change
   useEffect(() => {
-    console.log("🔄 PermissionInheritanceViewer: Effect triggered", { scope, role });
+    console.log("🔄 PermissionInheritanceViewer: Effect triggered", {
+      scope,
+      role,
+    });
     if (scope && role) {
       console.log("✅ PermissionInheritanceViewer: Fetching roles");
       fetchRoles({
@@ -90,7 +93,10 @@ export default function PermissionInheritanceViewer({
         is_active: true,
       });
     } else {
-      console.log("❌ PermissionInheritanceViewer: Missing scope or role", { scope, role });
+      console.log("❌ PermissionInheritanceViewer: Missing scope or role", {
+        scope,
+        role,
+      });
     }
   }, [scope, role]);
 
@@ -111,14 +117,22 @@ export default function PermissionInheritanceViewer({
   // Handle errors
   useEffect(() => {
     if (isPermissionsError && permissionsError) {
-      console.error("❌ PermissionInheritanceViewer: Failed to fetch permissions:", permissionsError);
-      alert(`Permission fetch error: ${permissionsError.message || "Unknown error"}`);
+      console.error(
+        "❌ PermissionInheritanceViewer: Failed to fetch permissions:",
+        permissionsError,
+      );
+      alert(
+        `Permission fetch error: ${permissionsError.message || "Unknown error"}`,
+      );
     }
   }, [isPermissionsError, permissionsError]);
 
   useEffect(() => {
     if (isRolesError && rolesError) {
-      console.error("❌ PermissionInheritanceViewer: Failed to fetch roles:", rolesError);
+      console.error(
+        "❌ PermissionInheritanceViewer: Failed to fetch roles:",
+        rolesError,
+      );
       alert(`Role fetch error: ${rolesError.message || "Unknown error"}`);
     }
   }, [isRolesError, rolesError]);

@@ -86,8 +86,8 @@ export const useGetUnifiedProjects: useMutationFunctionType<
         summary: {
           total_count: 0,
           rbac_count: 0,
-          legacy_count: 0
-        }
+          legacy_count: 0,
+        },
       };
     } catch (error) {
       handleRBACError(error, "unified projects");

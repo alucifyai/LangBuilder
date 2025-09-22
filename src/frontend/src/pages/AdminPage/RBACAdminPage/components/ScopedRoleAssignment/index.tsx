@@ -236,8 +236,12 @@ export default function ScopedRoleAssignmentModal({
       // Transform our request format to the API format
       const apiAssignment: any = {
         role_id: selectedRole,
-        assignment_type: selectedPrincipal.type === "user" ? "user" :
-                        selectedPrincipal.type === "group" ? "group" : "service_account",
+        assignment_type:
+          selectedPrincipal.type === "user"
+            ? "user"
+            : selectedPrincipal.type === "group"
+              ? "group"
+              : "service_account",
         scope_type: selectedScope.type,
         valid_until: expiresAt || undefined,
       };

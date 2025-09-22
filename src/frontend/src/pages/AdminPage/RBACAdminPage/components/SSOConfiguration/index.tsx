@@ -92,7 +92,8 @@ export default function SSOConfiguration() {
       enabled: true,
       metadata: {
         client_id: "azure-client-123",
-        discovery_url: "https://login.microsoftonline.com/tenant/.well-known/openid_configuration",
+        discovery_url:
+          "https://login.microsoftonline.com/tenant/.well-known/openid_configuration",
       },
       created_at: "2024-01-15T10:00:00Z",
       updated_at: "2024-01-20T15:30:00Z",
@@ -104,7 +105,8 @@ export default function SSOConfiguration() {
       enabled: false,
       metadata: {
         entity_id: "http://www.okta.com/exkexample",
-        sso_url: "https://dev-123456.okta.com/app/dev-123456_langflow_1/exkexample/sso/saml",
+        sso_url:
+          "https://dev-123456.okta.com/app/dev-123456_langflow_1/exkexample/sso/saml",
       },
       created_at: "2024-01-10T08:00:00Z",
       updated_at: "2024-01-10T08:00:00Z",
@@ -197,12 +199,10 @@ export default function SSOConfiguration() {
 
   const handleToggleProvider = (providerId: string) => {
     requireAuth("toggle-sso-provider", () => {
-      setProviders(prev =>
-        prev.map(p =>
-          p.id === providerId
-            ? { ...p, enabled: !p.enabled }
-            : p
-        )
+      setProviders((prev) =>
+        prev.map((p) =>
+          p.id === providerId ? { ...p, enabled: !p.enabled } : p,
+        ),
       );
     });
   };
@@ -216,7 +216,7 @@ export default function SSOConfiguration() {
         workspace_id: "default",
         auto_provision: true,
       };
-      setGroupMappings(prev => [...prev, newMapping]);
+      setGroupMappings((prev) => [...prev, newMapping]);
     });
   };
 
@@ -229,7 +229,8 @@ export default function SSOConfiguration() {
             <span>SSO Configuration</span>
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Configure OIDC and SAML identity providers for enterprise authentication
+            Configure OIDC and SAML identity providers for enterprise
+            authentication
           </p>
         </div>
         <Badge
@@ -244,7 +245,11 @@ export default function SSOConfiguration() {
         </Badge>
       </div>
 
-      <Tabs value={activeProvider} onValueChange={setActiveProvider} className="space-y-4">
+      <Tabs
+        value={activeProvider}
+        onValueChange={setActiveProvider}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="providers">
             <IconComponent name="Building" className="h-4 w-4 mr-2" />
@@ -276,7 +281,10 @@ export default function SSOConfiguration() {
             <CardContent className="space-y-4">
               {providers.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <IconComponent name="Building" className="h-8 w-8 mx-auto mb-2" />
+                  <IconComponent
+                    name="Building"
+                    className="h-8 w-8 mx-auto mb-2"
+                  />
                   <p>No SSO providers configured</p>
                   <Button
                     variant="outline"
@@ -304,7 +312,8 @@ export default function SSOConfiguration() {
                             {provider.type.toUpperCase()}
                           </Badge>
                           <span>
-                            Updated {new Date(provider.updated_at).toLocaleDateString()}
+                            Updated{" "}
+                            {new Date(provider.updated_at).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -350,7 +359,9 @@ export default function SSOConfiguration() {
                 <Label>Provider Type</Label>
                 <Select
                   value={providerType}
-                  onValueChange={(value: "oidc" | "saml") => setProviderType(value)}
+                  onValueChange={(value: "oidc" | "saml") =>
+                    setProviderType(value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -386,20 +397,28 @@ export default function SSOConfiguration() {
                         id="oidc-client-id"
                         value={oidcConfig.client_id || ""}
                         onChange={(e) =>
-                          setOIDCConfig(prev => ({ ...prev, client_id: e.target.value }))
+                          setOIDCConfig((prev) => ({
+                            ...prev,
+                            client_id: e.target.value,
+                          }))
                         }
                         placeholder="your-client-id"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="oidc-client-secret">Client Secret *</Label>
+                      <Label htmlFor="oidc-client-secret">
+                        Client Secret *
+                      </Label>
                       <Input
                         id="oidc-client-secret"
                         type="password"
                         value={oidcConfig.client_secret || ""}
                         onChange={(e) =>
-                          setOIDCConfig(prev => ({ ...prev, client_secret: e.target.value }))
+                          setOIDCConfig((prev) => ({
+                            ...prev,
+                            client_secret: e.target.value,
+                          }))
                         }
                         placeholder="your-client-secret"
                       />
@@ -412,7 +431,10 @@ export default function SSOConfiguration() {
                       id="oidc-discovery-url"
                       value={oidcConfig.discovery_url || ""}
                       onChange={(e) =>
-                        setOIDCConfig(prev => ({ ...prev, discovery_url: e.target.value }))
+                        setOIDCConfig((prev) => ({
+                          ...prev,
+                          discovery_url: e.target.value,
+                        }))
                       }
                       placeholder="https://your-provider.com/.well-known/openid_configuration"
                     />
@@ -424,9 +446,11 @@ export default function SSOConfiguration() {
                       id="oidc-scopes"
                       value={oidcConfig.scopes?.join(" ") || ""}
                       onChange={(e) =>
-                        setOIDCConfig(prev => ({
+                        setOIDCConfig((prev) => ({
                           ...prev,
-                          scopes: e.target.value.split(" ").filter(s => s.trim())
+                          scopes: e.target.value
+                            .split(" ")
+                            .filter((s) => s.trim()),
                         }))
                       }
                       placeholder="openid profile email"
@@ -450,18 +474,26 @@ export default function SSOConfiguration() {
                         id="saml-entity-id"
                         value={samlConfig.entity_id || ""}
                         onChange={(e) =>
-                          setSAMLConfig(prev => ({ ...prev, entity_id: e.target.value }))
+                          setSAMLConfig((prev) => ({
+                            ...prev,
+                            entity_id: e.target.value,
+                          }))
                         }
                         placeholder="http://www.okta.com/exkexample"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="saml-name-id-format">Name ID Format</Label>
+                      <Label htmlFor="saml-name-id-format">
+                        Name ID Format
+                      </Label>
                       <Select
                         value={samlConfig.name_id_format}
                         onValueChange={(value) =>
-                          setSAMLConfig(prev => ({ ...prev, name_id_format: value }))
+                          setSAMLConfig((prev) => ({
+                            ...prev,
+                            name_id_format: value,
+                          }))
                         }
                       >
                         <SelectTrigger>
@@ -488,7 +520,10 @@ export default function SSOConfiguration() {
                       id="saml-sso-url"
                       value={samlConfig.sso_url || ""}
                       onChange={(e) =>
-                        setSAMLConfig(prev => ({ ...prev, sso_url: e.target.value }))
+                        setSAMLConfig((prev) => ({
+                          ...prev,
+                          sso_url: e.target.value,
+                        }))
                       }
                       placeholder="https://your-provider.com/app/langflow/sso/saml"
                     />
@@ -500,19 +535,27 @@ export default function SSOConfiguration() {
                       id="saml-slo-url"
                       value={samlConfig.slo_url || ""}
                       onChange={(e) =>
-                        setSAMLConfig(prev => ({ ...prev, slo_url: e.target.value }))
+                        setSAMLConfig((prev) => ({
+                          ...prev,
+                          slo_url: e.target.value,
+                        }))
                       }
                       placeholder="https://your-provider.com/app/langflow/slo/saml"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="saml-certificate">X.509 Certificate *</Label>
+                    <Label htmlFor="saml-certificate">
+                      X.509 Certificate *
+                    </Label>
                     <Textarea
                       id="saml-certificate"
                       value={samlConfig.certificate || ""}
                       onChange={(e) =>
-                        setSAMLConfig(prev => ({ ...prev, certificate: e.target.value }))
+                        setSAMLConfig((prev) => ({
+                          ...prev,
+                          certificate: e.target.value,
+                        }))
                       }
                       placeholder="-----BEGIN CERTIFICATE-----&#10;MIIBXTCCAQOgAwIBAgIJALEtKXtl...&#10;-----END CERTIFICATE-----"
                       rows={6}
@@ -555,7 +598,8 @@ export default function SSOConfiguration() {
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center">
                 <p className="text-sm text-gray-600">
-                  Configure automatic role assignment based on user groups from your identity provider
+                  Configure automatic role assignment based on user groups from
+                  your identity provider
                 </p>
                 <Button
                   onClick={handleAddGroupMapping}
@@ -574,11 +618,15 @@ export default function SSOConfiguration() {
                     className="grid grid-cols-5 gap-4 p-3 border rounded-lg items-center"
                   >
                     <div>
-                      <Label className="text-xs text-gray-500">Provider Group</Label>
+                      <Label className="text-xs text-gray-500">
+                        Provider Group
+                      </Label>
                       <p className="font-medium">{mapping.provider_group}</p>
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-500">Langflow Role</Label>
+                      <Label className="text-xs text-gray-500">
+                        Langflow Role
+                      </Label>
                       <Badge variant="secondary">{mapping.langflow_role}</Badge>
                     </div>
                     <div>
@@ -586,7 +634,9 @@ export default function SSOConfiguration() {
                       <p className="text-sm">{mapping.workspace_id}</p>
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-500">Auto Provision</Label>
+                      <Label className="text-xs text-gray-500">
+                        Auto Provision
+                      </Label>
                       <Badge
                         variant={mapping.auto_provision ? "default" : "outline"}
                         className="text-xs"
@@ -628,7 +678,9 @@ export default function SSOConfiguration() {
                     }`}
                   />
                   <h3 className="text-lg font-medium mb-2">
-                    {isTestingConnection ? "Testing Connection..." : "Ready to Test"}
+                    {isTestingConnection
+                      ? "Testing Connection..."
+                      : "Ready to Test"}
                   </h3>
                   <p className="text-gray-600 mb-4">
                     {isTestingConnection
@@ -643,7 +695,10 @@ export default function SSOConfiguration() {
                   >
                     {isTestingConnection ? (
                       <>
-                        <IconComponent name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+                        <IconComponent
+                          name="Loader2"
+                          className="h-4 w-4 mr-2 animate-spin"
+                        />
                         Testing...
                       </>
                     ) : (
@@ -680,19 +735,31 @@ export default function SSOConfiguration() {
                 <h4 className="font-medium">Test Checklist</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center space-x-2">
-                    <IconComponent name="Check" className="h-4 w-4 text-green-500" />
+                    <IconComponent
+                      name="Check"
+                      className="h-4 w-4 text-green-500"
+                    />
                     <span>Provider configuration validation</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <IconComponent name="Check" className="h-4 w-4 text-green-500" />
+                    <IconComponent
+                      name="Check"
+                      className="h-4 w-4 text-green-500"
+                    />
                     <span>Network connectivity test</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <IconComponent name="Check" className="h-4 w-4 text-green-500" />
+                    <IconComponent
+                      name="Check"
+                      className="h-4 w-4 text-green-500"
+                    />
                     <span>Certificate/metadata validation</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <IconComponent name="Check" className="h-4 w-4 text-green-500" />
+                    <IconComponent
+                      name="Check"
+                      className="h-4 w-4 text-green-500"
+                    />
                     <span>Group mapping verification</span>
                   </div>
                 </div>

@@ -41,6 +41,13 @@ import {
   useCreateProject,
 } from "@/controllers/API/queries/rbac/use-create-project";
 import {
+  type EnhancedProjectsResponse,
+  type LegacyProject,
+  type RBACProjectEnhanced,
+  type UnifiedProject,
+  useGetEnhancedProjects,
+} from "@/controllers/API/queries/rbac/use-get-enhanced-projects";
+import {
   Project,
   useGetProjects,
 } from "@/controllers/API/queries/rbac/use-get-projects";
@@ -48,13 +55,6 @@ import {
   useGetWorkspaces,
   Workspace,
 } from "@/controllers/API/queries/rbac/use-get-workspaces";
-import {
-  useGetEnhancedProjects,
-  type EnhancedProjectsResponse,
-  type RBACProjectEnhanced,
-  type LegacyProject,
-  type UnifiedProject,
-} from "@/controllers/API/queries/rbac/use-get-enhanced-projects";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 
@@ -270,7 +270,9 @@ export default function ProjectManagement() {
             <IconComponent name="Building2" className="h-5 w-5" />
             <span>Project Management</span>
           </h2>
-          <p className="text-sm text-gray-600 mt-1">Manage RBAC and legacy projects</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Manage RBAC and legacy projects
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           {/* Project Summary */}
@@ -433,8 +435,12 @@ export default function ProjectManagement() {
                 <TableBody>
                   {allProjects.map((project) => {
                     const isLegacy = project.type === "legacy";
-                    const legacyProject = isLegacy ? (project as LegacyProject) : null;
-                    const rbacProject = !isLegacy ? (project as RBACProjectEnhanced) : null;
+                    const legacyProject = isLegacy
+                      ? (project as LegacyProject)
+                      : null;
+                    const rbacProject = !isLegacy
+                      ? (project as RBACProjectEnhanced)
+                      : null;
 
                     return (
                       <TableRow key={project.id}>
@@ -448,7 +454,10 @@ export default function ProjectManagement() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={isLegacy ? "secondary" : "default"} className="text-xs">
+                          <Badge
+                            variant={isLegacy ? "secondary" : "default"}
+                            className="text-xs"
+                          >
                             {isLegacy ? "Legacy" : "RBAC"}
                           </Badge>
                         </TableCell>
@@ -462,8 +471,9 @@ export default function ProjectManagement() {
                             </Badge>
                           ) : (
                             <Badge variant="secondary">
-                              {workspaces.find((w) => w.id === rbacProject?.workspace_id)
-                                ?.name || "Unknown"}
+                              {workspaces.find(
+                                (w) => w.id === rbacProject?.workspace_id,
+                              )?.name || "Unknown"}
                             </Badge>
                           )}
                         </TableCell>
@@ -477,20 +487,23 @@ export default function ProjectManagement() {
                               variant={
                                 legacyProject?.migration_status === "completed"
                                   ? "default"
-                                  : legacyProject?.migration_status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
+                                  : legacyProject?.migration_status ===
+                                      "pending"
+                                    ? "secondary"
+                                    : "destructive"
                               }
                             >
                               {legacyProject?.migration_status === "completed"
                                 ? "Migrated"
                                 : legacyProject?.migration_status === "pending"
-                                ? "Pending Migration"
-                                : "Migration Error"}
+                                  ? "Pending Migration"
+                                  : "Migration Error"}
                             </Badge>
                           ) : (
                             <Badge
-                              variant={rbacProject?.is_active ? "default" : "secondary"}
+                              variant={
+                                rbacProject?.is_active ? "default" : "secondary"
+                              }
                             >
                               {rbacProject?.is_active ? "Active" : "Inactive"}
                             </Badge>
@@ -498,12 +511,20 @@ export default function ProjectManagement() {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-1">
-                            {isLegacy && legacyProject?.migration_status === "pending" && (
-                              <Button variant="outline" size="sm" className="text-xs px-2">
-                                <IconComponent name="ArrowRight" className="h-3 w-3 mr-1" />
-                                Migrate
-                              </Button>
-                            )}
+                            {isLegacy &&
+                              legacyProject?.migration_status === "pending" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs px-2"
+                                >
+                                  <IconComponent
+                                    name="ArrowRight"
+                                    className="h-3 w-3 mr-1"
+                                  />
+                                  Migrate
+                                </Button>
+                              )}
                             <Button variant="ghost" size="sm">
                               <IconComponent
                                 name="MoreHorizontal"

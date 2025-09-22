@@ -250,6 +250,16 @@ class PermissionRead(PermissionBase):
     role_count: Union[int, None] = None
 
 
+class PermissionUpdate(SQLModel):
+    """Schema for updating permission data."""
+
+    name: Union[str, None] = None
+    description: Union[str, None] = None
+    is_dangerous: Union[bool, None] = None
+    requires_mfa: Union[bool, None] = None
+    category: Union[str, None] = None
+
+
 class PermissionCheck(SQLModel):
     """Schema for permission check requests."""
 

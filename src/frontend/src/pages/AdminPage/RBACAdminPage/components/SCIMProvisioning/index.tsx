@@ -80,7 +80,10 @@ interface ProvisioningRule {
 interface ConflictResolution {
   id: string;
   user_id: string;
-  conflict_type: "duplicate_email" | "attribute_mismatch" | "permission_conflict";
+  conflict_type:
+    | "duplicate_email"
+    | "attribute_mismatch"
+    | "permission_conflict";
   description: string;
   suggested_action: string;
   created_at: string;
@@ -161,7 +164,9 @@ export default function SCIMProvisioning() {
     },
   ]);
 
-  const [provisioningRules, setProvisioningRules] = useState<ProvisioningRule[]>([
+  const [provisioningRules, setProvisioningRules] = useState<
+    ProvisioningRule[]
+  >([
     {
       id: "1",
       name: "Auto-create Admin Users",
@@ -179,9 +184,9 @@ export default function SCIMProvisioning() {
       action: "update",
       target_attribute: "workspace",
       value_mapping: {
-        "Engineering": "engineering-workspace",
-        "Marketing": "marketing-workspace",
-        "Sales": "sales-workspace"
+        Engineering: "engineering-workspace",
+        Marketing: "marketing-workspace",
+        Sales: "sales-workspace",
       },
       enabled: true,
       priority: 2,
@@ -202,7 +207,8 @@ export default function SCIMProvisioning() {
       id: "2",
       user_id: "user-456",
       conflict_type: "permission_conflict",
-      description: "User permissions differ between SCIM and current assignments",
+      description:
+        "User permissions differ between SCIM and current assignments",
       suggested_action: "Update permissions to match SCIM data",
       created_at: "2024-01-21T16:30:00Z",
       status: "pending",
@@ -245,7 +251,7 @@ export default function SCIMProvisioning() {
         },
       };
 
-      setSyncOperations(prev => [newOperation, ...prev]);
+      setSyncOperations((prev) => [newOperation, ...prev]);
 
       // Simulate sync progress
       let progress = 0;
@@ -257,8 +263,8 @@ export default function SCIMProvisioning() {
           setIsSyncing(false);
 
           // Update operation as completed
-          setSyncOperations(prev =>
-            prev.map(op =>
+          setSyncOperations((prev) =>
+            prev.map((op) =>
               op.id === newOperation.id
                 ? {
                     ...op,
@@ -273,46 +279,52 @@ export default function SCIMProvisioning() {
                       skipped: Math.floor(Math.random() * 10),
                     },
                   }
-                : op
-            )
+                : op,
+            ),
           );
         } else {
-          setSyncOperations(prev =>
-            prev.map(op =>
+          setSyncOperations((prev) =>
+            prev.map((op) =>
               op.id === newOperation.id
                 ? {
                     ...op,
                     progress: Math.floor(progress),
-                    completed_operations: Math.floor((progress / 100) * op.total_operations),
+                    completed_operations: Math.floor(
+                      (progress / 100) * op.total_operations,
+                    ),
                   }
-                : op
-            )
+                : op,
+            ),
           );
         }
       }, 500);
     });
   };
 
-  const handleResolveConflict = (conflictId: string, action: "resolve" | "ignore") => {
+  const handleResolveConflict = (
+    conflictId: string,
+    action: "resolve" | "ignore",
+  ) => {
     requireAuth("resolve-scim-conflict", () => {
-      setConflicts(prev =>
-        prev.map(conflict =>
+      setConflicts((prev) =>
+        prev.map((conflict) =>
           conflict.id === conflictId
-            ? { ...conflict, status: action === "resolve" ? "resolved" : "ignored" }
-            : conflict
-        )
+            ? {
+                ...conflict,
+                status: action === "resolve" ? "resolved" : "ignored",
+              }
+            : conflict,
+        ),
       );
     });
   };
 
   const handleToggleRule = (ruleId: string) => {
     requireAuth("toggle-provisioning-rule", () => {
-      setProvisioningRules(prev =>
-        prev.map(rule =>
-          rule.id === ruleId
-            ? { ...rule, enabled: !rule.enabled }
-            : rule
-        )
+      setProvisioningRules((prev) =>
+        prev.map((rule) =>
+          rule.id === ruleId ? { ...rule, enabled: !rule.enabled } : rule,
+        ),
       );
     });
   };
@@ -342,7 +354,8 @@ export default function SCIMProvisioning() {
             <span>SCIM Provisioning</span>
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Monitor and manage automated user provisioning from identity providers
+            Monitor and manage automated user provisioning from identity
+            providers
           </p>
         </div>
         <div className="flex items-center space-x-4">
@@ -362,7 +375,10 @@ export default function SCIMProvisioning() {
           >
             {isSyncing ? (
               <>
-                <IconComponent name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+                <IconComponent
+                  name="Loader2"
+                  className="h-4 w-4 mr-2 animate-spin"
+                />
                 Syncing...
               </>
             ) : (
@@ -375,7 +391,11 @@ export default function SCIMProvisioning() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">
             <IconComponent name="BarChart3" className="h-4 w-4 mr-2" />
@@ -391,7 +411,7 @@ export default function SCIMProvisioning() {
           </TabsTrigger>
           <TabsTrigger value="conflicts">
             <IconComponent name="AlertTriangle" className="h-4 w-4 mr-2" />
-            Conflicts ({conflicts.filter(c => c.status === "pending").length})
+            Conflicts ({conflicts.filter((c) => c.status === "pending").length})
           </TabsTrigger>
         </TabsList>
 
@@ -431,7 +451,10 @@ export default function SCIMProvisioning() {
                       onClick={() => handleManualSync("incremental_sync")}
                       disabled={!isFullyAuthenticated || !endpoint.enabled}
                     >
-                      <IconComponent name="RefreshCw" className="h-3 w-3 mr-1" />
+                      <IconComponent
+                        name="RefreshCw"
+                        className="h-3 w-3 mr-1"
+                      />
                       Sync
                     </Button>
                     <Button variant="ghost" size="sm">
@@ -454,17 +477,20 @@ export default function SCIMProvisioning() {
             <CardContent>
               <div className="space-y-3">
                 {syncOperations.slice(0, 3).map((operation) => (
-                  <div key={operation.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={operation.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
                       <IconComponent
                         name={
                           operation.status === "running"
                             ? "Loader2"
                             : operation.status === "completed"
-                            ? "CheckCircle"
-                            : operation.status === "failed"
-                            ? "XCircle"
-                            : "Clock"
+                              ? "CheckCircle"
+                              : operation.status === "failed"
+                                ? "XCircle"
+                                : "Clock"
                         }
                         className={`h-5 w-5 ${
                           operation.status === "running" ? "animate-spin" : ""
@@ -472,7 +498,9 @@ export default function SCIMProvisioning() {
                       />
                       <div>
                         <p className="font-medium">
-                          {operation.type.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
+                          {operation.type
+                            .replace("_", " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </p>
                         <p className="text-sm text-gray-500">
                           {new Date(operation.started_at).toLocaleString()}
@@ -480,12 +508,17 @@ export default function SCIMProvisioning() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge className={`text-xs ${getStatusColor(operation.status)}`}>
+                      <Badge
+                        className={`text-xs ${getStatusColor(operation.status)}`}
+                      >
                         {operation.status}
                       </Badge>
                       {operation.status === "running" && (
                         <div className="mt-1">
-                          <Progress value={operation.progress} className="w-20" />
+                          <Progress
+                            value={operation.progress}
+                            className="w-20"
+                          />
                         </div>
                       )}
                     </div>
@@ -550,10 +583,10 @@ export default function SCIMProvisioning() {
                               operation.type === "full_sync"
                                 ? "Database"
                                 : operation.type === "user_sync"
-                                ? "Users"
-                                : operation.type === "group_sync"
-                                ? "UserCheck"
-                                : "RefreshCw"
+                                  ? "Users"
+                                  : operation.type === "group_sync"
+                                    ? "UserCheck"
+                                    : "RefreshCw"
                             }
                             className="h-4 w-4"
                           />
@@ -563,7 +596,9 @@ export default function SCIMProvisioning() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`text-xs ${getStatusColor(operation.status)}`}>
+                        <Badge
+                          className={`text-xs ${getStatusColor(operation.status)}`}
+                        >
                           {operation.status}
                         </Badge>
                       </TableCell>
@@ -575,13 +610,16 @@ export default function SCIMProvisioning() {
                           ? `${Math.round(
                               (new Date(operation.completed_at).getTime() -
                                 new Date(operation.started_at).getTime()) /
-                                1000
+                                1000,
                             )}s`
                           : "—"}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <Progress value={operation.progress} className="w-16" />
+                          <Progress
+                            value={operation.progress}
+                            className="w-16"
+                          />
                           <span className="text-xs">{operation.progress}%</span>
                         </div>
                       </TableCell>
@@ -599,7 +637,10 @@ export default function SCIMProvisioning() {
                           </Button>
                           {operation.errors.length > 0 && (
                             <Button variant="ghost" size="sm">
-                              <IconComponent name="AlertTriangle" className="h-3 w-3" />
+                              <IconComponent
+                                name="AlertTriangle"
+                                className="h-3 w-3"
+                              />
                             </Button>
                           )}
                         </div>
@@ -666,7 +707,9 @@ export default function SCIMProvisioning() {
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <Label className="text-xs text-gray-500">Condition</Label>
+                        <Label className="text-xs text-gray-500">
+                          Condition
+                        </Label>
                         <code className="block bg-gray-100 p-2 rounded text-xs">
                           {rule.condition}
                         </code>
@@ -674,26 +717,35 @@ export default function SCIMProvisioning() {
                       <div>
                         <Label className="text-xs text-gray-500">Action</Label>
                         <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className="text-xs capitalize">
+                          <Badge
+                            variant="outline"
+                            className="text-xs capitalize"
+                          >
                             {rule.action}
                           </Badge>
-                          <span className="text-xs">{rule.target_attribute}</span>
+                          <span className="text-xs">
+                            {rule.target_attribute}
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {Object.keys(rule.value_mapping).length > 0 && (
                       <div>
-                        <Label className="text-xs text-gray-500">Value Mappings</Label>
+                        <Label className="text-xs text-gray-500">
+                          Value Mappings
+                        </Label>
                         <div className="flex flex-wrap gap-2 mt-1">
-                          {Object.entries(rule.value_mapping).map(([key, value]) => (
-                            <span
-                              key={key}
-                              className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
-                            >
-                              {key} → {value}
-                            </span>
-                          ))}
+                          {Object.entries(rule.value_mapping).map(
+                            ([key, value]) => (
+                              <span
+                                key={key}
+                                className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
+                              >
+                                {key} → {value}
+                              </span>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
@@ -714,16 +766,21 @@ export default function SCIMProvisioning() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {conflicts.filter(c => c.status === "pending").length === 0 ? (
+              {conflicts.filter((c) => c.status === "pending").length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <IconComponent name="CheckCircle" className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                  <IconComponent
+                    name="CheckCircle"
+                    className="h-8 w-8 mx-auto mb-2 text-green-500"
+                  />
                   <p>No pending conflicts</p>
-                  <p className="text-sm mt-1">All provisioning operations completed successfully</p>
+                  <p className="text-sm mt-1">
+                    All provisioning operations completed successfully
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {conflicts
-                    .filter(conflict => conflict.status === "pending")
+                    .filter((conflict) => conflict.status === "pending")
                     .map((conflict) => (
                       <div
                         key={conflict.id}
@@ -739,14 +796,14 @@ export default function SCIMProvisioning() {
                               <h3 className="font-medium text-orange-900">
                                 {conflict.conflict_type
                                   .replace("_", " ")
-                                  .replace(/\b\w/g, l => l.toUpperCase())}
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
                               </h3>
                               <p className="text-sm text-orange-800 mt-1">
                                 {conflict.description}
                               </p>
                               <p className="text-xs text-orange-600 mt-2">
-                                User ID: {conflict.user_id} •
-                                Created: {new Date(conflict.created_at).toLocaleString()}
+                                User ID: {conflict.user_id} • Created:{" "}
+                                {new Date(conflict.created_at).toLocaleString()}
                               </p>
                             </div>
                           </div>
@@ -754,28 +811,42 @@ export default function SCIMProvisioning() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleResolveConflict(conflict.id, "resolve")}
+                              onClick={() =>
+                                handleResolveConflict(conflict.id, "resolve")
+                              }
                               disabled={!isFullyAuthenticated}
                               className="bg-white"
                             >
-                              <IconComponent name="Check" className="h-4 w-4 mr-2" />
+                              <IconComponent
+                                name="Check"
+                                className="h-4 w-4 mr-2"
+                              />
                               Resolve
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleResolveConflict(conflict.id, "ignore")}
+                              onClick={() =>
+                                handleResolveConflict(conflict.id, "ignore")
+                              }
                               disabled={!isFullyAuthenticated}
                             >
-                              <IconComponent name="X" className="h-4 w-4 mr-2" />
+                              <IconComponent
+                                name="X"
+                                className="h-4 w-4 mr-2"
+                              />
                               Ignore
                             </Button>
                           </div>
                         </div>
 
                         <div className="mt-3 p-3 bg-white rounded border">
-                          <Label className="text-xs text-gray-500">Suggested Action</Label>
-                          <p className="text-sm mt-1">{conflict.suggested_action}</p>
+                          <Label className="text-xs text-gray-500">
+                            Suggested Action
+                          </Label>
+                          <p className="text-sm mt-1">
+                            {conflict.suggested_action}
+                          </p>
                         </div>
                       </div>
                     ))}

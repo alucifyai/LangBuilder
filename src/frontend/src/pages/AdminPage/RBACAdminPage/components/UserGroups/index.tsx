@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -36,16 +35,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  UserGroup,
-  useGetUserGroups,
-  useCreateUserGroup,
-  GroupType,
-} from "@/controllers/API/queries/rbac/use-user-groups";
+import { Textarea } from "@/components/ui/textarea";
 import {
   useGetWorkspaces,
   Workspace,
 } from "@/controllers/API/queries/rbac/use-get-workspaces";
+import {
+  GroupType,
+  UserGroup,
+  useCreateUserGroup,
+  useGetUserGroups,
+} from "@/controllers/API/queries/rbac/use-user-groups";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 
@@ -58,7 +58,10 @@ export default function UserGroups() {
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDescription, setNewGroupDescription] = useState("");
   const [newGroupType, setNewGroupType] = useState<GroupType>(GroupType.LOCAL);
-  const [formErrors, setFormErrors] = useState<{name?: string, workspace?: string}>({});
+  const [formErrors, setFormErrors] = useState<{
+    name?: string;
+    workspace?: string;
+  }>({});
 
   // Authentication state
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -85,7 +88,7 @@ export default function UserGroups() {
     isSuccess: isCreateSuccess,
     isError: isCreateError,
     error: createError,
-    data: createdGroup
+    data: createdGroup,
   } = useCreateUserGroup({});
 
   // Fetch data when authenticated
@@ -126,7 +129,9 @@ export default function UserGroups() {
   useEffect(() => {
     if (isCreateError && createError) {
       console.error("❌ Failed to create user group:", createError);
-      alert(`Failed to create user group: ${createError.message || "Unknown error"}`);
+      alert(
+        `Failed to create user group: ${createError.message || "Unknown error"}`,
+      );
     }
   }, [isCreateError, createError]);
 
@@ -154,12 +159,18 @@ export default function UserGroups() {
 
     // Validate form
     if (!newGroupName.trim()) {
-      setFormErrors(prev => ({ ...prev, name: "User group name is required" }));
+      setFormErrors((prev) => ({
+        ...prev,
+        name: "User group name is required",
+      }));
       hasError = true;
     }
 
     if (!workspacesData?.workspaces?.length) {
-      setFormErrors(prev => ({ ...prev, workspace: "No workspace available" }));
+      setFormErrors((prev) => ({
+        ...prev,
+        workspace: "No workspace available",
+      }));
       hasError = true;
     }
 
@@ -225,7 +236,8 @@ export default function UserGroups() {
               <DialogHeader>
                 <DialogTitle>Create New User Group</DialogTitle>
                 <DialogDescription>
-                  Create a new user group to organize users and assign permissions.
+                  Create a new user group to organize users and assign
+                  permissions.
                 </DialogDescription>
               </DialogHeader>
 
@@ -258,7 +270,9 @@ export default function UserGroups() {
                   <Label htmlFor="groupType">Group Type</Label>
                   <Select
                     value={newGroupType}
-                    onValueChange={(value) => setNewGroupType(value as GroupType)}
+                    onValueChange={(value) =>
+                      setNewGroupType(value as GroupType)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -370,7 +384,8 @@ export default function UserGroups() {
               ) : !hasWorkspaces ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
-                    No workspaces available. Create a workspace first to manage user groups.
+                    No workspaces available. Create a workspace first to manage
+                    user groups.
                   </TableCell>
                 </TableRow>
               ) : userGroups.length === 0 ? (
