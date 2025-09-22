@@ -530,16 +530,16 @@ async def get_authenticated_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
+# It seems not used by other functions here or imported by any code
 async def get_rbac_authorized_user(
-    user: Annotated[CurrentActiveUser, Depends(get_authenticated_user)],
+    user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     session: DbSession,
     permission_engine: Annotated[PermissionEngine, Depends(get_permission_engine)],
     request: Request,
     required_action: str = "read",
     required_resource: str = "workspace",
-) -> CurrentActiveUser:
+) -> User:
     """Get authorized user with permission checking."""
     security_req = SecurityRequirement(
         resource_type=required_resource,
