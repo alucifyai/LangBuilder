@@ -59,6 +59,7 @@ from langflow.schema.schema import OutputValue
 from langflow.services.cache.utils import CacheMiss
 from langflow.services.chat.service import ChatService
 from langflow.services.database.models.flow.model import Flow
+from langflow.services.database.models.user.model import User
 from langflow.services.deps import (
     get_chat_service,
     get_queue_service,
@@ -84,7 +85,7 @@ async def retrieve_vertices_order(
     stop_component_id: str | None = None,
     start_component_id: str | None = None,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     _flow_execute_check: Annotated[bool, RequireFlowExecute] = True,
 ) -> VerticesOrderResponse:
@@ -160,7 +161,7 @@ async def build_flow(
     stop_component_id: str | None = None,
     start_component_id: str | None = None,
     log_builds: bool = True,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     queue_service: Annotated[JobQueueService, Depends(get_queue_service)],
     flow_name: str | None = None,
@@ -517,7 +518,7 @@ async def _stream_vertex(flow_id: str, vertex_id: str, chat_service: ChatService
 async def build_vertex_stream(
     flow_id: uuid.UUID,
     vertex_id: str,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     _flow_execute_check: Annotated[bool, RequireFlowExecute] = True,
 ):

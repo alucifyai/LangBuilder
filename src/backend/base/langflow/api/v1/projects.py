@@ -23,7 +23,6 @@ from langflow.services.auth.authorization_patterns import (
     RequireProjectWrite,
     RequireProjectDelete,
     get_authorized_user,
-    get_authorized_user_fixed,
 )
 from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext, RBACRuntimeEnforcementService
 from loguru import logger
@@ -52,7 +51,7 @@ async def create_project(
     *,
     session: DbSession,
     project: FolderCreate,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     _project_write_check: Annotated[bool, RequireProjectWrite] = True,
 ):
@@ -111,10 +110,9 @@ async def create_project(
 async def read_projects(
     *,
     session: DbSession,
-#    current_user: CurrentActiveUser,
-    current_user: Annotated[User, Depends(get_authorized_user_fixed)],
-#    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
-#    _project_read_check: Annotated[bool, RequireProjectRead] = True,
+    current_user: Annotated[User, Depends(get_authorized_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    _project_read_check: Annotated[bool, RequireProjectRead] = True,
 ):
     """Get projects accessible to the user with RBAC enforcement."""
     try:
@@ -167,7 +165,7 @@ async def read_project(
     *,
     session: DbSession,
     project_id: UUID,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     params: Annotated[Params | None, Depends(custom_params)],
     is_component: bool = False,

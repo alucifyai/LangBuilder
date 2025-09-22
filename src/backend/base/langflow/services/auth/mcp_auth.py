@@ -20,8 +20,8 @@ security = HTTPBearer(auto_error=False)
 
 async def get_mcp_enforcement_context(
     request: Request,
-    session: Annotated[DbSession, Depends()],
-    current_user: Annotated[CurrentActiveUser, Depends()],
+    session: DbSession,
+    current_user: CurrentActiveUser,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
 ) -> RuntimeEnforcementContext:
     """Create MCP-specific enforcement context with proper authorization checks."""
@@ -188,7 +188,7 @@ def require_mcp_permission(permission: str):
 
     async def permission_validator(
         context: Annotated[RuntimeEnforcementContext, Depends(get_mcp_enforcement_context)],
-        session: Annotated[DbSession, Depends()],
+        session: DbSession,
     ) -> bool:
         from langflow.services.deps import get_rbac_service
 

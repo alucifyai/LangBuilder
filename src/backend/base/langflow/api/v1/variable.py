@@ -16,6 +16,7 @@ from langflow.services.auth.authorization_patterns import (
 )
 from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
 from langflow.services.database.models.variable.model import VariableCreate, VariableRead, VariableUpdate
+from langflow.services.database.models.user.model import User
 from langflow.services.deps import get_variable_service
 from langflow.services.variable.constants import CREDENTIAL_TYPE
 from langflow.services.variable.service import DatabaseVariableService
@@ -28,7 +29,7 @@ async def create_variable(
     *,
     session: DbSession,
     variable: VariableCreate,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     _user_write_check: Annotated[bool, RequireUserWrite] = True,
 ):

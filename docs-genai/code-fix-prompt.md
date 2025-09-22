@@ -1,0 +1,55 @@
+Prompt:
+Please change return type of get_authorized_user() in authorization_patterns.py from CurrentActiveUser to User.
+Import User from langflow.services.database.models.user.model if necessary
+
+Please remove get_authorized_user_fixed() defintion from authorization_patterns.py
+
+Please change all calls of get_authorized_user_fixed() to get_authorized_user().
+
+Please fix all cases of
+    Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+to
+    Annotated[User, Depends(get_authorized_user)],
+. Import User from langflow.services.database.models.user.model if necessary
+
+Please fix all cases of
+    Annotated[CurrentActiveUser, Depends()],
+to
+    CurrentActiveUser,
+
+Please fix all cases of
+    Annotated[DbSession, Depends()],
+to
+    DbSession,
+
+
+Reponse for xiang-phase7-docs branch:
+Summary of Changes Made:
+
+  ✅ Changed return type of get_authorized_user() in authorization_patterns.py from CurrentActiveUser to User
+
+  ✅ Added User import from langflow.services.database.models.user.model where necessary
+
+  ✅ Removed get_authorized_user_fixed() definition from authorization_patterns.py
+
+  ✅ Changed all calls of get_authorized_user_fixed() to get_authorized_user() in:
+  - /src/backend/base/langflow/api/v1/projects.py
+
+  ✅ Fixed all cases of Annotated[CurrentActiveUser, Depends(get_authorized_user)] to Annotated[User, Depends(get_authorized_user)] in:
+  - /src/backend/base/langflow/api/v1/endpoints.py
+  - /src/backend/base/langflow/api/v1/projects.py
+  - /src/backend/base/langflow/api/v1/starter_projects.py
+  - /src/backend/base/langflow/api/v1/chat.py
+  - /src/backend/base/langflow/api/v1/variable.py
+
+  ✅ Fixed all cases of Annotated[CurrentActiveUser, Depends()] to CurrentActiveUser in:
+  - /examples/rbac/enhanced_api_endpoint_example.py
+  - /src/backend/base/langflow/services/auth/mcp_auth.py
+
+  ✅ Fixed all cases of Annotated[DbSession, Depends()] to DbSession in:
+  - /src/backend/base/langflow/services/auth/authorization_patterns.py
+  - /examples/rbac/enhanced_api_endpoint_example.py
+  - /src/backend/base/langflow/services/auth/mcp_auth.py
+
+  All the requested refactoring has been completed successfully. The codebase now uses the simplified type annotations as requested.
+

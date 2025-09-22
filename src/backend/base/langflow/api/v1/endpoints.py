@@ -63,7 +63,7 @@ router = APIRouter(tags=["Base"])
 
 @router.get("/all")
 async def get_all(
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
+    current_user: Annotated[User, Depends(get_authorized_user)],
 ):
     """Retrieve all component types with compression for better performance.
 
