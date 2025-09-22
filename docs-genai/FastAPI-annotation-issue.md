@@ -327,3 +327,14 @@ You're absolutely right! The CheckPermissionRequest class is not defined in /src
   In addition, rbac api endpoints like rbac/projects appears to be using permission_engine.py's check_permission.
 
   This seems to be a mess that we need to fix as it is in the lastest code of phase 7 branch as well
+
+  ## Critical Issue: the Pydantic Union type response does not support forward reference in quotes
+
+  The Pydantic Union type response in project.py's /v1/projects/{project-id} has union type FolderWithPaginatedFlows | FolderReadWithFlows
+  and one of them has forward reference. It has forward reference problems. Let me examine the specific model relationships
+
+  FastAPI creates a TypeAdapter for the Union type FolderWithPaginatedFlows | FolderReadWithFlows, but Pydantic v2 cannot resolve the forward reference "FlowRead" in the Union context.
+
+  The oroginal LangBuilder code does not use forward reference here. So it need to include type import outside TypeCheck
+
+  Also reference here: https://docs.pydantic.dev/2.10/errors/usage_errors/#class-not-fully-defined
