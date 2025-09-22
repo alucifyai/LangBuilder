@@ -13,6 +13,7 @@ from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.services.auth.enhanced_auth import EnhancedAuthenticationService
 from langflow.services.rbac.runtime_enforcement import RBACRuntimeEnforcementService, RuntimeEnforcementContext
 from loguru import logger
+from langflow.services.database.models.user.model import User
 
 # Security scheme
 security = HTTPBearer(auto_error=False)
@@ -51,8 +52,8 @@ class RequiredPermission:
 
 async def get_enhanced_enforcement_context(
     request: Request,
-    session: Annotated[DbSession, Depends()],
-    current_user: Annotated[CurrentActiveUser, Depends()],
+    session: DbSession,
+    current_user: CurrentActiveUser,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
 ) -> RuntimeEnforcementContext:
     """Create enhanced enforcement context for authorization checks."""
@@ -64,11 +65,7 @@ async def get_enhanced_enforcement_context(
     enforcement_service = RBACRuntimeEnforcementService(rbac_service, auth_service)
 
     # Extract API key
-    api_key = None
-    if credentials:
-        api_key = credentials.credentials
-    else:
-        api_key = request.headers.get("x-api-key") or request.query_params.get("x-api-key")
+    api_key = request.headers.get("x-api-key") or request.query_params.get("x-api-key")
 
     # Extract resource context
     workspace_id = request.path_params.get("workspace_id")
@@ -294,6 +291,14 @@ async def get_authorized_user(
 
     return context.user
 
+async def get_authorized_user_fixed(
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+) -> User:
+    """Get current user with basic authorization validation."""
+    if not context.user or not context.user.is_active:
+        raise AuthorizationError("User not authenticated or inactive")
+
+    return context.user
 
 # Custom authorization patterns
 def require_resource_ownership(resource_type: str):

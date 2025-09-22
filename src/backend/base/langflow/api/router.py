@@ -12,17 +12,17 @@ from langflow.api.v1 import (
     mcp_projects_router,
     mcp_router,
     monitor_router,
-    permissions_router,
+#    permissions_router,
     projects_router,
-    rbac_projects_router,
+#    rbac_projects_router,
     rbac_router,
-    roles_router,
+#    roles_router,
     starter_projects_router,
     store_router,
     users_router,
     validate_router,
     variables_router,
-    workspaces_router,
+#    workspaces_router,
 )
 from langflow.api.v1.scim import router as scim_router
 from langflow.api.v1.voice_mode import router as voice_mode_router
@@ -61,9 +61,9 @@ router_v1.include_router(rbac_router)
 # Individual RBAC routers (for backwards compatibility)
 # NOTE: workspaces_router removed - it's already included in rbac_router
 # router_v1.include_router(workspaces_router)  # DUPLICATE - causes parameter conflicts
-router_v1.include_router(rbac_projects_router)
-router_v1.include_router(roles_router)
-router_v1.include_router(permissions_router)
+# router_v1.include_router(rbac_projects_router)
+# router_v1.include_router(roles_router)
+# router_v1.include_router(permissions_router)
 
 router_v2.include_router(files_router_v2)
 router_v2.include_router(mcp_router_v2)

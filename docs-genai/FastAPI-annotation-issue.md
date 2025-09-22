@@ -182,3 +182,126 @@ async def get_authorized_user(
 - **Use `Annotated[User, Depends(get_authorized_user)]`** for RBAC-enabled endpoints, not double-wrapped annotations
 
 This design allows for layered security where basic authentication is handled at the lower level, and enhanced authorization context is built on top for RBAC-enabled endpoints.
+
+## Critical Issue: API Key and JWT Token Confusion in `get_enhanced_enforcement_context()`
+
+### Problem Discovery
+
+During analysis of the authentication flow, a **critical logic error** was discovered in the `get_enhanced_enforcement_context()` function that causes **JWT tokens to be incorrectly treated as API keys**.
+
+### The Bug: Lines 67-72 in `authorization_patterns.py`
+
+```python
+async def get_enhanced_enforcement_context(
+    request: Request,
+    session: DbSession,
+    current_user: CurrentActiveUser,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
+) -> RuntimeEnforcementContext:
+    # ...
+
+    # Extract API key
+    api_key = None
+    if credentials:
+        api_key = credentials.credentials  # ❌ THIS IS WRONG!
+    else:
+        api_key = request.headers.get("x-api-key") or request.query_params.get("x-api-key")
+```
+
+Where `security = HTTPBearer(auto_error=False)` is defined.
+
+### What's Actually Happening
+
+1. **`HTTPBearer(auto_error=False)`** extracts the `Authorization: Bearer <token>` header
+2. **`credentials.credentials`** contains the **JWT token**, NOT an API key
+3. **The code incorrectly treats the JWT token as an API key** and passes it to `validate_api_key()`
+
+### The Incorrect Logic Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant FastAPI
+    participant get_enhanced_enforcement_context
+    participant validate_api_key
+
+    Client->>FastAPI: Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGci...
+    FastAPI->>get_enhanced_enforcement_context: credentials.credentials = "eyJ0eXAiOiJKV1QiLCJhbGci..."
+    get_enhanced_enforcement_context->>get_enhanced_enforcement_context: api_key = credentials.credentials (JWT!)
+    get_enhanced_enforcement_context->>validate_api_key: validate_api_key(session, jwt_token)
+    validate_api_key-->>get_enhanced_enforcement_context: ❌ FAILS - JWT is not an API key!
+```
+
+### Authentication Types Confusion
+
+| Authentication Type | Header/Location | Format | Purpose |
+|-------------------|-----------------|--------|---------|
+| **JWT Token** | `Authorization: Bearer <jwt>` | `eyJ0eXAiOiJKV1QiLCJhbGci...` | Session-based auth |
+| **API Key** | `x-api-key` header or query param | `sk-1234567890abcdef...` | Direct API access |
+
+### The Problem in `create_enforcement_context()`
+
+```python
+async def create_enforcement_context(
+    self,
+    session: AsyncSession,
+    api_key: str | None = None,  # Receives JWT token incorrectly!
+    user: Optional["User"] = None,
+    # ...
+) -> RuntimeEnforcementContext:
+    token_validation = None
+
+    # Validate API key if provided
+    if api_key:
+        token_validation = await self.auth_service.validate_api_key(session, api_key)
+        #                                              ☝️ Tries to validate JWT as API key!
+        if not token_validation.is_valid:
+            raise ValueError(f"Invalid API key: {token_validation.error_message}")
+```
+
+### Why This Causes Authentication Failures
+
+1. **Double Authentication Attempt**: The `current_user` dependency already handles JWT authentication
+2. **Wrong Validation Method**: `validate_api_key()` expects API key format, not JWT format
+3. **Token Type Mismatch**: JWT tokens have different structure and validation logic than API keys
+4. **Validation Failure**: JWT tokens fail API key validation, causing auth errors
+
+### The Correct Logic Should Be
+
+```python
+async def get_enhanced_enforcement_context(
+    request: Request,
+    session: DbSession,
+    current_user: CurrentActiveUser,  # Already authenticated via JWT or API key
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
+) -> RuntimeEnforcementContext:
+    # Extract API key ONLY from x-api-key header/query (NOT from Authorization header)
+    api_key = request.headers.get("x-api-key") or request.query_params.get("x-api-key")
+
+    # JWT token is already handled by current_user dependency
+    # credentials.credentials contains JWT token for additional context if needed
+
+    # Create enforcement context
+    return await enforcement_service.create_enforcement_context(
+        session=session,
+        api_key=api_key,  # Only actual API keys, not JWT tokens
+        user=current_user,  # Already authenticated user
+        # ...
+    )
+```
+
+### Impact and Resolution
+
+**Impact:**
+- Authentication failures when using JWT tokens
+- Incorrect token validation attempts
+- Performance overhead from double authentication
+- Security confusion between authentication methods
+
+**Resolution Needed:**
+1. **Fix the API key extraction logic** to only get actual API keys
+2. **Remove JWT token from API key validation path**
+3. **Clarify authentication vs authorization responsibilities**
+4. **Update documentation** to reflect correct token handling
+
+This bug explains why the RBAC authentication was failing and causing the parameter validation errors seen earlier in the FastAPI endpoint analysis.

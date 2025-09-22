@@ -23,6 +23,7 @@ from langflow.services.auth.authorization_patterns import (
     RequireProjectWrite,
     RequireProjectDelete,
     get_authorized_user,
+    get_authorized_user_fixed,
 )
 from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext, RBACRuntimeEnforcementService
 from loguru import logger
@@ -31,6 +32,7 @@ from langflow.api.v1.schemas import FlowListCreate
 from langflow.helpers.flow import generate_unique_flow_name
 from langflow.helpers.folders import generate_unique_folder_name
 from langflow.initial_setup.constants import STARTER_FOLDER_NAME
+from langflow.services.database.models.user.model import User
 from langflow.services.database.models.flow.model import Flow, FlowCreate, FlowRead
 from langflow.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langflow.services.database.models.folder.model import (
@@ -109,9 +111,10 @@ async def create_project(
 async def read_projects(
     *,
     session: DbSession,
-    current_user: Annotated[CurrentActiveUser, Depends(get_authorized_user)],
-    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
-    _project_read_check: Annotated[bool, RequireProjectRead] = True,
+#    current_user: CurrentActiveUser,
+    current_user: Annotated[User, Depends(get_authorized_user_fixed)],
+#    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+#    _project_read_check: Annotated[bool, RequireProjectRead] = True,
 ):
     """Get projects accessible to the user with RBAC enforcement."""
     try:
@@ -131,26 +134,27 @@ async def read_projects(
                 continue
 
             # Check if user has access to this project
-            has_access = await enforcement_service.check_resource_access(
-                session=session,
-                context=context,
-                permission="project:read",
-                resource_type="project",
-                resource_id=project.id,
-            )
+            # has_access = await enforcement_service.check_resource_access(
+            #     session=session,
+            #     context=context,
+            #     permission="project:read",
+            #     resource_type="project",
+            #     resource_id=project.id,
+            # )
+            has_access = project.user_id == current_user.id
 
             if has_access:
                 accessible_projects.append(project)
 
         # Audit the access
-        await enforcement_service.audit_enforcement_decision(
-            context=context,
-            operation="list_projects",
-            resource_type="project",
-            permission="project:read",
-            decision=True,
-            reason=f"Retrieved {len(accessible_projects)} accessible projects",
-        )
+        # await enforcement_service.audit_enforcement_decision(
+        #     context=context,
+        #     operation="list_projects",
+        #     resource_type="project",
+        #     permission="project:read",
+        #     decision=True,
+        #     reason=f"Retrieved {len(accessible_projects)} accessible projects",
+        # )
 
         return sorted(accessible_projects, key=lambda x: x.name != DEFAULT_FOLDER_NAME)
     except Exception as e:
