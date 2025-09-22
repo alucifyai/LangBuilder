@@ -18,8 +18,9 @@ export interface InviteUserResponse {
 }
 
 export const useInviteUser: useMutationFunctionType<
-  InviteUserResponse,
-  InviteUserData
+  undefined,
+  InviteUserData,
+  InviteUserResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

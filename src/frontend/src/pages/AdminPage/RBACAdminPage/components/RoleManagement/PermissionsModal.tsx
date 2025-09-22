@@ -62,10 +62,13 @@ export default function PermissionsModal({
     onSuccess: (data) => {
       console.log("Role permissions fetched successfully:", data);
       const permissionIds = data.map((permission) => permission.id);
+      console.log("Setting selectedPermissions to:", permissionIds);
       setSelectedPermissions(permissionIds);
     },
     onError: (error) => {
       console.error("Failed to fetch role permissions:", error);
+      // Reset to empty state on error
+      setSelectedPermissions([]);
     },
   });
 
@@ -74,13 +77,19 @@ export default function PermissionsModal({
     useUpdateRolePermissions({
       onSuccess: (data) => {
         console.log("✅ Role permissions updated successfully:", data);
-        alert(`✅ Permissions updated successfully! (${selectedPermissions.length} permissions selected)`);
+        const actualCount =
+          data?.permission_count ?? selectedPermissions.length;
+        alert(
+          `✅ Permissions updated successfully! (${actualCount} permissions selected)`,
+        );
         onSave(role!.id, selectedPermissions);
         onClose();
       },
       onError: (error) => {
         console.error("❌ Failed to update role permissions:", error);
-        alert(`❌ Failed to update permissions: ${error.message || "Unknown error"}`);
+        alert(
+          `❌ Failed to update permissions: ${error.message || "Unknown error"}`,
+        );
       },
     });
 
@@ -92,7 +101,7 @@ export default function PermissionsModal({
       action,
       isAuthenticated,
       accessToken: !!accessToken,
-      isFullyAuthenticated
+      isFullyAuthenticated,
     });
 
     if (!isFullyAuthenticated) {
@@ -106,13 +115,16 @@ export default function PermissionsModal({
   };
 
   const handleAuthSuccess = () => {
-    console.log("🎉 Authentication successful in PermissionsModal, executing pending action:", pendingAction);
+    console.log(
+      "🎉 Authentication successful in PermissionsModal, executing pending action:",
+      pendingAction,
+    );
 
     setTimeout(() => {
       if (pendingAction === "fetch-permissions") {
         fetchPermissions({
           limit: 1000,
-          workspace_id: "default" // TODO: Get actual workspace ID from context
+          workspace_id: "default", // TODO: Get actual workspace ID from context
         });
         if (role) {
           fetchRolePermissions({ roleId: role.id });
@@ -148,28 +160,34 @@ export default function PermissionsModal({
         "🔍 Permissions modal opened for role:",
         role.id,
         "Auth state:",
-        isFullyAuthenticated
+        isFullyAuthenticated,
       );
 
       requireAuth("fetch-permissions", () => {
         fetchPermissions({
           limit: 1000,
-          workspace_id: "default" // TODO: Get actual workspace ID from context
+          workspace_id: "default", // TODO: Get actual workspace ID from context
         });
         fetchRolePermissions({ roleId: role.id });
       });
 
-      // Reset selected permissions when opening modal for different role
-      setSelectedPermissions([]);
+      // TODO: Don't reset until we can load existing permissions properly
+      // setSelectedPermissions([]);
     }
   }, [isOpen, role?.id, isFullyAuthenticated]);
 
   const handlePermissionToggle = (permissionId: string) => {
-    setSelectedPermissions((prev) =>
-      prev.includes(permissionId)
+    console.log("🔄 Permission toggle called for:", permissionId);
+    console.log("Current selectedPermissions:", selectedPermissions);
+
+    setSelectedPermissions((prev) => {
+      const newSelection = prev.includes(permissionId)
         ? prev.filter((id) => id !== permissionId)
-        : [...prev, permissionId]
-    );
+        : [...prev, permissionId];
+
+      console.log("New selectedPermissions:", newSelection);
+      return newSelection;
+    });
   };
 
   const handleSave = () => {
@@ -177,26 +195,32 @@ export default function PermissionsModal({
 
     requireAuth("update-permissions", () => {
       updatePermissions({
-        roleId: role.id,
-        permissionIds: selectedPermissions,
+        role_id: role.id,
+        permission_ids: selectedPermissions,
       });
     });
   };
 
-  const filteredPermissions = permissions.filter((permission) =>
-    permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    permission.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    permission.code?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPermissions = permissions.filter(
+    (permission) =>
+      permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      permission.description
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      permission.code?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const groupedPermissions = filteredPermissions.reduce((acc, permission) => {
-    const category = permission.category || "Uncategorized";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(permission);
-    return acc;
-  }, {} as Record<string, Permission[]>);
+  const groupedPermissions = filteredPermissions.reduce(
+    (acc, permission) => {
+      const category = permission.category || "Uncategorized";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(permission);
+      return acc;
+    },
+    {} as Record<string, Permission[]>,
+  );
 
   if (!isOpen) return null;
 
@@ -219,8 +243,10 @@ export default function PermissionsModal({
                 {permissionsError && (
                   <div className="mt-2 px-3 py-2 bg-red-100 border border-red-400 rounded-md">
                     <p className="text-sm text-red-800">
-                      ❌ <strong>Error:</strong> Failed to load permissions data.
-                      {permissionsError.message && ` ${permissionsError.message}`}
+                      ❌ <strong>Error:</strong> Failed to load permissions
+                      data.
+                      {permissionsError.message &&
+                        ` ${permissionsError.message}`}
                     </p>
                   </div>
                 )}
@@ -265,78 +291,91 @@ export default function PermissionsModal({
               ) : permissions.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="text-gray-500">
-                    {permissionsError ? "Failed to load permissions" : "No permissions available"}
+                    {permissionsError
+                      ? "Failed to load permissions"
+                      : "No permissions available"}
                   </div>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
-                    <div key={category}>
-                      <h3 className="text-sm font-medium text-gray-900 mb-3 border-b border-gray-200 pb-1">
-                        {category}
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {categoryPermissions.map((permission) => (
-                          <div
-                            key={permission.id}
-                            className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                              selectedPermissions.includes(permission.id)
-                                ? "border-blue-500 bg-blue-50"
-                                : "border-gray-200 hover:border-gray-300"
-                            } ${
-                              permission.is_dangerous ? "border-l-4 border-l-red-500" : ""
-                            }`}
-                            onClick={() => handlePermissionToggle(permission.id)}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedPermissions.includes(permission.id)}
-                                    onChange={() => handlePermissionToggle(permission.id)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                  />
-                                  <div>
-                                    <h4 className="text-sm font-medium text-gray-900">
-                                      {permission.name}
-                                    </h4>
-                                    {permission.code && (
-                                      <p className="text-xs text-gray-500 font-mono">
-                                        {permission.code}
-                                      </p>
-                                    )}
+                  {Object.entries(groupedPermissions).map(
+                    ([category, categoryPermissions]) => (
+                      <div key={category}>
+                        <h3 className="text-sm font-medium text-gray-900 mb-3 border-b border-gray-200 pb-1">
+                          {category}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {categoryPermissions.map((permission) => (
+                            <div
+                              key={permission.id}
+                              className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                                selectedPermissions.includes(permission.id)
+                                  ? "border-blue-500 bg-blue-50"
+                                  : "border-gray-200 hover:border-gray-300"
+                              } ${
+                                permission.is_dangerous
+                                  ? "border-l-4 border-l-red-500"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                handlePermissionToggle(permission.id)
+                              }
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedPermissions.includes(
+                                        permission.id,
+                                      )}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        handlePermissionToggle(permission.id);
+                                      }}
+                                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <div>
+                                      <h4 className="text-sm font-medium text-gray-900">
+                                        {permission.name}
+                                      </h4>
+                                      {permission.code && (
+                                        <p className="text-xs text-gray-500 font-mono">
+                                          {permission.code}
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
+                                  {permission.description && (
+                                    <p className="text-sm text-gray-600 mt-1 ml-6">
+                                      {permission.description}
+                                    </p>
+                                  )}
                                 </div>
-                                {permission.description && (
-                                  <p className="text-sm text-gray-600 mt-1 ml-6">
-                                    {permission.description}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex space-x-1 ml-2">
-                                {permission.is_dangerous && (
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    Dangerous
-                                  </span>
-                                )}
-                                {permission.requires_mfa && (
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                    MFA Required
-                                  </span>
-                                )}
-                                {permission.is_system && (
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                    System
-                                  </span>
-                                )}
+                                <div className="flex space-x-1 ml-2">
+                                  {permission.is_dangerous && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                      Dangerous
+                                    </span>
+                                  )}
+                                  {permission.requires_mfa && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                      MFA Required
+                                    </span>
+                                  )}
+                                  {permission.is_system && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                      System
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               )}
             </div>
@@ -344,7 +383,8 @@ export default function PermissionsModal({
 
           <div className="p-6 border-t border-gray-200 flex justify-between items-center">
             <div className="text-sm text-gray-600">
-              {selectedPermissions.length} permission{selectedPermissions.length !== 1 ? 's' : ''} selected
+              {selectedPermissions.length} permission
+              {selectedPermissions.length !== 1 ? "s" : ""} selected
             </div>
             <div className="flex space-x-3">
               <button
@@ -355,14 +395,18 @@ export default function PermissionsModal({
               </button>
               <button
                 onClick={handleSave}
-                disabled={isLoadingPermissions || isUpdatingPermissions || !!permissionsError}
+                disabled={
+                  isLoadingPermissions ||
+                  isUpdatingPermissions ||
+                  !!permissionsError
+                }
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUpdatingPermissions
                   ? "Saving..."
                   : permissionsError
-                  ? "Cannot Save - Error Loading Data"
-                  : "Save Permissions"}
+                    ? "Cannot Save - Error Loading Data"
+                    : "Save Permissions"}
               </button>
             </div>
           </div>

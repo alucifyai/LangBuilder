@@ -42,8 +42,9 @@ interface GetAuditLogsQueryParams {
 }
 
 export const useGetAuditLogs: useMutationFunctionType<
-  { audit_logs: AuditLog[]; total_count: number },
-  GetAuditLogsQueryParams
+  undefined,
+  GetAuditLogsQueryParams,
+  { audit_logs: AuditLog[]; total_count: number }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

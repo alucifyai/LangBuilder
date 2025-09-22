@@ -1,6 +1,4 @@
-// Project Management Component - Real API Implementation
-// Implements project creation and management within workspaces
-
+// Project Management Component - Simple RBAC Projects
 import { useEffect, useState } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Badge } from "@/components/ui/badge";
@@ -38,9 +36,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetProjects, Project } from "@/controllers/API/queries/rbac/use-get-projects";
-import { useCreateProject, CreateProjectData } from "@/controllers/API/queries/rbac/use-create-project";
-import { useGetWorkspaces, Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
+import {
+  CreateProjectData,
+  useCreateProject,
+} from "@/controllers/API/queries/rbac/use-create-project";
+import {
+  Project,
+  useGetProjects,
+} from "@/controllers/API/queries/rbac/use-get-projects";
+import {
+  useGetWorkspaces,
+  Workspace,
+} from "@/controllers/API/queries/rbac/use-get-workspaces";
+import {
+  useGetEnhancedProjects,
+  type EnhancedProjectsResponse,
+  type RBACProjectEnhanced,
+  type LegacyProject,
+  type UnifiedProject,
+} from "@/controllers/API/queries/rbac/use-get-enhanced-projects";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 
@@ -106,7 +120,10 @@ function ProjectBuilder({
 
       <div className="space-y-2">
         <Label htmlFor="workspace">Workspace *</Label>
-        <Select value={selectedWorkspaceId} onValueChange={setSelectedWorkspaceId}>
+        <Select
+          value={selectedWorkspaceId}
+          onValueChange={setSelectedWorkspaceId}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select workspace" />
           </SelectTrigger>
@@ -118,7 +135,9 @@ function ProjectBuilder({
             ))}
           </SelectContent>
         </Select>
-        {workspaceError && <p className="text-sm text-red-600">{workspaceError}</p>}
+        {workspaceError && (
+          <p className="text-sm text-red-600">{workspaceError}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -155,47 +174,30 @@ export default function ProjectManagement() {
   const userData = useAuthStore((state) => state.userData);
   const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
 
-  // API hooks
+  // API hooks - using enhanced projects that include both RBAC and legacy
   const {
     mutate: fetchProjects,
-    data: projectsData,
+    data: enhancedProjectsData,
     isPending: isLoadingProjects,
     error: projectsError,
-  } = useGetProjects({
-    onSuccess: (data) => {
-      console.log("✅ Projects fetched successfully:", data);
-    },
-    onError: (error) => {
-      console.error("❌ Failed to fetch projects:", error);
-    },
-  });
+  } = useGetEnhancedProjects({});
+
+  // Keep the old projects hook for creating new projects
+  const {
+    mutate: fetchRBACProjects,
+    data: rbacProjectsData,
+    isPending: isLoadingRBACProjects,
+    error: rbacProjectsError,
+  } = useGetProjects({});
 
   const {
     mutate: fetchWorkspaces,
     data: workspacesData,
     isPending: isLoadingWorkspaces,
-  } = useGetWorkspaces({
-    onSuccess: (data) => {
-      console.log("✅ Workspaces fetched successfully:", data);
-    },
-    onError: (error) => {
-      console.error("❌ Failed to fetch workspaces:", error);
-    },
-  });
+  } = useGetWorkspaces({});
 
-  const { mutate: createProject, isPending: isCreatingProject } = useCreateProject({
-    onSuccess: (newProject) => {
-      console.log("✅ Project created successfully:", newProject);
-      setIsCreateDialogOpen(false);
-      // Refresh projects list
-      fetchProjects({ search: searchTerm });
-      alert(`✅ Project "${newProject.name}" created successfully!`);
-    },
-    onError: (error) => {
-      console.error("❌ Failed to create project:", error);
-      alert(`❌ Failed to create project: ${error.message || "Unknown error"}`);
-    },
-  });
+  const { mutate: createProject, isPending: isCreatingProject } =
+    useCreateProject({});
 
   // Authentication helper
   const requireAuth = (action: string, callback: () => void) => {
@@ -208,16 +210,22 @@ export default function ProjectManagement() {
     }
   };
 
+  // Helper function to fetch projects
+  const handleFetchProjects = (params = {}) => {
+    console.log("📊 Fetching projects...");
+    fetchProjects(params);
+  };
+
   const handleAuthSuccess = () => {
     console.log("🎉 Authentication successful, fetching data");
-    fetchProjects({ search: searchTerm });
+    handleFetchProjects({ search: searchTerm });
     fetchWorkspaces({});
   };
 
   // Fetch data when authenticated
   useEffect(() => {
     if (isFullyAuthenticated) {
-      fetchProjects({ search: searchTerm });
+      handleFetchProjects({ search: searchTerm });
       fetchWorkspaces({});
     }
   }, [isFullyAuthenticated]);
@@ -228,7 +236,7 @@ export default function ProjectManagement() {
       isAuthenticated,
       accessToken: !!accessToken,
       isFullyAuthenticated,
-      userData: !!userData
+      userData: !!userData,
     });
   }, [isAuthenticated, accessToken, userData]);
 
@@ -240,29 +248,56 @@ export default function ProjectManagement() {
 
   const handleSearch = () => {
     requireAuth("search-projects", () => {
-      fetchProjects({ search: searchTerm });
+      handleFetchProjects({ search: searchTerm });
     });
   };
 
   // Get data from API responses
-  const projects = projectsData?.projects || [];
+  const rbacProjects = enhancedProjectsData?.rbac_projects || [];
+  const legacyProjects = enhancedProjectsData?.legacy_projects || [];
+  const allProjects: UnifiedProject[] = [...rbacProjects, ...legacyProjects];
   const workspaces = workspacesData?.workspaces || [];
+  const totalCount = enhancedProjectsData?.total_count || 0;
+  const rbacCount = enhancedProjectsData?.rbac_count || 0;
+  const legacyCount = enhancedProjectsData?.legacy_count || 0;
 
   return (
     <div className="p-6">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold flex items-center space-x-2">
             <IconComponent name="Building2" className="h-5 w-5" />
             <span>Project Management</span>
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Create and manage projects within workspaces
-          </p>
+          <p className="text-sm text-gray-600 mt-1">Manage RBAC and legacy projects</p>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Authentication Status Indicator */}
-          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+          {/* Project Summary */}
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Badge variant="outline" className="text-xs">
+              <IconComponent name="Shield" className="h-3 w-3 mr-1" />
+              {totalCount} Total Projects
+            </Badge>
+            {rbacCount > 0 && (
+              <Badge variant="default" className="text-xs">
+                <IconComponent name="Building2" className="h-3 w-3 mr-1" />
+                {rbacCount} RBAC
+              </Badge>
+            )}
+            {legacyCount > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                <IconComponent name="FolderOpen" className="h-3 w-3 mr-1" />
+                {legacyCount} Legacy
+              </Badge>
+            )}
+          </div>
+
+          {/* Authentication Status */}
+          <Badge
+            variant={isFullyAuthenticated ? "default" : "destructive"}
+            className="text-xs"
+          >
             <IconComponent
               name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
               className="h-3 w-3 mr-1"
@@ -270,7 +305,11 @@ export default function ProjectManagement() {
             {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
           </Badge>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          {/* Create Project Dialog */}
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button disabled={!isFullyAuthenticated}>
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -281,7 +320,8 @@ export default function ProjectManagement() {
               <DialogHeader>
                 <DialogTitle>Create New Project</DialogTitle>
                 <DialogDescription>
-                  Add a new project to organize your flows and environments.
+                  Add a new RBAC project to organize your flows and
+                  environments.
                 </DialogDescription>
               </DialogHeader>
               <ProjectBuilder
@@ -294,8 +334,8 @@ export default function ProjectManagement() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-4 flex space-x-2">
+      {/* Search and Filters */}
+      <div className="mb-4 flex space-x-2 items-center">
         <Input
           type="text"
           value={searchTerm}
@@ -304,7 +344,10 @@ export default function ProjectManagement() {
           placeholder="Search projects..."
           className="w-64"
         />
-        <Button onClick={handleSearch} disabled={isLoadingProjects || !isFullyAuthenticated}>
+        <Button
+          onClick={handleSearch}
+          disabled={isLoadingProjects || !isFullyAuthenticated}
+        >
           {isLoadingProjects ? "Searching..." : "Search"}
         </Button>
         {searchTerm && (
@@ -332,86 +375,150 @@ export default function ProjectManagement() {
       {/* Projects Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Projects</CardTitle>
+          <CardTitle className="flex items-center space-x-2">
+            <IconComponent name="Shield" className="h-5 w-5" />
+            <span>Projects</span>
+          </CardTitle>
           <CardDescription>
-            {isLoadingProjects ? "Loading projects..." :
-             projects.length === 0 ? "No projects found" :
-             `Found ${projects.length} project${projects.length !== 1 ? 's' : ''}`}
+            {isLoadingProjects
+              ? "Loading projects..."
+              : allProjects.length === 0
+                ? "No projects found"
+                : `Found ${allProjects.length} project${allProjects.length !== 1 ? "s" : ""} (${rbacCount} RBAC, ${legacyCount} Legacy)`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Workspace</TableHead>
-                  <TableHead>Environments</TableHead>
-                  <TableHead>Flows</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingProjects ? (
+          {isLoadingProjects ? (
+            <div className="text-center py-8">
+              <div className="flex items-center justify-center">
+                <IconComponent
+                  name="Loader2"
+                  className="h-4 w-4 animate-spin mr-2"
+                />
+                Loading projects...
+              </div>
+            </div>
+          ) : !isFullyAuthenticated ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500">
+                Please authenticate to view projects
+                <Button
+                  variant="link"
+                  onClick={() => setShowAuthModal(true)}
+                  className="ml-2"
+                >
+                  Sign In
+                </Button>
+              </div>
+            </div>
+          ) : allProjects.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No projects found. Create your first project!
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      <div className="flex items-center justify-center">
-                        <IconComponent name="Loader2" className="h-4 w-4 animate-spin mr-2" />
-                        Loading projects...
-                      </div>
-                    </TableCell>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Workspace</TableHead>
+                    <TableHead>Flows</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ) : !isFullyAuthenticated ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      <div className="text-gray-500">
-                        Please authenticate to view projects
-                        <Button
-                          variant="link"
-                          onClick={() => setShowAuthModal(true)}
-                          className="ml-2"
-                        >
-                          Sign In
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : projects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      <div className="text-gray-500">
-                        No projects found. Create your first project!
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  projects.map((project) => (
-                    <TableRow key={project.id}>
-                      <TableCell className="font-medium">{project.name}</TableCell>
-                      <TableCell>{project.description || "No description"}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {workspaces.find(w => w.id === project.workspace_id)?.name || "Unknown"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{project.environment_count || 0}</TableCell>
-                      <TableCell>{project.flow_count || 0}</TableCell>
-                      <TableCell>
-                        {new Date(project.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <IconComponent name="MoreHorizontal" className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {allProjects.map((project) => {
+                    const isLegacy = project.type === "legacy";
+                    const legacyProject = isLegacy ? (project as LegacyProject) : null;
+                    const rbacProject = !isLegacy ? (project as RBACProjectEnhanced) : null;
+
+                    return (
+                      <TableRow key={project.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center space-x-2">
+                            <IconComponent
+                              name={isLegacy ? "FolderOpen" : "Shield"}
+                              className={`h-4 w-4 ${isLegacy ? "text-amber-600" : "text-green-600"}`}
+                            />
+                            <span>{project.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={isLegacy ? "secondary" : "default"} className="text-xs">
+                            {isLegacy ? "Legacy" : "RBAC"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {project.description || "No description"}
+                        </TableCell>
+                        <TableCell>
+                          {isLegacy ? (
+                            <Badge variant="outline" className="text-xs">
+                              Legacy Folder
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              {workspaces.find((w) => w.id === rbacProject?.workspace_id)
+                                ?.name || "Unknown"}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>{project.flow_count || 0}</TableCell>
+                        <TableCell>
+                          {new Date(project.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {isLegacy ? (
+                            <Badge
+                              variant={
+                                legacyProject?.migration_status === "completed"
+                                  ? "default"
+                                  : legacyProject?.migration_status === "pending"
+                                  ? "secondary"
+                                  : "destructive"
+                              }
+                            >
+                              {legacyProject?.migration_status === "completed"
+                                ? "Migrated"
+                                : legacyProject?.migration_status === "pending"
+                                ? "Pending Migration"
+                                : "Migration Error"}
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant={rbacProject?.is_active ? "default" : "secondary"}
+                            >
+                              {rbacProject?.is_active ? "Active" : "Inactive"}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-1">
+                            {isLegacy && legacyProject?.migration_status === "pending" && (
+                              <Button variant="outline" size="sm" className="text-xs px-2">
+                                <IconComponent name="ArrowRight" className="h-3 w-3 mr-1" />
+                                Migrate
+                              </Button>
+                            )}
+                            <Button variant="ghost" size="sm">
+                              <IconComponent
+                                name="MoreHorizontal"
+                                className="h-4 w-4"
+                              />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,9 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import IconComponent from "@/components/common/genericIconComponent";
-import { useLoginUser } from "@/controllers/API/queries/auth/use-post-login-user";
 import { AuthContext } from "@/contexts/authContext";
+import { useLoginUser } from "@/controllers/API/queries/auth/use-post-login-user";
 import useAuthStore from "@/stores/authStore";
 
 interface AuthenticationModalProps {
@@ -48,7 +48,10 @@ export default function AuthenticationModal({
       {
         onSuccess: (data) => {
           console.log("🔐 Login API successful:", data);
-          console.log("🔐 Calling AuthContext.login() with token:", data.access_token.substring(0, 20) + "...");
+          console.log(
+            "🔐 Calling AuthContext.login() with token:",
+            data.access_token.substring(0, 20) + "...",
+          );
           login(data.access_token, "false", data.refresh_token);
 
           // Add delay to ensure auth state updates before closing modal
@@ -57,7 +60,7 @@ export default function AuthenticationModal({
             console.log("🔐 Auth state after login:", {
               isAuthenticated: authState.isAuthenticated,
               accessToken: !!authState.accessToken,
-              userData: !!authState.userData
+              userData: !!authState.userData,
             });
             setLoading(false);
             onOpenChange(false);
@@ -69,7 +72,7 @@ export default function AuthenticationModal({
           setError("Login failed. Please check your credentials.");
           setLoading(false);
         },
-      }
+      },
     );
   };
 
@@ -137,7 +140,10 @@ export default function AuthenticationModal({
             <Button onClick={handleLogin} disabled={loading}>
               {loading ? (
                 <>
-                  <IconComponent name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+                  <IconComponent
+                    name="Loader2"
+                    className="h-4 w-4 mr-2 animate-spin"
+                  />
                   Logging in...
                 </>
               ) : (

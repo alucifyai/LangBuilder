@@ -17,8 +17,9 @@ export interface CreateProjectData {
 }
 
 export const useCreateProject: useMutationFunctionType<
-  Project,
-  CreateProjectData
+  undefined,
+  CreateProjectData,
+  Project
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

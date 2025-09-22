@@ -23,8 +23,9 @@ export interface BatchPermissionResult {
 }
 
 export const useBatchCheckPermissions: useMutationFunctionType<
-  BatchPermissionResult[],
-  BatchCheckPermissionData[]
+  undefined,
+  BatchCheckPermissionData[],
+  BatchPermissionResult[]
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

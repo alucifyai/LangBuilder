@@ -48,8 +48,9 @@ interface RoleListResponse {
 }
 
 export const useGetRoles: useMutationFunctionType<
-  RoleListResponse,
-  GetRolesQueryParams
+  undefined,
+  GetRolesQueryParams,
+  RoleListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -111,6 +112,7 @@ export const useGetRoles: useMutationFunctionType<
         has_previous: false,
       };
     } catch (error) {
+      console.error("❌ Roles API error:", error);
       handleRBACError(error, "role list");
     }
   }

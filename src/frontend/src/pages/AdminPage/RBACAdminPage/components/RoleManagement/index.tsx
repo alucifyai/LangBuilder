@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import IconComponent from "@/components/common/genericIconComponent";
+import { Badge } from "@/components/ui/badge";
 import { useCreateRole } from "../../../../../controllers/API/queries/rbac/use-create-role";
 import { useDeleteRole } from "../../../../../controllers/API/queries/rbac/use-delete-role";
 import { useGetRoles } from "../../../../../controllers/API/queries/rbac/use-get-roles";
 import { useUpdateRole } from "../../../../../controllers/API/queries/rbac/use-update-role";
 import useAuthStore from "../../../../../stores/authStore";
 import PermissionsModal from "./PermissionsModal";
+import PermissionValidationPanel from "./PermissionValidationPanel";
 
 export default function RoleManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +20,11 @@ export default function RoleManagement() {
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedRoleForPermissions, setSelectedRoleForPermissions] =
     useState<any>(null);
+
+  // Permission validation state
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [validationResults, setValidationResults] = useState<any[]>([]);
+  const [isValidationValid, setIsValidationValid] = useState(true);
 
   // Authentication state management
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -45,6 +51,9 @@ export default function RoleManagement() {
       setIsCreating(false);
       setNewRoleName("");
       setNewRoleDescription("");
+      setSelectedPermissions([]);
+      setValidationResults([]);
+      setIsValidationValid(true);
       // Refresh roles list
       fetchRoles({ search: searchTerm, is_active: true });
     },
@@ -92,7 +101,7 @@ export default function RoleManagement() {
       isAuthenticated,
       accessToken: !!accessToken,
       isFullyAuthenticated,
-      userData: !!userData
+      userData: !!userData,
     });
   }, [isAuthenticated, accessToken, userData]);
 
@@ -101,14 +110,20 @@ export default function RoleManagement() {
   };
 
   const handleCreateRole = () => {
-    if (newRoleName.trim()) {
+    if (newRoleName.trim() && isValidationValid) {
       createRole({
         name: newRoleName,
         description: newRoleDescription,
         type: "custom",
         is_active: true,
+        permissions: selectedPermissions, // Include validated permissions
       });
     }
+  };
+
+  const handleValidationChange = (isValid: boolean, results: any[]) => {
+    setIsValidationValid(isValid);
+    setValidationResults(results);
   };
 
   const handleEditRole = (role: any) => {
@@ -142,7 +157,7 @@ export default function RoleManagement() {
       isAuthenticated,
       accessToken: !!accessToken,
       isFullyAuthenticated,
-      userData: !!userData
+      userData: !!userData,
     });
 
     setSelectedRoleForPermissions(role);
@@ -151,7 +166,10 @@ export default function RoleManagement() {
   };
 
   const handlePermissionsSave = (roleId: string, permissions: string[]) => {
-    console.log(`✅ Parent: Permissions saved for role ${roleId}:`, permissions);
+    console.log(
+      `✅ Parent: Permissions saved for role ${roleId}:`,
+      permissions,
+    );
 
     // Refresh roles to get updated data
     fetchRoles({ search: searchTerm, is_active: true });
@@ -181,7 +199,10 @@ export default function RoleManagement() {
         </div>
         <div className="flex items-center space-x-2">
           {/* Authentication Status Indicator */}
-          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+          <Badge
+            variant={isFullyAuthenticated ? "default" : "destructive"}
+            className="text-xs"
+          >
             <IconComponent
               name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
               className="h-3 w-3 mr-1"
@@ -227,25 +248,85 @@ export default function RoleManagement() {
                 placeholder="Enter role description"
               />
             </div>
+
+            {/* Permission Validation Panel */}
+            <PermissionValidationPanel
+              selectedPermissions={selectedPermissions}
+              onPermissionsChange={setSelectedPermissions}
+              roleName={newRoleName}
+              roleDescription={newRoleDescription}
+              onValidationChange={handleValidationChange}
+            />
+
             <div className="flex space-x-2">
               <button
                 onClick={handleCreateRole}
-                disabled={!newRoleName.trim() || isCreatingRole}
+                disabled={
+                  !newRoleName.trim() || isCreatingRole || !isValidationValid
+                }
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
               >
-                Create
+                Create Role
               </button>
               <button
                 onClick={() => {
                   setIsCreating(false);
                   setNewRoleName("");
                   setNewRoleDescription("");
+                  setSelectedPermissions([]);
+                  setValidationResults([]);
+                  setIsValidationValid(true);
                 }}
                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
               >
                 Cancel
               </button>
             </div>
+
+            {/* Validation Summary */}
+            {validationResults.length > 0 && (
+              <div className="mt-4 p-3 border rounded-lg bg-gray-50">
+                <h4 className="font-medium text-sm mb-2">Creation Status:</h4>
+                <div className="space-y-1 text-sm">
+                  {validationResults.filter((r) => r.type === "error").length >
+                    0 && (
+                    <div className="text-red-600 flex items-center space-x-1">
+                      <IconComponent name="XCircle" className="h-4 w-4" />
+                      <span>
+                        Role cannot be created -{" "}
+                        {
+                          validationResults.filter((r) => r.type === "error")
+                            .length
+                        }{" "}
+                        error(s) must be resolved
+                      </span>
+                    </div>
+                  )}
+                  {validationResults.filter((r) => r.type === "warning")
+                    .length > 0 && (
+                    <div className="text-yellow-600 flex items-center space-x-1">
+                      <IconComponent name="AlertTriangle" className="h-4 w-4" />
+                      <span>
+                        {
+                          validationResults.filter((r) => r.type === "warning")
+                            .length
+                        }{" "}
+                        warning(s) - review before proceeding
+                      </span>
+                    </div>
+                  )}
+                  {isValidationValid && selectedPermissions.length > 0 && (
+                    <div className="text-green-600 flex items-center space-x-1">
+                      <IconComponent name="CheckCircle" className="h-4 w-4" />
+                      <span>
+                        Ready to create role with {selectedPermissions.length}{" "}
+                        permission{selectedPermissions.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

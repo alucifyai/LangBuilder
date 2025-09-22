@@ -40,8 +40,9 @@ interface ServiceAccountListResponse {
 }
 
 export const useGetServiceAccounts: useMutationFunctionType<
-  ServiceAccountListResponse,
-  GetServiceAccountsQueryParams
+  undefined,
+  GetServiceAccountsQueryParams,
+  ServiceAccountListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -71,7 +72,7 @@ export const useGetServiceAccounts: useMutationFunctionType<
         params.append("is_active", is_active.toString());
       }
 
-      const url = `${getURL("RBAC")}/service-accounts/?${params.toString()}`;
+      const url = `${getURL("RBAC")}/simple-service-accounts/?${params.toString()}`;
 
       const res = await api.get(url);
 

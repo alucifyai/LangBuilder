@@ -9,8 +9,9 @@ export interface DeleteRoleAssignmentData {
 }
 
 export const useDeleteRoleAssignment: useMutationFunctionType<
-  { success: boolean },
-  DeleteRoleAssignmentData
+  undefined,
+  DeleteRoleAssignmentData,
+  { success: boolean }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

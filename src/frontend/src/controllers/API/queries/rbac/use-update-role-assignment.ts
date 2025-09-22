@@ -12,8 +12,9 @@ export interface UpdateRoleAssignmentData {
 }
 
 export const useUpdateRoleAssignment: useMutationFunctionType<
-  RoleAssignment,
-  UpdateRoleAssignmentData
+  undefined,
+  UpdateRoleAssignmentData,
+  RoleAssignment
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

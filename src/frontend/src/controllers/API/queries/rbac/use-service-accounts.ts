@@ -132,8 +132,9 @@ interface CreateServiceAccountTokenData {
 
 // Get Service Accounts
 export const useGetServiceAccounts: useMutationFunctionType<
-  ServiceAccountListResponse,
-  GetServiceAccountsQueryParams
+  undefined,
+  GetServiceAccountsQueryParams,
+  ServiceAccountListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -202,8 +203,9 @@ export const useGetServiceAccounts: useMutationFunctionType<
 
 // Create Service Account
 export const useCreateServiceAccount: useMutationFunctionType<
-  ServiceAccount,
-  CreateServiceAccountData
+  undefined,
+  CreateServiceAccountData,
+  ServiceAccount
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -235,8 +237,9 @@ export const useCreateServiceAccount: useMutationFunctionType<
 
 // Update Service Account
 export const useUpdateServiceAccount: useMutationFunctionType<
-  ServiceAccount,
-  { service_account_id: string; data: UpdateServiceAccountData }
+  undefined,
+  { service_account_id: string; data: UpdateServiceAccountData },
+  ServiceAccount
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -272,8 +275,9 @@ export const useUpdateServiceAccount: useMutationFunctionType<
 
 // Delete Service Account
 export const useDeleteServiceAccount: useMutationFunctionType<
-  void,
-  { service_account_id: string }
+  undefined,
+  { service_account_id: string },
+  void
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -304,8 +308,9 @@ export const useDeleteServiceAccount: useMutationFunctionType<
 
 // Create Service Account Token
 export const useCreateServiceAccountToken: useMutationFunctionType<
-  ServiceAccountTokenResponse,
-  CreateServiceAccountTokenData
+  undefined,
+  CreateServiceAccountTokenData,
+  ServiceAccountTokenResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -341,8 +346,9 @@ export const useCreateServiceAccountToken: useMutationFunctionType<
 
 // Get Service Account Tokens
 export const useGetServiceAccountTokens: useMutationFunctionType<
-  ServiceAccountToken[],
-  { service_account_id: string }
+  undefined,
+  { service_account_id: string },
+  ServiceAccountToken[]
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -380,8 +386,9 @@ export const useGetServiceAccountTokens: useMutationFunctionType<
 
 // Delete Service Account Token
 export const useDeleteServiceAccountToken: useMutationFunctionType<
-  void,
-  { service_account_id: string; token_id: string }
+  undefined,
+  { service_account_id: string; token_id: string },
+  void
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

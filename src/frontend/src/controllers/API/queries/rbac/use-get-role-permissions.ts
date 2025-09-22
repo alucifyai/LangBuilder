@@ -7,19 +7,20 @@ import { UseRequestProcessor } from "../../services/request-processor";
 import type { Permission } from "./use-get-permissions";
 
 interface GetRolePermissionsQueryParams {
-  role_id: string;
+  roleId: string;
 }
 
 export const useGetRolePermissions: useMutationFunctionType<
-  Permission[],
-  GetRolePermissionsQueryParams
+  undefined,
+  GetRolePermissionsQueryParams,
+  Permission[]
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
   async function getRolePermissions({
-    role_id,
+    roleId,
   }: GetRolePermissionsQueryParams): Promise<Permission[]> {
-    const url = `${getURL("RBAC")}/roles/${role_id}/permissions`;
+    const url = `${getURL("RBAC")}/simple-roles/${roleId}/permissions`;
 
     const res = await api.get(url);
     if (res.status === 200) {

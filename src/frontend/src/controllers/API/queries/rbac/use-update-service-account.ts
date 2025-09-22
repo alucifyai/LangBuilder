@@ -18,8 +18,9 @@ export interface UpdateServiceAccountData {
 }
 
 export const useUpdateServiceAccount: useMutationFunctionType<
-  ServiceAccount,
-  UpdateServiceAccountData
+  undefined,
+  UpdateServiceAccountData,
+  ServiceAccount
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

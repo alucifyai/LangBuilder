@@ -137,8 +137,9 @@ interface ExportAuditLogsData {
 
 // Get Audit Logs
 export const useGetAuditLogs: useMutationFunctionType<
-  AuditLogListResponse,
-  GetAuditLogsQueryParams
+  undefined,
+  GetAuditLogsQueryParams,
+  AuditLogListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -235,8 +236,9 @@ export const useGetAuditLogs: useMutationFunctionType<
 
 // Get Single Audit Log
 export const useGetAuditLog: useMutationFunctionType<
-  AuditLog,
-  { log_id: string }
+  undefined,
+  { log_id: string },
+  AuditLog
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -270,8 +272,9 @@ export const useGetAuditLog: useMutationFunctionType<
 
 // Export Audit Logs
 export const useExportAuditLogs: useMutationFunctionType<
-  { download_url: string; export_id: string },
-  ExportAuditLogsData
+  undefined,
+  ExportAuditLogsData,
+  { download_url: string; export_id: string }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

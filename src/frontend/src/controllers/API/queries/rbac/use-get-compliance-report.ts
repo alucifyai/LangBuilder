@@ -48,8 +48,9 @@ interface GetComplianceReportQueryParams {
 }
 
 export const useGetComplianceReport: useMutationFunctionType<
-  ComplianceReport,
-  GetComplianceReportQueryParams
+  undefined,
+  GetComplianceReportQueryParams,
+  ComplianceReport
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

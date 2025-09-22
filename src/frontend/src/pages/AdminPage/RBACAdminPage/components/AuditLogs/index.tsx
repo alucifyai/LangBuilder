@@ -40,20 +40,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  useGetAuditLogs,
-  useExportAuditLogs,
-  AuditLog,
-  AuditEventType,
   ActorType,
+  AuditEventType,
+  AuditLog,
   AuditOutcome,
+  formatActorType,
+  formatEventType,
   getEventTypeColor,
   getOutcomeColor,
-  formatEventType,
-  formatActorType
+  useExportAuditLogs,
+  useGetAuditLogs,
 } from "@/controllers/API/queries/rbac/use-audit-logs";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
-
 
 interface ComplianceReportDialogProps {
   isOpen: boolean;
@@ -78,17 +77,22 @@ function ComplianceReportDialog({
   });
   const [format, setFormat] = useState<"csv" | "json" | "pdf">("csv");
 
-  const { mutate: exportAuditLogs, isPending: isExporting } = useExportAuditLogs({
-    onSuccess: (data) => {
-      console.log("✅ Audit logs export initiated:", data);
-      alert(`✅ Export initiated successfully! Download URL: ${data.download_url}`);
-      onClose();
-    },
-    onError: (error) => {
-      console.error("❌ Failed to export audit logs:", error);
-      alert(`❌ Failed to export audit logs: ${error.message || "Unknown error"}`);
-    },
-  });
+  const { mutate: exportAuditLogs, isPending: isExporting } =
+    useExportAuditLogs({
+      onSuccess: (data) => {
+        console.log("✅ Audit logs export initiated:", data);
+        alert(
+          `✅ Export initiated successfully! Download URL: ${data.download_url}`,
+        );
+        onClose();
+      },
+      onError: (error) => {
+        console.error("❌ Failed to export audit logs:", error);
+        alert(
+          `❌ Failed to export audit logs: ${error.message || "Unknown error"}`,
+        );
+      },
+    });
 
   const handleGenerateReport = () => {
     if (!isAuthenticated) {
@@ -209,7 +213,7 @@ function AuditLogTable({
   isLoading,
   isAuthenticated,
   onAuthRequired,
-  onRefresh
+  onRefresh,
 }: {
   logs: AuditLog[];
   isLoading: boolean;
@@ -231,8 +235,10 @@ function AuditLogTable({
     return logs.filter((log) => {
       const matchesSearch =
         log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (log.actor_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-        (log.actor_email?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+        log.actor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        false ||
+        log.actor_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        false ||
         JSON.stringify(log.metadata || {})
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
@@ -380,7 +386,9 @@ function AuditLogTable({
       {/* Results count */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          {isLoading ? "Loading..." : `Showing ${filteredLogs.length} of ${logs.length} audit entries`}
+          {isLoading
+            ? "Loading..."
+            : `Showing ${filteredLogs.length} of ${logs.length} audit entries`}
         </div>
         <div className="flex items-center space-x-2">
           {(filterDateRange.from ||
@@ -436,7 +444,10 @@ function AuditLogTable({
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex items-center justify-center">
-                      <IconComponent name="Loader2" className="h-4 w-4 animate-spin mr-2" />
+                      <IconComponent
+                        name="Loader2"
+                        className="h-4 w-4 animate-spin mr-2"
+                      />
                       Loading audit logs...
                     </div>
                   </TableCell>
@@ -487,7 +498,9 @@ function AuditLogTable({
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
-                        <Badge className={`text-${getEventTypeColor(log.event_type)}-700 bg-${getEventTypeColor(log.event_type)}-100 border-0`}>
+                        <Badge
+                          className={`text-${getEventTypeColor(log.event_type)}-700 bg-${getEventTypeColor(log.event_type)}-100 border-0`}
+                        >
                           <IconComponent
                             name={getEventIcon(log.event_type)}
                             className="h-3 w-3 mr-1"
@@ -514,23 +527,24 @@ function AuditLogTable({
                     </TableCell>
                     <TableCell>
                       <div className="max-w-xs">
-                        {log.metadata && Object.keys(log.metadata).length > 0 && (
-                          <div className="text-sm">
-                            {Object.entries(log.metadata)
-                              .slice(0, 2)
-                              .map(([key, value]) => (
-                                <div key={key} className="truncate">
-                                  <span className="font-medium">{key}:</span>{" "}
-                                  {String(value)}
+                        {log.metadata &&
+                          Object.keys(log.metadata).length > 0 && (
+                            <div className="text-sm">
+                              {Object.entries(log.metadata)
+                                .slice(0, 2)
+                                .map(([key, value]) => (
+                                  <div key={key} className="truncate">
+                                    <span className="font-medium">{key}:</span>{" "}
+                                    {String(value)}
+                                  </div>
+                                ))}
+                              {Object.keys(log.metadata).length > 2 && (
+                                <div className="text-xs text-muted-foreground">
+                                  +{Object.keys(log.metadata).length - 2} more
                                 </div>
-                              ))}
-                            {Object.keys(log.metadata).length > 2 && (
-                              <div className="text-xs text-muted-foreground">
-                                +{Object.keys(log.metadata).length - 2} more
-                              </div>
-                            )}
-                          </div>
-                        )}
+                              )}
+                            </div>
+                          )}
                         {log.error_message && (
                           <div className="text-sm text-red-600">
                             Error: {log.error_message}
@@ -550,9 +564,7 @@ function AuditLogTable({
                           </div>
                         )}
                         {log.location && (
-                          <div className="text-xs">
-                            {log.location}
-                          </div>
+                          <div className="text-xs">{log.location}</div>
                         )}
                       </div>
                     </TableCell>
@@ -563,7 +575,6 @@ function AuditLogTable({
           </Table>
         </CardContent>
       </Card>
-
     </div>
   );
 }
@@ -644,7 +655,7 @@ export default function AuditLogs() {
       isAuthenticated,
       accessToken: !!accessToken,
       isFullyAuthenticated,
-      userData: !!userData
+      userData: !!userData,
     });
   }, [isAuthenticated, accessToken, userData]);
 
@@ -672,7 +683,8 @@ export default function AuditLogs() {
       log.event_type === AuditEventType.LOGIN_FAILED,
   ).length;
 
-  const uniqueActors = new Set(logs.map((log) => log.actor_id).filter(Boolean)).size;
+  const uniqueActors = new Set(logs.map((log) => log.actor_id).filter(Boolean))
+    .size;
 
   return (
     <div className="h-full flex flex-col p-6 space-y-6">
@@ -686,7 +698,10 @@ export default function AuditLogs() {
         </div>
         <div className="flex items-center space-x-2">
           {/* Authentication Status Indicator */}
-          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+          <Badge
+            variant={isFullyAuthenticated ? "default" : "destructive"}
+            className="text-xs"
+          >
             <IconComponent
               name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
               className="h-3 w-3 mr-1"

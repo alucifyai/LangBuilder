@@ -39,8 +39,9 @@ interface ProjectListResponse {
 }
 
 export const useGetProjects: useMutationFunctionType<
-  ProjectListResponse,
-  GetProjectsQueryParams
+  undefined,
+  GetProjectsQueryParams,
+  ProjectListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

@@ -3,6 +3,7 @@ import type { useMutationFunctionType } from "../../../../types/api";
 import { api } from "../../api";
 import { getURL } from "../../helpers/constants";
 import { UseRequestProcessor } from "../../services/request-processor";
+import { handleRBACError } from "./error-handler";
 
 export interface Permission {
   id: string;
@@ -31,8 +32,9 @@ interface GetPermissionsQueryParams {
 }
 
 export const useGetPermissions: useMutationFunctionType<
-  Permission[],
-  GetPermissionsQueryParams
+  undefined,
+  GetPermissionsQueryParams,
+  Permission[]
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -43,32 +45,42 @@ export const useGetPermissions: useMutationFunctionType<
     resource_type,
     category,
     is_system,
-    workspace_id,
+    workspace_id = "00000000-0000-0000-0000-000000000000", // Use default UUID for development
   }: GetPermissionsQueryParams): Promise<Permission[]> {
-    let url = `${getURL("RBAC")}/permissions/?skip=${skip}&limit=${limit}`;
+    try {
+      let url = `${getURL("RBAC")}/permissions/?skip=${skip}&limit=${limit}`;
 
-    // Add workspace_id as query parameter for workspace validation
-    if (workspace_id) {
+      // Add workspace_id as query parameter for workspace validation
       url += `&workspace_id=${workspace_id}`;
-    }
-    if (search) {
-      url += `&search=${encodeURIComponent(search)}`;
-    }
-    if (resource_type) {
-      url += `&resource_type=${resource_type}`;
-    }
-    if (category) {
-      url += `&category=${category}`;
-    }
-    if (is_system !== undefined) {
-      url += `&is_system=${is_system}`;
-    }
+      if (search) {
+        url += `&search=${encodeURIComponent(search)}`;
+      }
+      if (resource_type) {
+        url += `&resource_type=${resource_type}`;
+      }
+      if (category) {
+        url += `&category=${category}`;
+      }
+      if (is_system !== undefined) {
+        url += `&is_system=${is_system}`;
+      }
 
-    const res = await api.get(url);
-    if (res.status === 200) {
-      return res.data;
+      const res = await api.get(url);
+      if (res.status === 200) {
+        return res.data;
+      }
+      return [];
+    } catch (error) {
+      console.error("❌ Permissions API error:", error);
+
+      // Handle "no data" cases gracefully instead of showing errors
+      if (error?.response?.status === 404) {
+        console.log("📝 No permissions found, returning empty result");
+        return [];
+      }
+
+      handleRBACError(error, "permissions list");
     }
-    return [];
   }
 
   const mutation: UseMutationResult<

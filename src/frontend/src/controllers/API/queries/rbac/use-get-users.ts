@@ -34,8 +34,9 @@ interface UsersListResponse {
 
 // Get Users
 export const useGetUsers: useMutationFunctionType<
-  UsersListResponse,
-  GetUsersQueryParams
+  undefined,
+  GetUsersQueryParams,
+  UsersListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

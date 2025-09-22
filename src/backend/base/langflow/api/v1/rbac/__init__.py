@@ -5,6 +5,12 @@ from fastapi import APIRouter
 from .permissions import router as permissions_router
 from .projects import router as projects_router
 from .roles import router as roles_router
+from .simple_roles import simple_router as simple_roles_router
+from .simple_service_accounts import simple_router as simple_service_accounts_router
+from .simple_environments import simple_router as simple_environments_router
+from .simple_projects import simple_router as simple_projects_router
+from .simple_workspaces import simple_router as simple_workspaces_router
+from .unified_projects import router as unified_projects_router
 from .workspaces import router as workspaces_router
 
 # Import additional routers that need to be created
@@ -37,6 +43,10 @@ try:
     HAS_ROLE_ASSIGNMENTS = True
 except ImportError:
     HAS_ROLE_ASSIGNMENTS = False
+except Exception as e:
+    # Temporarily disable role_assignments due to dependency issues
+    print(f"Warning: Disabling role_assignments router due to: {e}")
+    HAS_ROLE_ASSIGNMENTS = False
 
 # Main RBAC router with unified prefix
 rbac_router = APIRouter(
@@ -54,6 +64,12 @@ rbac_router = APIRouter(
 rbac_router.include_router(workspaces_router)
 rbac_router.include_router(projects_router)
 rbac_router.include_router(roles_router)
+rbac_router.include_router(simple_roles_router)
+rbac_router.include_router(simple_service_accounts_router)
+rbac_router.include_router(simple_environments_router)
+rbac_router.include_router(simple_projects_router)
+rbac_router.include_router(simple_workspaces_router)
+rbac_router.include_router(unified_projects_router)
 rbac_router.include_router(permissions_router)
 
 # Include optional routers if available

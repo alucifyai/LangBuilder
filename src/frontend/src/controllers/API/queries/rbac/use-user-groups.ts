@@ -6,11 +6,11 @@ import { UseRequestProcessor } from "../../services/request-processor";
 import { handleRBACError, normalizeListResponse } from "./error-handler";
 
 export enum GroupType {
-  MANUAL = "manual",
-  LDAP = "ldap",
-  SSO = "sso",
-  SCIM = "scim",
+  LOCAL = "local",
+  SYNCED = "synced",
   DYNAMIC = "dynamic",
+  TEAM = "team",
+  PROJECT = "project",
 }
 
 export interface UserGroup {
@@ -64,7 +64,7 @@ interface UserGroupListResponse {
   has_previous: boolean;
 }
 
-interface CreateUserGroupData {
+export interface CreateUserGroupData {
   name: string;
   description?: string;
   workspace_id: string;
@@ -98,8 +98,9 @@ interface SyncUserGroupData {
 
 // Get User Groups
 export const useGetUserGroups: useMutationFunctionType<
-  UserGroupListResponse,
-  GetUserGroupsQueryParams
+  undefined,
+  GetUserGroupsQueryParams,
+  UserGroupListResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -174,8 +175,9 @@ export const useGetUserGroups: useMutationFunctionType<
 
 // Create User Group
 export const useCreateUserGroup: useMutationFunctionType<
-  UserGroup,
-  CreateUserGroupData
+  undefined,
+  CreateUserGroupData,
+  UserGroup
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -204,8 +206,9 @@ export const useCreateUserGroup: useMutationFunctionType<
 
 // Update User Group
 export const useUpdateUserGroup: useMutationFunctionType<
-  UserGroup,
-  { group_id: string; data: UpdateUserGroupData }
+  undefined,
+  { group_id: string; data: UpdateUserGroupData },
+  UserGroup
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -241,8 +244,9 @@ export const useUpdateUserGroup: useMutationFunctionType<
 
 // Delete User Group
 export const useDeleteUserGroup: useMutationFunctionType<
-  void,
-  { group_id: string }
+  undefined,
+  { group_id: string },
+  void
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -276,8 +280,9 @@ export const useDeleteUserGroup: useMutationFunctionType<
 
 // Get User Group Members
 export const useGetUserGroupMembers: useMutationFunctionType<
-  UserGroupMembership[],
-  { group_id: string }
+  undefined,
+  { group_id: string },
+  UserGroupMembership[]
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -311,8 +316,9 @@ export const useGetUserGroupMembers: useMutationFunctionType<
 
 // Add User Group Member
 export const useAddUserGroupMember: useMutationFunctionType<
-  UserGroupMembership,
-  CreateUserGroupMembershipData
+  undefined,
+  CreateUserGroupMembershipData,
+  UserGroupMembership
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -344,8 +350,9 @@ export const useAddUserGroupMember: useMutationFunctionType<
 
 // Remove User Group Member
 export const useRemoveUserGroupMember: useMutationFunctionType<
-  void,
-  { group_id: string; user_id: string }
+  undefined,
+  { group_id: string; user_id: string },
+  void
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -385,8 +392,9 @@ export const useRemoveUserGroupMember: useMutationFunctionType<
 
 // Sync User Group
 export const useSyncUserGroup: useMutationFunctionType<
-  { message: string; sync_status: string },
-  SyncUserGroupData
+  undefined,
+  SyncUserGroupData,
+  { message: string; sync_status: string }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -419,13 +427,13 @@ export const useSyncUserGroup: useMutationFunctionType<
 // Helper function to get group type color
 export function getGroupTypeColor(groupType: GroupType): string {
   switch (groupType) {
-    case GroupType.MANUAL:
+    case GroupType.LOCAL:
       return "blue";
-    case GroupType.LDAP:
+    case GroupType.SYNCED:
       return "green";
-    case GroupType.SSO:
+    case GroupType.TEAM:
       return "purple";
-    case GroupType.SCIM:
+    case GroupType.PROJECT:
       return "orange";
     case GroupType.DYNAMIC:
       return "cyan";

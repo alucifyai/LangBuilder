@@ -22,8 +22,9 @@ interface GetWorkspaceUsersParams {
 }
 
 export const useGetWorkspaceUsers: useMutationFunctionType<
-  { users: WorkspaceUser[]; total_count: number },
-  GetWorkspaceUsersParams
+  undefined,
+  GetWorkspaceUsersParams,
+  { users: WorkspaceUser[]; total_count: number }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

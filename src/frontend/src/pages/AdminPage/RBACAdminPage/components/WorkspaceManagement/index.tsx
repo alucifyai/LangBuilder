@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useCreateWorkspace } from "../../../../../controllers/API/queries/rbac/use-create-workspace";
-import { useDeleteWorkspace } from "../../../../../controllers/API/queries/rbac/use-delete-workspace";
-import { useGetWorkspaces } from "../../../../../controllers/API/queries/rbac/use-get-workspaces";
-import { useUpdateWorkspace } from "../../../../../controllers/API/queries/rbac/use-update-workspace";
+import { useCreateSimpleWorkspace } from "../../../../../controllers/API/queries/rbac/use-create-simple-workspace";
+import { useDeleteSimpleWorkspace } from "../../../../../controllers/API/queries/rbac/use-delete-simple-workspace";
+import { useGetSimpleWorkspaces } from "../../../../../controllers/API/queries/rbac/use-get-simple-workspaces";
+import { useUpdateSimpleWorkspace } from "../../../../../controllers/API/queries/rbac/use-update-simple-workspace";
 
 export default function WorkspaceManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,7 +19,7 @@ export default function WorkspaceManagement() {
     data: workspacesData,
     isPending: isLoading,
     error,
-  } = useGetWorkspaces({
+  } = useGetSimpleWorkspaces({
     onSuccess: (data) => {
       console.log("Workspaces fetched successfully:", data);
       console.log("Number of workspaces:", data?.workspaces?.length || 0);
@@ -30,7 +30,7 @@ export default function WorkspaceManagement() {
   });
 
   const { mutate: createWorkspace, isPending: isCreatingWorkspace } =
-    useCreateWorkspace({
+    useCreateSimpleWorkspace({
       onSuccess: (newWorkspace) => {
         console.log("Workspace created successfully:", newWorkspace);
         setIsCreating(false);
@@ -71,7 +71,7 @@ export default function WorkspaceManagement() {
     mutate: updateWorkspace,
     isPending: isUpdatingWorkspace,
     error: updateError,
-  } = useUpdateWorkspace({
+  } = useUpdateSimpleWorkspace({
     onSuccess: (data) => {
       console.log("Update workspace successful:", data);
       setEditingWorkspace(null);
@@ -90,7 +90,7 @@ export default function WorkspaceManagement() {
     },
   });
 
-  const { mutate: deleteWorkspace } = useDeleteWorkspace({
+  const { mutate: deleteWorkspace } = useDeleteSimpleWorkspace({
     onSuccess: () => {
       // Refresh workspaces list
       fetchWorkspaces({ search: searchTerm });

@@ -9,8 +9,9 @@ export interface DeleteEnvironmentData {
 }
 
 export const useDeleteEnvironment: useMutationFunctionType<
-  { success: boolean },
-  DeleteEnvironmentData
+  undefined,
+  DeleteEnvironmentData,
+  { success: boolean }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

@@ -11,11 +11,13 @@ from typing import Annotated, Any, Callable, List, Optional, TypeVar
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer
+import os
 from loguru import logger
 from pydantic import BaseModel, Field, ValidationError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.services.database.models.user.model import User
 from langflow.services.auth.authorization_patterns import get_enhanced_enforcement_context
 from langflow.services.rbac.permission_engine import PermissionEngine, PermissionResult
 from langflow.services.rbac.runtime_enforcement import RuntimeEnforcementContext
@@ -60,6 +62,26 @@ async def enhanced_authentication(
     session: DbSession,
 ) -> CurrentActiveUser:
     """Enhanced authentication middleware with comprehensive security checks."""
+    # Check if authentication is disabled in development
+    skip_auth = os.getenv('LANGFLOW_SKIP_AUTH', 'false').lower() == 'true'
+
+    if skip_auth:
+        # In development with SKIP_AUTH=true, provide a mock superuser
+        from langflow.services.database.models.user.model import User
+        from uuid import uuid4
+
+        # Create or get the default superuser for development
+        mock_user = User(
+            id=uuid4(),
+            username="dev_user",
+            email="dev@langflow.com",
+            is_active=True,
+            is_superuser=True,
+            password=""  # Empty password for dev mode
+        )
+        logger.info("Authentication bypassed for development (SKIP_AUTH=true)")
+        return mock_user
+
     try:
         # Get current user through JWT validation
         from langflow.services.auth.utils import get_current_user_by_jwt
@@ -460,11 +482,53 @@ async def _log_audit_event(
 # Standard dependency functions with enhanced security
 async def get_authenticated_user(
     request: Request,
-    token: Annotated[str, Depends(security_scheme)],
     session: DbSession,
-) -> CurrentActiveUser:
+) -> User:
     """Get authenticated user with enhanced security checks."""
-    return await enhanced_authentication(request, token, session)
+    # Check if authentication is disabled in development
+    import os
+    skip_auth = os.getenv('LANGFLOW_SKIP_AUTH', 'false').lower() == 'true'
+
+    if skip_auth:
+        # In development with SKIP_AUTH=true, provide a mock superuser
+        from langflow.services.database.models.user.model import User
+        from uuid import uuid4
+
+        # Create or get the default superuser for development
+        mock_user = User(
+            id=uuid4(),
+            username="dev_user",
+            email="dev@langflow.com",
+            is_active=True,
+            is_superuser=True,
+            password=""  # Empty password for dev mode
+        )
+        logger.info("Authentication bypassed for development (SKIP_AUTH=true)")
+        return mock_user
+
+    # Normal authentication flow - get token from header
+    try:
+        from fastapi.security.utils import get_authorization_scheme_param
+        authorization = request.headers.get("Authorization")
+        scheme, token = get_authorization_scheme_param(authorization)
+
+        if not authorization or scheme.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication token required",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        from fastapi.security.http import HTTPAuthorizationCredentials
+        token_obj = HTTPAuthorizationCredentials(scheme="bearer", credentials=token)
+        return await enhanced_authentication(request, token_obj, session)
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 async def get_authorized_user(

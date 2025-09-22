@@ -29,8 +29,9 @@ interface GetEnvironmentsQueryParams {
 }
 
 export const useGetEnvironments: useMutationFunctionType<
-  { environments: Environment[]; total_count: number },
-  GetEnvironmentsQueryParams
+  undefined,
+  GetEnvironmentsQueryParams,
+  { environments: Environment[]; total_count: number }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -45,7 +46,7 @@ export const useGetEnvironments: useMutationFunctionType<
     environments: Environment[];
     total_count: number;
   }> {
-    let url = `${getURL("RBAC")}/environments/?skip=${skip}&limit=${limit}`;
+    let url = `${getURL("RBAC")}/simple-environments/?skip=${skip}&limit=${limit}`;
 
     if (project_id) url += `&project_id=${project_id}`;
     if (type) url += `&type=${type}`;

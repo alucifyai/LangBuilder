@@ -63,12 +63,9 @@ async def get_enhanced_enforcement_context(
     rbac_service = get_rbac_service()
     enforcement_service = RBACRuntimeEnforcementService(rbac_service, auth_service)
 
-    # Extract API key
-    api_key = None
-    if credentials:
-        api_key = credentials.credentials
-    else:
-        api_key = request.headers.get("x-api-key") or request.query_params.get("x-api-key")
+    # Extract API key ONLY from x-api-key header/query (NOT from Authorization header)
+    # The credentials.credentials contains JWT token, which should NOT be used as API key
+    api_key = request.headers.get("x-api-key") or request.query_params.get("x-api-key")
 
     # Extract resource context
     workspace_id = request.path_params.get("workspace_id")

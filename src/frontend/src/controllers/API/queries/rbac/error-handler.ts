@@ -41,10 +41,14 @@ export function handleRBACError(error: any, context: string): never {
     console.error(`RBAC ${context} failed: Resource not found`);
     throw new Error("Resource not found");
   } else if (error.response?.status === 422) {
-    console.error(
-      `RBAC ${context} failed: Invalid request data`,
-      error.response?.data,
-    );
+    console.error(`🚨 RBAC ${context} failed: Invalid request data (422)`, {
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.response?.data,
+      requestHeaders: error.config?.headers,
+      params: error.config?.params,
+      fullError: error,
+    });
     throw new Error("Invalid request data");
   } else if (error.response?.status >= 500) {
     console.error(

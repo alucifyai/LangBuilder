@@ -1,4 +1,5 @@
 import { useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import IconComponent from "@/components/common/genericIconComponent";
 import { Permission } from "../../types/rbac";
 
 interface ConfirmDeleteModalProps {
@@ -22,7 +22,7 @@ export default function ConfirmDeleteModal({
   open,
   onOpenChange,
   permission,
-  onConfirm
+  onConfirm,
 }: ConfirmDeleteModalProps) {
   const [loading, setLoading] = useState(false);
 
@@ -45,11 +45,15 @@ export default function ConfirmDeleteModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <IconComponent name="AlertTriangle" className="h-5 w-5 text-red-500" />
+            <IconComponent
+              name="AlertTriangle"
+              className="h-5 w-5 text-red-500"
+            />
             <span>Delete Permission</span>
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this permission? This action cannot be undone.
+            Are you sure you want to delete this permission? This action cannot
+            be undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -85,7 +89,10 @@ export default function ConfirmDeleteModal({
           >
             {loading ? (
               <>
-                <IconComponent name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+                <IconComponent
+                  name="Loader2"
+                  className="h-4 w-4 mr-2 animate-spin"
+                />
                 Deleting...
               </>
             ) : (

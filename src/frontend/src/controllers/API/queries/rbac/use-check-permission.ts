@@ -20,8 +20,9 @@ export interface PermissionResult {
 }
 
 export const useCheckPermission: useMutationFunctionType<
-  PermissionResult,
-  CheckPermissionData
+  undefined,
+  CheckPermissionData,
+  PermissionResult
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

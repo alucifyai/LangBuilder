@@ -32,8 +32,9 @@ export interface CreateRoleAssignmentData {
 }
 
 export const useCreateRoleAssignment: useMutationFunctionType<
-  RoleAssignment,
-  CreateRoleAssignmentData
+  undefined,
+  CreateRoleAssignmentData,
+  RoleAssignment
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -51,7 +52,7 @@ export const useCreateRoleAssignment: useMutationFunctionType<
     RoleAssignment,
     any,
     CreateRoleAssignmentData
-  > = mutate(["useCreateRoleAssignment"], createRoleAssignment, options);
+  > = mutate(["useCreateRoleAssignment"], createRoleAssignment, options || {});
 
   return mutation;
 };

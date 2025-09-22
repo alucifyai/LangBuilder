@@ -1,4 +1,5 @@
 import { useState } from "react";
+import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import IconComponent from "@/components/common/genericIconComponent";
 import { Permission } from "../../types/rbac";
 
 const AVAILABLE_ACTIONS = [
@@ -30,7 +30,7 @@ const AVAILABLE_ACTIONS = [
   "deploy_environment",
   "invite_users",
   "modify_component_settings",
-  "manage_tokens"
+  "manage_tokens",
 ];
 
 const AVAILABLE_RESOURCE_TYPES = [
@@ -40,7 +40,7 @@ const AVAILABLE_RESOURCE_TYPES = [
   "workspace",
   "project",
   "user",
-  "api_key"
+  "api_key",
 ];
 
 interface PermissionEditModalProps {
@@ -56,12 +56,12 @@ export default function PermissionEditModal({
   onOpenChange,
   permission,
   onSave,
-  mode
+  mode,
 }: PermissionEditModalProps) {
   const [formData, setFormData] = useState({
     action: permission?.action || "",
     resource_type: permission?.resource_type || "",
-    description: permission?.description || ""
+    description: permission?.description || "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -110,10 +110,10 @@ export default function PermissionEditModal({
   };
 
   const handleFieldChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -126,13 +126,14 @@ export default function PermissionEditModal({
               name={mode === "create" ? "Plus" : "Edit"}
               className="h-5 w-5"
             />
-            <span>{mode === "create" ? "Add New Permission" : "Edit Permission"}</span>
+            <span>
+              {mode === "create" ? "Add New Permission" : "Edit Permission"}
+            </span>
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
               ? "Create a new permission for the RBAC system."
-              : "Modify the selected permission details."
-            }
+              : "Modify the selected permission details."}
           </DialogDescription>
         </DialogHeader>
 
@@ -163,7 +164,9 @@ export default function PermissionEditModal({
             <Label htmlFor="resource_type">Resource Type *</Label>
             <Select
               value={formData.resource_type}
-              onValueChange={(value) => handleFieldChange("resource_type", value)}
+              onValueChange={(value) =>
+                handleFieldChange("resource_type", value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a resource type" />
@@ -207,7 +210,10 @@ export default function PermissionEditModal({
           <Button onClick={handleSave} disabled={loading}>
             {loading ? (
               <>
-                <IconComponent name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+                <IconComponent
+                  name="Loader2"
+                  className="h-4 w-4 mr-2 animate-spin"
+                />
                 Saving...
               </>
             ) : (

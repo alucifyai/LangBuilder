@@ -1,8 +1,10 @@
 import type { UseMutationResult } from "@tanstack/react-query";
+import { customGetAccessToken } from "@/customization/utils/custom-get-access-token";
 import type { useMutationFunctionType } from "../../../../types/api";
 import { api } from "../../api";
 import { getURL } from "../../helpers/constants";
 import { UseRequestProcessor } from "../../services/request-processor";
+import { handleRBACError } from "./error-handler";
 
 export interface RoleAssignment {
   id: string;
@@ -59,13 +61,14 @@ interface GetRoleAssignmentsQueryParams {
 }
 
 export const useGetRoleAssignments: useMutationFunctionType<
-  { assignments: RoleAssignment[]; total_count: number },
-  GetRoleAssignmentsQueryParams
+  undefined,
+  Partial<GetRoleAssignmentsQueryParams>,
+  { assignments: RoleAssignment[]; total_count: number }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
   async function getRoleAssignments({
-    workspace_id,
+    workspace_id = "00000000-0000-0000-0000-000000000000", // Use default UUID for development
     user_id,
     assignment_type,
     role_id,
@@ -73,30 +76,77 @@ export const useGetRoleAssignments: useMutationFunctionType<
     is_active,
     skip = 0,
     limit = 50,
-  }: GetRoleAssignmentsQueryParams): Promise<{
+  }: Partial<GetRoleAssignmentsQueryParams>): Promise<{
     assignments: RoleAssignment[];
     total_count: number;
   }> {
-    let url = `${getURL("RBAC")}/role-assignments/?workspace_id=${workspace_id}&skip=${skip}&limit=${limit}`;
+    try {
+      // Build URL with required workspace_id as query parameter
+      const params = new URLSearchParams();
+      params.append("workspace_id", workspace_id);
 
-    if (user_id) url += `&user_id=${user_id}`;
-    if (assignment_type) url += `&assignment_type=${assignment_type}`;
-    if (role_id) url += `&role_id=${role_id}`;
-    if (scope) url += `&scope=${scope}`;
-    if (is_active !== undefined) url += `&is_active=${is_active}`;
+      // Add optional parameters
+      if (user_id) params.append("user_id", user_id);
+      if (assignment_type) params.append("assignment_type", assignment_type);
+      if (role_id) params.append("role_id", role_id);
+      if (scope) params.append("scope", scope);
+      if (is_active !== undefined)
+        params.append("is_active", is_active.toString());
 
-    const res = await api.get(url);
-    if (res.status === 200) {
-      // Backend returns array directly, not wrapped in object
-      return { assignments: res.data, total_count: res.data.length };
+      const url = `${getURL("RBAC")}/role-assignments/?${params.toString()}`;
+
+      // Debug authentication token
+      const accessToken = customGetAccessToken ? customGetAccessToken() : null;
+      console.log("🔍 RBAC Role Assignments API call:", {
+        url,
+        workspace_id,
+        params: {
+          user_id,
+          assignment_type,
+          role_id,
+          scope,
+          is_active,
+          skip,
+          limit,
+        },
+        hasAccessToken: !!accessToken,
+        accessTokenLength: accessToken ? accessToken.length : 0,
+      });
+
+      // Use automatic authentication via interceptors (same as working roles/workspaces APIs)
+      const res = await api.get(url);
+      if (res.status === 200) {
+        console.log("✅ Role assignments API response:", res.data);
+        // Backend returns list of RoleAssignmentRead objects
+        return { assignments: res.data, total_count: res.data.length };
+      }
+      return { assignments: [], total_count: 0 };
+    } catch (error) {
+      console.error("❌ Role assignments API error:", {
+        error,
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message,
+        config: {
+          url: error?.config?.url,
+          headers: error?.config?.headers,
+        },
+      });
+
+      // Handle "no data" cases gracefully instead of showing errors
+      if (error?.response?.status === 404) {
+        console.log("📝 No role assignments found, returning empty result");
+        return { assignments: [], total_count: 0 };
+      }
+
+      handleRBACError(error, "role assignments list");
     }
-    return { assignments: [], total_count: 0 };
   }
 
   const mutation: UseMutationResult<
     { assignments: RoleAssignment[]; total_count: number },
     any,
-    GetRoleAssignmentsQueryParams
+    Partial<GetRoleAssignmentsQueryParams>
   > = mutate(["useGetRoleAssignments"], getRoleAssignments, options);
 
   return mutation;

@@ -9,8 +9,9 @@ export interface DeleteServiceAccountData {
 }
 
 export const useDeleteServiceAccount: useMutationFunctionType<
-  { success: boolean },
-  DeleteServiceAccountData
+  undefined,
+  DeleteServiceAccountData,
+  { success: boolean }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

@@ -127,6 +127,7 @@ dependencies = [
     "filelock>=3.18.0",
     "jigsawstack==0.2.7",
     "diskcache>=5.6.3",
+    "passlib>=1.7.4",
 ]
 
 [dependency-groups]

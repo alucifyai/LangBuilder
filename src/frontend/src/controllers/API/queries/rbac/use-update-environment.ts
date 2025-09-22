@@ -18,8 +18,9 @@ export interface UpdateEnvironmentData {
 }
 
 export const useUpdateEnvironment: useMutationFunctionType<
-  Environment,
-  UpdateEnvironmentData
+  undefined,
+  UpdateEnvironmentData,
+  Environment
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

@@ -31,8 +31,8 @@ import {
 import { useGetPermissions } from "@/controllers/API/queries/rbac";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
-import PermissionEditModal from "../../../RBAC/components/PermissionEditModal";
 import ConfirmDeleteModal from "../../../RBAC/components/ConfirmDeleteModal";
+import PermissionEditModal from "../../../RBAC/components/PermissionEditModal";
 import {
   CRUDAction,
   ExtendedAction,
@@ -40,79 +40,128 @@ import {
   PermissionAction,
 } from "../../types/rbac";
 
-// Mock permission catalog data (PRD AC1: CRUD + Extended actions)
+// Enhanced permission catalog data (PRD AC1: CRUD + Extended actions with security indicators)
 const MOCK_PERMISSIONS: Permission[] = [
   // CRUD actions
   {
-    id: "perm-1",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     action: "create",
     resource_type: "flow",
     description: "Create new flows",
+    category: "basic",
+    is_dangerous: false,
+    requires_mfa: false,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-2",
+    id: "550e8400-e29b-41d4-a716-446655440002",
     action: "read",
     resource_type: "flow",
     description: "View and read flows",
+    category: "basic",
+    is_dangerous: false,
+    requires_mfa: false,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-3",
+    id: "550e8400-e29b-41d4-a716-446655440003",
     action: "update",
     resource_type: "flow",
     description: "Modify existing flows",
+    category: "basic",
+    is_dangerous: false,
+    requires_mfa: false,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-4",
+    id: "550e8400-e29b-41d4-a716-446655440004",
     action: "delete",
     resource_type: "flow",
-    description: "Delete flows",
+    description: "Delete flows - irreversible action",
+    category: "basic",
+    is_dangerous: true,
+    requires_mfa: false,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
-  // Extended actions (PRD AC1)
+  // Extended actions (PRD AC1) with enhanced security metadata
   {
-    id: "perm-5",
+    id: "550e8400-e29b-41d4-a716-446655440005",
     action: "export_flow",
     resource_type: "flow",
-    description: "Export flows to external formats",
+    description: "Export flows to external formats - may expose sensitive data",
+    category: "advanced",
+    is_dangerous: true,
+    requires_mfa: true,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-6",
+    id: "550e8400-e29b-41d4-a716-446655440006",
     action: "deploy_environment",
     resource_type: "environment",
-    description: "Deploy to environments",
+    description: "Deploy to production environments - high impact operation",
+    category: "deployment",
+    is_dangerous: true,
+    requires_mfa: true,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-7",
+    id: "550e8400-e29b-41d4-a716-446655440007",
     action: "invite_users",
     resource_type: "workspace",
-    description: "Invite users to workspace",
+    description: "Invite users to workspace - affects access control",
+    category: "user_management",
+    is_dangerous: false,
+    requires_mfa: false,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-8",
+    id: "550e8400-e29b-41d4-a716-446655440008",
     action: "modify_component_settings",
     resource_type: "component",
-    description: "Modify component configuration",
+    description: "Modify component configuration - can break flows",
+    category: "configuration",
+    is_dangerous: false,
+    requires_mfa: false,
+    is_system: false,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "perm-9",
+    id: "550e8400-e29b-41d4-a716-446655440009",
     action: "manage_tokens",
     resource_type: "project",
-    description: "Create and manage API tokens",
+    description: "Create and manage API tokens - security critical",
+    category: "security",
+    is_dangerous: true,
+    requires_mfa: true,
+    is_system: false,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  // System-level permissions
+  {
+    id: "550e8400-e29b-41d4-a716-446655440010",
+    action: "system_admin",
+    resource_type: "system",
+    description: "Full system administration access",
+    category: "system",
+    is_dangerous: true,
+    requires_mfa: true,
+    is_system: true,
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
@@ -277,6 +326,8 @@ function PermissionCatalog({
                 <TableHead>Action</TableHead>
                 <TableHead>Resource Type</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Security</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
@@ -285,7 +336,9 @@ function PermissionCatalog({
               {filteredPermissions.map((permission) => (
                 <TableRow
                   key={permission.id}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className={`cursor-pointer hover:bg-muted/50 ${
+                    permission.is_dangerous ? "border-l-4 border-l-red-500" : ""
+                  }`}
                   onClick={() => onPermissionSelect?.(permission)}
                 >
                   <TableCell>
@@ -302,7 +355,52 @@ function PermissionCatalog({
                   <TableCell>
                     <Badge variant="outline">{permission.resource_type}</Badge>
                   </TableCell>
-                  <TableCell>{permission.description}</TableCell>
+                  <TableCell>
+                    <div>
+                      <p className="text-sm">{permission.description}</p>
+                      {permission.is_dangerous && (
+                        <p className="text-xs text-red-600 mt-1">
+                          ⚠️ High-impact operation
+                        </p>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="capitalize">
+                      {permission.category || "general"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {permission.is_dangerous && (
+                        <Badge variant="destructive" className="text-xs">
+                          <IconComponent
+                            name="AlertTriangle"
+                            className="h-3 w-3 mr-1"
+                          />
+                          Dangerous
+                        </Badge>
+                      )}
+                      {permission.requires_mfa && (
+                        <Badge variant="secondary" className="text-xs">
+                          <IconComponent
+                            name="Shield"
+                            className="h-3 w-3 mr-1"
+                          />
+                          MFA
+                        </Badge>
+                      )}
+                      {permission.is_system && (
+                        <Badge variant="outline" className="text-xs">
+                          <IconComponent
+                            name="Settings"
+                            className="h-3 w-3 mr-1"
+                          />
+                          System
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Badge variant={getActionBadgeVariant(permission.action)}>
                       {CRUD_ACTIONS.includes(permission.action as CRUDAction)
@@ -323,11 +421,14 @@ function PermissionCatalog({
         </CardContent>
       </Card>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Enhanced Summary Cards with Security Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">CRUD Actions</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center">
+              <IconComponent name="Shield" className="h-4 w-4 mr-1" />
+              CRUD Actions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -342,7 +443,8 @@ function PermissionCatalog({
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <IconComponent name="Zap" className="h-4 w-4 mr-1" />
               Extended Actions
             </CardTitle>
           </CardHeader>
@@ -359,21 +461,53 @@ function PermissionCatalog({
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-red-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">
-              Resource Types
+            <CardTitle className="text-sm font-medium flex items-center text-red-700">
+              <IconComponent name="AlertTriangle" className="h-4 w-4 mr-1" />
+              Dangerous
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{resourceTypes.length}</div>
-            <p className="text-xs text-muted-foreground">Different resources</p>
+            <div className="text-2xl font-bold text-red-600">
+              {permissions.filter((p) => p.is_dangerous).length}
+            </div>
+            <p className="text-xs text-red-600">High-impact permissions</p>
+          </CardContent>
+        </Card>
+        <Card className="border-yellow-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center text-yellow-700">
+              <IconComponent name="Lock" className="h-4 w-4 mr-1" />
+              MFA Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">
+              {permissions.filter((p) => p.requires_mfa).length}
+            </div>
+            <p className="text-xs text-yellow-600">Multi-factor auth needed</p>
+          </CardContent>
+        </Card>
+        <Card className="border-purple-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center text-purple-700">
+              <IconComponent name="Settings" className="h-4 w-4 mr-1" />
+              System Level
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {permissions.filter((p) => p.is_system).length}
+            </div>
+            <p className="text-xs text-purple-600">System permissions</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">
-              Total Permissions
+            <CardTitle className="text-sm font-medium flex items-center">
+              <IconComponent name="Database" className="h-4 w-4 mr-1" />
+              Total
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -384,6 +518,41 @@ function PermissionCatalog({
           </CardContent>
         </Card>
       </div>
+
+      {/* Security Guidelines */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium flex items-center text-blue-800">
+            <IconComponent name="Info" className="h-4 w-4 mr-2" />
+            Permission Security Guidelines
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-blue-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="font-medium mb-1">🔴 Dangerous Permissions</p>
+              <p className="text-xs">
+                High-impact operations that can affect system security or data
+                integrity. Require careful consideration.
+              </p>
+            </div>
+            <div>
+              <p className="font-medium mb-1">🟡 MFA Required</p>
+              <p className="text-xs">
+                Multi-factor authentication required for these operations to
+                prevent unauthorized access.
+              </p>
+            </div>
+            <div>
+              <p className="font-medium mb-1">🟣 System Level</p>
+              <p className="text-xs">
+                Core system permissions that should only be granted to trusted
+                administrators.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -419,7 +588,7 @@ export default function PermissionManagement() {
       isAuthenticated,
       accessToken: !!accessToken,
       isFullyAuthenticated,
-      userData: !!userData
+      userData: !!userData,
     });
 
     if (!isFullyAuthenticated) {
@@ -434,7 +603,10 @@ export default function PermissionManagement() {
 
   // Handle authentication success
   const handleAuthSuccess = () => {
-    console.log("🎉 Authentication successful, executing pending action:", pendingAction);
+    console.log(
+      "🎉 Authentication successful, executing pending action:",
+      pendingAction,
+    );
 
     // Force a small delay to ensure state updates
     setTimeout(() => {
@@ -480,12 +652,12 @@ export default function PermissionManagement() {
 
     if (editModalMode === "create") {
       // Add new permission
-      setPermissions(prev => [permission, ...prev]);
+      setPermissions((prev) => [permission, ...prev]);
       console.log("✅ New permission added:", permission);
     } else {
       // Update existing permission
-      setPermissions(prev =>
-        prev.map(p => p.id === permission.id ? permission : p)
+      setPermissions((prev) =>
+        prev.map((p) => (p.id === permission.id ? permission : p)),
       );
       setSelectedPermission(permission);
       console.log("✅ Permission updated:", permission);
@@ -495,7 +667,9 @@ export default function PermissionManagement() {
   const handleConfirmDelete = () => {
     console.log("🗑️ Confirming delete for:", selectedPermission);
     if (selectedPermission) {
-      setPermissions(prev => prev.filter(p => p.id !== selectedPermission.id));
+      setPermissions((prev) =>
+        prev.filter((p) => p.id !== selectedPermission.id),
+      );
       setSelectedPermission(null);
       console.log("✅ Permission deleted:", selectedPermission.id);
     }
@@ -559,7 +733,10 @@ export default function PermissionManagement() {
         </div>
         <div className="flex items-center space-x-2">
           {/* Authentication Status Indicator */}
-          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+          <Badge
+            variant={isFullyAuthenticated ? "default" : "destructive"}
+            className="text-xs"
+          >
             <IconComponent
               name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
               className="h-3 w-3 mr-1"

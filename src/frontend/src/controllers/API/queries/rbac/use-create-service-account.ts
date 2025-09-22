@@ -15,17 +15,25 @@ export interface CreateServiceAccountData {
 }
 
 export const useCreateServiceAccount: useMutationFunctionType<
-  ServiceAccount,
-  CreateServiceAccountData
+  undefined,
+  CreateServiceAccountData,
+  ServiceAccount
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
   async function createServiceAccount(
     data: CreateServiceAccountData,
   ): Promise<ServiceAccount> {
-    const res = await api.post(`${getURL("RBAC")}/service-accounts/`, data);
-    if (res.status === 201) {
-      return res.data;
+    const res = await api.post(
+      `${getURL("RBAC")}/simple-service-accounts/`,
+      data,
+    );
+    if (res.status === 200) {
+      // Simple endpoint returns {success: true, service_account: {...}}
+      if (res.data.success && res.data.service_account) {
+        return res.data.service_account;
+      }
+      return res.data; // Fallback if structure is different
     }
     throw new Error(`Failed to create service account: ${res.status}`);
   }

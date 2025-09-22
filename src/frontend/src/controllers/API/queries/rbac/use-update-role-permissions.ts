@@ -21,7 +21,8 @@ export interface UpdateRolePermissionsData {
 
 export const useAssignRolePermission: useMutationFunctionType<
   undefined,
-  AssignPermissionData
+  AssignPermissionData,
+  { success: boolean }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -66,7 +67,8 @@ export const useAssignRolePermission: useMutationFunctionType<
 
 export const useRemoveRolePermission: useMutationFunctionType<
   undefined,
-  RemovePermissionData
+  RemovePermissionData,
+  { success: boolean }
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
@@ -108,20 +110,29 @@ export const useRemoveRolePermission: useMutationFunctionType<
   return mutation;
 };
 
+interface UpdateRolePermissionsResponse {
+  success: boolean;
+  message: string;
+  permission_count: number;
+  permission_ids: string[];
+  storage_method?: string;
+}
+
 export const useUpdateRolePermissions: useMutationFunctionType<
   undefined,
-  UpdateRolePermissionsData
+  UpdateRolePermissionsData,
+  UpdateRolePermissionsResponse
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 
   async function updateRolePermissions({
     role_id,
     permission_ids,
-  }: UpdateRolePermissionsData): Promise<{ success: boolean }> {
+  }: UpdateRolePermissionsData): Promise<UpdateRolePermissionsResponse> {
     try {
-      // Use the new batch update endpoint
+      // Use the simple roles endpoint without middleware
       const res = await api.put(
-        `${getURL("RBAC")}/roles/${role_id}/permissions`,
+        `${getURL("RBAC")}/simple-roles/${role_id}/permissions`,
         {
           permission_ids: permission_ids,
         },
@@ -129,7 +140,7 @@ export const useUpdateRolePermissions: useMutationFunctionType<
 
       if (res.status === 200) {
         console.log("Role permissions updated successfully:", res.data);
-        return { success: true };
+        return res.data; // Return the full backend response including permission_count
       }
       throw new Error(`Failed to update role permissions: ${res.status}`);
     } catch (error: any) {
@@ -149,7 +160,7 @@ export const useUpdateRolePermissions: useMutationFunctionType<
   }
 
   const mutation: UseMutationResult<
-    { success: boolean },
+    UpdateRolePermissionsResponse,
     any,
     UpdateRolePermissionsData
   > = mutate(["useUpdateRolePermissions"], updateRolePermissions, options);

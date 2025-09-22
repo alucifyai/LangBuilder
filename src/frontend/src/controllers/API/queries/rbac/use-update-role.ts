@@ -17,7 +17,8 @@ export interface UpdateRoleData {
 
 export const useUpdateRole: useMutationFunctionType<
   undefined,
-  UpdateRoleData
+  UpdateRoleData,
+  Role
 > = (options?) => {
   const { mutate } = UseRequestProcessor();
 

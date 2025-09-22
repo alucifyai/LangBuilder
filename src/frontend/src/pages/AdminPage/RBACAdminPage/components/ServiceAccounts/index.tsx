@@ -38,10 +38,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetServiceAccounts, ServiceAccount } from "@/controllers/API/queries/rbac/use-get-service-accounts";
 import { useCreateServiceAccount } from "@/controllers/API/queries/rbac/use-create-service-account";
 import { useDeleteServiceAccount } from "@/controllers/API/queries/rbac/use-delete-service-account";
-import { useGetWorkspaces, Workspace } from "@/controllers/API/queries/rbac/use-get-workspaces";
+import {
+  ServiceAccount,
+  useGetServiceAccounts,
+} from "@/controllers/API/queries/rbac/use-get-service-accounts";
+import {
+  useGetWorkspaces,
+  Workspace,
+} from "@/controllers/API/queries/rbac/use-get-workspaces";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 
@@ -67,8 +73,12 @@ function ServiceAccountBuilder({
 }: ServiceAccountBuilderProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(workspaces[0]?.id || "");
-  const [scopeType, setScopeType] = useState<"global" | "workspace" | "project" | "environment">("workspace");
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(
+    workspaces[0]?.id || "",
+  );
+  const [scopeType, setScopeType] = useState<
+    "global" | "workspace" | "project" | "environment"
+  >("workspace");
   const [nameError, setNameError] = useState("");
   const [workspaceError, setWorkspaceError] = useState("");
 
@@ -115,7 +125,10 @@ function ServiceAccountBuilder({
 
       <div className="space-y-2">
         <Label htmlFor="workspace">Workspace *</Label>
-        <Select value={selectedWorkspaceId} onValueChange={setSelectedWorkspaceId}>
+        <Select
+          value={selectedWorkspaceId}
+          onValueChange={setSelectedWorkspaceId}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select workspace" />
           </SelectTrigger>
@@ -127,12 +140,17 @@ function ServiceAccountBuilder({
             ))}
           </SelectContent>
         </Select>
-        {workspaceError && <p className="text-sm text-red-600">{workspaceError}</p>}
+        {workspaceError && (
+          <p className="text-sm text-red-600">{workspaceError}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="scope">Scope Type</Label>
-        <Select value={scopeType} onValueChange={(value) => setScopeType(value as any)}>
+        <Select
+          value={scopeType}
+          onValueChange={(value) => setScopeType(value as any)}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select scope type" />
           </SelectTrigger>
@@ -207,19 +225,27 @@ export default function ServiceAccounts() {
     },
   });
 
-  const { mutate: createServiceAccount, isPending: isCreatingServiceAccount } = useCreateServiceAccount({
-    onSuccess: (newServiceAccount) => {
-      console.log("✅ Service account created successfully:", newServiceAccount);
-      setIsCreateDialogOpen(false);
-      // Refresh service accounts list
-      fetchServiceAccounts({ search: searchTerm });
-      alert(`✅ Service account "${newServiceAccount.name}" created successfully!`);
-    },
-    onError: (error) => {
-      console.error("❌ Failed to create service account:", error);
-      alert(`❌ Failed to create service account: ${error.message || "Unknown error"}`);
-    },
-  });
+  const { mutate: createServiceAccount, isPending: isCreatingServiceAccount } =
+    useCreateServiceAccount({
+      onSuccess: (newServiceAccount) => {
+        console.log(
+          "✅ Service account created successfully:",
+          newServiceAccount,
+        );
+        setIsCreateDialogOpen(false);
+        // Refresh service accounts list
+        fetchServiceAccounts({ search: searchTerm });
+        alert(
+          `✅ Service account "${newServiceAccount.name}" created successfully!`,
+        );
+      },
+      onError: (error) => {
+        console.error("❌ Failed to create service account:", error);
+        alert(
+          `❌ Failed to create service account: ${error.message || "Unknown error"}`,
+        );
+      },
+    });
 
   const { mutate: deleteServiceAccount } = useDeleteServiceAccount({
     onSuccess: () => {
@@ -230,7 +256,9 @@ export default function ServiceAccounts() {
     },
     onError: (error) => {
       console.error("❌ Failed to delete service account:", error);
-      alert(`❌ Failed to delete service account: ${error.message || "Unknown error"}`);
+      alert(
+        `❌ Failed to delete service account: ${error.message || "Unknown error"}`,
+      );
     },
   });
 
@@ -265,7 +293,7 @@ export default function ServiceAccounts() {
       isAuthenticated,
       accessToken: !!accessToken,
       isFullyAuthenticated,
-      userData: !!userData
+      userData: !!userData,
     });
   }, [isAuthenticated, accessToken, userData]);
 
@@ -275,7 +303,10 @@ export default function ServiceAccounts() {
     });
   };
 
-  const handleDeleteServiceAccount = (serviceAccountId: string, name: string) => {
+  const handleDeleteServiceAccount = (
+    serviceAccountId: string,
+    name: string,
+  ) => {
     if (confirm(`Are you sure you want to delete service account "${name}"?`)) {
       requireAuth("delete-service-account", () => {
         deleteServiceAccount({ service_account_id: serviceAccountId });
@@ -307,7 +338,10 @@ export default function ServiceAccounts() {
         </div>
         <div className="flex items-center space-x-2">
           {/* Authentication Status Indicator */}
-          <Badge variant={isFullyAuthenticated ? "default" : "destructive"} className="text-xs">
+          <Badge
+            variant={isFullyAuthenticated ? "default" : "destructive"}
+            className="text-xs"
+          >
             <IconComponent
               name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
               className="h-3 w-3 mr-1"
@@ -315,7 +349,10 @@ export default function ServiceAccounts() {
             {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
           </Badge>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button disabled={!isFullyAuthenticated}>
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -349,7 +386,10 @@ export default function ServiceAccounts() {
           placeholder="Search service accounts..."
           className="w-64"
         />
-        <Button onClick={handleSearch} disabled={isLoadingServiceAccounts || !isFullyAuthenticated}>
+        <Button
+          onClick={handleSearch}
+          disabled={isLoadingServiceAccounts || !isFullyAuthenticated}
+        >
           {isLoadingServiceAccounts ? "Searching..." : "Search"}
         </Button>
         {searchTerm && (
@@ -379,9 +419,11 @@ export default function ServiceAccounts() {
         <CardHeader>
           <CardTitle>Service Accounts</CardTitle>
           <CardDescription>
-            {isLoadingServiceAccounts ? "Loading service accounts..." :
-             serviceAccounts.length === 0 ? "No service accounts found" :
-             `Found ${serviceAccounts.length} service account${serviceAccounts.length !== 1 ? 's' : ''}`}
+            {isLoadingServiceAccounts
+              ? "Loading service accounts..."
+              : serviceAccounts.length === 0
+                ? "No service accounts found"
+                : `Found ${serviceAccounts.length} service account${serviceAccounts.length !== 1 ? "s" : ""}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -403,7 +445,10 @@ export default function ServiceAccounts() {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="flex items-center justify-center">
-                        <IconComponent name="Loader2" className="h-4 w-4 animate-spin mr-2" />
+                        <IconComponent
+                          name="Loader2"
+                          className="h-4 w-4 animate-spin mr-2"
+                        />
                         Loading service accounts...
                       </div>
                     </TableCell>
@@ -427,42 +472,65 @@ export default function ServiceAccounts() {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="text-gray-500">
-                        No service accounts found. Create your first service account!
+                        No service accounts found. Create your first service
+                        account!
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   serviceAccounts.map((serviceAccount) => (
                     <TableRow key={serviceAccount.id}>
-                      <TableCell className="font-medium">{serviceAccount.name}</TableCell>
-                      <TableCell>{serviceAccount.description || "No description"}</TableCell>
+                      <TableCell className="font-medium">
+                        {serviceAccount.name}
+                      </TableCell>
+                      <TableCell>
+                        {serviceAccount.description || "No description"}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {workspaces.find(w => w.id === serviceAccount.workspace_id)?.name || "Unknown"}
+                          {workspaces.find(
+                            (w) => w.id === serviceAccount.workspace_id,
+                          )?.name || "Unknown"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{serviceAccount.scope_type}</Badge>
+                        <Badge variant="outline">
+                          {serviceAccount.scope_type}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={serviceAccount.is_active ? "default" : "destructive"}>
+                        <Badge
+                          variant={
+                            serviceAccount.is_active ? "default" : "destructive"
+                          }
+                        >
                           {serviceAccount.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {serviceAccount.last_used_at ?
-                         new Date(serviceAccount.last_used_at).toLocaleDateString() :
-                         "Never"}
+                        {serviceAccount.last_used_at
+                          ? new Date(
+                              serviceAccount.last_used_at,
+                            ).toLocaleDateString()
+                          : "Never"}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button variant="ghost" size="sm">
-                            <IconComponent name="Settings" className="h-4 w-4" />
+                            <IconComponent
+                              name="Settings"
+                              className="h-4 w-4"
+                            />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteServiceAccount(serviceAccount.id, serviceAccount.name)}
+                            onClick={() =>
+                              handleDeleteServiceAccount(
+                                serviceAccount.id,
+                                serviceAccount.name,
+                              )
+                            }
                           >
                             <IconComponent name="Trash2" className="h-4 w-4" />
                           </Button>
