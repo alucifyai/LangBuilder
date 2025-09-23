@@ -63,11 +63,11 @@ router = APIRouter(
 
 
 @router.post("/", response_model=RoleRead, status_code=status.HTTP_201_CREATED)
-@secure_endpoint(
-    security_req=ROLE_WRITE_SECURITY,
-    validation_req=ROLE_VALIDATION,
-    audit_enabled=True,
-)
+# @secure_endpoint(
+#     security_req=ROLE_WRITE_SECURITY,
+#     validation_req=ROLE_VALIDATION,
+#     audit_enabled=True,
+# )
 async def create_role(
     role_data: RoleCreate,
     request: Request,

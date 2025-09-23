@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RBACAdminPage from "./RBACAdminPage";
@@ -7,8 +7,19 @@ import UserManagementPage from "./UserManagementPage";
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("rbac");
 
+  // Override body overflow for admin pages only
+  useEffect(() => {
+    const body = document.body;
+    const originalOverflow = body.style.overflow;
+    body.style.overflow = "auto";
+
+    return () => {
+      body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   return (
-    <div className="flex h-full flex-col">
+    <div className="min-h-screen w-full">
       {/* Main Admin Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center px-6">
@@ -25,11 +36,7 @@ export default function AdminPage() {
       </div>
 
       {/* Admin Navigation Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
-      >
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="border-b bg-muted/30">
           <TabsList className="grid w-full grid-cols-2 bg-transparent h-12">
             <TabsTrigger
@@ -50,12 +57,12 @@ export default function AdminPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="rbac" className="h-full m-0 p-0">
+        <div className="w-full" style={{ height: "calc(100vh - 7rem)" }}>
+          <TabsContent value="rbac" className="m-0 p-0 h-full overflow-y-auto">
             <RBACAdminPage />
           </TabsContent>
 
-          <TabsContent value="users" className="h-full m-0 p-0">
+          <TabsContent value="users" className="m-0 p-0 h-full overflow-y-auto">
             <UserManagementPage />
           </TabsContent>
         </div>

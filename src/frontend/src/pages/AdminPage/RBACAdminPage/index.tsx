@@ -37,7 +37,7 @@ export default function RBACAdminPage() {
   }, [isAuthenticated, accessToken, userData, activeTab]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="w-full h-full flex flex-col">
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center px-6">
@@ -68,7 +68,7 @@ export default function RBACAdminPage() {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
+        className="w-full flex-1 flex flex-col"
       >
         <div className="border-b bg-muted/50">
           {/* Category Headers */}
@@ -202,52 +202,76 @@ export default function RBACAdminPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="permissions" className="h-full m-0 p-0">
+        <div className="w-full flex-1 overflow-hidden">
+          <TabsContent
+            value="permissions"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <PermissionManagement />
           </TabsContent>
 
-          <TabsContent value="roles" className="h-full m-0 p-0">
+          <TabsContent value="roles" className="m-0 p-0 h-full overflow-y-auto">
             <RoleManagement />
           </TabsContent>
 
-          <TabsContent value="projects" className="h-full m-0 p-0">
+          <TabsContent
+            value="projects"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <ProjectManagement />
           </TabsContent>
 
-          <TabsContent value="service-accounts" className="h-full m-0 p-0">
+          <TabsContent
+            value="service-accounts"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <ServiceAccounts />
           </TabsContent>
 
-          <TabsContent value="environments" className="h-full m-0 p-0">
+          <TabsContent
+            value="environments"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <EnvironmentManagement />
           </TabsContent>
 
-          <TabsContent value="workspaces" className="h-full m-0 p-0">
+          <TabsContent
+            value="workspaces"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <WorkspaceManagement />
           </TabsContent>
 
-          <TabsContent value="user-groups" className="h-full m-0 p-0">
+          <TabsContent
+            value="user-groups"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <UserGroups />
           </TabsContent>
 
-          <TabsContent value="assignments" className="h-full m-0 p-0">
+          <TabsContent
+            value="assignments"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <RoleAssignments />
           </TabsContent>
 
-          <TabsContent value="audit" className="h-full m-0 p-0">
+          <TabsContent value="audit" className="m-0 p-0 h-full overflow-y-auto">
             <AuditLogs />
           </TabsContent>
 
-          <TabsContent value="compliance" className="h-full m-0 p-0">
+          <TabsContent
+            value="compliance"
+            className="m-0 p-0 h-full overflow-y-auto"
+          >
             <ComplianceReportGenerator />
           </TabsContent>
 
-          <TabsContent value="sso" className="h-full m-0 p-0">
+          <TabsContent value="sso" className="m-0 p-0 h-full overflow-y-auto">
             <SSOConfiguration />
           </TabsContent>
 
-          <TabsContent value="scim" className="h-full m-0 p-0">
+          <TabsContent value="scim" className="m-0 p-0 h-full overflow-y-auto">
             <SCIMProvisioning />
           </TabsContent>
         </div>
