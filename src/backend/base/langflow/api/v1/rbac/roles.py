@@ -43,6 +43,7 @@ from langflow.services.database.models.rbac.role import (
     RoleRead,
     RoleUpdate,
 )
+from langflow.services.database.models.rbac.workspace import Workspace
 from langflow.services.rbac.audit_service import AuditService
 from langflow.services.rbac.permission_engine import PermissionEngine
 

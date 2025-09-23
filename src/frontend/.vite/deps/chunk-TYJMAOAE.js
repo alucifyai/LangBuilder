@@ -1,0 +1,28 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/rocking-chair.js
+var __iconNode = [
+  ["polyline", { points: "3.5 2 6.5 12.5 18 12.5", key: "y3iy52" }],
+  ["line", { x1: "9.5", x2: "5.5", y1: "12.5", y2: "20", key: "19vg5i" }],
+  ["line", { x1: "15", x2: "18.5", y1: "12.5", y2: "20", key: "1inpmv" }],
+  ["path", { d: "M2.75 18a13 13 0 0 0 18.5 0", key: "1nquas" }]
+];
+var RockingChair = createLucideIcon("rocking-chair", __iconNode);
+
+export {
+  __iconNode,
+  RockingChair
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/rocking-chair.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-TYJMAOAE.js.map

@@ -1,0 +1,33 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/eraser.js
+var __iconNode = [
+  [
+    "path",
+    {
+      d: "m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21",
+      key: "182aya"
+    }
+  ],
+  ["path", { d: "M22 21H7", key: "t4ddhn" }],
+  ["path", { d: "m5 11 9 9", key: "1mo9qw" }]
+];
+var Eraser = createLucideIcon("eraser", __iconNode);
+
+export {
+  __iconNode,
+  Eraser
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/eraser.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-6D7VEI6D.js.map

@@ -1,0 +1,14 @@
+On RBAC admin, sometimes need to refresh to see it show authenticated.
+Workspace creation works
+Workspace listing backend api returns to frontend but UI refuse to show any workspace.
+As such project creation cannot finish because there is no workspace to select.
+Project listing api work although it returns empty. 3 Legacy project does show up but I suspect it is mocked data... because the browser inspector shows it returns only 2 legacy project that I can see from landing page that I can create flow in. This depends on 2.
+/api/v1/rbac/environments/ listing in UI suppose list all environments. However, in the listing api signature, it is a UUIDstr, which means it is required... The function body does not process the case that project_id does not exists. So this is frontend and backend has different requirements.
+User group listing depend on we have at lesat one workspace, which somehow frontend does not see even backend listign returns 2 workspaces. So this depends on 2.
+11:15
+7. service_account listing fails becausee the api requires workspace_id while frontend UI is listing all services account's from all namespaces....
+8. sso I did not check details.
+9. audit_log: it seems also require a workspace_id but frontend UI does not choose only 1 workspace to show audit_log
+@Dongming @Arnab please see how you want to handle above inconsistency between backend listing api's requirement and what frontend UI has. (edited) 
+
+I have fixed above 2. So above 6 is now using the first workspace but there is no UI to select workspace... Project creating failed in backend api because it does not allow space in validation. Firstend UI validation must be consistent with backend validation. Now project creation works, frontend problem is that it does not close the dialog for project creation or refresh the list. btw, the list seems does not support scrolling either... I will check in the code fix so far. @Dongming please continue. I won't work on it before CG meeting (edited) 

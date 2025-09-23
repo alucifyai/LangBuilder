@@ -115,8 +115,8 @@ export default function RoleManagement() {
         name: newRoleName,
         description: newRoleDescription,
         type: "custom",
-        is_active: true,
-        permissions: selectedPermissions, // Include validated permissions
+        // Note: permissions will be assigned separately after role creation
+        // selectedPermissions will be handled via permission assignment API
       });
     }
   };
@@ -249,7 +249,7 @@ export default function RoleManagement() {
               />
             </div>
 
-            {/* Permission Validation Panel */}
+            {/* Permission Validation Panel - Re-enabled with error handling */}
             <PermissionValidationPanel
               selectedPermissions={selectedPermissions}
               onPermissionsChange={setSelectedPermissions}

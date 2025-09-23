@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from langflow.services.database.models.rbac.role_assignment import RoleAssignment
     from langflow.services.database.models.rbac.workspace import Workspace
     from langflow.services.database.models.user.model import User
+    from langflow.services.rbac.audit_service import AuditService
 
 
 class RBACService(Service):
@@ -39,9 +40,10 @@ class RBACService(Service):
 
     name = "rbac_service"
 
-    def __init__(self, cache_service: Optional["CacheService"] = None):
-        """Initialize RBAC service with optional cache integration."""
+    def __init__(self, cache_service: Optional["CacheService"] = None, audit_service: Optional["AuditService"] = None):
+        """Initialize RBAC service with optional cache and audit integration."""
         self.cache_service = cache_service
+        self.audit_service = audit_service or self._create_audit_service()
         self.permission_engine = PermissionEngine(
             redis_client=cache_service._client if cache_service else None
         )
@@ -51,6 +53,11 @@ class RBACService(Service):
             "cache_misses": 0,
             "avg_evaluation_time_ms": 0.0,
         }
+
+    def _create_audit_service(self) -> "AuditService":
+        """Create a default audit service instance."""
+        from langflow.services.rbac.audit_service import AuditService
+        return AuditService()
 
     async def evaluate_permission(
         self,

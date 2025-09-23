@@ -8,9 +8,14 @@ import type { Role } from "./use-get-roles";
 export interface CreateRoleData {
   name: string;
   description?: string;
-  permissions: string[];
-  workspace_id: string;
-  is_active?: boolean;
+  workspace_id?: string;
+  type?: string;
+  parent_role_id?: string;
+  priority?: number;
+  scope_type?: string;
+  scope_id?: string;
+  role_metadata?: Record<string, any>;
+  tags?: string[];
 }
 
 export const useCreateRole: useMutationFunctionType<

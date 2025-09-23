@@ -318,24 +318,33 @@ class RBACRuntimeEnforcementService(Service):
         permission: str | None = None,
         decision: bool = False,
         reason: str | None = None,
+        session: AsyncSession | None = None,
     ) -> None:
         """Audit an enforcement decision."""
         try:
-            audit_data = {
-                "user_id": context.user.id if context.user else None,
-                "service_account_id": context.token_validation.service_account.id
-                if context.token_validation and context.token_validation.service_account
-                else None,
-                "action": f"enforcement:{operation}",
-                "resource_type": resource_type,
-                "resource_id": str(resource_id) if resource_id else None,
-                "workspace_id": context.effective_workspace_id,
-                "project_id": context.requested_project_id,
-                "environment_id": context.requested_environment_id,
-                "success": decision,
-                "details": {
-                    "permission": permission,
-                    "reason": reason,
+            # Skip auditing if no user context or audit service
+            if not context.user or not self.rbac_service.audit_service:
+                logger.debug("Skipping audit: missing user context or audit service")
+                return
+
+            # Skip if no session provided (audit logging is optional for now)
+            if not session:
+                logger.debug("Skipping audit: no session provided for database logging")
+                return
+
+            # Import here to avoid circular imports
+            from langflow.services.rbac.audit_service import AuditContext
+
+            # Create audit context
+            audit_context = AuditContext(
+                user_id=context.user.id,
+                workspace_id=context.effective_workspace_id,
+                additional_data={
+                    "service_account_id": context.token_validation.service_account.id
+                    if context.token_validation and context.token_validation.service_account
+                    else None,
+                    "project_id": str(context.requested_project_id) if context.requested_project_id else None,
+                    "environment_id": str(context.requested_environment_id) if context.requested_environment_id else None,
                     "request_path": context.request_path,
                     "request_method": context.request_method,
                     "token_scoped": bool(context.token_validation and context.token_validation.scoped_permissions),
@@ -343,10 +352,26 @@ class RBACRuntimeEnforcementService(Service):
                     "scope_id": str(context.token_validation.scope_id)
                     if context.token_validation and context.token_validation.scope_id
                     else None,
-                },
+                }
+            )
+
+            # Details for the audit
+            details = {
+                "permission": permission,
+                "reason": reason,
+                "operation": operation,
             }
 
-            await self.rbac_service.audit_service.log_action(**audit_data)
+            await self.rbac_service.audit_service.log_authorization_event(
+                session=session,
+                user=context.user,
+                action=f"enforcement:{operation}",
+                resource_type=resource_type,
+                resource_id=resource_id,
+                success=decision,
+                context=audit_context,
+                details=details,
+            )
 
         except Exception as e:
             logger.error(f"Error auditing enforcement decision: {e}")

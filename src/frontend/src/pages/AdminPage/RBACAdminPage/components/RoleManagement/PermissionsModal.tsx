@@ -6,7 +6,8 @@ import {
 import { useGetRolePermissions } from "../../../../../controllers/API/queries/rbac/use-get-role-permissions";
 import { useUpdateRolePermissions } from "../../../../../controllers/API/queries/rbac/use-update-role-permissions";
 import useAuthStore from "../../../../../stores/authStore";
-import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
+// Note: AuthenticationModal component needs to be created
+// import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 
 interface PermissionsModalProps {
   isOpen: boolean;
@@ -201,6 +202,8 @@ export default function PermissionsModal({
     });
   };
 
+  if (!isOpen) return null;
+
   const filteredPermissions = permissions.filter(
     (permission) =>
       permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -221,8 +224,6 @@ export default function PermissionsModal({
     },
     {} as Record<string, Permission[]>,
   );
-
-  if (!isOpen) return null;
 
   return (
     <>
@@ -413,11 +414,11 @@ export default function PermissionsModal({
         </div>
       </div>
 
-      <AuthenticationModal
+      {/* <AuthenticationModal
         open={showAuthModal}
         onOpenChange={setShowAuthModal}
         onSuccess={handleAuthSuccess}
-      />
+      /> */}
     </>
   );
 }

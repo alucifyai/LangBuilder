@@ -1,0 +1,27 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/circle-arrow-down.js
+var __iconNode = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M12 8v8", key: "napkw2" }],
+  ["path", { d: "m8 12 4 4 4-4", key: "k98ssh" }]
+];
+var CircleArrowDown = createLucideIcon("circle-arrow-down", __iconNode);
+
+export {
+  __iconNode,
+  CircleArrowDown
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/circle-arrow-down.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-VPOOOUH6.js.map

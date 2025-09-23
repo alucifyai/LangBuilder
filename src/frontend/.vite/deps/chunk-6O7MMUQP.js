@@ -1,0 +1,28 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/megaphone-off.js
+var __iconNode = [
+  ["path", { d: "M9.26 9.26 3 11v3l14.14 3.14", key: "3429n" }],
+  ["path", { d: "M21 15.34V6l-7.31 2.03", key: "4o1dh8" }],
+  ["path", { d: "M11.6 16.8a3 3 0 1 1-5.8-1.6", key: "1yl0tm" }],
+  ["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "a6p6uj" }]
+];
+var MegaphoneOff = createLucideIcon("megaphone-off", __iconNode);
+
+export {
+  __iconNode,
+  MegaphoneOff
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/megaphone-off.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-6O7MMUQP.js.map

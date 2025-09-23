@@ -1,0 +1,26 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/chart-line.js
+var __iconNode = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "m19 9-5 5-4-4-3 3", key: "2osh9i" }]
+];
+var ChartLine = createLucideIcon("chart-line", __iconNode);
+
+export {
+  __iconNode,
+  ChartLine
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/chart-line.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-ACM3BZSX.js.map

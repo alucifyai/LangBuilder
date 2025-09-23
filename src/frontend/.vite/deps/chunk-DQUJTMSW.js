@@ -1,0 +1,31 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/receipt-text.js
+var __iconNode = [
+  [
+    "path",
+    { d: "M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z", key: "q3az6g" }
+  ],
+  ["path", { d: "M14 8H8", key: "1l3xfs" }],
+  ["path", { d: "M16 12H8", key: "1fr5h0" }],
+  ["path", { d: "M13 16H8", key: "wsln4y" }]
+];
+var ReceiptText = createLucideIcon("receipt-text", __iconNode);
+
+export {
+  __iconNode,
+  ReceiptText
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/receipt-text.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-DQUJTMSW.js.map

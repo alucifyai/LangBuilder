@@ -1,0 +1,26 @@
+import {
+  createLucideIcon
+} from "./chunk-MODN62GT.js";
+
+// node_modules/lucide-react/dist/esm/icons/picture-in-picture-2.js
+var __iconNode = [
+  ["path", { d: "M21 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h4", key: "daa4of" }],
+  ["rect", { width: "10", height: "7", x: "12", y: "13", rx: "2", key: "1nb8gs" }]
+];
+var PictureInPicture2 = createLucideIcon("picture-in-picture-2", __iconNode);
+
+export {
+  __iconNode,
+  PictureInPicture2
+};
+/*! Bundled license information:
+
+lucide-react/dist/esm/icons/picture-in-picture-2.js:
+  (**
+   * @license lucide-react v0.503.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+//# sourceMappingURL=chunk-35YIQIUN.js.map

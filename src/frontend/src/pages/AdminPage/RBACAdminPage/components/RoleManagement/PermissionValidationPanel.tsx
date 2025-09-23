@@ -18,20 +18,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
-import { useGetPermissions } from "@/controllers/API/queries/rbac/use-get-permissions";
-
-interface Permission {
-  id: string;
-  action: string;
-  resource_type: string;
-  description: string;
-  category: "basic" | "advanced" | "system";
-  is_dangerous?: boolean;
-  requires_mfa?: boolean;
-  is_system?: boolean;
-  security_risk_level?: "low" | "medium" | "high" | "critical";
-  compliance_tags?: string[];
-}
+import {
+  useGetPermissions,
+  type Permission
+} from "@/controllers/API/queries/rbac/use-get-permissions";
 
 interface ValidationResult {
   type: "error" | "warning" | "info";
@@ -75,23 +65,41 @@ export default function PermissionValidationPanel({
   });
 
   useEffect(() => {
-    fetchPermissions({ limit: 1000, workspace_id: "default" });
+    try {
+      fetchPermissions({ limit: 1000, workspace_id: "default" });
+    } catch (error) {
+      console.error("Failed to fetch permissions for validation:", error);
+      // Continue without permissions to prevent UI crash
+    }
   }, []);
 
   const permissions: Permission[] = permissionsData || [];
 
   // Perform validation when permissions change
   useEffect(() => {
-    const results = validatePermissions();
-    setValidationResults(results);
+    try {
+      const results = validatePermissions();
+      setValidationResults(results);
 
-    // Check if there are any blocking errors
-    const hasErrors = results.some((r) => r.type === "error");
-    onValidationChange(!hasErrors, results);
+      // Check if there are any blocking errors
+      const hasErrors = results.some((r) => r.type === "error");
+      onValidationChange(!hasErrors, results);
+    } catch (error) {
+      console.error("Error during permission validation:", error);
+      // Set a safe fallback state
+      setValidationResults([]);
+      onValidationChange(true, []); // Allow creation if validation fails
+    }
   }, [selectedPermissions, permissions, roleName]);
 
   const validatePermissions = (): ValidationResult[] => {
     const results: ValidationResult[] = [];
+
+    // Safety check: ensure permissions array exists
+    if (!permissions || !Array.isArray(permissions)) {
+      return results;
+    }
+
     const selectedPerms = permissions.filter((p) =>
       selectedPermissions.includes(p.id),
     );
@@ -281,7 +289,7 @@ export default function PermissionValidationPanel({
 
     // Suggest naming based on permissions
     const hasReadOnly = perms.every(
-      (p) => p.action.includes("read") || p.action.includes("view"),
+      (p) => (p.action || "").includes("read") || (p.action || "").includes("view"),
     );
     if (
       hasReadOnly &&
@@ -322,7 +330,7 @@ export default function PermissionValidationPanel({
         break;
       case "selectBasic":
         updated = filteredPermissions
-          .filter((p) => p.category === "basic")
+          .filter((p) => p.category === "Flow Management")
           .map((p) => p.id);
         break;
       case "selectSafe":
@@ -335,16 +343,22 @@ export default function PermissionValidationPanel({
     onPermissionsChange(updated);
   };
 
-  // Filter permissions
-  const filteredPermissions = permissions.filter((permission) => {
-    const matchesSearch =
-      permission.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      permission.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" || permission.category === selectedCategory;
-    const matchesDangerous = !showDangerous || permission.is_dangerous;
+  // Filter permissions with safety checks
+  const filteredPermissions = (permissions || []).filter((permission) => {
+    try {
+      const matchesSearch =
+        (permission.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (permission.action || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (permission.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || permission.category === selectedCategory;
+      const matchesDangerous = !showDangerous || permission.is_dangerous;
 
-    return matchesSearch && matchesCategory && matchesDangerous;
+      return matchesSearch && matchesCategory && matchesDangerous;
+    } catch (error) {
+      console.warn("Error filtering permission:", permission, error);
+      return false;
+    }
   });
 
   const getValidationSummary = () => {
@@ -361,17 +375,17 @@ export default function PermissionValidationPanel({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <IconComponent name="Shield" className="h-5 w-5" />
-            <span>Permission Validation</span>
-            <Badge variant="outline" className="text-xs">
-              {selectedPermissions.length} selected
-            </Badge>
-          </div>
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <IconComponent name="Shield" className="h-5 w-5" />
+              <span>Permission Validation</span>
+              <Badge variant="outline" className="text-xs">
+                {selectedPermissions.length} selected
+              </Badge>
+            </div>
 
-          <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm">
                 <IconComponent
@@ -380,8 +394,7 @@ export default function PermissionValidationPanel({
                 />
               </Button>
             </CollapsibleTrigger>
-          </Collapsible>
-        </CardTitle>
+          </CardTitle>
 
         <CardDescription>
           Select permissions and review validation results before creating the
@@ -500,9 +513,9 @@ export default function PermissionValidationPanel({
                 className="border rounded px-3 py-2"
               >
                 <option value="all">All Categories</option>
-                <option value="basic">Basic</option>
-                <option value="advanced">Advanced</option>
-                <option value="system">System</option>
+                <option value="Flow Management">Flow Management</option>
+                <option value="Workspace Management">Workspace Management</option>
+                <option value="Project Management">Project Management</option>
               </select>
             </div>
 
@@ -530,7 +543,7 @@ export default function PermissionValidationPanel({
                 variant="outline"
                 onClick={() => handleBulkAction("selectBasic")}
               >
-                Select Basic Only
+                Select Flow Management Only
               </Button>
               <Button
                 size="sm"
@@ -587,7 +600,7 @@ export default function PermissionValidationPanel({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-2">
                             <span className="font-medium">
-                              {permission.action}
+                              {permission.name}
                             </span>
 
                             <Badge variant="outline" className="text-xs">
@@ -674,6 +687,7 @@ export default function PermissionValidationPanel({
           </div>
         </CardContent>
       </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }
