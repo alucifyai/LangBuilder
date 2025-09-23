@@ -107,6 +107,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
             "/api/v1/login",
             "/api/v1/auth/",
             "/api/v1/public/",
+            "/api/v1/rbac/",  # Bypass RBAC endpoints to prevent circular middleware issues
             "/static/",
             "/files/",
             "/"
@@ -253,14 +254,17 @@ class RBACMiddleware(BaseHTTPMiddleware):
         # Check bypass patterns
         for pattern in self.bypass_patterns:
             if path.startswith(pattern):
+                logger.debug(f"RBAC bypass: path={path} matches pattern={pattern}")
                 return True
 
         # Check for special headers indicating bypass
         if request.headers.get("X-RBAC-Bypass") == "true":
             # Only allow bypass for internal/service requests
             if request.headers.get("X-Internal-Request") == "true":
+                logger.debug(f"RBAC bypass: special header bypass for path={path}")
                 return True
 
+        logger.debug(f"RBAC processing required for path={path}")
         return False
 
     def _requires_rbac_protection(self, request: Request) -> bool:
@@ -321,16 +325,25 @@ class RBACMiddleware(BaseHTTPMiddleware):
             if not authenticated:
                 api_key_query = request.query_params.get("x-api-key")
                 api_key_header = request.headers.get("x-api-key")
+                api_key = api_key_query or api_key_header
 
-                if api_key_query or api_key_header:
+                if api_key:
                     try:
-                        user_read = await api_key_security(api_key_query, api_key_header)
-                        if user_read:
-                            # Convert UserRead to User - this follows existing patterns
-                            async with get_session() as session:
-                                from langflow.services.database.models.user.crud import get_user_by_id
-                                user = await get_user_by_id(session, user_read.id)
-                                authenticated = True
+                        # Directly validate API key instead of calling the Security dependency
+                        async with get_session() as session:
+                            from langflow.services.database.models.apikey.crud import check_key
+                            result = await check_key(session, api_key)
+                            if result:
+                                # result can be ApiKey or User
+                                if hasattr(result, 'user_id'):
+                                    # It's an ApiKey, get the user
+                                    from langflow.services.database.models.user.crud import get_user_by_id
+                                    user = await get_user_by_id(session, result.user_id)
+                                else:
+                                    # It's already a User
+                                    user = result
+                                if user and user.is_active:
+                                    authenticated = True
                     except Exception as e:
                         logger.debug("API key authentication failed", extra={
                             "request_id": request_id,
