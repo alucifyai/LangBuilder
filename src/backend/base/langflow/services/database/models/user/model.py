@@ -31,7 +31,7 @@ class UserOptin(BaseModel):
 
 class User(SQLModel, table=True):  # type: ignore[call-arg]
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, sa_type=UUIDAsString)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True, nullable=False)
 #    id: UUIDstr = Field(default_factory=uuid4, sa_column=Column(CHAR(32), primary_key=True, unique=True, nullable=False))
     username: str = Field(index=True, unique=True)
     password: str = Field()
