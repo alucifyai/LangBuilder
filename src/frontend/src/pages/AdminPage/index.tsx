@@ -57,12 +57,12 @@ export default function AdminPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="w-full">
-          <TabsContent value="rbac" className="m-0 p-0">
+        <div className="w-full" style={{ height: "calc(100vh - 7rem)" }}>
+          <TabsContent value="rbac" className="m-0 p-0 h-full overflow-y-auto">
             <RBACAdminPage />
           </TabsContent>
 
-          <TabsContent value="users" className="m-0 p-0">
+          <TabsContent value="users" className="m-0 p-0 h-full overflow-y-auto">
             <UserManagementPage />
           </TabsContent>
         </div>
