@@ -321,18 +321,18 @@ async def get_role(
 
 
 @router.put("/{role_id}", response_model=RoleRead)
-@secure_endpoint(
-    security_req=SecurityRequirement(
-        resource_type="rbac_resource",
-        action="read",
-        require_workspace_access=True,
-        audit_action="rbac_operation",
-    ),
-    validation_req=ValidationRequirement(
-        validate_workspace_exists=True,
-    ),
-    audit_enabled=True,
-)
+# @secure_endpoint(
+#     security_req=SecurityRequirement(
+#         resource_type="rbac_resource",
+#         action="read",
+#         require_workspace_access=True,
+#         audit_action="rbac_operation",
+#     ),
+#     validation_req=ValidationRequirement(
+#         validate_workspace_exists=True,
+#     ),
+#     audit_enabled=True,
+# )
 async def update_role(
     role_id: UUIDstr,
     role_data: "RoleUpdate",
