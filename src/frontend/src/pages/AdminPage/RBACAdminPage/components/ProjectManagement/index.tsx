@@ -63,6 +63,7 @@ interface ProjectBuilderProps {
   workspaces: Workspace[];
   onSave: (projectData: CreateProjectData) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 function ProjectBuilder({
@@ -70,6 +71,7 @@ function ProjectBuilder({
   workspaces,
   onSave,
   onCancel,
+  isLoading = false,
 }: ProjectBuilderProps) {
   const [name, setName] = useState(project?.name || "");
   const [description, setDescription] = useState(project?.description || "");
@@ -152,10 +154,27 @@ function ProjectBuilder({
       </div>
 
       <div className="flex space-x-2">
-        <Button onClick={handleSave} className="flex-1">
-          {project ? "Update Project" : "Create Project"}
+        <Button onClick={handleSave} className="flex-1" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <IconComponent
+                name="Loader2"
+                className="h-4 w-4 animate-spin mr-2"
+              />
+              {project ? "Updating..." : "Creating..."}
+            </>
+          ) : project ? (
+            "Update Project"
+          ) : (
+            "Create Project"
+          )}
         </Button>
-        <Button variant="outline" onClick={onCancel} className="flex-1">
+        <Button
+          variant="outline"
+          onClick={onCancel}
+          className="flex-1"
+          disabled={isLoading}
+        >
           Cancel
         </Button>
       </div>
@@ -197,7 +216,16 @@ export default function ProjectManagement() {
   } = useGetWorkspaces({});
 
   const { mutate: createProject, isPending: isCreatingProject } =
-    useCreateProject({});
+    useCreateProject({
+      onSuccess: (project) => {
+        console.log("✅ Project created successfully:", project);
+        setIsCreateDialogOpen(false);
+        handleFetchProjects({ search: searchTerm });
+      },
+      onError: (error) => {
+        console.error("❌ Failed to create project:", error);
+      },
+    });
 
   // Authentication helper
   const requireAuth = (action: string, callback: () => void) => {
@@ -330,6 +358,7 @@ export default function ProjectManagement() {
                 workspaces={workspaces}
                 onSave={handleCreateProject}
                 onCancel={() => setIsCreateDialogOpen(false)}
+                isLoading={isCreatingProject}
               />
             </DialogContent>
           </Dialog>
@@ -419,125 +448,132 @@ export default function ProjectManagement() {
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Workspace</TableHead>
-                    <TableHead>Flows</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allProjects.map((project) => {
-                    const isLegacy = project.type === "legacy";
-                    const legacyProject = isLegacy
-                      ? (project as LegacyProject)
-                      : null;
-                    const rbacProject = !isLegacy
-                      ? (project as RBACProjectEnhanced)
-                      : null;
+              <div className="max-h-96 overflow-y-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-white z-10">
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Workspace</TableHead>
+                      <TableHead>Flows</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allProjects.map((project) => {
+                      const isLegacy = project.type === "legacy";
+                      const legacyProject = isLegacy
+                        ? (project as LegacyProject)
+                        : null;
+                      const rbacProject = !isLegacy
+                        ? (project as RBACProjectEnhanced)
+                        : null;
 
-                    return (
-                      <TableRow key={project.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center space-x-2">
-                            <IconComponent
-                              name={isLegacy ? "FolderOpen" : "Shield"}
-                              className={`h-4 w-4 ${isLegacy ? "text-amber-600" : "text-green-600"}`}
-                            />
-                            <span>{project.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={isLegacy ? "secondary" : "default"}
-                            className="text-xs"
-                          >
-                            {isLegacy ? "Legacy" : "RBAC"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {project.description || "No description"}
-                        </TableCell>
-                        <TableCell>
-                          {isLegacy ? (
-                            <Badge variant="outline" className="text-xs">
-                              Legacy Folder
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary">
-                              {workspaces.find(
-                                (w) => w.id === rbacProject?.workspace_id,
-                              )?.name || "Unknown"}
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>{project.flow_count || 0}</TableCell>
-                        <TableCell>
-                          {new Date(project.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {isLegacy ? (
+                      return (
+                        <TableRow key={project.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center space-x-2">
+                              <IconComponent
+                                name={isLegacy ? "FolderOpen" : "Shield"}
+                                className={`h-4 w-4 ${isLegacy ? "text-amber-600" : "text-green-600"}`}
+                              />
+                              <span>{project.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
                             <Badge
-                              variant={
-                                legacyProject?.migration_status === "completed"
-                                  ? "default"
+                              variant={isLegacy ? "secondary" : "default"}
+                              className="text-xs"
+                            >
+                              {isLegacy ? "Legacy" : "RBAC"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {project.description || "No description"}
+                          </TableCell>
+                          <TableCell>
+                            {isLegacy ? (
+                              <Badge variant="outline" className="text-xs">
+                                Legacy Folder
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">
+                                {workspaces.find(
+                                  (w) => w.id === rbacProject?.workspace_id,
+                                )?.name || "Unknown"}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>{project.flow_count || 0}</TableCell>
+                          <TableCell>
+                            {new Date(project.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {isLegacy ? (
+                              <Badge
+                                variant={
+                                  legacyProject?.migration_status ===
+                                  "completed"
+                                    ? "default"
+                                    : legacyProject?.migration_status ===
+                                        "pending"
+                                      ? "secondary"
+                                      : "destructive"
+                                }
+                              >
+                                {legacyProject?.migration_status === "completed"
+                                  ? "Migrated"
                                   : legacyProject?.migration_status ===
                                       "pending"
-                                    ? "secondary"
-                                    : "destructive"
-                              }
-                            >
-                              {legacyProject?.migration_status === "completed"
-                                ? "Migrated"
-                                : legacyProject?.migration_status === "pending"
-                                  ? "Pending Migration"
-                                  : "Migration Error"}
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant={
-                                rbacProject?.is_active ? "default" : "secondary"
-                              }
-                            >
-                              {rbacProject?.is_active ? "Active" : "Inactive"}
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-1">
-                            {isLegacy &&
-                              legacyProject?.migration_status === "pending" && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-xs px-2"
-                                >
-                                  <IconComponent
-                                    name="ArrowRight"
-                                    className="h-3 w-3 mr-1"
-                                  />
-                                  Migrate
-                                </Button>
-                              )}
-                            <Button variant="ghost" size="sm">
-                              <IconComponent
-                                name="MoreHorizontal"
-                                className="h-4 w-4"
-                              />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                                    ? "Pending Migration"
+                                    : "Migration Error"}
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant={
+                                  rbacProject?.is_active
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {rbacProject?.is_active ? "Active" : "Inactive"}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-1">
+                              {isLegacy &&
+                                legacyProject?.migration_status ===
+                                  "pending" && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs px-2"
+                                  >
+                                    <IconComponent
+                                      name="ArrowRight"
+                                      className="h-3 w-3 mr-1"
+                                    />
+                                    Migrate
+                                  </Button>
+                                )}
+                              <Button variant="ghost" size="sm">
+                                <IconComponent
+                                  name="MoreHorizontal"
+                                  className="h-4 w-4"
+                                />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           )}
         </CardContent>

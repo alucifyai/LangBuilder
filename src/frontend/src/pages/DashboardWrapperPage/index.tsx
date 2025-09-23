@@ -6,9 +6,9 @@ export function DashboardWrapperPage() {
   useTheme();
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden">
+    <div className="flex min-h-screen w-full flex-col">
       <AppHeader />
-      <div className="flex w-full flex-1 flex-row overflow-hidden">
+      <div className="flex w-full flex-1 flex-row">
         <Outlet />
       </div>
     </div>
