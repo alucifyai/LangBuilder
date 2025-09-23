@@ -42,11 +42,32 @@ router = APIRouter(
 @router.get("/", response_model=list[PermissionRead])
 async def list_permissions(
     workspace_id: str = "00000000-0000-0000-0000-000000000000",
-    limit: int = 10,
+    limit: int = 100,
+    is_system: Union[bool, None] = None,
 ) -> list[PermissionRead]:
     """List available permissions in the system."""
-    # Return sample permissions for testing the UI with correct types
-    sample_permissions = [
+
+    # Define all available permissions with sensible classifications
+    all_permissions = [
+        # ===== NORMAL USER PERMISSIONS (is_system=False, not dangerous) =====
+        # These are basic operations any user should be able to be granted
+
+        # Flow Management - Basic Operations
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Create Flows",
+            code="flows.create",
+            description="Create new flows in the workspace",
+            category="Flow Management",
+            resource_type=ResourceType.FLOW,
+            action=PermissionAction.CREATE,
+            scope="*",
+            conditions={},
+            is_system=False,
+            is_dangerous=False,
+            requires_mfa=False,
+            role_count=0
+        ),
         PermissionRead(
             id=str(uuid.uuid4()),
             name="Read Flows",
@@ -57,39 +78,24 @@ async def list_permissions(
             action=PermissionAction.READ,
             scope="*",
             conditions={},
-            is_system=True,
+            is_system=False,
             is_dangerous=False,
             requires_mfa=False,
             role_count=0
         ),
         PermissionRead(
             id=str(uuid.uuid4()),
-            name="Write Flows",
+            name="Update Flows",
             code="flows.update",
-            description="Create, update, and modify flows",
+            description="Modify and edit existing flows",
             category="Flow Management",
             resource_type=ResourceType.FLOW,
             action=PermissionAction.UPDATE,
             scope="*",
             conditions={},
-            is_system=True,
+            is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
-        ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
-            name="Delete Flows",
-            code="flows.delete",
-            description="Delete flows from the workspace",
-            category="Flow Management",
-            resource_type=ResourceType.FLOW,
-            action=PermissionAction.DELETE,
-            scope="*",
-            conditions={},
-            is_system=True,
-            is_dangerous=True,
-            requires_mfa=True,
             role_count=0
         ),
         PermissionRead(
@@ -102,39 +108,26 @@ async def list_permissions(
             action=PermissionAction.EXECUTE,
             scope="*",
             conditions={},
-            is_system=True,
+            is_system=False,
             is_dangerous=False,
             requires_mfa=False,
             role_count=0
         ),
+
+        # Project Management - Basic Operations
         PermissionRead(
             id=str(uuid.uuid4()),
-            name="Read Workspace",
-            code="workspace.read",
-            description="View workspace information and settings",
-            category="Workspace Management",
-            resource_type=ResourceType.WORKSPACE,
-            action=PermissionAction.READ,
+            name="Create Projects",
+            code="project.create",
+            description="Create new projects",
+            category="Project Management",
+            resource_type=ResourceType.PROJECT,
+            action=PermissionAction.CREATE,
             scope="*",
             conditions={},
-            is_system=True,
+            is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
-        ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
-            name="Manage Workspace",
-            code="workspace.manage",
-            description="Modify workspace settings and configuration",
-            category="Workspace Management",
-            resource_type=ResourceType.WORKSPACE,
-            action=PermissionAction.MANAGE,
-            scope="*",
-            conditions={},
-            is_system=True,
-            is_dangerous=True,
-            requires_mfa=True,
             role_count=0
         ),
         PermissionRead(
@@ -147,29 +140,136 @@ async def list_permissions(
             action=PermissionAction.READ,
             scope="*",
             conditions={},
-            is_system=True,
+            is_system=False,
             is_dangerous=False,
             requires_mfa=False,
             role_count=0
         ),
         PermissionRead(
             id=str(uuid.uuid4()),
-            name="Create Projects",
-            code="project.create",
-            description="Create new projects",
+            name="Update Projects",
+            code="project.update",
+            description="Modify project settings",
             category="Project Management",
             resource_type=ResourceType.PROJECT,
-            action=PermissionAction.CREATE,
+            action=PermissionAction.UPDATE,
             scope="*",
             conditions={},
-            is_system=True,
+            is_system=False,
             is_dangerous=False,
             requires_mfa=False,
             role_count=0
-        )
+        ),
+
+        # Workspace - Basic Access
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Read Workspace",
+            code="workspace.read",
+            description="View workspace information and settings",
+            category="Workspace Management",
+            resource_type=ResourceType.WORKSPACE,
+            action=PermissionAction.READ,
+            scope="*",
+            conditions={},
+            is_system=False,
+            is_dangerous=False,
+            requires_mfa=False,
+            role_count=0
+        ),
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Update Workspace",
+            code="workspace.update",
+            description="Modify basic workspace settings",
+            category="Workspace Management",
+            resource_type=ResourceType.WORKSPACE,
+            action=PermissionAction.UPDATE,
+            scope="*",
+            conditions={},
+            is_system=False,
+            is_dangerous=False,
+            requires_mfa=False,
+            role_count=0
+        ),
+
+        # ===== DANGEROUS PERMISSIONS (is_system=False, but dangerous) =====
+        # Only deleting operations are dangerous and require MFA
+
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Delete Flows",
+            code="flows.delete",
+            description="Delete flows from the workspace",
+            category="Flow Management",
+            resource_type=ResourceType.FLOW,
+            action=PermissionAction.DELETE,
+            scope="*",
+            conditions={},
+            is_system=False,
+            is_dangerous=True,
+            requires_mfa=True,
+            role_count=0
+        ),
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Delete Projects",
+            code="project.delete",
+            description="Delete projects permanently",
+            category="Project Management",
+            resource_type=ResourceType.PROJECT,
+            action=PermissionAction.DELETE,
+            scope="*",
+            conditions={},
+            is_system=False,
+            is_dangerous=True,
+            requires_mfa=True,
+            role_count=0
+        ),
+
+        # ===== SYSTEM PERMISSIONS (is_system=True) =====
+        # Only core system administration should be system-only
+
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Manage System Configuration",
+            code="system.manage",
+            description="Modify core system settings and configuration",
+            category="System Administration",
+            resource_type=ResourceType.WORKSPACE,
+            action=PermissionAction.MANAGE,
+            scope="*",
+            conditions={},
+            is_system=True,
+            is_dangerous=True,
+            requires_mfa=True,
+            role_count=0
+        ),
+        PermissionRead(
+            id=str(uuid.uuid4()),
+            name="Manage RBAC System",
+            code="rbac.manage",
+            description="Manage RBAC roles, permissions, and security policies",
+            category="System Administration",
+            resource_type=ResourceType.WORKSPACE,
+            action=PermissionAction.MANAGE,
+            scope="*",
+            conditions={},
+            is_system=True,
+            is_dangerous=True,
+            requires_mfa=True,
+            role_count=0
+        ),
     ]
 
-    return sample_permissions
+    # Filter permissions based on is_system parameter
+    if is_system is not None:
+        filtered_permissions = [p for p in all_permissions if p.is_system == is_system]
+    else:
+        filtered_permissions = all_permissions
+
+    # Apply limit
+    return filtered_permissions[:limit]
 
 
 @router.post("/check-permission", response_model=PermissionResult)
