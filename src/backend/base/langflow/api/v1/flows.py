@@ -243,9 +243,9 @@ async def read_flows(
         A list of flows or a paginated response containing the list of flows or a list of flow headers.
     """
     try:
-        # TEMPORARILY DISABLED: RBAC causing import errors in development
-        # SECURITY FIX: Use secure data access service instead of vulnerable user_id filtering
-        # secure_data_service = SecureDataAccessService()
+        # Use secure data access service for proper RBAC enforcement
+        from langflow.services.auth.secure_data_access import SecureDataAccessService
+        secure_data_service = SecureDataAccessService()
 
         default_folder = (await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME))).first()
         default_folder_id = default_folder.id if default_folder else None

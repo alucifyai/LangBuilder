@@ -20,7 +20,7 @@ export const useGetRolePermissions: useMutationFunctionType<
   async function getRolePermissions({
     roleId,
   }: GetRolePermissionsQueryParams): Promise<Permission[]> {
-    const url = `${getURL("RBAC")}/simple-roles/${roleId}/permissions`;
+    const url = `${getURL("RBAC")}/roles/${roleId}/permissions`;
 
     const res = await api.get(url);
     if (res.status === 200) {

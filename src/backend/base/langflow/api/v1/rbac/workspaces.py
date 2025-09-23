@@ -138,14 +138,14 @@ async def create_workspace(
 
 
 @router.get("/list", response_model=list[WorkspaceRead])
-# TEMPORARILY REMOVED for testing
-# @secure_endpoint(
-#     security_req=WORKSPACE_READ_SECURITY,
-#     validation_req=None,  # No specific validation needed for listing
-#     audit_enabled=True,
-# )
+@secure_endpoint(
+    security_req=WORKSPACE_READ_SECURITY,
+    validation_req=None,  # No specific validation needed for listing
+    audit_enabled=True,
+)
 async def list_workspaces(
     session: DbSession,
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     search: str | None = Query(None, description="Search workspaces by name or description"),
     organization: str | None = Query(None, description="Filter by organization"),
     is_active: bool | None = Query(None, description="Filter by active status"),
@@ -204,19 +204,18 @@ async def get_workspace(
 
 
 @router.put("/{workspace_id}", response_model=WorkspaceRead)
-# TEMPORARILY REMOVED for testing
-# @secure_endpoint(
-#     security_req=SecurityRequirement(
-#         resource_type="rbac_resource",
-#         action="read",
-#         require_workspace_access=True,
-#         audit_action="rbac_operation",
-#     ),
-#     validation_req=ValidationRequirement(
-#         validate_workspace_exists=True,
-#     ),
-#     audit_enabled=True,
-# )
+@secure_endpoint(
+    security_req=SecurityRequirement(
+        resource_type="rbac_resource",
+        action="update",
+        require_workspace_access=True,
+        audit_action="rbac_operation",
+    ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=True,
+    ),
+    audit_enabled=True,
+)
 async def update_workspace(
     workspace_id: UUID,
     workspace_data: WorkspaceUpdate,

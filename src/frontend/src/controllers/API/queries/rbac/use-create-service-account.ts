@@ -25,15 +25,12 @@ export const useCreateServiceAccount: useMutationFunctionType<
     data: CreateServiceAccountData,
   ): Promise<ServiceAccount> {
     const res = await api.post(
-      `${getURL("RBAC")}/simple-service-accounts/`,
+      `${getURL("RBAC")}/service-accounts/`,
       data,
     );
-    if (res.status === 200) {
-      // Simple endpoint returns {success: true, service_account: {...}}
-      if (res.data.success && res.data.service_account) {
-        return res.data.service_account;
-      }
-      return res.data; // Fallback if structure is different
+    if (res.status === 201) {
+      // Authenticated endpoint returns the service account directly
+      return res.data;
     }
     throw new Error(`Failed to create service account: ${res.status}`);
   }

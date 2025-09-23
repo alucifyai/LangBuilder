@@ -128,26 +128,11 @@ async def list_user_groups(
 
 
 @router.post("/", response_model=UserGroupRead, status_code=status.HTTP_201_CREATED)
-# TEMPORARILY REMOVED for testing
-# @secure_endpoint(
-#     security_req=SecurityRequirement(
-#         resource_type="rbac_resource",
-#         action="read",
-#         require_workspace_access=True,
-#         audit_action="rbac_operation",
-#     ),
-#     validation_req=ValidationRequirement(
-#         validate_workspace_exists=True,
-#     ),
-#     audit_enabled=True,
-# )
 async def create_user_group(
-    # request: Request,  # TEMPORARILY REMOVED for testing
+    request: Request,
     group_data: UserGroupCreate,
     session: DbSession,
-    # current_user: Annotated[User, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
-    # context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],  # TEMPORARILY REMOVED for testing
-    # permission_engine: PermissionEngine = Depends(get_permission_engine),  # TEMPORARILY REMOVED for testing
+    current_user: Annotated[User, Depends(get_authenticated_user)],
 ) -> UserGroupRead:
     """Create a new user group."""
     # TEMPORARILY REMOVED for testing - Skip permission checks
@@ -188,33 +173,10 @@ async def create_user_group(
             detail="User group with this name already exists in workspace"
         )
 
-    # Create user group
-    # Since authentication is temporarily disabled, try to get the first available user
-    # In production, this would use current_user.id from authentication
-    from sqlalchemy import text
-    result = await session.exec(text("SELECT id FROM user LIMIT 1"))
-    first_user = result.first()
-
-    if not first_user:
-        # If no users exist, create a system user temporarily
-        from langflow.services.database.models.user.model import User
-        from uuid import uuid4
-        system_user = User(
-            id=str(uuid4()),
-            username="system",
-            is_active=True,
-            is_superuser=True
-        )
-        session.add(system_user)
-        await session.commit()
-        await session.refresh(system_user)
-        created_by_id = system_user.id
-    else:
-        created_by_id = first_user
-
+    # Create user group with proper authentication
     group = UserGroup(
         **group_data.model_dump(),
-        created_by_id=created_by_id
+        created_by_id=current_user.id
     )
 
     session.add(group)

@@ -43,8 +43,8 @@ import {
 } from "@/controllers/API/queries/rbac/use-get-environments";
 import {
   Project,
-  useGetSimpleProjects,
-} from "@/controllers/API/queries/rbac/use-get-simple-projects";
+  useGetProjects,
+} from "@/controllers/API/queries/rbac/use-get-projects";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 
@@ -214,7 +214,7 @@ export default function EnvironmentManagement() {
     mutate: fetchProjects,
     data: projectsData,
     isPending: isLoadingProjects,
-  } = useGetSimpleProjects({
+  } = useGetProjects({
     onSuccess: (data) => console.log("✅ Projects fetched:", data),
     onError: (error) => console.error("❌ Failed to fetch projects:", error),
   });

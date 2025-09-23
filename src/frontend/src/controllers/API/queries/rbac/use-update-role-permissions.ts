@@ -130,9 +130,9 @@ export const useUpdateRolePermissions: useMutationFunctionType<
     permission_ids,
   }: UpdateRolePermissionsData): Promise<UpdateRolePermissionsResponse> {
     try {
-      // Use the simple roles endpoint without middleware
+      // Use the authenticated roles endpoint
       const res = await api.put(
-        `${getURL("RBAC")}/simple-roles/${role_id}/permissions`,
+        `${getURL("RBAC")}/roles/${role_id}/permissions`,
         {
           permission_ids: permission_ids,
         },
