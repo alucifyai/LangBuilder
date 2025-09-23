@@ -24,10 +24,7 @@ export const useCreateServiceAccount: useMutationFunctionType<
   async function createServiceAccount(
     data: CreateServiceAccountData,
   ): Promise<ServiceAccount> {
-    const res = await api.post(
-      `${getURL("RBAC")}/service-accounts/`,
-      data,
-    );
+    const res = await api.post(`${getURL("RBAC")}/service-accounts/`, data);
     if (res.status === 201) {
       // Authenticated endpoint returns the service account directly
       return res.data;

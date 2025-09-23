@@ -21,10 +21,7 @@ export const useCreateWorkspace: useMutationFunctionType<
   async function createWorkspace(
     workspaceData: CreateWorkspaceData,
   ): Promise<Workspace> {
-    const res = await api.post(
-      `${getURL("RBAC")}/workspaces/`,
-      workspaceData,
-    );
+    const res = await api.post(`${getURL("RBAC")}/workspaces/`, workspaceData);
     if (res.status === 201) {
       // Authenticated endpoint returns the workspace directly
       return res.data;

@@ -46,9 +46,15 @@ export const useGetWorkspaces: useMutationFunctionType<
 
     const res = await api.get(url);
     if (res.status === 200) {
+      // Backend returns direct array, not wrapped object
+      const workspaces = Array.isArray(res.data)
+        ? res.data
+        : res.data.workspaces || [];
       return {
-        workspaces: res.data.workspaces || [],
-        total_count: res.data.total_count || 0,
+        workspaces: workspaces,
+        total_count: Array.isArray(res.data)
+          ? res.data.length
+          : res.data.total_count || 0,
       };
     }
     return { workspaces: [], total_count: 0 };
