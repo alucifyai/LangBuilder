@@ -68,22 +68,22 @@ router = APIRouter(
 # )
 async def create_project(
     project_data: ProjectCreate,
-    # request: Request,  # TEMPORARILY REMOVED for testing
+    request: Request,
     session: DbSession,
-    # current_user: Annotated[User, Depends(get_authenticated_user)],  # TEMPORARILY REMOVED for testing
-    # context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],  # TEMPORARILY REMOVED for testing
-    # permission_engine: PermissionEngine = Depends(get_permission_engine),  # TEMPORARILY REMOVED for testing
-    # audit_service: AuditService = Depends(get_audit_service),  # TEMPORARILY REMOVED for testing
+    current_user: Annotated[User, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
+    audit_service: AuditService = Depends(get_audit_service),
 ) -> ProjectRead:
     """Create a new project."""
-    # TEMPORARILY SIMPLIFIED for testing - Skip workspace validation
+
     # Get and validate workspace
-    # workspace = await session.get(Workspace, project_data.workspace_id)
-    # if not workspace or workspace.is_deleted:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Workspace not found"
-    #     )
+    workspace = await session.get(Workspace, project_data.workspace_id)
+    if not workspace or workspace.is_deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workspace not found"
+        )
 
     # TEMPORARILY REMOVED for testing - Skip permission checks
     # result = await permission_engine.check_permission(

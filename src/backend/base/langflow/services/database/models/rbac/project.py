@@ -61,10 +61,10 @@ class ProjectBase(SQLModel):
             raise ValueError("Project name cannot be empty")
         if len(v) > 255:
             raise ValueError("Project name cannot exceed 255 characters")
-        # Validate project name format (alphanumeric, hyphens, underscores)
+        # Validate project name format (alphanumeric, hyphens, underscores, spaces)
         import re
-        if not re.match(r"^[a-zA-Z0-9_\-]+$", v):
-            raise ValueError("Project name must contain only letters, numbers, hyphens, and underscores")
+        if not re.match(r"^[a-zA-Z0-9_\-\s]+$", v):
+            raise ValueError("Project name must contain only letters, numbers, hyphens, underscores, and spaces")
         return v.strip()
 
 
