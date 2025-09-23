@@ -2,8 +2,30 @@
 
 from fastapi import APIRouter
 import uuid
+from typing import Union
+from pydantic import BaseModel
 
 from langflow.services.database.models.rbac.permission import PermissionRead, ResourceType, PermissionAction
+
+
+class CheckPermissionRequest(BaseModel):
+    """Request model for permission checking."""
+
+    resource_type: str
+    action: str
+    resource_id: Union[str, None] = None
+    workspace_id: Union[str, None] = None
+    project_id: Union[str, None] = None
+    environment_id: Union[str, None] = None
+
+
+class PermissionResult(BaseModel):
+    """Result model for permission checking."""
+
+    allowed: bool
+    reason: Union[str, None] = None
+    cached: Union[bool, None] = None
+
 
 router = APIRouter(
     prefix="/permissions",
@@ -148,3 +170,47 @@ async def list_permissions(
     ]
 
     return sample_permissions
+
+
+@router.post("/check-permission", response_model=PermissionResult)
+async def check_permission(
+    request: CheckPermissionRequest,
+) -> PermissionResult:
+    """
+    Check if the current user has permission to perform an action on a resource.
+
+    This endpoint evaluates user permissions based on their roles and the
+    requested resource/action combination. For now, it returns a simplified
+    response to make the frontend work.
+    """
+    try:
+        # For now, implement a simplified permission check
+        # In a full RBAC implementation, this would:
+        # 1. Get current user from authentication context
+        # 2. Query user's roles and permissions
+        # 3. Evaluate permission against resource/action/context
+        # 4. Return detailed result with reasoning
+
+        # Simple logic: allow most operations for development
+        allowed = True
+        reason = "Permission granted for development"
+
+        # Example of more restrictive logic (can be enhanced):
+        dangerous_actions = ["delete", "destroy", "break_glass"]
+        if request.action.lower() in dangerous_actions:
+            allowed = False
+            reason = f"Action '{request.action}' requires elevated privileges"
+
+        return PermissionResult(
+            allowed=allowed,
+            reason=reason,
+            cached=False
+        )
+
+    except Exception as e:
+        # Log error and return denied for security
+        return PermissionResult(
+            allowed=False,
+            reason=f"Permission check failed: {str(e)}",
+            cached=False
+        )
