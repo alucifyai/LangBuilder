@@ -155,7 +155,7 @@ async def create_project(
     return ProjectRead.model_validate(project)
 
 
-@router.get("/", response_model=list[ProjectRead])
+@router.get("/", response_model=dict)
 # TEMPORARILY REMOVED for testing
 # @secure_endpoint(
 #     security_req=SecurityRequirement(
@@ -178,7 +178,7 @@ async def list_projects(
     is_archived: bool | None = None,
     # permission_engine: PermissionEngine = Depends(get_permission_engine),  # TEMPORARILY REMOVED for testing
     params: Annotated[Params | None, Depends(custom_params)] = None,
-) -> list[ProjectRead]:
+) -> dict:
     """List projects accessible to current user."""
     statement = select(Project)
 
@@ -233,11 +233,19 @@ async def list_projects(
                 "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
             )
             paginated_result = await apaginate(session, statement, params=params)
-            return [ProjectRead.model_validate(project) for project in paginated_result.items]
+            projects = [ProjectRead.model_validate(project) for project in paginated_result.items]
+            return {
+                "projects": projects,
+                "total_count": paginated_result.total
+            }
     else:
         result = await session.exec(statement)
-        projects = result.all()
-        return [ProjectRead.model_validate(project) for project in projects]
+        all_projects = result.all()
+        projects = [ProjectRead.model_validate(project) for project in all_projects]
+        return {
+            "projects": projects,
+            "total_count": len(projects)
+        }
 
 
 @router.get("/{project_id}", response_model=ProjectRead)

@@ -73,10 +73,10 @@ class EnvironmentBase(SQLModel):
             raise ValueError("Environment name cannot be empty")
         if len(v) > 100:
             raise ValueError("Environment name cannot exceed 100 characters")
-        # Validate environment name format (lowercase, hyphens)
+        # Validate environment name format (allow uppercase, lowercase, numbers, hyphens, underscores, spaces)
         import re
-        if not re.match(r"^[a-z0-9-]+$", v):
-            raise ValueError("Environment name must be lowercase alphanumeric with hyphens")
+        if not re.match(r"^[a-zA-Z0-9\-_ ]+$", v):
+            raise ValueError("Environment name can only contain letters, numbers, hyphens, underscores, and spaces")
         return v.strip()
 
     @field_validator("max_instances")

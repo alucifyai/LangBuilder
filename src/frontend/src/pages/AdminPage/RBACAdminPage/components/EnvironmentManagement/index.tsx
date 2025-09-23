@@ -61,12 +61,14 @@ interface EnvironmentBuilderProps {
   projects: Project[];
   onSave: (data: CreateEnvironmentData) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 function EnvironmentBuilder({
   projects,
   onSave,
   onCancel,
+  isLoading = false,
 }: EnvironmentBuilderProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -177,10 +179,17 @@ function EnvironmentBuilder({
       </div>
 
       <div className="flex space-x-2">
-        <Button onClick={handleSave} className="flex-1">
-          Create Environment
+        <Button onClick={handleSave} className="flex-1" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <IconComponent name="Loader2" className="h-4 w-4 mr-2 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            "Create Environment"
+          )}
         </Button>
-        <Button variant="outline" onClick={onCancel} className="flex-1">
+        <Button variant="outline" onClick={onCancel} className="flex-1" disabled={isLoading}>
           Cancel
         </Button>
       </div>
@@ -192,6 +201,7 @@ export default function EnvironmentManagement() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // Authentication state
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -224,15 +234,20 @@ export default function EnvironmentManagement() {
       onSuccess: (newEnvironment) => {
         console.log("✅ Environment created successfully:", newEnvironment);
         setIsCreateDialogOpen(false);
+        setCreateError(null); // Clear any previous errors
         // Refresh environments list
         fetchEnvironments({ search: searchTerm });
-        alert(`✅ Environment "${newEnvironment.name}" created successfully!`);
       },
       onError: (error) => {
         console.error("❌ Failed to create environment:", error);
-        alert(
-          `❌ Failed to create environment: ${error.message || "Unknown error"}`,
-        );
+        // Extract meaningful error message
+        let errorMessage = "Unknown error";
+        if (error?.response?.data?.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        setCreateError(errorMessage);
       },
     });
 
@@ -254,6 +269,7 @@ export default function EnvironmentManagement() {
 
   const handleCreateEnvironment = (data: CreateEnvironmentData) => {
     requireAuth("create-environment", () => {
+      setCreateError(null); // Clear any previous errors
       createEnvironment(data);
     });
   };
@@ -310,10 +326,23 @@ export default function EnvironmentManagement() {
                   Create a new deployment environment for your project.
                 </DialogDescription>
               </DialogHeader>
+              {createError && (
+                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-md max-h-32 overflow-y-auto">
+                  <div className="flex items-center">
+                    <IconComponent name="AlertTriangle" className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="font-medium">Error:</span>
+                  </div>
+                  <p className="mt-1 text-sm break-words">{createError}</p>
+                </div>
+              )}
               <EnvironmentBuilder
                 projects={projects}
                 onSave={handleCreateEnvironment}
-                onCancel={() => setIsCreateDialogOpen(false)}
+                onCancel={() => {
+                  setIsCreateDialogOpen(false);
+                  setCreateError(null); // Clear error when canceling
+                }}
+                isLoading={isCreatingEnvironment}
               />
             </DialogContent>
           </Dialog>
