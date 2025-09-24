@@ -279,11 +279,15 @@ export default function ProjectManagement() {
   // Get data from API responses
   const rbacProjects = enhancedProjectsData?.rbac_projects || [];
   const legacyProjects = enhancedProjectsData?.legacy_projects || [];
-  const allProjects: UnifiedProject[] = [...rbacProjects, ...legacyProjects];
+
+  // Hide legacy projects for PRD fidelity - show only RBAC projects
+  const allProjects: UnifiedProject[] = [...rbacProjects]; // Removed legacyProjects
+
   const workspaces = workspacesData?.workspaces || [];
-  const totalCount = enhancedProjectsData?.total_count || 0;
+  const totalCount = rbacProjects.length; // Show only RBAC count as total
   const rbacCount = enhancedProjectsData?.rbac_count || 0;
-  const legacyCount = enhancedProjectsData?.legacy_count || 0;
+  // Legacy count hidden for PRD fidelity
+  // const legacyCount = enhancedProjectsData?.legacy_count || 0;
 
   return (
     <div className="p-6">
@@ -295,28 +299,23 @@ export default function ProjectManagement() {
             <span>Project Management</span>
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Manage RBAC and legacy projects
+            Manage RBAC projects
           </p>
         </div>
         <div className="flex items-center space-x-2">
           {/* Project Summary */}
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Badge variant="outline" className="text-xs">
-              <IconComponent name="Shield" className="h-3 w-3 mr-1" />
-              {totalCount} Total Projects
+              <IconComponent name="Building2" className="h-3 w-3 mr-1" />
+              {totalCount} RBAC Projects
             </Badge>
-            {rbacCount > 0 && (
-              <Badge variant="default" className="text-xs">
-                <IconComponent name="Building2" className="h-3 w-3 mr-1" />
-                {rbacCount} RBAC
-              </Badge>
-            )}
-            {legacyCount > 0 && (
+            {/* Legacy project count hidden for PRD fidelity */}
+            {/* {legacyCount > 0 && (
               <Badge variant="secondary" className="text-xs">
                 <IconComponent name="FolderOpen" className="h-3 w-3 mr-1" />
                 {legacyCount} Legacy
               </Badge>
-            )}
+            )} */}
           </div>
 
           {/* Authentication Status */}
@@ -400,8 +399,8 @@ export default function ProjectManagement() {
             {isLoadingProjects
               ? "Loading projects..."
               : allProjects.length === 0
-                ? "No projects found"
-                : `Found ${allProjects.length} project${allProjects.length !== 1 ? "s" : ""} (${rbacCount} RBAC, ${legacyCount} Legacy)`}
+                ? "No RBAC projects found"
+                : `Found ${allProjects.length} RBAC project${allProjects.length !== 1 ? "s" : ""}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -430,7 +429,7 @@ export default function ProjectManagement() {
             </div>
           ) : allProjects.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No projects found. Create your first project!
+              No RBAC projects found. Create your first RBAC project!
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden">

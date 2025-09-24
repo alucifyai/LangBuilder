@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +43,18 @@ const AVAILABLE_RESOURCE_TYPES = [
   "api_key",
 ];
 
+// Mapping of extended actions to their required resource types (PRD Story 1.1)
+const EXTENDED_ACTION_RESOURCE_MAPPING: Record<string, string> = {
+  export_flow: "flow",
+  deploy_environment: "environment",
+  invite_users: "user",
+  modify_component_settings: "component",
+  manage_tokens: "api_key",
+};
+
+// CRUD actions that can work with any resource type
+const CRUD_ACTIONS = ["create", "read", "update", "delete"];
+
 interface PermissionEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -65,6 +77,18 @@ export default function PermissionEditModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [resourceTypeDisabled, setResourceTypeDisabled] = useState(false);
+
+  // Auto-select resource type when extended action is chosen
+  useEffect(() => {
+    if (formData.action && EXTENDED_ACTION_RESOURCE_MAPPING[formData.action]) {
+      const requiredResourceType = EXTENDED_ACTION_RESOURCE_MAPPING[formData.action];
+      setFormData(prev => ({ ...prev, resource_type: requiredResourceType }));
+      setResourceTypeDisabled(true);
+    } else if (CRUD_ACTIONS.includes(formData.action)) {
+      setResourceTypeDisabled(false);
+    }
+  }, [formData.action]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -75,6 +99,14 @@ export default function PermissionEditModal({
 
     if (!formData.resource_type) {
       newErrors.resource_type = "Resource type is required";
+    }
+
+    // Validate extended action-resource type combinations
+    if (formData.action && formData.resource_type && EXTENDED_ACTION_RESOURCE_MAPPING[formData.action]) {
+      const requiredResourceType = EXTENDED_ACTION_RESOURCE_MAPPING[formData.action];
+      if (formData.resource_type !== requiredResourceType) {
+        newErrors.resource_type = `Action "${formData.action}" can only be used with resource type "${requiredResourceType}"`;
+      }
     }
 
     if (!formData.description.trim()) {
@@ -132,7 +164,7 @@ export default function PermissionEditModal({
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Create a new permission for the RBAC system."
+              ? "Create a new permission for the RBAC system. Extended actions will auto-select their required resource type."
               : "Modify the selected permission details."}
           </DialogDescription>
         </DialogHeader>
@@ -167,8 +199,9 @@ export default function PermissionEditModal({
               onValueChange={(value) =>
                 handleFieldChange("resource_type", value)
               }
+              disabled={resourceTypeDisabled}
             >
-              <SelectTrigger>
+              <SelectTrigger className={resourceTypeDisabled ? "opacity-50 cursor-not-allowed" : ""}>
                 <SelectValue placeholder="Select a resource type" />
               </SelectTrigger>
               <SelectContent>
@@ -179,6 +212,12 @@ export default function PermissionEditModal({
                 ))}
               </SelectContent>
             </Select>
+            {resourceTypeDisabled && formData.action && EXTENDED_ACTION_RESOURCE_MAPPING[formData.action] && (
+              <p className="text-sm text-blue-600 flex items-center">
+                <IconComponent name="Info" className="h-4 w-4 mr-1" />
+                Action "{formData.action}" requires resource type "{EXTENDED_ACTION_RESOURCE_MAPPING[formData.action]}"
+              </p>
+            )}
             {errors.resource_type && (
               <p className="text-sm text-red-600">{errors.resource_type}</p>
             )}
