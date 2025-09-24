@@ -187,7 +187,8 @@ function PermissionCatalog({
   permissions = MOCK_PERMISSIONS,
   onPermissionSelect,
 }: PermissionCatalogProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+  // Search functionality commented out - not specified in PRD
+  // const [searchTerm, setSearchTerm] = useState("");
   const [filterAction, setFilterAction] = useState<PermissionAction | "all">(
     "all",
   );
@@ -195,12 +196,13 @@ function PermissionCatalog({
 
   const filteredPermissions = useMemo(() => {
     return permissions.filter((permission) => {
-      const matchesSearch =
-        permission.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        permission.resource_type
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        permission.description.toLowerCase().includes(searchTerm.toLowerCase());
+      // Search functionality commented out - not specified in PRD
+      // const matchesSearch =
+      //   permission.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      //   permission.resource_type
+      //     .toLowerCase()
+      //     .includes(searchTerm.toLowerCase()) ||
+      //   permission.description.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesAction =
         filterAction === "all" || permission.action === filterAction;
@@ -209,9 +211,9 @@ function PermissionCatalog({
         filterResourceType === "all" ||
         permission.resource_type === filterResourceType;
 
-      return matchesSearch && matchesAction && matchesResourceType;
+      return matchesAction && matchesResourceType;
     });
-  }, [permissions, searchTerm, filterAction, filterResourceType]);
+  }, [permissions, filterAction, filterResourceType]);
 
   const resourceTypes = useMemo(() => {
     const types = new Set(permissions.map((p) => p.resource_type));
@@ -267,14 +269,15 @@ function PermissionCatalog({
 
       {/* Filters */}
       <div className="flex gap-4">
-        <div className="flex-1">
+        {/* Search functionality commented out - not specified in PRD */}
+        {/* <div className="flex-1">
           <Input
             placeholder="Search permissions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-sm"
           />
-        </div>
+        </div> */}
         <Select
           value={filterAction}
           onValueChange={(value) =>

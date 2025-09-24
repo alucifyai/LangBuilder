@@ -43,6 +43,13 @@ class PermissionAction(str, Enum):
     BREAK_GLASS = "break_glass"  # Emergency access
     IMPERSONATE = "impersonate"  # Act as another user
 
+    # Extended actions from PRD (Story 1.1)
+    EXPORT_FLOW = "export_flow"
+    DEPLOY_ENVIRONMENT = "deploy_environment"
+    INVITE_USERS = "invite_users"
+    MODIFY_COMPONENT_SETTINGS = "modify_component_settings"
+    MANAGE_TOKENS = "manage_tokens"
+
 
 class ResourceType(str, Enum):
     """Resource types that can be protected."""
@@ -224,6 +231,13 @@ SYSTEM_PERMISSIONS = [
     # System permissions
     {"code": "system:manage", "name": "System Management", "resource_type": ResourceType.SYSTEM, "action": PermissionAction.MANAGE, "is_dangerous": True},
     {"code": "system:break_glass", "name": "Break Glass Access", "resource_type": ResourceType.SYSTEM, "action": PermissionAction.BREAK_GLASS, "is_dangerous": True, "requires_mfa": True},
+
+    # Extended actions from PRD (Story 1.1)
+    {"code": "flow:export_flow", "name": "Export Flow", "resource_type": ResourceType.FLOW, "action": PermissionAction.EXPORT_FLOW, "category": "Extended Actions"},
+    {"code": "environment:deploy_environment", "name": "Deploy Environment", "resource_type": ResourceType.ENVIRONMENT, "action": PermissionAction.DEPLOY_ENVIRONMENT, "category": "Extended Actions"},
+    {"code": "user:invite_users", "name": "Invite Users", "resource_type": ResourceType.USER, "action": PermissionAction.INVITE_USERS, "category": "Extended Actions"},
+    {"code": "component:modify_component_settings", "name": "Modify Component Settings", "resource_type": ResourceType.COMPONENT, "action": PermissionAction.MODIFY_COMPONENT_SETTINGS, "category": "Extended Actions"},
+    {"code": "api_key:manage_tokens", "name": "Manage Tokens", "resource_type": ResourceType.API_KEY, "action": PermissionAction.MANAGE_TOKENS, "category": "Extended Actions"},
 ]
 
 
