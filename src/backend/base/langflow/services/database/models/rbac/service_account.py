@@ -69,8 +69,8 @@ class ServiceAccountBase(SQLModel):
             raise ValueError("Service account name cannot exceed 255 characters")
         # Validate service account name format
         import re
-        if not re.match(r"^[a-zA-Z0-9_-]+$", v):
-            raise ValueError("Service account name must contain only letters, numbers, hyphens, and underscores")
+        if not re.match(r"^[a-zA-Z0-9_\s-]+$", v):
+            raise ValueError("Service account name must contain only letters, numbers, hyphens, underscores, and spaces")
         return v.strip()
 
 

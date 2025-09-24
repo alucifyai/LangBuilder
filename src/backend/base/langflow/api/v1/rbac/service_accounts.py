@@ -54,12 +54,12 @@ router = APIRouter(
     security_req=SecurityRequirement(
         resource_type="service_account",
         action="read",
-        require_workspace_access=True,
+        require_workspace_access=False,  # Changed to False to allow all-workspace access
         audit_action="list_service_accounts",
     ),
-    validation_req=ValidationRequirement(
-        validate_workspace_exists=True,
-    ),
+    # validation_req=ValidationRequirement(
+    #     validate_workspace_exists=False,  # Changed to False since workspace_id is optional
+    # ),
     audit_enabled=True,
 )
 async def list_service_accounts(
@@ -67,30 +67,58 @@ async def list_service_accounts(
     session: DbSession,
     current_user: Annotated[User, Depends(get_authenticated_user)],
     context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
-    workspace_id: UUIDstr,
     params: Annotated[Params | None, Depends(custom_params)],
+    permission_engine: PermissionEngine = Depends(get_permission_engine),
+    workspace_id: UUIDstr | None = None,  # Made optional with default None
     search: str | None = None,
     is_active: bool | None = None,
-    permission_engine: PermissionEngine = Depends(get_permission_engine),
 ) -> list[ServiceAccountRead]:
-    """List service accounts in a workspace."""
-    # Check workspace permission
-    result = await permission_engine.check_permission(
-        session=session,
-        user=current_user,
-        resource_type="workspace",
-        action="read",
-        resource_id=workspace_id,
-        workspace_id=workspace_id,
-    )
+    """List service accounts in a workspace, or all workspaces if workspace_id is not provided."""
+    # If workspace_id is provided, check workspace permission
+    if workspace_id is not None:
+        # Verify workspace exists
+        workspace = await session.get(Workspace, workspace_id)
+        if not workspace:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Workspace not found"
+            )
 
-    if not result.allowed:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions to list service accounts: {result.reason}"
+        # Check workspace permission
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="workspace",
+            action="read",
+            resource_id=workspace_id,
+            workspace_id=workspace_id,
         )
 
-    statement = select(ServiceAccount).where(ServiceAccount.workspace_id == workspace_id)
+        if not result.allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions to list service accounts: {result.reason}"
+            )
+
+        statement = select(ServiceAccount).where(ServiceAccount.workspace_id == workspace_id)
+    else:
+        # List service accounts from all workspaces - check system-level permission
+        result = await permission_engine.check_permission(
+            session=session,
+            user=current_user,
+            resource_type="service_account",
+            action="read",
+            resource_id=None,
+            workspace_id=None,
+        )
+
+        if not result.allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions to list service accounts globally: {result.reason}"
+            )
+
+        statement = select(ServiceAccount)  # No workspace filter - get all
 
     # Apply filters
     if search:
@@ -178,7 +206,7 @@ async def create_service_account(
     # Create service account
     service_account = ServiceAccount(
         **service_account_data.model_dump(),
-        created_by=current_user.id
+        created_by_id=current_user.id
     )
 
     session.add(service_account)
@@ -383,26 +411,26 @@ async def create_service_account_token(
     # Create token
     import hashlib
     import secrets
-    from datetime import datetime, timedelta
 
     # Generate token
     token_value = secrets.token_urlsafe(32)
     token_hash = hashlib.sha256(token_value.encode()).hexdigest()
+    token_prefix = token_value[:8]  # First 8 chars for identification
 
     # Set expiry if provided
-    expires_at = None
-    if token_data.expires_in_days:
-        expires_at = datetime.utcnow() + timedelta(days=token_data.expires_in_days)
+    expires_at = token_data.expires_at
 
     token = ServiceAccountToken(
         service_account_id=service_account_id,
         name=token_data.name,
-        description=token_data.description,
         token_hash=token_hash,
+        token_prefix=token_prefix,
+        scoped_permissions=token_data.scoped_permissions,
+        scope_type=token_data.scope_type,
+        scope_id=token_data.scope_id,
+        allowed_ips=token_data.allowed_ips,
         expires_at=expires_at,
-        scopes=token_data.scopes,
-        ip_restrictions=token_data.ip_restrictions,
-        created_by=current_user.id
+        created_by_id=current_user.id
     )
 
     session.add(token)
@@ -412,13 +440,10 @@ async def create_service_account_token(
     return ServiceAccountTokenResponse(
         id=token.id,
         name=token.name,
-        description=token.description,
         token=token_value,  # Only returned on creation
+        token_prefix=token.token_prefix,
         expires_at=token.expires_at,
-        scopes=token.scopes,
-        ip_restrictions=token.ip_restrictions,
-        created_at=token.created_at,
-        created_by=token.created_by
+        created_at=token.created_at
     )
 
 
