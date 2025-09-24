@@ -111,11 +111,21 @@ export default function ScopedRoleAssignmentModal({
   const {
     mutate: createAssignment,
     isPending: isCreatingAssignment,
-    isSuccess: isAssignmentSuccess,
-    isError: isAssignmentError,
-    error: assignmentError,
     // @ts-ignore - Temporary suppress for testing
-  } = useCreateRoleAssignment();
+  } = useCreateRoleAssignment({
+    onSuccess: (assignment) => {
+      console.log("✅ Role assignment created successfully:", assignment);
+      alert("✅ Role assignment created successfully!");
+      onSuccess();
+      onClose();
+    },
+    onError: (error) => {
+      console.error("❌ Failed to create role assignment:", error);
+      alert(
+        `❌ Failed to create assignment: ${error.message || "Unknown error"}`,
+      );
+    },
+  });
 
   // Load data when authenticated
   useEffect(() => {
@@ -130,25 +140,21 @@ export default function ScopedRoleAssignmentModal({
     }
   }, [isFullyAuthenticated, isOpen]);
 
-  // Handle role assignment success
+  // Reset form state when modal opens
   useEffect(() => {
-    if (isAssignmentSuccess) {
-      console.log("✅ Role assignment created successfully!");
-      alert("✅ Role assignment created successfully!");
-      onSuccess();
-      onClose();
-    }
-  }, [isAssignmentSuccess, onSuccess, onClose]);
+    if (isOpen) {
+      // Reset all form state to initial values
+      setActiveStep(1);
+      setSelectedPrincipal(initialPrincipal || null);
+      setSelectedRole("");
+      setSelectedScope(initialScope || null);
+      setExpiresAt("");
+      setAssignments([]);
+      setConflicts([]);
 
-  // Handle role assignment error
-  useEffect(() => {
-    if (isAssignmentError && assignmentError) {
-      console.error("❌ Failed to create role assignment:", assignmentError);
-      alert(
-        `❌ Failed to create assignment: ${assignmentError.message || "Unknown error"}`,
-      );
+      console.log("🔄 Role assignment modal opened - form state reset");
     }
-  }, [isAssignmentError, assignmentError]);
+  }, [isOpen, initialPrincipal, initialScope]);
 
   // Handle data fetch success/errors with console logs
   useEffect(() => {
