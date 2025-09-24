@@ -100,7 +100,7 @@ export interface AuditLog {
 }
 
 interface GetAuditLogsQueryParams {
-  workspace_id: string;
+  workspace_id?: string;
   page?: number;
   page_size?: number;
   event_type?: AuditEventType;
@@ -124,7 +124,7 @@ interface AuditLogListResponse {
 }
 
 interface ExportAuditLogsData {
-  workspace_id: string;
+  workspace_id?: string;
   format: "csv" | "json" | "pdf";
   start_date?: string;
   end_date?: string;
@@ -159,7 +159,9 @@ export const useGetAuditLogs: useMutationFunctionType<
   }: GetAuditLogsQueryParams): Promise<AuditLogListResponse> {
     try {
       const params = new URLSearchParams();
-      params.append("workspace_id", workspace_id);
+      if (workspace_id) {
+        params.append("workspace_id", workspace_id);
+      }
       params.append("page", page.toString());
       params.append("size", page_size.toString());
 

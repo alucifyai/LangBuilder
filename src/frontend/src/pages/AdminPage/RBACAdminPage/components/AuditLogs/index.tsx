@@ -101,7 +101,7 @@ function ComplianceReportDialog({
     }
 
     const exportData = {
-      workspace_id: "default-workspace", // TODO: Get from workspace context
+      // workspace_id is now optional - removed hardcoded value
       format: format,
       start_date: dateRange.from?.toISOString(),
       end_date: dateRange.to?.toISOString(),
@@ -618,7 +618,7 @@ export default function AuditLogs() {
   const handleAuthSuccess = () => {
     console.log("🎉 Authentication successful, fetching audit logs");
     fetchAuditLogs({
-      workspace_id: "default-workspace", // TODO: Get from workspace context
+      // workspace_id is now optional - removed hardcoded value
       search: searchTerm,
       page: 1,
       page_size: 100,
@@ -628,7 +628,7 @@ export default function AuditLogs() {
   const handleRefresh = () => {
     requireAuth("refresh-audit-logs", () => {
       fetchAuditLogs({
-        workspace_id: "default-workspace", // TODO: Get from workspace context
+        // workspace_id is now optional - removed hardcoded value
         search: searchTerm,
         page: 1,
         page_size: 100,
@@ -640,7 +640,7 @@ export default function AuditLogs() {
   useEffect(() => {
     if (isAdmin) {
       fetchAuditLogs({
-        workspace_id: "default-workspace", // TODO: Get from workspace context
+        // workspace_id is now optional - removed hardcoded value
         search: searchTerm,
         page: 1,
         page_size: 100,
