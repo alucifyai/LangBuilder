@@ -50,7 +50,7 @@ export interface RoleAssignment {
 }
 
 interface GetRoleAssignmentsQueryParams {
-  workspace_id: string; // Required in backend
+  workspace_id?: string; // Optional now that backend security is disabled for testing
   user_id?: string;
   role_id?: string;
   assignment_type?: "user" | "group" | "service_account";
@@ -68,7 +68,7 @@ export const useGetRoleAssignments: useMutationFunctionType<
   const { mutate } = UseRequestProcessor();
 
   async function getRoleAssignments({
-    workspace_id = "00000000-0000-0000-0000-000000000000", // Use default UUID for development
+    workspace_id,
     user_id,
     assignment_type,
     role_id,
@@ -81,9 +81,11 @@ export const useGetRoleAssignments: useMutationFunctionType<
     total_count: number;
   }> {
     try {
-      // Build URL with required workspace_id as query parameter
+      // Build URL with optional workspace_id as query parameter
       const params = new URLSearchParams();
-      params.append("workspace_id", workspace_id);
+      if (workspace_id) {
+        params.append("workspace_id", workspace_id);
+      }
 
       // Add optional parameters
       if (user_id) params.append("user_id", user_id);

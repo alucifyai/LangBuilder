@@ -45,13 +45,15 @@ export const useGetPermissions: useMutationFunctionType<
     resource_type,
     category,
     is_system,
-    workspace_id = "00000000-0000-0000-0000-000000000000", // Use default UUID for development
+    workspace_id,
   }: GetPermissionsQueryParams): Promise<Permission[]> {
     try {
       let url = `${getURL("RBAC")}/permissions/?skip=${skip}&limit=${limit}`;
 
-      // Add workspace_id as query parameter for workspace validation
-      url += `&workspace_id=${workspace_id}`;
+      // Add workspace_id as query parameter for workspace validation (if provided)
+      if (workspace_id) {
+        url += `&workspace_id=${workspace_id}`;
+      }
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }

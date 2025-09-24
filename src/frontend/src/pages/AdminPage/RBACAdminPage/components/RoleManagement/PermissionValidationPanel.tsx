@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import {
+  type Permission,
   useGetPermissions,
-  type Permission
 } from "@/controllers/API/queries/rbac/use-get-permissions";
 
 interface ValidationResult {
@@ -289,7 +289,8 @@ export default function PermissionValidationPanel({
 
     // Suggest naming based on permissions
     const hasReadOnly = perms.every(
-      (p) => (p.action || "").includes("read") || (p.action || "").includes("view"),
+      (p) =>
+        (p.action || "").includes("read") || (p.action || "").includes("view"),
     );
     if (
       hasReadOnly &&
@@ -347,9 +348,15 @@ export default function PermissionValidationPanel({
   const filteredPermissions = (permissions || []).filter((permission) => {
     try {
       const matchesSearch =
-        (permission.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (permission.action || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (permission.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+        (permission.name || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (permission.action || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (permission.description || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
       const matchesCategory =
         selectedCategory === "all" || permission.category === selectedCategory;
       const matchesDangerous = !showDangerous || permission.is_dangerous;
@@ -396,297 +403,307 @@ export default function PermissionValidationPanel({
             </CollapsibleTrigger>
           </CardTitle>
 
-        <CardDescription>
-          Select permissions and review validation results before creating the
-          role
-        </CardDescription>
+          <CardDescription>
+            Select permissions and review validation results before creating the
+            role
+          </CardDescription>
 
-        {/* Validation Summary */}
-        {validationResults.length > 0 && (
-          <div className="flex items-center space-x-4 text-sm">
-            {summary.errors > 0 && (
-              <div className="flex items-center space-x-1 text-red-600">
-                <IconComponent name="XCircle" className="h-4 w-4" />
-                <span>
-                  {summary.errors} error{summary.errors !== 1 ? "s" : ""}
-                </span>
-              </div>
-            )}
-            {summary.warnings > 0 && (
-              <div className="flex items-center space-x-1 text-yellow-600">
-                <IconComponent name="AlertTriangle" className="h-4 w-4" />
-                <span>
-                  {summary.warnings} warning{summary.warnings !== 1 ? "s" : ""}
-                </span>
-              </div>
-            )}
-            {summary.infos > 0 && (
-              <div className="flex items-center space-x-1 text-blue-600">
-                <IconComponent name="Info" className="h-4 w-4" />
-                <span>{summary.infos} info</span>
-              </div>
-            )}
-          </div>
-        )}
-      </CardHeader>
-
-      <CollapsibleContent>
-        <CardContent className="space-y-6">
-          {/* Validation Results */}
+          {/* Validation Summary */}
           {validationResults.length > 0 && (
-            <div className="space-y-3">
-              {validationResults.map((result, index) => (
-                <Alert
-                  key={index}
-                  className={
-                    result.type === "error"
-                      ? "border-red-300 bg-red-50"
-                      : result.type === "warning"
-                        ? "border-yellow-300 bg-yellow-50"
-                        : "border-blue-300 bg-blue-50"
-                  }
-                >
-                  <IconComponent
-                    name={
-                      result.type === "error"
-                        ? "XCircle"
-                        : result.type === "warning"
-                          ? "AlertTriangle"
-                          : "Info"
-                    }
-                    className="h-4 w-4"
-                  />
-                  <AlertTitle className="flex items-center space-x-2">
-                    <span>{result.message}</span>
-                    <Badge
-                      variant={
-                        result.type === "error"
-                          ? "destructive"
-                          : result.type === "warning"
-                            ? "secondary"
-                            : "outline"
-                      }
-                      className="text-xs"
-                    >
-                      {result.type}
-                    </Badge>
-                  </AlertTitle>
-
-                  {result.permissions.length > 0 && (
-                    <AlertDescription>
-                      <p className="font-medium mt-2">Affected permissions:</p>
-                      <ul className="list-disc list-inside text-sm mt-1">
-                        {result.permissions.map((perm, permIndex) => (
-                          <li key={permIndex}>{perm}</li>
-                        ))}
-                      </ul>
-                    </AlertDescription>
-                  )}
-
-                  {result.suggestions && result.suggestions.length > 0 && (
-                    <AlertDescription>
-                      <p className="font-medium mt-2">Suggestions:</p>
-                      <ul className="list-disc list-inside text-sm mt-1">
-                        {result.suggestions.map((suggestion, suggIndex) => (
-                          <li key={suggIndex}>{suggestion}</li>
-                        ))}
-                      </ul>
-                    </AlertDescription>
-                  )}
-                </Alert>
-              ))}
-            </div>
-          )}
-
-          {/* Filter Controls */}
-          <div className="space-y-4">
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Search permissions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-              />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="border rounded px-3 py-2"
-              >
-                <option value="all">All Categories</option>
-                <option value="Flow Management">Flow Management</option>
-                <option value="Workspace Management">Workspace Management</option>
-                <option value="Project Management">Project Management</option>
-              </select>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <label className="flex items-center space-x-2">
-                <Checkbox
-                  checked={showDangerous}
-                  onCheckedChange={setShowDangerous}
-                />
-                <span className="text-sm">Show dangerous permissions only</span>
-              </label>
-            </div>
-
-            {/* Bulk Actions */}
-            <div className="flex space-x-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction("selectSafe")}
-              >
-                Select Safe Only
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction("selectBasic")}
-              >
-                Select Flow Management Only
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction("selectAll")}
-              >
-                Select All
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction("selectNone")}
-              >
-                Clear All
-              </Button>
-            </div>
-          </div>
-
-          {/* Permissions List */}
-          <div className="border rounded-lg max-h-96 overflow-y-auto">
-            {isLoading ? (
-              <div className="p-4 text-center text-gray-500">
-                <IconComponent
-                  name="Loader2"
-                  className="h-4 w-4 animate-spin mx-auto mb-2"
-                />
-                Loading permissions...
-              </div>
-            ) : filteredPermissions.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
-                No permissions found matching current filters
-              </div>
-            ) : (
-              <div className="divide-y">
-                {filteredPermissions.map((permission) => {
-                  const isSelected = selectedPermissions.includes(
-                    permission.id,
-                  );
-
-                  return (
-                    <div
-                      key={permission.id}
-                      className={`p-3 hover:bg-gray-50 ${isSelected ? "bg-blue-50" : ""}`}
-                    >
-                      <label className="flex items-start space-x-3 cursor-pointer">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() =>
-                            handlePermissionToggle(permission.id)
-                          }
-                          className="mt-1"
-                        />
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">
-                              {permission.name}
-                            </span>
-
-                            <Badge variant="outline" className="text-xs">
-                              {permission.category}
-                            </Badge>
-
-                            {permission.is_dangerous && (
-                              <Badge variant="destructive" className="text-xs">
-                                Dangerous
-                              </Badge>
-                            )}
-
-                            {permission.requires_mfa && (
-                              <Badge variant="secondary" className="text-xs">
-                                MFA Required
-                              </Badge>
-                            )}
-
-                            {permission.is_system && (
-                              <Badge variant="outline" className="text-xs">
-                                System
-                              </Badge>
-                            )}
-                          </div>
-
-                          <p className="text-sm text-gray-600 mt-1">
-                            {permission.description}
-                          </p>
-
-                          {permission.compliance_tags &&
-                            permission.compliance_tags.length > 0 && (
-                              <div className="flex space-x-1 mt-2">
-                                {permission.compliance_tags.map((tag) => (
-                                  <Badge
-                                    key={tag}
-                                    variant="outline"
-                                    className="text-xs"
-                                  >
-                                    {tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
-                        </div>
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Summary */}
-          <div className="border-t pt-4">
-            <div className="flex items-center justify-between text-sm">
-              <div className="space-x-4">
-                <span>Selected: {selectedPermissions.length}</span>
-                <span>
-                  Dangerous:{" "}
-                  {
-                    permissions.filter(
-                      (p) =>
-                        selectedPermissions.includes(p.id) && p.is_dangerous,
-                    ).length
-                  }
-                </span>
-                <span>
-                  MFA Required:{" "}
-                  {
-                    permissions.filter(
-                      (p) =>
-                        selectedPermissions.includes(p.id) && p.requires_mfa,
-                    ).length
-                  }
-                </span>
-              </div>
-
+            <div className="flex items-center space-x-4 text-sm">
               {summary.errors > 0 && (
-                <Badge variant="destructive" className="text-xs">
-                  Role cannot be created with errors
-                </Badge>
+                <div className="flex items-center space-x-1 text-red-600">
+                  <IconComponent name="XCircle" className="h-4 w-4" />
+                  <span>
+                    {summary.errors} error{summary.errors !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              )}
+              {summary.warnings > 0 && (
+                <div className="flex items-center space-x-1 text-yellow-600">
+                  <IconComponent name="AlertTriangle" className="h-4 w-4" />
+                  <span>
+                    {summary.warnings} warning
+                    {summary.warnings !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              )}
+              {summary.infos > 0 && (
+                <div className="flex items-center space-x-1 text-blue-600">
+                  <IconComponent name="Info" className="h-4 w-4" />
+                  <span>{summary.infos} info</span>
+                </div>
               )}
             </div>
-          </div>
-        </CardContent>
-      </CollapsibleContent>
+          )}
+        </CardHeader>
+
+        <CollapsibleContent>
+          <CardContent className="space-y-6">
+            {/* Validation Results */}
+            {validationResults.length > 0 && (
+              <div className="space-y-3">
+                {validationResults.map((result, index) => (
+                  <Alert
+                    key={index}
+                    className={
+                      result.type === "error"
+                        ? "border-red-300 bg-red-50"
+                        : result.type === "warning"
+                          ? "border-yellow-300 bg-yellow-50"
+                          : "border-blue-300 bg-blue-50"
+                    }
+                  >
+                    <IconComponent
+                      name={
+                        result.type === "error"
+                          ? "XCircle"
+                          : result.type === "warning"
+                            ? "AlertTriangle"
+                            : "Info"
+                      }
+                      className="h-4 w-4"
+                    />
+                    <AlertTitle className="flex items-center space-x-2">
+                      <span>{result.message}</span>
+                      <Badge
+                        variant={
+                          result.type === "error"
+                            ? "destructive"
+                            : result.type === "warning"
+                              ? "secondary"
+                              : "outline"
+                        }
+                        className="text-xs"
+                      >
+                        {result.type}
+                      </Badge>
+                    </AlertTitle>
+
+                    {result.permissions.length > 0 && (
+                      <AlertDescription>
+                        <p className="font-medium mt-2">
+                          Affected permissions:
+                        </p>
+                        <ul className="list-disc list-inside text-sm mt-1">
+                          {result.permissions.map((perm, permIndex) => (
+                            <li key={permIndex}>{perm}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    )}
+
+                    {result.suggestions && result.suggestions.length > 0 && (
+                      <AlertDescription>
+                        <p className="font-medium mt-2">Suggestions:</p>
+                        <ul className="list-disc list-inside text-sm mt-1">
+                          {result.suggestions.map((suggestion, suggIndex) => (
+                            <li key={suggIndex}>{suggestion}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    )}
+                  </Alert>
+                ))}
+              </div>
+            )}
+
+            {/* Filter Controls */}
+            <div className="space-y-4">
+              <div className="flex space-x-2">
+                <Input
+                  placeholder="Search permissions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1"
+                />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="border rounded px-3 py-2"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="Flow Management">Flow Management</option>
+                  <option value="Workspace Management">
+                    Workspace Management
+                  </option>
+                  <option value="Project Management">Project Management</option>
+                </select>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={showDangerous}
+                    onCheckedChange={setShowDangerous}
+                  />
+                  <span className="text-sm">
+                    Show dangerous permissions only
+                  </span>
+                </label>
+              </div>
+
+              {/* Bulk Actions */}
+              <div className="flex space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleBulkAction("selectSafe")}
+                >
+                  Select Safe Only
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleBulkAction("selectBasic")}
+                >
+                  Select Flow Management Only
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleBulkAction("selectAll")}
+                >
+                  Select All
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleBulkAction("selectNone")}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+
+            {/* Permissions List */}
+            <div className="border rounded-lg max-h-96 overflow-y-auto">
+              {isLoading ? (
+                <div className="p-4 text-center text-gray-500">
+                  <IconComponent
+                    name="Loader2"
+                    className="h-4 w-4 animate-spin mx-auto mb-2"
+                  />
+                  Loading permissions...
+                </div>
+              ) : filteredPermissions.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  No permissions found matching current filters
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {filteredPermissions.map((permission) => {
+                    const isSelected = selectedPermissions.includes(
+                      permission.id,
+                    );
+
+                    return (
+                      <div
+                        key={permission.id}
+                        className={`p-3 hover:bg-gray-50 ${isSelected ? "bg-blue-50" : ""}`}
+                      >
+                        <label className="flex items-start space-x-3 cursor-pointer">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() =>
+                              handlePermissionToggle(permission.id)
+                            }
+                            className="mt-1"
+                          />
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium">
+                                {permission.name}
+                              </span>
+
+                              <Badge variant="outline" className="text-xs">
+                                {permission.category}
+                              </Badge>
+
+                              {permission.is_dangerous && (
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  Dangerous
+                                </Badge>
+                              )}
+
+                              {permission.requires_mfa && (
+                                <Badge variant="secondary" className="text-xs">
+                                  MFA Required
+                                </Badge>
+                              )}
+
+                              {permission.is_system && (
+                                <Badge variant="outline" className="text-xs">
+                                  System
+                                </Badge>
+                              )}
+                            </div>
+
+                            <p className="text-sm text-gray-600 mt-1">
+                              {permission.description}
+                            </p>
+
+                            {permission.compliance_tags &&
+                              permission.compliance_tags.length > 0 && (
+                                <div className="flex space-x-1 mt-2">
+                                  {permission.compliance_tags.map((tag) => (
+                                    <Badge
+                                      key={tag}
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                          </div>
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Summary */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between text-sm">
+                <div className="space-x-4">
+                  <span>Selected: {selectedPermissions.length}</span>
+                  <span>
+                    Dangerous:{" "}
+                    {
+                      permissions.filter(
+                        (p) =>
+                          selectedPermissions.includes(p.id) && p.is_dangerous,
+                      ).length
+                    }
+                  </span>
+                  <span>
+                    MFA Required:{" "}
+                    {
+                      permissions.filter(
+                        (p) =>
+                          selectedPermissions.includes(p.id) && p.requires_mfa,
+                      ).length
+                    }
+                  </span>
+                </div>
+
+                {summary.errors > 0 && (
+                  <Badge variant="destructive" className="text-xs">
+                    Role cannot be created with errors
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </CollapsibleContent>
       </Collapsible>
     </Card>
   );
