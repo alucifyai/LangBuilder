@@ -30,6 +30,7 @@ class AuditEventType(str, Enum):
     PERMISSION_REVOKED = "permission_revoked"
     ROLE_ASSIGNED = "role_assigned"
     ROLE_REMOVED = "role_removed"
+    ACCESS_ALLOWED = "access_allowed"
     ACCESS_DENIED = "access_denied"
 
     # Resource operations

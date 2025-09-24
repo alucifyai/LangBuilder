@@ -358,12 +358,15 @@ def secure_endpoint(
 
                 # Enhanced validation if specified
                 if validation_req:
+                    # Remove named parameters from kwargs to avoid duplicates
+                    validation_kwargs = {k: v for k, v in kwargs.items()
+                                        if k not in ['session', 'context', 'validation_req', 'request']}
                     await enhanced_validation(
                         session=session,
                         context=context,
                         validation_req=validation_req,
                         request=request,
-                        **kwargs,
+                        **validation_kwargs,
                     )
 
                 # Execute the original function
@@ -447,20 +450,20 @@ async def _log_audit_event(
             ActorType,
             AuditEventType,
             AuditLog,
-            TargetType,
+            AuditOutcome,
         )
 
         audit_log = AuditLog(
-            event_type=AuditEventType.AUTHORIZATION,
+            event_type=AuditEventType.ACCESS_ALLOWED if success else AuditEventType.ACCESS_DENIED,
             actor_type=ActorType.USER,
             actor_id=user.id,
             actor_name=user.username or str(user.id),
-            target_type=TargetType.RBAC_RESOURCE,
-            target_id=context.requested_workspace_id,
-            target_name=resource_type,
+            resource_type=resource_type,
+            resource_id=context.requested_workspace_id,
+            resource_name=resource_type,
             action=action,
-            success=success,
-            details=details,
+            outcome=AuditOutcome.SUCCESS if success else AuditOutcome.FAILURE,
+            event_metadata=details,
             workspace_id=context.requested_workspace_id,
             ip_address=context.client_ip,
             user_agent=context.user_agent,

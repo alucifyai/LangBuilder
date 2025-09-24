@@ -31,6 +31,8 @@ class RuntimeEnforcementContext:
         requested_environment_id: UUID | None = None,
         request_path: str | None = None,
         request_method: str | None = None,
+        client_ip: str | None = None,
+        user_agent: str | None = None,
     ):
         self.user = user
         self.token_validation = token_validation
@@ -39,6 +41,8 @@ class RuntimeEnforcementContext:
         self.requested_environment_id = requested_environment_id
         self.request_path = request_path
         self.request_method = request_method
+        self.client_ip = client_ip
+        self.user_agent = user_agent
 
     @property
     def effective_workspace_id(self) -> UUID | None:
@@ -86,6 +90,8 @@ class RBACRuntimeEnforcementService(Service):
         environment_id: UUID | None = None,
         request_path: str | None = None,
         request_method: str | None = None,
+        client_ip: str | None = None,
+        user_agent: str | None = None,
     ) -> RuntimeEnforcementContext:
         """Create a comprehensive enforcement context."""
         token_validation = None
@@ -110,6 +116,8 @@ class RBACRuntimeEnforcementService(Service):
             requested_environment_id=environment_id,
             request_path=request_path,
             request_method=request_method,
+            client_ip=client_ip,
+            user_agent=user_agent,
         )
 
     async def check_resource_access(

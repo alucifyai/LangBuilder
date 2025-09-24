@@ -64,3 +64,15 @@ Summary of Changes Made:
 
   All the requested refactoring has been completed successfully. The codebase now uses the simplified type annotations as requested.
 
+
+
+## Admin UI scrolling issue
+In frontend RBAC admin UI, creating a project dialog does not close even after success of calling project creation api to backend. Can you fix it? In addition, the project listing UI does not scroll when there are many projects, can you fix it too?
+
+Now that the project listing itself can be scrolled, the entire page with various tabs of RBAC management still cannot be scrolled. So I only see half of the project listing panel at the bottom of
+  the screen which can be scrolled but I cannot see the entire project listing box as the full page cannot be scrolled
+
+The fix does not work. The full page just does not scroll, so for each tab like "Permissions", "workspaces", "projects", the listing only show the top half and we cannot scroll to see the bottom
+
+No it still did not scroll. You may need to start with top container and go down each layer and see what is going on.
+

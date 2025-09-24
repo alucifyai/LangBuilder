@@ -73,6 +73,12 @@ async def get_enhanced_enforcement_context(
     environment_id = request.path_params.get("environment_id")
     flow_id = request.path_params.get("flow_id")
 
+    # Extract client information
+    client_ip = None
+    if request.client:
+        client_ip = request.client.host
+    user_agent = request.headers.get("user-agent")
+
     # Create enforcement context
     return await enforcement_service.create_enforcement_context(
         session=session,
@@ -83,6 +89,8 @@ async def get_enhanced_enforcement_context(
         environment_id=UUID(environment_id) if environment_id else None,
         request_path=request.url.path,
         request_method=request.method,
+        client_ip=client_ip,
+        user_agent=user_agent,
     )
 
 

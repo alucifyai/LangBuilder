@@ -57,9 +57,9 @@ router = APIRouter(
         require_workspace_access=False,  # Changed to False to allow all-workspace access
         audit_action="list_service_accounts",
     ),
-    # validation_req=ValidationRequirement(
-    #     validate_workspace_exists=False,  # Changed to False since workspace_id is optional
-    # ),
+    validation_req=ValidationRequirement(
+        validate_workspace_exists=False,  # Changed to False since workspace_id is optional
+    ),
     audit_enabled=True,
 )
 async def list_service_accounts(

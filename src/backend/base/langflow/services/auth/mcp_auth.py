@@ -46,6 +46,12 @@ async def get_mcp_enforcement_context(
     environment_id = request.path_params.get("environment_id")
     server_name = request.path_params.get("server_name")
 
+    # Extract client information for audit logging
+    client_ip = None
+    if request.client:
+        client_ip = request.client.host
+    user_agent = request.headers.get("user-agent")
+
     # Create enforcement context with MCP-specific permissions
     context = await enforcement_service.create_enforcement_context(
         session=session,
@@ -56,6 +62,8 @@ async def get_mcp_enforcement_context(
         environment_id=UUID(environment_id) if environment_id else None,
         request_path=request.url.path,
         request_method=request.method,
+        client_ip=client_ip,
+        user_agent=user_agent,
     )
 
     # Validate MCP-specific permissions
