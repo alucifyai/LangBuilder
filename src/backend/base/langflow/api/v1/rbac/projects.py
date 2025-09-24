@@ -171,7 +171,7 @@ async def create_project(
 # )
 async def list_projects(
     session: DbSession,
-    # current_user: CurrentActiveUser,  # TEMPORARILY REMOVED for testing
+    current_user: Annotated[User, Depends(get_authenticated_user)],
     workspace_id: UUIDstr | None = Query(None),
     search: str | None = None,
     is_active: bool | None = None,
