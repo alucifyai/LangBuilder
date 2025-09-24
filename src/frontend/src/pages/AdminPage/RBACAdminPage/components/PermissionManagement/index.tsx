@@ -29,6 +29,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetPermissions } from "@/controllers/API/queries/rbac";
+import { useCreatePermission } from "@/controllers/API/queries/rbac/use-create-permission";
+import useAlertStore from "@/stores/alertStore";
 import useAuthStore from "@/stores/authStore";
 import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 import ConfirmDeleteModal from "../../../RBAC/components/ConfirmDeleteModal";
@@ -573,10 +575,74 @@ export default function PermissionManagement() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // API integration for creating permissions
+  const { mutate: createPermission, isPending: isCreatingPermission } = useCreatePermission({
+    onSuccess: (createdPermission) => {
+      console.log("✅ Permission created successfully:", createdPermission);
+
+      // Show success notification
+      setSuccessData({
+        title: "Permission Created Successfully",
+      });
+
+      // Add the new permission to the list immediately for UI responsiveness
+      setPermissions((prev) => [createdPermission, ...prev]);
+      // Refresh permissions using the same logic as handleRefreshPermissions
+      setLoading(true);
+      getPermissions.mutate(
+        { limit: 100 },
+        {
+          onSuccess: (data) => {
+            setPermissions(data || []);
+            setLoading(false);
+          },
+          onError: (error) => {
+            console.error("Failed to refresh permissions:", error);
+            setLoading(false);
+          },
+        }
+      );
+    },
+    onError: (error) => {
+      console.error("❌ Failed to create permission:", error);
+
+      // Enhanced error handling for better user experience
+      let title = "Failed to Create Permission";
+      let errorDetails = [error.message || "Unknown error occurred"];
+
+      // Check for specific duplicate error
+      if (error.message && error.message.includes("already exists")) {
+        title = "Permission Already Exists";
+        errorDetails = [
+          "A permission with this code already exists.",
+          "Please use a different permission code or update the existing permission."
+        ];
+      } else if (error.message && error.message.includes("validation")) {
+        title = "Validation Error";
+        errorDetails = [error.message];
+      } else if (error.message && error.message.includes("authentication")) {
+        title = "Authentication Error";
+        errorDetails = [
+          "You don't have permission to create permissions.",
+          "Please check your authentication status."
+        ];
+      }
+
+      setErrorData({
+        title,
+        list: errorDetails,
+      });
+    },
+  });
+
   // Authentication state management - following AccountMenu pattern
   const { isAdmin } = useAuthStore((state) => ({
     isAdmin: state.isAdmin,
   }));
+
+  // Alert/notification system
+  const setSuccessData = useAlertStore((state) => state.setSuccessData);
+  const setErrorData = useAlertStore((state) => state.setErrorData);
 
   // Helper function to handle authentication-protected actions
   const requireAuth = (action: string, callback: () => void) => {
@@ -645,11 +711,25 @@ export default function PermissionManagement() {
     console.log("💾 Saving permission:", permission);
 
     if (editModalMode === "create") {
-      // Add new permission
-      setPermissions((prev) => [permission, ...prev]);
-      console.log("✅ New permission added:", permission);
+      // Create new permission via API
+      const permissionData = {
+        name: permission.description || `${permission.action} ${permission.resource_type}`, // Generate name from description
+        code: `${permission.resource_type}.${permission.action}`, // Generate code
+        description: permission.description,
+        category: permission.category,
+        resource_type: permission.resource_type,
+        action: permission.action,
+        scope: "*",
+        conditions: {},
+        is_system: permission.is_system || false,
+        is_dangerous: permission.is_dangerous || false,
+        requires_mfa: permission.requires_mfa || false,
+      };
+
+      console.log("📡 Calling API to create permission:", permissionData);
+      createPermission(permissionData);
     } else {
-      // Update existing permission
+      // Update existing permission (TODO: implement update API)
       setPermissions((prev) =>
         prev.map((p) => (p.id === permission.id ? permission : p)),
       );

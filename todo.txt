@@ -1,3 +1,22 @@
+⏺ The authentication issue has been resolved! The root cause was:
+
+  1. Missing persistent SECRET_KEY: The backend was generating a new random SECRET_KEY on every restart
+  2. Wrong environment variable name: The SECRET_KEY needed to be named LANGFLOW_SECRET_KEY due to the
+  env_prefix="LANGFLOW_" setting
+  3. Token invalidation: Every time the backend restarted, all existing JWT tokens became invalid because they were
+  signed with the old SECRET_KEY
+
+  The fix:
+  - Added LANGFLOW_SECRET_KEY=26U1HRkq5fJP3eBWyvevZV2bHXcR9rxMB1-3ObS7UXc to the .env file
+  - Now the backend loads the same SECRET_KEY consistently, keeping JWT tokens valid across restarts
+  - The logs confirm "Secret key provided" instead of "No secret key provided, generating a random one"
+
+  What this means for the user:
+  - Their existing login session tokens are now preserved across backend restarts
+  - The "Add Permissions" functionality should now work correctly since the authentication issue is resolved
+  - No need to re-login after backend restarts
+
+
 On RBAC admin, sometimes need to refresh to see it show authenticated.
 Workspace creation works
 Workspace listing backend api returns to frontend but UI refuse to show any workspace.

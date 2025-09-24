@@ -1,11 +1,13 @@
 """Permission management API endpoints for RBAC system."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException, status
 import uuid
 from typing import Union
 from pydantic import BaseModel
+from sqlmodel import select
 
-from langflow.services.database.models.rbac.permission import PermissionRead, ResourceType, PermissionAction
+from langflow.api.utils import DbSession, CurrentActiveUser
+from langflow.services.database.models.rbac.permission import Permission, PermissionRead, PermissionCreate, ResourceType, PermissionAction
 
 
 class CheckPermissionRequest(BaseModel):
@@ -41,11 +43,123 @@ router = APIRouter(
 
 @router.get("/", response_model=list[PermissionRead])
 async def list_permissions(
+    session: DbSession,
     workspace_id: str = "00000000-0000-0000-0000-000000000000",
     limit: int = 100,
     is_system: Union[bool, None] = None,
 ) -> list[PermissionRead]:
-    """List available permissions in the system."""
+    """List available permissions in the system from the database."""
+
+    # Query permissions from database
+    query = select(Permission)
+
+    # Apply filters
+    if is_system is not None:
+        query = query.where(Permission.is_system == is_system)
+
+    # Apply limit
+    query = query.limit(limit)
+
+    result = await session.exec(query)
+    permissions = result.all()
+
+    # If no permissions in database, return empty list (will be populated by init endpoint)
+    if not permissions:
+        return []
+
+    # Convert to PermissionRead objects
+    permission_reads = []
+    for perm in permissions:
+        permission_reads.append(PermissionRead(
+            id=str(perm.id),
+            name=perm.name,
+            code=perm.code,
+            description=perm.description,
+            category=perm.category,
+            resource_type=perm.resource_type,
+            action=perm.action,
+            scope=perm.scope,
+            conditions=perm.conditions or {},
+            is_system=perm.is_system,
+            is_dangerous=perm.is_dangerous,
+            requires_mfa=perm.requires_mfa,
+            role_count=0  # TODO: Calculate actual role count
+        ))
+
+    return permission_reads
+
+
+@router.post("/", response_model=PermissionRead, status_code=status.HTTP_201_CREATED)
+async def create_permission(
+    permission_data: PermissionCreate,
+    session: DbSession,
+    current_user: CurrentActiveUser,
+) -> PermissionRead:
+    """Create a new permission (admin only)."""
+
+    # Check if user is superuser or admin
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only superusers can create permissions"
+        )
+
+    # Check if permission with same code already exists
+    existing_query = select(Permission).where(Permission.code == permission_data.code)
+    existing_result = await session.exec(existing_query)
+    if existing_result.first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Permission with code '{permission_data.code}' already exists"
+        )
+
+    # Create the permission
+    permission = Permission(**permission_data.model_dump())
+    session.add(permission)
+    await session.commit()
+    await session.refresh(permission)
+
+    # Convert to PermissionRead for response
+    return PermissionRead(
+        id=str(permission.id),
+        name=permission.name,
+        code=permission.code,
+        description=permission.description,
+        category=permission.category,
+        resource_type=permission.resource_type,
+        action=permission.action,
+        scope=permission.scope,
+        conditions=permission.conditions or {},
+        is_system=permission.is_system,
+        is_dangerous=permission.is_dangerous,
+        requires_mfa=permission.requires_mfa,
+        role_count=0  # New permission has no roles assigned yet
+    )
+
+
+@router.post("/initialize", status_code=status.HTTP_201_CREATED)
+async def initialize_permissions(
+    session: DbSession,
+    current_user: CurrentActiveUser,
+) -> dict:
+    """Initialize default permissions in the database (admin only)."""
+
+    # Check if user is superuser or admin
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only superusers can initialize permissions"
+        )
+
+    # Check if permissions already exist
+    existing_query = select(Permission).limit(1)
+    existing_result = await session.exec(existing_query)
+    if existing_result.first():
+        return {
+            "message": "Permissions already initialized",
+            "created": 0,
+            "skipped": True
+        }
 
     # Define all available permissions with sensible classifications
     all_permissions = [
@@ -53,8 +167,7 @@ async def list_permissions(
         # These are basic operations any user should be able to be granted
 
         # Flow Management - Basic Operations
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Create Flows",
             code="flows.create",
             description="Create new flows in the workspace",
@@ -66,10 +179,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Read Flows",
             code="flows.read",
             description="View and list flows in the workspace",
@@ -81,10 +192,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Update Flows",
             code="flows.update",
             description="Modify and edit existing flows",
@@ -96,10 +205,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Execute Flows",
             code="flows.execute",
             description="Run and execute flows",
@@ -111,12 +218,10 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
 
         # Project Management - Basic Operations
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Create Projects",
             code="project.create",
             description="Create new projects",
@@ -128,10 +233,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Read Projects",
             code="project.read",
             description="View project information",
@@ -143,10 +246,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Update Projects",
             code="project.update",
             description="Modify project settings",
@@ -158,12 +259,10 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
 
         # Workspace - Basic Access
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Read Workspace",
             code="workspace.read",
             description="View workspace information and settings",
@@ -175,10 +274,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Update Workspace",
             code="workspace.update",
             description="Modify basic workspace settings",
@@ -190,14 +287,12 @@ async def list_permissions(
             is_system=False,
             is_dangerous=False,
             requires_mfa=False,
-            role_count=0
         ),
 
         # ===== DANGEROUS PERMISSIONS (is_system=False, but dangerous) =====
         # Only deleting operations are dangerous and require MFA
 
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Delete Flows",
             code="flows.delete",
             description="Delete flows from the workspace",
@@ -209,10 +304,8 @@ async def list_permissions(
             is_system=False,
             is_dangerous=True,
             requires_mfa=True,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Delete Projects",
             code="project.delete",
             description="Delete projects permanently",
@@ -224,14 +317,12 @@ async def list_permissions(
             is_system=False,
             is_dangerous=True,
             requires_mfa=True,
-            role_count=0
         ),
 
         # ===== SYSTEM PERMISSIONS (is_system=True) =====
         # Only core system administration should be system-only
 
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Manage System Configuration",
             code="system.manage",
             description="Modify core system settings and configuration",
@@ -243,10 +334,8 @@ async def list_permissions(
             is_system=True,
             is_dangerous=True,
             requires_mfa=True,
-            role_count=0
         ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
+        Permission(
             name="Manage RBAC System",
             code="rbac.manage",
             description="Manage RBAC roles, permissions, and security policies",
@@ -258,18 +347,28 @@ async def list_permissions(
             is_system=True,
             is_dangerous=True,
             requires_mfa=True,
-            role_count=0
         ),
     ]
 
-    # Filter permissions based on is_system parameter
-    if is_system is not None:
-        filtered_permissions = [p for p in all_permissions if p.is_system == is_system]
-    else:
-        filtered_permissions = all_permissions
+    # Add all permissions to the database
+    created_count = 0
+    for perm in all_permissions:
+        # Check if permission already exists by code
+        existing = await session.exec(
+            select(Permission).where(Permission.code == perm.code)
+        )
+        if not existing.first():
+            session.add(perm)
+            created_count += 1
 
-    # Apply limit
-    return filtered_permissions[:limit]
+    await session.commit()
+
+    return {
+        "message": f"Successfully created {created_count} permissions",
+        "created": created_count,
+        "total": len(all_permissions)
+    }
+
 
 
 @router.post("/check-permission", response_model=PermissionResult)

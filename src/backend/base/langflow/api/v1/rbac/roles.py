@@ -515,46 +515,62 @@ async def delete_role(
 @router.get("/{role_id}/permissions", response_model=list[PermissionRead])
 async def list_role_permissions(
     role_id: str,
+    session: DbSession,
+    current_user: CurrentActiveUser,
 ) -> list["PermissionRead"]:
-    """List permissions assigned to role (simplified for development)."""
-    import uuid
-    from langflow.services.database.models.rbac.permission import PermissionRead
-    from langflow.services.database.models.rbac.types import ResourceType, PermissionAction
+    """List permissions assigned to role."""
+    from langflow.services.database.models.rbac.permission import Permission, RolePermission
+    from langflow.services.database.models.rbac.role import Role
 
-    # Return sample permissions that this role currently has assigned
-    # In a real implementation, this would query the database for actual role permissions
-    sample_role_permissions = [
-        PermissionRead(
-            id=str(uuid.uuid4()),
-            name="Read Flows",
-            code="flows.read",
-            description="View and list flows in the workspace",
-            category="Flow Management",
-            resource_type=ResourceType.FLOW,
-            action=PermissionAction.READ,
-            is_system=False,
-            is_dangerous=False,
-            requires_mfa=False,
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z"
-        ),
-        PermissionRead(
-            id=str(uuid.uuid4()),
-            name="Execute Flows",
-            code="flows.execute",
-            description="Run and execute flows",
-            category="Flow Management",
-            resource_type=ResourceType.FLOW,
-            action=PermissionAction.EXECUTE,
-            is_system=False,
-            is_dangerous=False,
-            requires_mfa=False,
-            created_at="2024-01-01T00:00:00Z",
-            updated_at="2024-01-01T00:00:00Z"
+    # Validate role exists
+    role = await session.get(Role, role_id)
+    if not role or not role.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found"
         )
-    ]
 
-    return sample_role_permissions
+    # Query for role permissions from database
+    role_permission_query = select(RolePermission).where(
+        RolePermission.role_id == role_id,
+        RolePermission.is_granted == True
+    )
+    role_permissions_result = await session.exec(role_permission_query)
+    role_permissions = role_permissions_result.all()
+
+    # Get the actual permission details
+    assigned_permission_ids = [rp.permission_id for rp in role_permissions]
+
+    if not assigned_permission_ids:
+        return []
+
+    # Query for permission details
+    permission_query = select(Permission).where(
+        Permission.id.in_(assigned_permission_ids)
+    )
+    permissions_result = await session.exec(permission_query)
+    permissions = permissions_result.all()
+
+    # Convert to PermissionRead objects
+    permission_reads = []
+    for perm in permissions:
+        permission_reads.append(PermissionRead(
+            id=str(perm.id),
+            name=perm.name,
+            code=perm.code,
+            description=perm.description,
+            category=perm.category,
+            resource_type=perm.resource_type,
+            action=perm.action,
+            scope=perm.scope,
+            is_system=perm.is_system,
+            is_dangerous=perm.is_dangerous,
+            requires_mfa=perm.requires_mfa,
+            created_at=perm.created_at.isoformat() if perm.created_at else datetime.now(timezone).isoformat(),
+            updated_at=perm.updated_at.isoformat() if perm.updated_at else datetime.now(timezone).isoformat()
+        ))
+
+    return permission_reads
 
 
 @router.post("/{role_id}/permissions", response_model=RolePermissionRead, status_code=status.HTTP_201_CREATED)
@@ -852,7 +868,10 @@ async def update_role_permissions(
         logger.error(f"Failed to log role permissions update audit event: {e}")
 
     return {
+        "success": True,
         "message": "Role permissions updated successfully",
+        "permission_count": len(validated_permission_ids),
+        "permission_ids": [str(pid) for pid in validated_permission_ids],
         "permissions_added": len(to_add),
         "permissions_removed": len(to_remove)
     }
