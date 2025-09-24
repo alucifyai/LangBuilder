@@ -57,14 +57,14 @@ import AuthenticationModal from "../../../RBAC/components/AuthenticationModal";
 interface ComplianceReportDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  isAuthenticated: boolean;
+  isAdmin: boolean;
   onAuthRequired: () => void;
 }
 
 function ComplianceReportDialog({
   isOpen,
   onClose,
-  isAuthenticated,
+  isAdmin,
   onAuthRequired,
 }: ComplianceReportDialogProps) {
   const [reportType, setReportType] = useState<string>("user_access");
@@ -95,7 +95,7 @@ function ComplianceReportDialog({
     });
 
   const handleGenerateReport = () => {
-    if (!isAuthenticated) {
+    if (!isAdmin) {
       onAuthRequired();
       return;
     }
@@ -211,13 +211,13 @@ function ComplianceReportDialog({
 function AuditLogTable({
   logs,
   isLoading,
-  isAuthenticated,
+  isAdmin,
   onAuthRequired,
   onRefresh,
 }: {
   logs: AuditLog[];
   isLoading: boolean;
-  isAuthenticated: boolean;
+  isAdmin: boolean;
   onAuthRequired: () => void;
   onRefresh: () => void;
 }) {
@@ -320,7 +320,7 @@ function AuditLogTable({
           placeholder="Search logs..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          disabled={!isAuthenticated}
+          disabled={!isAdmin}
         />
         <Select value={filterEventType} onValueChange={setFilterEventType}>
           <SelectTrigger>
@@ -417,7 +417,7 @@ function AuditLogTable({
             variant="outline"
             size="sm"
             onClick={onRefresh}
-            disabled={!isAuthenticated || isLoading}
+            disabled={!isAdmin || isLoading}
           >
             <IconComponent name="RefreshCw" className="h-4 w-4 mr-2" />
             Refresh
@@ -452,7 +452,7 @@ function AuditLogTable({
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : !isAuthenticated ? (
+              ) : !isAdmin ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <div className="text-gray-500">
@@ -584,11 +584,10 @@ export default function AuditLogs() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const userData = useAuthStore((state) => state.userData);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks
   const {
@@ -607,7 +606,7 @@ export default function AuditLogs() {
 
   // Authentication helper
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       console.log("❌ Not authenticated, showing modal for action:", action);
       setShowAuthModal(true);
     } else {
@@ -639,7 +638,7 @@ export default function AuditLogs() {
 
   // Fetch data when authenticated
   useEffect(() => {
-    if (isFullyAuthenticated) {
+    if (isAdmin) {
       fetchAuditLogs({
         workspace_id: "default-workspace", // TODO: Get from workspace context
         search: searchTerm,
@@ -647,17 +646,14 @@ export default function AuditLogs() {
         page_size: 100,
       });
     }
-  }, [isFullyAuthenticated]);
+  }, [isAdmin]);
 
   // Debug authentication state changes
   useEffect(() => {
     console.log("🔄 AuditLogs: Auth state changed:", {
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
-      userData: !!userData,
+      isAdmin,
     });
-  }, [isAuthenticated, accessToken, userData]);
+  }, [isAdmin]);
 
   // Get logs from API response
   const logs = auditLogsData?.audit_logs || [];
@@ -697,23 +693,12 @@ export default function AuditLogs() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Authentication Status Indicator */}
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
 
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefresh}
-            disabled={!isFullyAuthenticated || isLoading}
+            disabled={!isAdmin || isLoading}
           >
             <IconComponent name="RefreshCw" className="h-4 w-4 mr-2" />
             {isLoading ? "Loading..." : "Refresh"}
@@ -723,7 +708,7 @@ export default function AuditLogs() {
             onOpenChange={setIsReportDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button size="sm" disabled={!isFullyAuthenticated}>
+              <Button size="sm" disabled={!isAdmin}>
                 <IconComponent name="Download" className="h-4 w-4 mr-2" />
                 Export Report
               </Button>
@@ -731,7 +716,7 @@ export default function AuditLogs() {
             <ComplianceReportDialog
               isOpen={isReportDialogOpen}
               onClose={() => setIsReportDialogOpen(false)}
-              isAuthenticated={isFullyAuthenticated}
+              isAdmin={isAdmin}
               onAuthRequired={() => setShowAuthModal(true)}
             />
           </Dialog>
@@ -823,7 +808,7 @@ export default function AuditLogs() {
         <AuditLogTable
           logs={logs}
           isLoading={isLoading}
-          isAuthenticated={isFullyAuthenticated}
+          isAdmin={isAdmin}
           onAuthRequired={() => setShowAuthModal(true)}
           onRefresh={handleRefresh}
         />

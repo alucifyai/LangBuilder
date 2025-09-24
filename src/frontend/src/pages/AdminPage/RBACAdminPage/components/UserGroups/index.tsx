@@ -63,10 +63,10 @@ export default function UserGroups() {
     workspace?: string;
   }>({});
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks
   const {
@@ -93,15 +93,15 @@ export default function UserGroups() {
 
   // Fetch data when authenticated
   useEffect(() => {
-    if (isFullyAuthenticated) {
+    if (isAdmin) {
       // First fetch workspaces to get workspace_id
       fetchWorkspaces({});
     }
-  }, [isFullyAuthenticated]);
+  }, [isAdmin]);
 
   // Fetch user groups when workspaces are available
   useEffect(() => {
-    if (isFullyAuthenticated && workspacesData?.workspaces?.length > 0) {
+    if (isAdmin && workspacesData?.workspaces?.length > 0) {
       const firstWorkspaceId = workspacesData.workspaces[0].id;
       fetchUserGroups({ workspace_id: firstWorkspaceId, search: searchTerm });
     }
@@ -136,7 +136,7 @@ export default function UserGroups() {
   }, [isCreateError, createError]);
 
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       setShowAuthModal(true);
     } else {
       callback();
@@ -210,16 +210,6 @@ export default function UserGroups() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
 
           {/* Create User Group Dialog */}
           <Dialog
@@ -227,7 +217,7 @@ export default function UserGroups() {
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button disabled={!isFullyAuthenticated || !hasWorkspaces}>
+              <Button disabled={!isAdmin || !hasWorkspaces}>
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
                 Create User Group
               </Button>
@@ -323,7 +313,7 @@ export default function UserGroups() {
         />
         <Button
           onClick={handleSearch}
-          disabled={isLoadingData || !isFullyAuthenticated || !hasWorkspaces}
+          disabled={isLoadingData || !isAdmin || !hasWorkspaces}
         >
           {isLoadingData ? "Loading..." : "Search"}
         </Button>
@@ -368,7 +358,7 @@ export default function UserGroups() {
                     Loading workspaces and user groups...
                   </TableCell>
                 </TableRow>
-              ) : !isFullyAuthenticated ? (
+              ) : !isAdmin ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
                     Please authenticate to view user groups

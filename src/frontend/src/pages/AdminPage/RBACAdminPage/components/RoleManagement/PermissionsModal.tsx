@@ -33,9 +33,10 @@ export default function PermissionsModal({
   // Authentication state
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks
   const {
@@ -100,12 +101,10 @@ export default function PermissionsModal({
   const requireAuth = (action: string, callback: () => void) => {
     console.log("🔐 PermissionsModal auth check:", {
       action,
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
+      isAdmin,
     });
 
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       console.log("❌ Not authenticated, showing modal");
       setPendingAction(action);
       setShowAuthModal(true);
@@ -161,7 +160,7 @@ export default function PermissionsModal({
         "🔍 Permissions modal opened for role:",
         role.id,
         "Auth state:",
-        isFullyAuthenticated,
+        isAdmin,
       );
 
       requireAuth("fetch-permissions", () => {
@@ -175,7 +174,7 @@ export default function PermissionsModal({
       // TODO: Don't reset until we can load existing permissions properly
       // setSelectedPermissions([]);
     }
-  }, [isOpen, role?.id, isFullyAuthenticated]);
+  }, [isOpen, role?.id, isAdmin]);
 
   const handlePermissionToggle = (permissionId: string) => {
     console.log("🔄 Permission toggle called for:", permissionId);
@@ -277,7 +276,7 @@ export default function PermissionsModal({
                 <div className="flex items-center justify-center py-8">
                   <div className="text-gray-500">Loading permissions...</div>
                 </div>
-              ) : !isFullyAuthenticated ? (
+              ) : !isAdmin ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="text-gray-500">
                     Please authenticate to view permissions

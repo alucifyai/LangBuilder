@@ -55,10 +55,10 @@ export default function ScopePickerTree({
     new Set(),
   );
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks for lazy loading scope data
   const {
@@ -137,11 +137,11 @@ export default function ScopePickerTree({
   // Load ALL scope data from multiple sources
   useEffect(() => {
     console.log(
-      "🔄 ScopePickerTree: Loading all scope data, isFullyAuthenticated:",
-      isFullyAuthenticated,
+      "🔄 ScopePickerTree: Loading all scope data, isAdmin:",
+      isAdmin,
     );
 
-    if (isFullyAuthenticated) {
+    if (isAdmin) {
       // Fetch all types of scopes concurrently
       console.log("🔄 ScopePickerTree: Fetching real data from all scope APIs");
 
@@ -156,7 +156,7 @@ export default function ScopePickerTree({
 
       // TODO: Add flows (rank 4) and components (rank 5) when APIs are available
     }
-  }, [isFullyAuthenticated]);
+  }, [isAdmin]);
 
   // Add scope items to the unified list
   const addScopeItems = (
@@ -504,7 +504,7 @@ export default function ScopePickerTree({
     isLoadingWorkspaces,
     isLoadingProjects,
     isLoadingEnvironments,
-    isFullyAuthenticated,
+    isAdmin,
   });
 
   return (

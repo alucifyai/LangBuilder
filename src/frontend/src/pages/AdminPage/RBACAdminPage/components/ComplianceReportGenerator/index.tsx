@@ -65,10 +65,10 @@ export default function ComplianceReportGenerator() {
   const [auditData, setAuditData] = useState<AuditEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // Compliance templates (SOC 2, ISO 27001, etc.)
   const complianceTemplates: ComplianceTemplate[] = [
@@ -169,10 +169,10 @@ export default function ComplianceReportGenerator() {
 
   // Mock audit data (in real implementation, this would come from API)
   useEffect(() => {
-    if (isFullyAuthenticated) {
+    if (isAdmin) {
       loadAuditData();
     }
-  }, [isFullyAuthenticated, filters]);
+  }, [isAdmin, filters]);
 
   const loadAuditData = () => {
     // Mock audit entries for demonstration
@@ -498,16 +498,6 @@ export default function ComplianceReportGenerator() {
             Generate audit reports and export compliance data
           </p>
         </div>
-        <Badge
-          variant={isFullyAuthenticated ? "default" : "destructive"}
-          className="text-xs"
-        >
-          <IconComponent
-            name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-            className="h-3 w-3 mr-1"
-          />
-          {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-        </Badge>
       </div>
 
       {/* Template Selection */}
@@ -695,7 +685,7 @@ export default function ComplianceReportGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!isFullyAuthenticated ? (
+          {!isAdmin ? (
             <div className="text-center py-8 text-gray-500">
               Please authenticate to view audit data
             </div>

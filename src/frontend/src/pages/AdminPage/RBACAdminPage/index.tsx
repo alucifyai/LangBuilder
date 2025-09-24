@@ -19,22 +19,20 @@ import WorkspaceManagement from "./components/WorkspaceManagement";
 export default function RBACAdminPage() {
   const [activeTab, setActiveTab] = useState("permissions");
 
-  // Centralized authentication state management
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const userData = useAuthStore((state) => state.userData);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Centralized authentication state management - following AccountMenu pattern
+  const { isAdmin, autoLogin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+    autoLogin: state.autoLogin,
+  }));
 
   // Debug authentication state changes across all tabs
   useEffect(() => {
     console.log("🔄 RBACAdminPage: Global auth state changed:", {
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
-      userData: !!userData,
+      isAdmin,
+      autoLogin,
       activeTab,
     });
-  }, [isAuthenticated, accessToken, userData, activeTab]);
+  }, [isAdmin, autoLogin, activeTab]);
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -46,17 +44,6 @@ export default function RBACAdminPage() {
             <h1 className="text-lg font-semibold">RBAC Management</h1>
           </div>
           <div className="ml-auto flex items-center space-x-4">
-            {/* Global Authentication Status Indicator */}
-            <Badge
-              variant={isFullyAuthenticated ? "default" : "destructive"}
-              className="text-xs"
-            >
-              <IconComponent
-                name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-                className="h-3 w-3 mr-1"
-              />
-              {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-            </Badge>
             <span className="text-sm text-muted-foreground">
               Role-Based Access Control Administration
             </span>

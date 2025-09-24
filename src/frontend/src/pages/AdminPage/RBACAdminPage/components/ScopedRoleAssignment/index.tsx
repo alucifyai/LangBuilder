@@ -86,10 +86,10 @@ export default function ScopedRoleAssignmentModal({
   const [conflicts, setConflicts] = useState<ConflictDetection[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks
   const {
@@ -129,7 +129,7 @@ export default function ScopedRoleAssignmentModal({
 
   // Load data when authenticated
   useEffect(() => {
-    if (isFullyAuthenticated && isOpen) {
+    if (isAdmin && isOpen) {
       fetchRoles({
         page: 1,
         page_size: 100,
@@ -138,7 +138,7 @@ export default function ScopedRoleAssignmentModal({
       });
       fetchUsers({});
     }
-  }, [isFullyAuthenticated, isOpen]);
+  }, [isAdmin, isOpen]);
 
   // Reset form state when modal opens
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function ScopedRoleAssignmentModal({
 
   // Authentication helper
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       setShowAuthModal(true);
     } else {
       callback();
@@ -299,16 +299,6 @@ export default function ScopedRoleAssignmentModal({
                 </p>
               </div>
               <div className="flex items-center space-x-4">
-                <Badge
-                  variant={isFullyAuthenticated ? "default" : "destructive"}
-                  className="text-xs"
-                >
-                  <IconComponent
-                    name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-                    className="h-3 w-3 mr-1"
-                  />
-                  {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-                </Badge>
                 <button
                   onClick={onClose}
                   className="text-gray-400 hover:text-gray-600 text-2xl"

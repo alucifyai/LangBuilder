@@ -573,25 +573,19 @@ export default function PermissionManagement() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Authentication state management with multiple sources for reliability
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const userData = useAuthStore((state) => state.userData);
-
-  // More robust authentication check
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state management - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // Helper function to handle authentication-protected actions
   const requireAuth = (action: string, callback: () => void) => {
     console.log("🔐 Authentication check:", {
       action,
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
-      userData: !!userData,
+      isAdmin,
     });
 
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       console.log("❌ Not authenticated, showing modal");
       setPendingAction(action);
       setShowAuthModal(true);
@@ -732,17 +726,6 @@ export default function PermissionManagement() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Authentication Status Indicator */}
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
 
           <Button
             variant="outline"

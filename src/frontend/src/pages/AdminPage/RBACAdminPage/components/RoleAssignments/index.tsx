@@ -31,10 +31,10 @@ export default function RoleAssignments() {
   const [showScopedAssignmentModal, setShowScopedAssignmentModal] =
     useState(false);
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // Auto-login query to get authentication token
   const { data: autoLoginData, isSuccess: autoLoginSuccess } = useGetAutoLogin({
@@ -69,14 +69,14 @@ export default function RoleAssignments() {
 
   // Fetch data when authenticated (either through auto-login or existing auth)
   useEffect(() => {
-    if (isFullyAuthenticated || autoLoginSuccess) {
+    if (isAdmin || autoLoginSuccess) {
       console.log("🔓 Authenticated - fetching role assignments");
       fetchRoleAssignments({});
     }
-  }, [isFullyAuthenticated, autoLoginSuccess]);
+  }, [isAdmin, autoLoginSuccess]);
 
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       setShowAuthModal(true);
     } else {
       callback();
@@ -118,16 +118,6 @@ export default function RoleAssignments() {
             Manage user role assignments
           </p>
         </div>
-        <Badge
-          variant={isFullyAuthenticated ? "default" : "destructive"}
-          className="text-xs"
-        >
-          <IconComponent
-            name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-            className="h-3 w-3 mr-1"
-          />
-          {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-        </Badge>
       </div>
 
       <div className="mb-4 flex space-x-2">
@@ -139,13 +129,13 @@ export default function RoleAssignments() {
         />
         <Button
           onClick={() => fetchRoleAssignments({})}
-          disabled={isLoading || !isFullyAuthenticated}
+          disabled={isLoading || !isAdmin}
         >
           {isLoading ? "Refreshing..." : "Refresh"}
         </Button>
         <Button
           onClick={() => setShowScopedAssignmentModal(true)}
-          disabled={!isFullyAuthenticated}
+          disabled={!isAdmin}
           className="bg-blue-600 hover:bg-blue-700"
         >
           <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -192,7 +182,7 @@ export default function RoleAssignments() {
                     Loading role assignments...
                   </TableCell>
                 </TableRow>
-              ) : !isFullyAuthenticated ? (
+              ) : !isAdmin ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     Please authenticate to view role assignments

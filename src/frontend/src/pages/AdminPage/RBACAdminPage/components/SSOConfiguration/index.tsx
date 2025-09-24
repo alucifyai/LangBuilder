@@ -68,10 +68,10 @@ interface GroupMapping {
 }
 
 export default function SSOConfiguration() {
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // Component state
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -155,7 +155,7 @@ export default function SSOConfiguration() {
   });
 
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       setShowAuthModal(true);
     } else {
       callback();
@@ -233,16 +233,6 @@ export default function SSOConfiguration() {
             authentication
           </p>
         </div>
-        <Badge
-          variant={isFullyAuthenticated ? "default" : "destructive"}
-          className="text-xs"
-        >
-          <IconComponent
-            name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-            className="h-3 w-3 mr-1"
-          />
-          {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-        </Badge>
       </div>
 
       <Tabs
@@ -329,7 +319,7 @@ export default function SSOConfiguration() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleToggleProvider(provider.id)}
-                        disabled={!isFullyAuthenticated}
+                        disabled={!isAdmin}
                       >
                         {provider.enabled ? "Disable" : "Enable"}
                       </Button>
@@ -567,7 +557,7 @@ export default function SSOConfiguration() {
               <div className="flex space-x-2">
                 <Button
                   onClick={handleSaveProvider}
-                  disabled={!isFullyAuthenticated}
+                  disabled={!isAdmin}
                   className="flex-1"
                 >
                   <IconComponent name="Save" className="h-4 w-4 mr-2" />
@@ -576,7 +566,7 @@ export default function SSOConfiguration() {
                 <Button
                   variant="outline"
                   onClick={() => setActiveProvider("testing")}
-                  disabled={!isFullyAuthenticated}
+                  disabled={!isAdmin}
                 >
                   <IconComponent name="TestTube" className="h-4 w-4 mr-2" />
                   Test Configuration
@@ -603,7 +593,7 @@ export default function SSOConfiguration() {
                 </p>
                 <Button
                   onClick={handleAddGroupMapping}
-                  disabled={!isFullyAuthenticated}
+                  disabled={!isAdmin}
                   size="sm"
                 >
                   <IconComponent name="Plus" className="h-4 w-4 mr-2" />
@@ -690,7 +680,7 @@ export default function SSOConfiguration() {
 
                   <Button
                     onClick={handleTestConnection}
-                    disabled={!isFullyAuthenticated || isTestingConnection}
+                    disabled={!isAdmin || isTestingConnection}
                     size="lg"
                   >
                     {isTestingConnection ? (

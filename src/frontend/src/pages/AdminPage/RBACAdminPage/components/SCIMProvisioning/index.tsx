@@ -91,10 +91,10 @@ interface ConflictResolution {
 }
 
 export default function SCIMProvisioning() {
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // Component state
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -222,7 +222,7 @@ export default function SCIMProvisioning() {
   });
 
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       setShowAuthModal(true);
     } else {
       callback();
@@ -359,19 +359,9 @@ export default function SCIMProvisioning() {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
           <Button
             onClick={() => handleManualSync("full_sync")}
-            disabled={!isFullyAuthenticated || isSyncing}
+            disabled={!isAdmin || isSyncing}
           >
             {isSyncing ? (
               <>
@@ -449,7 +439,7 @@ export default function SCIMProvisioning() {
                       size="sm"
                       className="flex-1"
                       onClick={() => handleManualSync("incremental_sync")}
-                      disabled={!isFullyAuthenticated || !endpoint.enabled}
+                      disabled={!isAdmin || !endpoint.enabled}
                     >
                       <IconComponent
                         name="RefreshCw"
@@ -544,7 +534,7 @@ export default function SCIMProvisioning() {
                   <Button
                     variant="outline"
                     onClick={() => handleManualSync("user_sync")}
-                    disabled={!isFullyAuthenticated || isSyncing}
+                    disabled={!isAdmin || isSyncing}
                   >
                     <IconComponent name="Users" className="h-4 w-4 mr-2" />
                     Sync Users
@@ -552,7 +542,7 @@ export default function SCIMProvisioning() {
                   <Button
                     variant="outline"
                     onClick={() => handleManualSync("group_sync")}
-                    disabled={!isFullyAuthenticated || isSyncing}
+                    disabled={!isAdmin || isSyncing}
                   >
                     <IconComponent name="UserCheck" className="h-4 w-4 mr-2" />
                     Sync Groups
@@ -664,7 +654,7 @@ export default function SCIMProvisioning() {
                     Configure automatic user and group provisioning rules
                   </CardDescription>
                 </div>
-                <Button disabled={!isFullyAuthenticated}>
+                <Button disabled={!isAdmin}>
                   <IconComponent name="Plus" className="h-4 w-4 mr-2" />
                   Add Rule
                 </Button>
@@ -695,7 +685,7 @@ export default function SCIMProvisioning() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleToggleRule(rule.id)}
-                          disabled={!isFullyAuthenticated}
+                          disabled={!isAdmin}
                         >
                           {rule.enabled ? "Disable" : "Enable"}
                         </Button>
@@ -814,7 +804,7 @@ export default function SCIMProvisioning() {
                               onClick={() =>
                                 handleResolveConflict(conflict.id, "resolve")
                               }
-                              disabled={!isFullyAuthenticated}
+                              disabled={!isAdmin}
                               className="bg-white"
                             >
                               <IconComponent
@@ -829,7 +819,7 @@ export default function SCIMProvisioning() {
                               onClick={() =>
                                 handleResolveConflict(conflict.id, "ignore")
                               }
-                              disabled={!isFullyAuthenticated}
+                              disabled={!isAdmin}
                             >
                               <IconComponent
                                 name="X"

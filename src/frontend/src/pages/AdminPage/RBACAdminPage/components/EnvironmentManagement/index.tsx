@@ -203,10 +203,10 @@ export default function EnvironmentManagement() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks
   const {
@@ -253,14 +253,14 @@ export default function EnvironmentManagement() {
 
   // Fetch data when authenticated
   useEffect(() => {
-    if (isFullyAuthenticated) {
+    if (isAdmin) {
       fetchEnvironments({ search: searchTerm });
       fetchProjects({});
     }
-  }, [isFullyAuthenticated]);
+  }, [isAdmin]);
 
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       setShowAuthModal(true);
     } else {
       callback();
@@ -297,24 +297,13 @@ export default function EnvironmentManagement() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Authentication Status Indicator */}
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
 
           <Dialog
             open={isCreateDialogOpen}
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button disabled={!isFullyAuthenticated}>
+              <Button disabled={!isAdmin}>
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
                 Create Environment
               </Button>
@@ -359,7 +348,7 @@ export default function EnvironmentManagement() {
         />
         <Button
           onClick={handleSearch}
-          disabled={isLoading || !isFullyAuthenticated}
+          disabled={isLoading || !isAdmin}
         >
           {isLoading ? "Searching..." : "Search"}
         </Button>
@@ -402,7 +391,7 @@ export default function EnvironmentManagement() {
                     Loading environments...
                   </TableCell>
                 </TableRow>
-              ) : !isFullyAuthenticated ? (
+              ) : !isAdmin ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
                     Please authenticate to view environments

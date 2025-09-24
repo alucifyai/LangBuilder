@@ -26,11 +26,10 @@ export default function RoleManagement() {
   const [validationResults, setValidationResults] = useState<any[]>([]);
   const [isValidationValid, setIsValidationValid] = useState(true);
 
-  // Authentication state management
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const userData = useAuthStore((state) => state.userData);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state management - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   const {
     mutate: fetchRoles,
@@ -98,12 +97,9 @@ export default function RoleManagement() {
   // Debug authentication state changes
   useEffect(() => {
     console.log("🔄 RoleManagement: Auth state changed:", {
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
-      userData: !!userData,
+      isAdmin,
     });
-  }, [isAuthenticated, accessToken, userData]);
+  }, [isAdmin]);
 
   const handleSearch = () => {
     fetchRoles({ search: searchTerm, is_active: true });
@@ -154,10 +150,7 @@ export default function RoleManagement() {
   const handlePermissions = (role: any) => {
     console.log("🔧 RoleManagement: handlePermissions called with role:", role);
     console.log("🔐 RoleManagement auth state:", {
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
-      userData: !!userData,
+      isAdmin,
     });
 
     setSelectedRoleForPermissions(role);
@@ -198,17 +191,6 @@ export default function RoleManagement() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Authentication Status Indicator */}
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
 
           <button
             onClick={() => setIsCreating(true)}

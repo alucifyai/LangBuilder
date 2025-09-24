@@ -191,11 +191,10 @@ export default function ServiceAccounts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Authentication state
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const userData = useAuthStore((state) => state.userData);
-  const isFullyAuthenticated = Boolean(isAuthenticated && accessToken);
+  // Authentication state - following AccountMenu pattern
+  const { isAdmin } = useAuthStore((state) => ({
+    isAdmin: state.isAdmin,
+  }));
 
   // API hooks
   const {
@@ -264,7 +263,7 @@ export default function ServiceAccounts() {
 
   // Authentication helper
   const requireAuth = (action: string, callback: () => void) => {
-    if (!isFullyAuthenticated) {
+    if (!isAdmin) {
       console.log("❌ Not authenticated, showing modal for action:", action);
       setShowAuthModal(true);
     } else {
@@ -281,21 +280,18 @@ export default function ServiceAccounts() {
 
   // Fetch data when authenticated
   useEffect(() => {
-    if (isFullyAuthenticated) {
+    if (isAdmin) {
       fetchServiceAccounts({ search: searchTerm });
       fetchWorkspaces({});
     }
-  }, [isFullyAuthenticated]);
+  }, [isAdmin]);
 
   // Debug authentication state changes
   useEffect(() => {
     console.log("🔄 ServiceAccounts: Auth state changed:", {
-      isAuthenticated,
-      accessToken: !!accessToken,
-      isFullyAuthenticated,
-      userData: !!userData,
+      isAdmin,
     });
-  }, [isAuthenticated, accessToken, userData]);
+  }, [isAdmin]);
 
   const handleCreateServiceAccount = (data: CreateServiceAccountData) => {
     requireAuth("create-service-account", () => {
@@ -337,24 +333,13 @@ export default function ServiceAccounts() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {/* Authentication Status Indicator */}
-          <Badge
-            variant={isFullyAuthenticated ? "default" : "destructive"}
-            className="text-xs"
-          >
-            <IconComponent
-              name={isFullyAuthenticated ? "CheckCircle" : "XCircle"}
-              className="h-3 w-3 mr-1"
-            />
-            {isFullyAuthenticated ? "Authenticated" : "Not Authenticated"}
-          </Badge>
 
           <Dialog
             open={isCreateDialogOpen}
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button disabled={!isFullyAuthenticated}>
+              <Button disabled={!isAdmin}>
                 <IconComponent name="Plus" className="h-4 w-4 mr-2" />
                 Create Service Account
               </Button>
@@ -388,7 +373,7 @@ export default function ServiceAccounts() {
         />
         <Button
           onClick={handleSearch}
-          disabled={isLoadingServiceAccounts || !isFullyAuthenticated}
+          disabled={isLoadingServiceAccounts || !isAdmin}
         >
           {isLoadingServiceAccounts ? "Searching..." : "Search"}
         </Button>
@@ -453,7 +438,7 @@ export default function ServiceAccounts() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : !isFullyAuthenticated ? (
+                ) : !isAdmin ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="text-gray-500">
