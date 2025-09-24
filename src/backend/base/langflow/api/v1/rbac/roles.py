@@ -181,14 +181,16 @@ async def create_role(
         require_workspace_access=True,
         audit_action="rbac_operation",
     ),
-    validation_req=ValidationRequirement(
-        validate_workspace_exists=True,
-    ),
+    # validation_req=ValidationRequirement(
+    #     validate_workspace_exists=True,
+    # ),
     audit_enabled=True,
 )
 async def list_roles(
+    request: Request,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: Annotated[User, Depends(get_authenticated_user)],
+    context: Annotated[RuntimeEnforcementContext, Depends(get_enhanced_enforcement_context)],
     params: Annotated[Params | None, Depends(custom_params)],
     permission_engine: PermissionEngine = Depends(get_permission_engine),
     workspace_id: UUIDstr | None = Query(None),
