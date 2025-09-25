@@ -367,7 +367,7 @@ export default function RoleManagement() {
                 Description
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
-                Users
+                Assignments
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
                 Permissions
@@ -426,7 +426,7 @@ export default function RoleManagement() {
                     )}
                   </td>
                   <td className="px-4 py-3">{role.assignment_count || 0}</td>
-                  <td className="px-4 py-3">{role.permissions?.length || 0}</td>
+                  <td className="px-4 py-3">{role.permission_count || 0}</td>
                   <td className="px-4 py-3">
                     <div className="flex space-x-2">
                       {editingRole === role.id ? (
