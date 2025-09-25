@@ -5,6 +5,7 @@ import { useCreateRole } from "../../../../../controllers/API/queries/rbac/use-c
 import { useDeleteRole } from "../../../../../controllers/API/queries/rbac/use-delete-role";
 import { useGetRoles } from "../../../../../controllers/API/queries/rbac/use-get-roles";
 import { useUpdateRole } from "../../../../../controllers/API/queries/rbac/use-update-role";
+import { useUpdateRolePermissions } from "../../../../../controllers/API/queries/rbac/use-update-role-permissions";
 import useAuthStore from "../../../../../stores/authStore";
 import PermissionsModal from "./PermissionsModal";
 import PermissionValidationPanel from "./PermissionValidationPanel";
@@ -45,19 +46,64 @@ export default function RoleManagement() {
     },
   });
 
-  const { mutate: createRole, isPending: isCreatingRole } = useCreateRole({
-    onSuccess: () => {
+  const { mutate: assignPermissions, isPending: isAssigningPermissions } = useUpdateRolePermissions({
+    onSuccess: (data, variables) => {
+      console.log(`✅ Permissions assigned to role ${variables.role_id}:`, data);
+
+      // Clean up form state after successful permission assignment
       setIsCreating(false);
       setNewRoleName("");
       setNewRoleDescription("");
       setSelectedPermissions([]);
       setValidationResults([]);
       setIsValidationValid(true);
-      // Refresh roles list
+
+      // Refresh roles list to show updated permission count
       fetchRoles({ search: searchTerm, is_active: true });
     },
+    onError: (error, variables) => {
+      console.error(`❌ Failed to assign permissions to role ${variables.role_id}:`, error);
+      alert(`Warning: Role created but failed to assign permissions: ${error?.message || "Unknown error"}`);
+
+      // Still clean up form state even if permission assignment failed
+      setIsCreating(false);
+      setNewRoleName("");
+      setNewRoleDescription("");
+      setSelectedPermissions([]);
+      setValidationResults([]);
+      setIsValidationValid(true);
+
+      // Refresh roles list (role was still created)
+      fetchRoles({ search: searchTerm, is_active: true });
+    },
+  });
+
+  const { mutate: createRole, isPending: isCreatingRole } = useCreateRole({
+    onSuccess: (roleData) => {
+      console.log("✅ Role created successfully:", roleData);
+
+      // If permissions were selected, assign them to the new role
+      if (selectedPermissions.length > 0) {
+        console.log(`🔐 Assigning ${selectedPermissions.length} permissions to role ${roleData.id}`);
+        assignPermissions({
+          role_id: roleData.id,
+          permission_ids: selectedPermissions,
+        });
+      } else {
+        // No permissions selected, just clean up and refresh
+        console.log("ℹ️ No permissions selected, role created without permissions");
+        setIsCreating(false);
+        setNewRoleName("");
+        setNewRoleDescription("");
+        setSelectedPermissions([]);
+        setValidationResults([]);
+        setIsValidationValid(true);
+        // Refresh roles list
+        fetchRoles({ search: searchTerm, is_active: true });
+      }
+    },
     onError: (error) => {
-      console.error("Failed to create role:", error);
+      console.error("❌ Failed to create role:", error);
     },
   });
 
@@ -195,9 +241,9 @@ export default function RoleManagement() {
           <button
             onClick={() => setIsCreating(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            disabled={isCreatingRole}
+            disabled={isCreatingRole || isAssigningPermissions}
           >
-            {isCreatingRole ? "Creating..." : "Create Role"}
+            {isCreatingRole ? "Creating..." : isAssigningPermissions ? "Assigning Permissions..." : "Create Role"}
           </button>
         </div>
       </div>
@@ -244,11 +290,11 @@ export default function RoleManagement() {
               <button
                 onClick={handleCreateRole}
                 disabled={
-                  !newRoleName.trim() || isCreatingRole || !isValidationValid
+                  !newRoleName.trim() || isCreatingRole || isAssigningPermissions || !isValidationValid
                 }
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
               >
-                Create Role
+                {isCreatingRole ? "Creating..." : isAssigningPermissions ? "Assigning Permissions..." : "Create Role"}
               </button>
               <button
                 onClick={() => {
