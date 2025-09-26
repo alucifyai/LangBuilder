@@ -30,6 +30,44 @@
       "envFile": "${workspaceFolder}/.env"
     },
     {
+      "name": "Debug create_role_success",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "src/backend/tests/unit/api/v1/rbac/test_roles.py::TestRolesAPI::test_create_role_success",
+        "-v",
+        "-s"
+      ],
+      "cwd": "${workspaceFolder}",
+      "jinja": true,
+      "justMyCode": false,
+      "env": {
+        "LANGFLOW_LOG_LEVEL": "debug"
+      },
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Debug Pytest (uv)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "-m",
+        "pytest",
+        "${input:testPath}",
+        "-v",
+        "-s"
+      ],
+      "cwd": "${workspaceFolder}",
+      "jinja": true,
+      "justMyCode": false,
+      "env": {
+        "LANGFLOW_LOG_LEVEL": "debug"
+      },
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
       "name": "Debug CLI",
       "type": "debugpy",
       "request": "launch",
@@ -75,6 +113,14 @@
       "purpose": ["debug-test"],
       "console": "integratedTerminal",
       "justMyCode": false
+    }
+  ],
+  "inputs": [
+    {
+      "id": "testPath",
+      "description": "Enter the test path (e.g., src/backend/tests/unit/api/v1/rbac/test_roles.py::TestRolesAPI::test_create_role_success)",
+      "default": "",
+      "type": "promptString"
     }
   ]
 }
