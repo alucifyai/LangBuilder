@@ -402,6 +402,7 @@ async def client_fixture(
         def init_app():
             db_dir = tempfile.mkdtemp()
             db_path = Path(db_dir) / "test.db"
+            logger.debug(f"Test DB Location: {db_path}")
             monkeypatch.setenv("LANGFLOW_DATABASE_URL", f"sqlite:///{db_path}")
             monkeypatch.setenv("LANGFLOW_AUTO_LOGIN", "false")
             if "load_flows" in request.keywords:
@@ -540,6 +541,44 @@ async def logged_in_headers_super_user(client, active_super_user):
     tokens = response.json()
     a_token = tokens["access_token"]
     return {"Authorization": f"Bearer {a_token}"}
+
+
+@pytest.fixture
+async def langflow_super_user(client):  # noqa: ARG001
+    db_manager = get_db_service()
+    async with db_manager.with_session() as session:
+        user = User(
+            username="langflow",
+            password=get_password_hash("langflow"),
+            is_active=True,
+            is_superuser=True,
+        )
+        stmt = select(User).where(User.username == user.username)
+        if active_user := (await session.exec(stmt)).first():
+            user = active_user
+        else:
+            raise ValueError("Cannot find langflow superuser")
+        user = UserRead.model_validate(user, from_attributes=True)
+    yield user
+    # Clean up
+    # Now cleanup transactions, vertex_build
+    async with db_manager.with_session() as session:
+        user = await session.get(User, user.id, options=[selectinload(User.flows)])
+        await _delete_transactions_and_vertex_builds(session, user.flows)
+        await session.delete(user)
+
+        await session.commit()
+
+
+@pytest.fixture
+async def logged_in_headers_langflow_super_user(client, langflow_super_user):
+    login_data = {"username": langflow_super_user.username, "password": "langflow"}
+    response = await client.post("api/v1/login", data=login_data)
+    assert response.status_code == 200
+    tokens = response.json()
+    a_token = tokens["access_token"]
+    return {"Authorization": f"Bearer {a_token}"}
+
 
 
 @pytest.fixture
