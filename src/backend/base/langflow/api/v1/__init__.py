@@ -1,14 +1,19 @@
 from langflow.api.v1.api_key import router as api_key_router
 from langflow.api.v1.chat import router as chat_router
+from langflow.api.v1.compliance import router as compliance_router
 from langflow.api.v1.endpoints import router as endpoints_router
 from langflow.api.v1.files import router as files_router
 from langflow.api.v1.flows import router as flows_router
 from langflow.api.v1.folders import router as folders_router
+from langflow.api.v1.iac import router as iac_router
 from langflow.api.v1.login import router as login_router
 from langflow.api.v1.mcp import router as mcp_router
 from langflow.api.v1.mcp_projects import router as mcp_projects_router
 from langflow.api.v1.monitor import router as monitor_router
 from langflow.api.v1.projects import router as projects_router
+from langflow.api.v1.rbac import router as rbac_router
+from langflow.api.v1.scim import router as scim_router
+from langflow.api.v1.sso import router as sso_router
 from langflow.api.v1.starter_projects import router as starter_projects_router
 from langflow.api.v1.store import router as store_router
 from langflow.api.v1.users import router as users_router
@@ -19,15 +24,20 @@ from langflow.api.v1.voice_mode import router as voice_mode_router
 __all__ = [
     "api_key_router",
     "chat_router",
+    "compliance_router",
     "endpoints_router",
     "files_router",
     "flows_router",
     "folders_router",
+    "iac_router",
     "login_router",
     "mcp_projects_router",
     "mcp_router",
     "monitor_router",
     "projects_router",
+    "rbac_router",
+    "scim_router",
+    "sso_router",
     "starter_projects_router",
     "store_router",
     "users_router",

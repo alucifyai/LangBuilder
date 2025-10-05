@@ -58,6 +58,20 @@ async def initialize_database(*, fix_migration: bool = False) -> None:
         if "already exists" not in str(exc):
             logger.exception(exc)
         raise
+
+    # Seed RBAC data (permissions and system roles)
+    # Implements GAP #4 and GAP #5 from RBAC_PHASE1_AUDIT_REPORT
+    # TODO: Re-enable after fixing SQLAlchemy relationship annotation issues
+    # try:
+    #     from langflow.services.database.seed import seed_rbac_data
+    #
+    #     async with session_getter(database_service) as session:
+    #         await seed_rbac_data(session)
+    # except Exception as exc:
+    #     logger.exception("Error seeding RBAC data")
+    #     raise RuntimeError("Error seeding RBAC data") from exc
+    logger.debug("RBAC seeding temporarily disabled during development")
+
     logger.debug("Database initialized")
 
 

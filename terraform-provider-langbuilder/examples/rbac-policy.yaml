@@ -1,0 +1,123 @@
+version: v1
+
+metadata:
+  name: production-rbac-policy
+  description: Production RBAC policy for LangBuilder
+  created_by: devops-team
+  environment: production
+
+roles:
+  - name: FlowEditor
+    description: Can create and edit flows within a project
+    permissions:
+      - resource_type: flow
+        actions: [create, read, update]
+      - resource_type: component
+        actions: [read, update]
+      - resource_type: project
+        actions: [read]
+    system_role: false
+
+  - name: FlowViewer
+    description: Read-only access to flows
+    permissions:
+      - resource_type: flow
+        actions: [read]
+      - resource_type: component
+        actions: [read]
+      - resource_type: project
+        actions: [read]
+    system_role: false
+
+  - name: FlowDeployer
+    description: Can deploy flows to environments
+    permissions:
+      - resource_type: flow
+        actions: [read]
+      - resource_type: environment
+        actions: [deploy_environment]
+    inherits_from:
+      - FlowEditor
+    system_role: false
+
+  - name: ProjectAdmin
+    description: Full control over project resources
+    permissions:
+      - resource_type: project
+        actions: [create, read, update, delete]
+      - resource_type: flow
+        actions: [create, read, update, delete, export_flow]
+      - resource_type: component
+        actions: [create, read, update, delete, modify_component_settings]
+      - resource_type: user
+        actions: [invite_users]
+    system_role: false
+
+grants:
+  # Engineering team
+  - principal: user:alice@example.com
+    role: FlowEditor
+    scope:
+      project: PRJ-123
+    description: Alice is a flow editor for Project 123
+
+  - principal: user:bob@example.com
+    role: ProjectAdmin
+    scope:
+      project: PRJ-123
+    description: Bob is admin for Project 123
+
+  # Data Science team
+  - principal: group:DataScience
+    role: FlowEditor
+    scope:
+      workspace: WS-DATA
+    description: Data Science team can edit flows in Data workspace
+
+  - principal: group:DataScience
+    role: FlowViewer
+    scope:
+      workspace: WS-PROD
+    description: Data Science team has read-only access to Production workspace
+
+  # DevOps team
+  - principal: group:DevOps
+    role: FlowDeployer
+    scope:
+      environment: staging
+    description: DevOps can deploy to staging environment
+
+  - principal: group:DevOps
+    role: FlowDeployer
+    scope:
+      environment: production
+    description: DevOps can deploy to production environment
+
+  # Service accounts
+  - principal: service_account:ci-cd-bot
+    role: FlowDeployer
+    scope:
+      environment: staging
+    description: CI/CD bot can deploy to staging
+
+  - principal: service_account:ci-cd-bot
+    role: FlowViewer
+    scope:
+      environment: production
+    description: CI/CD bot can view production (no deploy)
+
+  # Temporary access (with expiration)
+  - principal: user:contractor@external.com
+    role: FlowEditor
+    scope:
+      project: PRJ-456
+    expires_at: "2025-06-30T23:59:59Z"
+    description: Contractor access until end of Q2 2025
+
+  # Break-glass access (emergency)
+  - principal: service_account:emergency-access
+    role: ProjectAdmin
+    scope:
+      workspace: WS-PROD
+    expires_at: "2025-03-31T23:59:59Z"
+    description: Emergency access for incident response (expires Q1)

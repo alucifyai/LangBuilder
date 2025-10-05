@@ -1,4 +1,7 @@
+from datetime import datetime, timezone
+
 import orjson
+from sqlmodel import Field, SQLModel
 
 
 def orjson_dumps(v, *, default=None, sort_keys=False, indent_2=True):
@@ -15,3 +18,15 @@ def orjson_dumps(v, *, default=None, sort_keys=False, indent_2=True):
     if default is None:
         return orjson.dumps(v, option=option).decode()
     return orjson.dumps(v, default=default, option=option).decode()
+
+
+def utc_now():
+    """Return current UTC datetime."""
+    return datetime.now(timezone.utc)
+
+
+class TimestampedBase(SQLModel):
+    """Base model with created_at and updated_at timestamps."""
+
+    created_at: datetime = Field(default_factory=utc_now, nullable=False)
+    updated_at: datetime = Field(default_factory=utc_now, nullable=False)

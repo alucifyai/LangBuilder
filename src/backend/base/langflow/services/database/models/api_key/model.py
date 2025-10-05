@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from pydantic import field_validator
+from sqlalchemy import JSON
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
 
 from langflow.schema.serialize import UUIDstr
@@ -20,6 +21,22 @@ class ApiKeyBase(SQLModel):
     last_used_at: datetime | None = Field(default=None, nullable=True)
     total_uses: int = Field(default=0)
     is_active: bool = Field(default=True)
+
+    # RBAC scope support (PRD Story 4.2 - Token Scope Enforcement)
+    scope_type: str | None = Field(
+        default=None,
+        index=True,
+        nullable=True,
+        description="Scope type: workspace, project, environment, flow, component",
+    )
+    scope_id: str | None = Field(
+        default=None, index=True, nullable=True, description="ID of the scoped resource"
+    )
+    permissions: list[str] | None = Field(
+        default=None,
+        sa_column=Column(JSON),
+        description="List of permission IDs this token can exercise",
+    )
 
 
 class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]

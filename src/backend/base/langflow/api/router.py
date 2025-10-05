@@ -4,15 +4,20 @@ from fastapi import APIRouter
 from langflow.api.v1 import (
     api_key_router,
     chat_router,
+    compliance_router,
     endpoints_router,
     files_router,
     flows_router,
     folders_router,
+    iac_router,
     login_router,
     mcp_projects_router,
     mcp_router,
     monitor_router,
     projects_router,
+    rbac_router,
+    scim_router,
+    sso_router,
     starter_projects_router,
     store_router,
     users_router,
@@ -48,6 +53,11 @@ router_v1.include_router(starter_projects_router)
 router_v1.include_router(mcp_router)
 router_v1.include_router(voice_mode_router)
 router_v1.include_router(mcp_projects_router)
+router_v1.include_router(rbac_router)
+router_v1.include_router(sso_router)
+router_v1.include_router(scim_router)
+router_v1.include_router(compliance_router)
+router_v1.include_router(iac_router)
 
 router_v2.include_router(files_router_v2)
 router_v2.include_router(mcp_router_v2)

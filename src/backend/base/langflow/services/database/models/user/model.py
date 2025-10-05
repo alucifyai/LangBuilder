@@ -12,6 +12,9 @@ if TYPE_CHECKING:
     from langflow.services.database.models.api_key.model import ApiKey
     from langflow.services.database.models.flow.model import Flow
     from langflow.services.database.models.folder.model import Folder
+    from langflow.services.database.models.rbac.grant import Grant
+    from langflow.services.database.models.rbac.group import Group
+    from langflow.services.database.models.sso_config import SSOSession
     from langflow.services.database.models.variable.model import Variable
 
 
@@ -48,6 +51,23 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     )
     optins: dict[str, Any] | None = Field(
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
+    )
+
+    # RBAC relationships
+    grants: list["Grant"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
+    # TODO: Implement group relationship when Group and UserGroup models are created
+    # groups: list["Group"] = Relationship(
+    #     back_populates="members",
+    #     link_model="user_group",
+    # )
+
+    # SSO relationships
+    sso_sessions: list["SSOSession"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 
