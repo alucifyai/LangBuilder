@@ -24,6 +24,7 @@ from langflow.api.v1.schemas import FlowListCreate
 from langflow.helpers.user import get_user_by_flow_id_or_endpoint_name
 from langflow.initial_setup.constants import STARTER_FOLDER_NAME
 from langflow.logging import logger
+from langflow.services.auth.rbac import check_permission
 from langflow.services.database.models.flow.model import (
     AccessTypeEnum,
     Flow,
@@ -35,6 +36,7 @@ from langflow.services.database.models.flow.model import (
 from langflow.services.database.models.flow.utils import get_webhook_component_in_flow
 from langflow.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langflow.services.database.models.folder.model import Folder
+from langflow.services.database.models.grant.model import ScopeType
 from langflow.services.deps import get_settings_service
 from langflow.utils.compression import compress_response
 
@@ -508,6 +510,23 @@ async def download_multiple_file(
 
     if not flows:
         raise HTTPException(status_code=404, detail="No flows found.")
+
+    # RBAC: Check export_flow permission for each flow
+    for flow in flows:
+        has_permission = await check_permission(
+            db=db,
+            user_id=user.id,
+            action="export_flow",
+            resource_type="flows",
+            resource_id=str(flow.id),
+            scope_type=ScopeType.FLOW,
+            scope_id=str(flow.id),
+        )
+        if not has_permission:
+            raise HTTPException(
+                status_code=403,
+                detail=f"permission_required: export_flow for flow {flow.id}",
+            )
 
     flows_without_api_keys = [remove_api_keys(flow.model_dump()) for flow in flows]
 

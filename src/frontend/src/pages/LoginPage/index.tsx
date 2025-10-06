@@ -6,6 +6,7 @@ import { CustomLink } from "@/customization/components/custom-link";
 import InputComponent from "../../components/core/parameterRenderComponent/components/inputComponent";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import SSOButton from "../../components/SSOLogin/SSOButton";
 import { SIGNIN_ERROR_ALERT } from "../../constants/alerts_constants";
 import { CONTROL_LOGIN_STATE } from "../../constants/constants";
 import { AuthContext } from "../../contexts/authContext";
@@ -126,6 +127,19 @@ export default function LoginPage(): JSX.Element {
                 Sign in
               </Button>
             </Form.Submit>
+          </div>
+          <div className="relative my-6 w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-muted px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+          <div className="w-full">
+            <SSOButton />
           </div>
           <div className="w-full">
             <CustomLink to="/signup">

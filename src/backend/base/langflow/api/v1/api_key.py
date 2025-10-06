@@ -5,10 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.api.v1.schemas import ApiKeyCreateRequest, ApiKeysResponse
 from langflow.services.auth import utils as auth_utils
+from langflow.services.auth.rbac import check_permission
 
 # Assuming you have these methods in your service layer
 from langflow.services.database.models.api_key.crud import create_api_key, delete_api_key, get_api_keys
 from langflow.services.database.models.api_key.model import ApiKeyCreate, UnmaskedApiKeyRead
+from langflow.services.database.models.grant.model import ScopeType
 from langflow.services.deps import get_settings_service
 
 router = APIRouter(tags=["APIKey"], prefix="/api_key")
@@ -36,18 +38,60 @@ async def create_api_key_route(
 ) -> UnmaskedApiKeyRead:
     try:
         user_id = current_user.id
+
+        # RBAC: Check manage_tokens permission
+        # Note: Current architecture doesn't scope API keys to projects
+        # Using workspace-level check as a general permission gate
+        has_permission = await check_permission(
+            db=db,
+            user_id=user_id,
+            action="manage_tokens",
+            resource_type="api_keys",
+            resource_id=str(user_id),  # User-scoped resource
+            scope_type=ScopeType.WORKSPACE,
+            scope_id="default",  # Would need actual workspace ID in full implementation
+        )
+
+        if not has_permission:
+            raise HTTPException(
+                status_code=403,
+                detail="permission_required: manage_tokens",
+            )
+
         return await create_api_key(db, req, user_id=user_id)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
-@router.delete("/{api_key_id}", dependencies=[Depends(auth_utils.get_current_active_user)])
+@router.delete("/{api_key_id}")
 async def delete_api_key_route(
     api_key_id: UUID,
+    current_user: CurrentActiveUser,
     db: DbSession,
 ):
     try:
+        # RBAC: Check manage_tokens permission
+        has_permission = await check_permission(
+            db=db,
+            user_id=current_user.id,
+            action="manage_tokens",
+            resource_type="api_keys",
+            resource_id=str(api_key_id),
+            scope_type=ScopeType.WORKSPACE,
+            scope_id="default",  # Would need actual workspace ID in full implementation
+        )
+
+        if not has_permission:
+            raise HTTPException(
+                status_code=403,
+                detail="permission_required: manage_tokens",
+            )
+
         await delete_api_key(db, api_key_id)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     return {"detail": "API Key deleted"}
