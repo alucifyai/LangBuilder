@@ -50,7 +50,11 @@ async def delete_api_key(session: AsyncSession, api_key_id: UUID) -> None:
 
 
 async def check_key(session: AsyncSession, api_key: str) -> User | None:
-    """Check if the API key is valid."""
+    """Check if the API key is valid.
+
+    Returns the User associated with the API key.
+    For scope information, use check_key_with_scope() instead.
+    """
     query: SelectOfScalar = select(ApiKey).options(selectinload(ApiKey.user)).where(ApiKey.api_key == api_key)
     api_key_object: ApiKey | None = (await session.exec(query)).first()
     if api_key_object is not None:
@@ -59,6 +63,50 @@ async def check_key(session: AsyncSession, api_key: str) -> User | None:
             await update_total_uses(api_key_object.id)
         return api_key_object.user
     return None
+
+
+async def check_key_with_scope(session: AsyncSession, api_key: str) -> tuple[User, ApiKey] | tuple[None, None]:
+    """Check if the API key is valid and return both user and ApiKey object.
+
+    Returns a tuple of (User, ApiKey) if valid, or (None, None) if invalid.
+    The ApiKey object contains scope information (workspace_id, scope_type, scope_id, scoped_permissions).
+
+    This function is used for RBAC scope enforcement (PRD Story 4.2).
+
+    Service Account Support:
+    If the API key belongs to a service account (service_account_id is set),
+    this function creates a synthetic User object representing the service account.
+    """
+    query: SelectOfScalar = select(ApiKey).options(selectinload(ApiKey.user)).where(ApiKey.api_key == api_key)
+    api_key_object: ApiKey | None = (await session.exec(query)).first()
+    if api_key_object is not None:
+        settings_service = get_settings_service()
+        if settings_service.settings.disable_track_apikey_usage is not True:
+            await update_total_uses(api_key_object.id)
+
+        # Handle user API keys
+        if api_key_object.user_id:
+            return api_key_object.user, api_key_object
+
+        # Handle service account API keys (GAP-1 fix)
+        if api_key_object.service_account_id:
+            from langflow.services.database.models.rbac.service_account import ServiceAccount
+
+            # Load service account
+            sa = await session.get(ServiceAccount, api_key_object.service_account_id)
+            if sa and sa.is_active:
+                # Create synthetic User object for service account
+                # This allows service accounts to work with existing User-based auth flow
+                synthetic_user = User(
+                    id=sa.id,
+                    username=f"sa:{sa.name}",
+                    is_active=sa.is_active,
+                    is_superuser=False,  # Service accounts never have superuser privileges
+                    password="",  # Not used for authentication
+                )
+                return synthetic_user, api_key_object
+
+    return None, None
 
 
 async def update_total_uses(api_key_id: UUID):

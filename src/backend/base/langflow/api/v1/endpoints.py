@@ -49,6 +49,7 @@ from langflow.services.database.models.flow.model import Flow, FlowRead
 from langflow.services.database.models.flow.utils import get_all_webhook_components_in_flow
 from langflow.services.database.models.user.model import User, UserRead
 from langflow.services.deps import get_session_service, get_settings_service, get_telemetry_service
+from langflow.services.rbac.audit import log_audit_event_safe
 from langflow.services.telemetry.schema import RunPayload
 from langflow.utils.compression import compress_response
 from langflow.utils.version import get_version_info
@@ -278,11 +279,15 @@ async def simplified_run_flow(
     input_request: SimplifiedAPIRequest | None = None,
     stream: bool = False,
     api_key_user: Annotated[UserRead, Depends(api_key_security)],
+    session: DbSession,
 ):
     """Executes a specified flow by ID with support for streaming and telemetry.
 
     This endpoint executes a flow identified by ID or name, with options for streaming the response
     and tracking execution metrics. It handles both streaming and non-streaming execution modes.
+
+    Requires flow.execute permission on the specified flow (authenticated via API key).
+    Creates audit log entry on execution.
 
     Args:
         background_tasks (BackgroundTasks): FastAPI background task manager
@@ -290,7 +295,7 @@ async def simplified_run_flow(
         input_request (SimplifiedAPIRequest | None): Input parameters for the flow
         stream (bool): Whether to stream the response
         api_key_user (UserRead): Authenticated user from API key
-        request (Request): The incoming HTTP request
+        session (DbSession): Database session for audit logging
 
     Returns:
         Union[StreamingResponse, RunResponse]: Either a streaming response for real-time results
@@ -301,6 +306,7 @@ async def simplified_run_flow(
         APIException: For internal execution errors (500)
 
     Notes:
+        - Requires flow.execute permission (enforced via API key)
         - Supports both streaming and non-streaming execution modes
         - Tracks execution time and success/failure via telemetry
         - Handles graceful client disconnection in streaming mode
@@ -315,6 +321,31 @@ async def simplified_run_flow(
     if flow is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flow not found")
     start_time = time.perf_counter()
+
+    # RBAC check: Verify user has execute permission on the flow
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+
+    engine = RBACEnforcementEngine(session=session)
+    has_perm = await engine.has_permission(
+        user_id=api_key_user.id,
+        permission="flow.execute",
+        resource_type="flow",
+        resource_id=flow.id,
+    )
+    if not has_perm:
+        await log_audit_event_safe(
+            session=session,
+            actor_id=api_key_user.id,
+            action="flow.execute_denied",
+            resource_type="flow",
+            resource_id=flow.id,
+            status="denied",
+            details={"name": flow.name, "reason": "insufficient_permissions"},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions: You do not have 'flow.execute' permission on this flow",
+        )
 
     if stream:
         asyncio_queue: asyncio.Queue = asyncio.Queue()
@@ -356,6 +387,16 @@ async def simplified_run_flow(
                 run_success=True,
                 run_error_message="",
             ),
+        )
+
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=api_key_user.id,
+            action="flow.executed",
+            resource_type="flow",
+            resource_id=flow.id,
+            details={"name": flow.name, "execution_time_ms": int((end_time - start_time) * 1000)},
         )
 
     except ValueError as exc:

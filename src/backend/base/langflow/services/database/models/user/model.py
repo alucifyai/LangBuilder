@@ -12,7 +12,11 @@ if TYPE_CHECKING:
     from langflow.services.database.models.api_key.model import ApiKey
     from langflow.services.database.models.flow.model import Flow
     from langflow.services.database.models.folder.model import Folder
+    from langflow.services.database.models.invitation.model import Invitation
+    from langflow.services.database.models.rbac.role_assignment import RoleAssignment
+    from langflow.services.database.models.user_group.model import UserGroupMember
     from langflow.services.database.models.variable.model import Variable
+    from langflow.services.database.models.workspace.model import WorkspaceMember
 
 
 class UserOptin(BaseModel):
@@ -25,6 +29,7 @@ class UserOptin(BaseModel):
 class User(SQLModel, table=True):  # type: ignore[call-arg]
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True)
     username: str = Field(index=True, unique=True)
+    email: str | None = Field(default=None, nullable=True, index=True, max_length=255)
     password: str = Field()
     profile_image: str | None = Field(default=None, nullable=True)
     is_active: bool = Field(default=False)
@@ -50,9 +55,35 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
     )
 
+    # RBAC relationships
+    role_assignments: list["RoleAssignment"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={
+            "cascade": "delete",
+            "foreign_keys": "[RoleAssignment.user_id]",
+        },
+    )
+    workspace_memberships: list["WorkspaceMember"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "delete"},
+    )
+    group_memberships: list["UserGroupMember"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "delete"},
+    )
+    sent_invitations: list["Invitation"] = Relationship(
+        back_populates="invited_by",
+        sa_relationship_kwargs={
+            "cascade": "delete",
+            "foreign_keys": "[Invitation.invited_by_user_id]",
+            "primaryjoin": "User.id == Invitation.invited_by_user_id",
+        },
+    )
+
 
 class UserCreate(SQLModel):
     username: str = Field()
+    email: str | None = Field(default=None, max_length=255)
     password: str = Field()
     optins: dict[str, Any] | None = Field(
         default={"github_starred": False, "dialog_dismissed": False, "discord_clicked": False}
@@ -62,6 +93,7 @@ class UserCreate(SQLModel):
 class UserRead(SQLModel):
     id: UUID = Field(default_factory=uuid4)
     username: str = Field()
+    email: str | None = Field(default=None)
     profile_image: str | None = Field()
     store_api_key: str | None = Field(nullable=True)
     is_active: bool = Field()
@@ -74,6 +106,7 @@ class UserRead(SQLModel):
 
 class UserUpdate(SQLModel):
     username: str | None = None
+    email: str | None = None
     profile_image: str | None = None
     password: str | None = None
     is_active: bool | None = None

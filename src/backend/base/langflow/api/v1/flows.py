@@ -36,6 +36,13 @@ from langflow.services.database.models.flow.utils import get_webhook_component_i
 from langflow.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langflow.services.database.models.folder.model import Folder
 from langflow.services.deps import get_settings_service
+from langflow.services.rbac.audit import log_audit_event_safe
+from langflow.services.rbac.dependencies import (
+    require_delete,
+    require_export,
+    require_read,
+    require_update,
+)
 from langflow.utils.compression import compress_response
 
 # build router
@@ -158,12 +165,67 @@ async def create_flow(
     flow: FlowCreate,
     current_user: CurrentActiveUser,
 ):
+    """Create a new flow.
+
+    Requires flow.create permission in the workspace/project context.
+    If folder_id is provided, checks project.create permission on that folder.
+    Otherwise checks general flow.create permission at user scope.
+    Creates audit log entry on success.
+    """
+    # RBAC check: For create operations, check permission on parent folder if provided
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+
+    engine = RBACEnforcementEngine(session=session)
+
+    # Determine the target folder for permission check
+    target_folder_id = flow.folder_id
+    if not target_folder_id:
+        # Get default folder for user
+        default_folder = (
+            await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id))
+        ).first()
+        if default_folder:
+            target_folder_id = default_folder.id
+
+    # Check permission on the parent folder/project
+    if target_folder_id:
+        has_perm = await engine.has_permission(
+            user_id=current_user.id,
+            permission="project.create",
+            resource_type="project",
+            resource_id=target_folder_id,
+        )
+        if not has_perm:
+            await log_audit_event_safe(
+                session=session,
+                actor_id=current_user.id,
+                action="flow.create_denied",
+                resource_type="flow",
+                resource_id=None,
+                status="denied",
+                details={"folder_id": str(target_folder_id), "reason": "insufficient_permissions"},
+            )
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient permissions: You do not have 'project.create' permission on this project",
+            )
+
     try:
         db_flow = await _new_flow(session=session, flow=flow, user_id=current_user.id)
         await session.commit()
         await session.refresh(db_flow)
 
         await _save_flow_to_fs(db_flow)
+
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="flow.created",
+            resource_type="flow",
+            resource_id=db_flow.id,
+            details={"name": db_flow.name, "folder_id": str(db_flow.folder_id) if db_flow.folder_id else None},
+        )
 
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
@@ -292,9 +354,22 @@ async def read_flow(
     session: DbSession,
     flow_id: UUID,
     current_user: CurrentActiveUser,
+    _: None = Depends(require_read("flow", "flow_id")),
 ):
-    """Read a flow."""
+    """Read a flow.
+
+    Requires flow.read permission on the specified flow.
+    """
     if user_flow := await _read_flow(session, flow_id, current_user.id):
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="flow.read",
+            resource_type="flow",
+            resource_id=flow_id,
+            details={"name": user_flow.name},
+        )
         return user_flow
     raise HTTPException(status_code=404, detail="Flow not found")
 
@@ -321,8 +396,13 @@ async def update_flow(
     flow_id: UUID,
     flow: FlowUpdate,
     current_user: CurrentActiveUser,
+    _: None = Depends(require_update("flow", "flow_id")),
 ):
-    """Update a flow."""
+    """Update a flow.
+
+    Requires flow.update permission on the specified flow.
+    Creates audit log entry on success.
+    """
     settings_service = get_settings_service()
     try:
         db_flow = await _read_flow(
@@ -363,6 +443,16 @@ async def update_flow(
 
         await _save_flow_to_fs(db_flow)
 
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="flow.updated",
+            resource_type="flow",
+            resource_id=flow_id,
+            details={"name": db_flow.name, "updated_fields": list(update_data.keys())},
+        )
+
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
             # Get the name of the column that failed
@@ -388,8 +478,13 @@ async def delete_flow(
     session: DbSession,
     flow_id: UUID,
     current_user: CurrentActiveUser,
+    _: None = Depends(require_delete("flow", "flow_id")),
 ):
-    """Delete a flow."""
+    """Delete a flow.
+
+    Requires flow.delete permission on the specified flow.
+    Creates audit log entry on success.
+    """
     flow = await _read_flow(
         session=session,
         flow_id=flow_id,
@@ -397,9 +492,75 @@ async def delete_flow(
     )
     if not flow:
         raise HTTPException(status_code=404, detail="Flow not found")
+
+    flow_name = flow.name  # Save name for audit log before deletion
+
     await cascade_delete_flow(session, flow.id)
     await session.commit()
+
+    # Audit log
+    await log_audit_event_safe(
+        session=session,
+        actor_id=current_user.id,
+        action="flow.deleted",
+        resource_type="flow",
+        resource_id=flow_id,
+        details={"name": flow_name},
+    )
+
     return {"message": "Flow deleted successfully"}
+
+
+@router.post("/{flow_id}/export", response_model=dict, status_code=200)
+async def export_flow(
+    *,
+    session: DbSession,
+    flow_id: UUID,
+    current_user: CurrentActiveUser,
+    _: None = Depends(require_export("flow", "flow_id")),
+):
+    """Export flow as JSON (PRD Story 1.1 @AC3).
+
+    Requires flow.export permission on the specified flow.
+    Creates audit log entry on success.
+
+    Returns:
+        dict: Exported flow data including id, name, data, description, and exported_at timestamp
+    """
+    flow = await _read_flow(
+        session=session,
+        flow_id=flow_id,
+        user_id=current_user.id,
+    )
+    if not flow:
+        raise HTTPException(status_code=404, detail="Flow not found")
+
+    # Export logic - serialize flow data
+    exported_data = {
+        "id": str(flow.id),
+        "name": flow.name,
+        "data": flow.data,
+        "description": flow.description,
+        "endpoint_name": flow.endpoint_name,
+        "is_component": flow.is_component,
+        "folder_id": str(flow.folder_id) if flow.folder_id else None,
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Remove API keys for security
+    exported_data = remove_api_keys(exported_data)
+
+    # Audit log
+    await log_audit_event_safe(
+        session=session,
+        actor_id=current_user.id,
+        action="flow.exported",
+        resource_type="flow",
+        resource_id=flow_id,
+        details={"name": flow.name},
+    )
+
+    return exported_data
 
 
 @router.post("/batch/", response_model=list[FlowRead], status_code=201)
@@ -409,16 +570,71 @@ async def create_flows(
     flow_list: FlowListCreate,
     current_user: CurrentActiveUser,
 ):
-    """Create multiple new flows."""
-    db_flows = []
+    """Create multiple new flows.
+
+    Requires project.create permission on each flow's parent folder.
+    Creates audit log entries on success.
+    """
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+
+    engine = RBACEnforcementEngine(session=session)
+
+    # Check RBAC permissions for each flow's parent folder
     for flow in flow_list.flows:
         flow.user_id = current_user.id
+
+        # Determine target folder
+        target_folder_id = flow.folder_id
+        if not target_folder_id:
+            default_folder = (
+                await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id))
+            ).first()
+            if default_folder:
+                target_folder_id = default_folder.id
+
+        # Check permission on parent folder
+        if target_folder_id:
+            has_perm = await engine.has_permission(
+                user_id=current_user.id,
+                permission="project.create",
+                resource_type="project",
+                resource_id=target_folder_id,
+            )
+            if not has_perm:
+                await log_audit_event_safe(
+                    session=session,
+                    actor_id=current_user.id,
+                    action="flow.batch_create_denied",
+                    resource_type="flow",
+                    resource_id=None,
+                    status="denied",
+                    details={"folder_id": str(target_folder_id), "flow_name": flow.name, "reason": "insufficient_permissions"},
+                )
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Insufficient permissions: You do not have 'project.create' permission on project {target_folder_id} for flow '{flow.name}'",
+                )
+
+    db_flows = []
+    for flow in flow_list.flows:
         db_flow = Flow.model_validate(flow, from_attributes=True)
         session.add(db_flow)
         db_flows.append(db_flow)
+
     await session.commit()
+
     for db_flow in db_flows:
         await session.refresh(db_flow)
+        # Audit log for each created flow
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="flow.batch_created",
+            resource_type="flow",
+            resource_id=db_flow.id,
+            details={"name": db_flow.name, "folder_id": str(db_flow.folder_id) if db_flow.folder_id else None},
+        )
+
     return db_flows
 
 
@@ -430,16 +646,65 @@ async def upload_file(
     current_user: CurrentActiveUser,
     folder_id: UUID | None = None,
 ):
-    """Upload flows from a file."""
+    """Upload flows from a file.
+
+    Requires project.create permission on the target folder for each flow.
+    Creates audit log entries on success.
+    """
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+
     contents = await file.read()
     data = orjson.loads(contents)
-    response_list = []
     flow_list = FlowListCreate(**data) if "flows" in data else FlowListCreate(flows=[FlowCreate(**data)])
-    # Now we set the user_id for all flows
+
+    engine = RBACEnforcementEngine(session=session)
+
+    # Check RBAC permissions for each flow before uploading
     for flow in flow_list.flows:
         flow.user_id = current_user.id
         if folder_id:
             flow.folder_id = folder_id
+
+        # Determine target folder
+        target_folder_id = flow.folder_id
+        if not target_folder_id:
+            default_folder = (
+                await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id))
+            ).first()
+            if default_folder:
+                target_folder_id = default_folder.id
+
+        # Check permission on parent folder
+        if target_folder_id:
+            has_perm = await engine.has_permission(
+                user_id=current_user.id,
+                permission="project.create",
+                resource_type="project",
+                resource_id=target_folder_id,
+            )
+            if not has_perm:
+                await log_audit_event_safe(
+                    session=session,
+                    actor_id=current_user.id,
+                    action="flow.upload_denied",
+                    resource_type="flow",
+                    resource_id=None,
+                    status="denied",
+                    details={
+                        "folder_id": str(target_folder_id),
+                        "flow_name": flow.name,
+                        "filename": file.filename,
+                        "reason": "insufficient_permissions",
+                    },
+                )
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Insufficient permissions: You do not have 'project.create' permission on project {target_folder_id} for flow '{flow.name}'",
+                )
+
+    # Now create the flows
+    response_list = []
+    for flow in flow_list.flows:
         response = await _new_flow(session=session, flow=flow, user_id=current_user.id)
         response_list.append(response)
 
@@ -448,6 +713,19 @@ async def upload_file(
         for db_flow in response_list:
             await session.refresh(db_flow)
             await _save_flow_to_fs(db_flow)
+            # Audit log for each uploaded flow
+            await log_audit_event_safe(
+                session=session,
+                actor_id=current_user.id,
+                action="flow.uploaded",
+                resource_type="flow",
+                resource_id=db_flow.id,
+                details={
+                    "name": db_flow.name,
+                    "folder_id": str(db_flow.folder_id) if db_flow.folder_id else None,
+                    "filename": file.filename,
+                },
+            )
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
             # Get the name of the column that failed
@@ -475,6 +753,9 @@ async def delete_multiple_flows(
 ):
     """Delete multiple flows by their IDs.
 
+    Requires flow.delete permission on each flow.
+    Creates audit log entries on success.
+
     Args:
         flow_ids (List[str]): The list of flow IDs to delete.
         user (User, optional): The user making the request. Defaults to the current active user.
@@ -484,15 +765,58 @@ async def delete_multiple_flows(
         dict: A dictionary containing the number of flows deleted.
 
     """
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+
     try:
         flows_to_delete = (
             await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)).where(Flow.user_id == user.id))
         ).all()
+
+        # Check RBAC permissions for each flow before deleting
+        engine = RBACEnforcementEngine(session=db)
+        for flow in flows_to_delete:
+            has_perm = await engine.has_permission(
+                user_id=user.id,
+                permission="flow.delete",
+                resource_type="flow",
+                resource_id=flow.id,
+            )
+            if not has_perm:
+                await log_audit_event_safe(
+                    session=db,
+                    actor_id=user.id,
+                    action="flow.batch_delete_denied",
+                    resource_type="flow",
+                    resource_id=flow.id,
+                    status="denied",
+                    details={"name": flow.name, "reason": "insufficient_permissions"},
+                )
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Insufficient permissions: You do not have 'flow.delete' permission on flow '{flow.name}' (ID: {flow.id})",
+                )
+
+        # Delete flows
+        flow_names = [(flow.id, flow.name) for flow in flows_to_delete]  # Save for audit logging
         for flow in flows_to_delete:
             await cascade_delete_flow(db, flow.id)
 
         await db.commit()
+
+        # Audit log for each deleted flow
+        for flow_id, flow_name in flow_names:
+            await log_audit_event_safe(
+                session=db,
+                actor_id=user.id,
+                action="flow.batch_deleted",
+                resource_type="flow",
+                resource_id=flow_id,
+                details={"name": flow_name},
+            )
+
         return {"deleted": len(flows_to_delete)}
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -503,13 +827,54 @@ async def download_multiple_file(
     user: CurrentActiveUser,
     db: DbSession,
 ):
-    """Download all flows as a zip file."""
+    """Download all flows as a zip file.
+
+    Requires flow.export permission on each flow.
+    Creates audit log entries on success.
+    """
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+
     flows = (await db.exec(select(Flow).where(and_(Flow.user_id == user.id, Flow.id.in_(flow_ids))))).all()  # type: ignore[attr-defined]
 
     if not flows:
         raise HTTPException(status_code=404, detail="No flows found.")
 
+    # Check RBAC permissions for each flow before downloading
+    engine = RBACEnforcementEngine(session=db)
+    for flow in flows:
+        has_perm = await engine.has_permission(
+            user_id=user.id,
+            permission="flow.export",
+            resource_type="flow",
+            resource_id=flow.id,
+        )
+        if not has_perm:
+            await log_audit_event_safe(
+                session=db,
+                actor_id=user.id,
+                action="flow.download_denied",
+                resource_type="flow",
+                resource_id=flow.id,
+                status="denied",
+                details={"name": flow.name, "reason": "insufficient_permissions"},
+            )
+            raise HTTPException(
+                status_code=403,
+                detail=f"Insufficient permissions: You do not have 'flow.export' permission on flow '{flow.name}' (ID: {flow.id})",
+            )
+
     flows_without_api_keys = [remove_api_keys(flow.model_dump()) for flow in flows]
+
+    # Audit log for each downloaded flow (before streaming)
+    for flow in flows:
+        await log_audit_event_safe(
+            session=db,
+            actor_id=user.id,
+            action="flow.downloaded",
+            resource_type="flow",
+            resource_id=flow.id,
+            details={"name": flow.name, "count": len(flows)},
+        )
 
     if len(flows_without_api_keys) > 1:
         # Create a byte stream to hold the ZIP file

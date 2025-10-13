@@ -1,0 +1,214 @@
+# Impact Subgraph - Conceptual vs. Literal Nodes
+
+## Summary: What "Conceptual Nodes" Means
+
+The audit mentions that **"Impact Subgraphs reference conceptual nodes that may not have exact ID matches in AppGraph v7.1."**
+
+This is **NOT a problem** - here's why:
+
+---
+
+## The Two Different Naming Styles
+
+### 1. Implementation Plan Uses "Developer-Friendly" Names
+
+When the implementation plan shows an "Impact Subgraph from AppGraph," it uses SHORT, CODE-LIKE names:
+
+```
+Logic Nodes (NEW):
+- rbac_enforcement_engine → Core permission evaluation
+- scope_resolver → Resolves hierarchical scope inheritance
+- permission_cache_manager → In-memory permission cache
+- deny_by_default_enforcer → Deny-by-default logic
+```
+
+### 2. AppGraph Uses "Documentation-Friendly" Names
+
+The actual AppGraph v7.1 JSON uses FULL DESCRIPTIVE names:
+
+```
+"logic_nodes": [
+  "Check RBAC Permissions Before API Execution",
+  "Resolve Resource Scope Hierarchy for Permission Evaluation",
+  "Cache Permission Decisions with TTL Expiration",
+  "Apply Deny-by-Default Security Policy"
+]
+```
+
+---
+
+## Why The Difference?
+
+### Implementation Plan Perspective:
+- **Audience:** Developers implementing the code
+- **Purpose:** Quick reference during coding
+- **Style:** Short, snake_case, memorable
+- **Example:** `rbac_enforcement_engine` (easy to type, remember)
+
+### AppGraph Perspective:
+- **Audience:** Architects, stakeholders, documentation readers
+- **Purpose:** Complete system understanding
+- **Style:** Full sentences, descriptive, self-explanatory
+- **Example:** "Check RBAC Permissions Before API Execution" (explains exactly what it does)
+
+---
+
+## Analogy
+
+Think of it like **variable names** vs. **documentation**:
+
+```python
+# Implementation Plan = Variable names (short, code-friendly)
+rbac_engine = RBACEnforcer()
+scope_resolver = ScopeHierarchyResolver()
+
+# AppGraph = Docstrings (descriptive, human-friendly)
+"""
+Check RBAC Permissions Before API Execution
+
+This component evaluates whether a user has permission
+to perform an action on a resource by checking role
+assignments and scope hierarchy.
+"""
+```
+
+Both refer to the **SAME COMPONENT**, just different naming conventions!
+
+---
+
+## What Are "Conceptual Nodes"?
+
+**"Conceptual nodes"** means:
+- The implementation plan describes the **IDEA** of a component
+- It shows **WHAT** will be built and **HOW** components connect
+- It doesn't need to match exact AppGraph node IDs
+- It's a **DESIGN BLUEPRINT**, not a database foreign key reference
+
+### Example Mapping
+
+| Implementation Plan (Conceptual) | AppGraph v7.1 (Actual ID) | Both Mean |
+|----------------------------------|---------------------------|-----------|
+| `rbac_enforcement_engine` | "Check RBAC Permissions Before API Execution" | Permission checking service |
+| `scope_resolver` | "Resolve Resource Scope Hierarchy" | Workspace > Project > Flow hierarchy resolver |
+| `permission_cache_manager` | "Cache Permission Decisions with TTL" | Redis/memory cache for permissions |
+| `create_role_logic` | "Create Custom Role with Permissions" | Role creation API handler |
+
+---
+
+## Is This A Problem?
+
+### ❌ NO - This is perfectly acceptable!
+
+**Why it's fine:**
+
+1. **"Impact Subgraphs" are design documentation**, not literal code references
+2. They show the **architecture and relationships** between components
+3. Developers will create Python classes/functions with short names anyway
+4. AppGraph provides the **"what"** (requirements), implementation plan provides the **"how"** (code structure)
+
+**Real-world example:**
+
+When you implement `rbac_enforcement_engine`, you might create:
+```python
+# src/backend/base/langflow/services/rbac/enforcer.py
+
+class RBACEnforcementEngine:
+    """
+    Check RBAC Permissions Before API Execution
+
+    This is the implementation of the AppGraph node:
+    "Check RBAC Permissions Before API Execution"
+    """
+    async def has_permission(self, user_id, action, resource_id):
+        # Implementation here
+        pass
+```
+
+The **class name** matches the implementation plan (`RBACEnforcementEngine`), the **docstring** matches AppGraph ("Check RBAC Permissions...").
+
+---
+
+## What The Audit Recommends
+
+### Small Clarification (Optional)
+
+To avoid confusion, the audit suggests:
+
+**Current:** "Impact Subgraph from AppGraph"
+**Better:** "Impact Subgraph (Design Conceptual)"
+
+**Add note:**
+> "These represent conceptual architecture components that align with AppGraph requirements. Node names are developer-friendly identifiers used during implementation, not literal AppGraph node IDs."
+
+---
+
+## Bottom Line
+
+✅ **The implementation plan is correct as-is**
+
+✅ **The "conceptual nodes" are intentional design choices**
+
+✅ **This is standard practice in software architecture documentation**
+
+✅ **No changes required** (optional clarification note recommended)
+
+The implementation plan's "Impact Subgraphs" serve as **architectural blueprints** showing:
+- What components you'll build
+- How they connect to each other
+- What data they operate on
+- What their purpose is
+
+They're meant to guide implementation, not to be literal node ID references!
+
+---
+
+## For Implementation Teams
+
+When you see an "Impact Subgraph" like this:
+
+```
+Logic Nodes:
+- rbac_enforcement_engine → Core permission check
+- scope_resolver → Hierarchy traversal
+
+Edges:
+- rbac_enforcement_engine → scope_resolver (uses)
+```
+
+**Translate it to code like this:**
+
+```python
+# This is the rbac_enforcement_engine
+class RBACEnforcer:
+    def __init__(self):
+        self.scope_resolver = ScopeResolver()  # The edge!
+
+    async def check_permission(self, ...):
+        scope_chain = await self.scope_resolver.resolve(...)  # Uses edge!
+        # ... permission logic
+```
+
+The subgraph tells you:
+- ✅ What to build (`RBACEnforcer`)
+- ✅ What it depends on (`ScopeResolver`)
+- ✅ How they connect (constructor injection, method calls)
+
+---
+
+## Questions?
+
+**Q: Should we rename nodes in the implementation plan to match AppGraph exactly?**
+A: No - short names are better for developers. AppGraph is documentation, implementation plan is code guide.
+
+**Q: Will this cause confusion during implementation?**
+A: No - developers naturally translate architecture concepts to code names.
+
+**Q: Should we create a mapping table?**
+A: Optional but not necessary. The relationship is clear from context.
+
+**Q: Is the audit saying the plan is wrong?**
+A: No! The audit says "conceptual nodes" are acceptable and standard practice. It just clarifies what they are.
+
+---
+
+**Conclusion:** The implementation plan's use of conceptual node names is a **feature, not a bug**! It makes the plan more usable for developers while maintaining architectural alignment with AppGraph requirements.

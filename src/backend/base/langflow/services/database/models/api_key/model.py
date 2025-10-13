@@ -1,13 +1,15 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any
+from uuid import UUID, uuid4
 
 from pydantic import field_validator
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
+from sqlalchemy import JSON, Column
+from sqlmodel import DateTime, Field, Relationship, SQLModel, func
 
 from langflow.schema.serialize import UUIDstr
 
 if TYPE_CHECKING:
+    from langflow.services.database.models.rbac.service_account import ServiceAccount
     from langflow.services.database.models.user.model import User
 
 
@@ -21,6 +23,14 @@ class ApiKeyBase(SQLModel):
     total_uses: int = Field(default=0)
     is_active: bool = Field(default=True)
 
+    # RBAC scope fields
+    workspace_id: UUID | None = Field(default=None, nullable=True, foreign_key="workspace.id", index=True)
+    scope_type: str | None = Field(default=None, nullable=True, max_length=50)  # workspace, project, flow
+    scope_id: UUID | None = Field(default=None, nullable=True, index=True)
+    scoped_permissions: dict[str, Any] | None = Field(
+        default=None, sa_column=Column(JSON, default=None, nullable=True)
+    )  # Explicit permission list for this token
+
 
 class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]
     id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True)
@@ -28,12 +38,13 @@ class ApiKey(ApiKeyBase, table=True):  # type: ignore[call-arg]
         default=None, sa_column=Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     )
     api_key: str = Field(index=True, unique=True)
-    # User relationship
-    # Delete API keys when user is deleted
-    user_id: UUIDstr = Field(index=True, foreign_key="user.id")
-    user: "User" = Relationship(
-        back_populates="api_keys",
-    )
+
+    # Owner relationship (user or service account)
+    user_id: UUIDstr | None = Field(default=None, nullable=True, index=True, foreign_key="user.id")
+    service_account_id: UUID | None = Field(default=None, nullable=True, index=True, foreign_key="service_account.id")
+
+    user: "User" = Relationship(back_populates="api_keys")
+    service_account: "ServiceAccount" = Relationship(back_populates="api_keys")
 
 
 class ApiKeyCreate(ApiKeyBase):

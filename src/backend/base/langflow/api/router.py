@@ -5,19 +5,23 @@ from langflow.api.v1 import (
     api_key_router,
     chat_router,
     endpoints_router,
+    environments_router,
     files_router,
     flows_router,
     folders_router,
+    invitations_router,
     login_router,
     mcp_projects_router,
     mcp_router,
     monitor_router,
     projects_router,
+    rbac_router,
     starter_projects_router,
     store_router,
     users_router,
     validate_router,
     variables_router,
+    workspaces_router,
 )
 from langflow.api.v1.voice_mode import router as voice_mode_router
 from langflow.api.v2 import files_router as files_router_v2
@@ -48,6 +52,10 @@ router_v1.include_router(starter_projects_router)
 router_v1.include_router(mcp_router)
 router_v1.include_router(voice_mode_router)
 router_v1.include_router(mcp_projects_router)
+router_v1.include_router(rbac_router)
+router_v1.include_router(workspaces_router)
+router_v1.include_router(environments_router)
+router_v1.include_router(invitations_router)
 
 router_v2.include_router(files_router_v2)
 router_v2.include_router(mcp_router_v2)

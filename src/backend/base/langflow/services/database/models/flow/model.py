@@ -23,6 +23,7 @@ from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 from langflow.schema.data import Data
 
 if TYPE_CHECKING:
+    from langflow.services.database.models.environment.model import Environment
     from langflow.services.database.models.folder.model import Folder
     from langflow.services.database.models.user.model import User
 
@@ -199,6 +200,10 @@ class Flow(FlowBase, table=True):  # type: ignore[call-arg]
     folder_id: UUID | None = Field(default=None, foreign_key="folder.id", nullable=True, index=True)
     fs_path: str | None = Field(default=None, nullable=True)
     folder: Optional["Folder"] = Relationship(back_populates="flows")
+
+    # RBAC: Environment relationship (nullable for backward compatibility)
+    environment_id: UUID | None = Field(default=None, nullable=True, foreign_key="environment.id", index=True)
+    environment: Optional["Environment"] = Relationship(back_populates="flows")
 
     def to_data(self):
         serialized = self.model_dump()

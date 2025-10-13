@@ -144,6 +144,13 @@ def get_lifespan(*, fix_migration=False, version=None):
             logger.debug(f"Super user initialized in {asyncio.get_event_loop().time() - current_time:.2f}s")
 
             current_time = asyncio.get_event_loop().time()
+            logger.debug("Seeding RBAC permissions and roles")
+            from langflow.services.rbac import seed_permissions_and_roles
+
+            await seed_permissions_and_roles()
+            logger.debug(f"RBAC seeding completed in {asyncio.get_event_loop().time() - current_time:.2f}s")
+
+            current_time = asyncio.get_event_loop().time()
             logger.debug("Loading bundles")
             temp_dirs, bundles_components_paths = await load_bundles_with_error_handling()
             get_settings_service().settings.components_path.extend(bundles_components_paths)

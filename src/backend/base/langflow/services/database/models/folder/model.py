@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import Text, UniqueConstraint
@@ -6,6 +6,10 @@ from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 from langflow.services.database.models.flow.model import Flow, FlowRead
 from langflow.services.database.models.user.model import User
+
+if TYPE_CHECKING:
+    from langflow.services.database.models.environment.model import Environment
+    from langflow.services.database.models.workspace.model import Workspace
 
 
 class FolderBase(SQLModel):
@@ -22,6 +26,9 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
     id: UUID | None = Field(default_factory=uuid4, primary_key=True)
     parent_id: UUID | None = Field(default=None, foreign_key="folder.id")
 
+    # RBAC: Workspace relationship (nullable for backward compatibility during migration)
+    workspace_id: UUID | None = Field(default=None, nullable=True, foreign_key="workspace.id", index=True)
+
     parent: Optional["Folder"] = Relationship(
         back_populates="children",
         sa_relationship_kwargs={"remote_side": "Folder.id"},
@@ -31,6 +38,13 @@ class Folder(FolderBase, table=True):  # type: ignore[call-arg]
     user: User = Relationship(back_populates="folders")
     flows: list[Flow] = Relationship(
         back_populates="folder", sa_relationship_kwargs={"cascade": "all, delete, delete-orphan"}
+    )
+
+    # RBAC relationships
+    workspace: "Workspace" = Relationship(back_populates="projects")
+    environments: list["Environment"] = Relationship(
+        back_populates="project",
+        sa_relationship_kwargs={"cascade": "delete"},
     )
 
     __table_args__ = (UniqueConstraint("user_id", "name", name="unique_folder_name"),)

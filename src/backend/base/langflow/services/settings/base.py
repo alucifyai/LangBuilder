@@ -75,6 +75,8 @@ class Settings(BaseSettings):
 
     dev: bool = False
     """If True, Langflow will run in development mode."""
+    testing: bool = False
+    """If True, Langflow will run in testing mode. Disables RBAC initialization and other startup seeds."""
     database_url: str | None = None
     """Database URL for Langflow. If not provided, Langflow will use a SQLite database.
     The driver shall be an async one like `sqlite+aiosqlite` (`sqlite` and `postgresql`

@@ -12,7 +12,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlmodel import apaginate
-from sqlalchemy import or_, update
+from sqlalchemy import update
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
@@ -32,6 +32,8 @@ from langflow.services.database.models.folder.model import (
     FolderUpdate,
 )
 from langflow.services.database.models.folder.pagination_model import FolderWithPaginatedFlows
+from langflow.services.rbac.audit import log_audit_event_safe
+from langflow.services.rbac.dependencies import require_delete, require_export, require_read, require_update
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -43,9 +45,53 @@ async def create_project(
     project: FolderCreate,
     current_user: CurrentActiveUser,
 ):
+    """Create a new project.
+
+    Requires project.create permission at workspace scope.
+    Creates audit log entry on success or denial.
+    """
+    # RBAC check: For project creation, check project.create permission at workspace scope
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+    from langflow.services.workspace.utils import get_user_default_workspace
+
+    # Get user's default workspace for permission check and project assignment
+    default_workspace = await get_user_default_workspace(current_user.id, session)
+    if not default_workspace:
+        raise HTTPException(
+            status_code=400,
+            detail="No workspace found for user. Please create a workspace first.",
+        )
+
+    # Superusers bypass RBAC permission checks
+    if not current_user.is_superuser:
+        engine = RBACEnforcementEngine(session=session)
+
+        # Check project.create permission at workspace scope
+        has_perm = await engine.has_permission(
+            user_id=current_user.id,
+            permission="project.create",
+            resource_type="workspace",
+            resource_id=default_workspace.id,
+        )
+        if not has_perm:
+            await log_audit_event_safe(
+                session=session,
+                actor_id=current_user.id,
+                action="project.create_denied",
+                resource_type="project",
+                resource_id=None,
+                status="denied",
+                details={"project_name": project.name, "reason": "insufficient_permissions"},
+            )
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient permissions: You do not have 'project.create' permission to create projects",
+            )
+
     try:
         new_project = Folder.model_validate(project, from_attributes=True)
         new_project.user_id = current_user.id
+        new_project.workspace_id = default_workspace.id  # Assign to user's default workspace
         # First check if the project.name is unique
         # there might be flows with name like: "MyFlow", "MyFlow (1)", "MyFlow (2)"
         # so we need to check if the name is unique with `like` operator
@@ -74,6 +120,16 @@ async def create_project(
         await session.commit()
         await session.refresh(new_project)
 
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="project.created",
+            resource_type="project",
+            resource_id=new_project.id,
+            details={"name": new_project.name},
+        )
+
         if project.components_list:
             update_statement_components = (
                 update(Flow).where(Flow.id.in_(project.components_list)).values(folder_id=new_project.id)  # type: ignore[attr-defined]
@@ -100,16 +156,70 @@ async def read_projects(
     session: DbSession,
     current_user: CurrentActiveUser,
 ):
+    """List projects accessible to user.
+
+    Returns projects in user's workspaces where they have workspace.read permission.
+    Superusers see all projects.
+    """
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+    from langflow.services.workspace.utils import get_user_default_workspace
+
+    # Superusers bypass RBAC and see all projects
+    if current_user.is_superuser:
+        try:
+            projects = (
+                await session.exec(select(Folder))
+            ).all()
+            projects = [project for project in projects if project.name != STARTER_FOLDER_NAME]
+            return sorted(projects, key=lambda x: x.name != DEFAULT_FOLDER_NAME)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    # Non-superusers: Check workspace.read permission and filter by workspace
     try:
+        # Get user's default workspace
+        default_workspace = await get_user_default_workspace(current_user.id, session)
+        if not default_workspace:
+            # User has no workspace - return empty list (not an error)
+            return []
+
+        # Check workspace.read permission
+        engine = RBACEnforcementEngine(session=session)
+        has_perm = await engine.has_permission(
+            user_id=current_user.id,
+            permission="workspace.read",
+            resource_type="workspace",
+            resource_id=default_workspace.id,
+        )
+
+        if not has_perm:
+            # Permission denied - log denial and return 403
+            await log_audit_event_safe(
+                session=session,
+                actor_id=current_user.id,
+                action="projects.list_denied",
+                resource_type="workspace",
+                resource_id=default_workspace.id,
+                status="denied",
+                details={"reason": "insufficient_permissions"},
+            )
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient permissions: You do not have 'workspace.read' permission to list projects",
+            )
+
+        # Permission granted - return projects in workspace
         projects = (
             await session.exec(
-                select(Folder).where(
-                    or_(Folder.user_id == current_user.id, Folder.user_id == None)  # noqa: E711
-                )
+                select(Folder).where(Folder.workspace_id == default_workspace.id)
             )
         ).all()
+
         projects = [project for project in projects if project.name != STARTER_FOLDER_NAME]
         return sorted(projects, key=lambda x: x.name != DEFAULT_FOLDER_NAME)
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -124,13 +234,14 @@ async def read_project(
     is_component: bool = False,
     is_flow: bool = False,
     search: str = "",
+    _: Annotated[None, Depends(require_read("project", "project_id"))],
 ):
     try:
         project = (
             await session.exec(
                 select(Folder)
                 .options(selectinload(Folder.flows))
-                .where(Folder.id == project_id, Folder.user_id == current_user.id)
+                .where(Folder.id == project_id)
             )
         ).first()
     except Exception as e:
@@ -166,8 +277,7 @@ async def read_project(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    flows_from_current_user_in_project = [flow for flow in project.flows if flow.user_id == current_user.id]
-    project.flows = flows_from_current_user_in_project
+    # RBAC already checked project.read permission, so return all flows in project
     return project
 
 
@@ -178,10 +288,11 @@ async def update_project(
     project_id: UUID,
     project: FolderUpdate,  # Assuming FolderUpdate is a Pydantic model defining updatable fields
     current_user: CurrentActiveUser,
+    _: Annotated[None, Depends(require_update("project", "project_id"))],
 ):
     try:
         existing_project = (
-            await session.exec(select(Folder).where(Folder.id == project_id, Folder.user_id == current_user.id))
+            await session.exec(select(Folder).where(Folder.id == project_id))
         ).first()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -195,6 +306,17 @@ async def update_project(
             session.add(existing_project)
             await session.commit()
             await session.refresh(existing_project)
+
+            # Audit log
+            await log_audit_event_safe(
+                session=session,
+                actor_id=current_user.id,
+                action="project.updated",
+                resource_type="project",
+                resource_id=project_id,
+                details={"name": existing_project.name, "updated_fields": ["name"]},
+            )
+
             return existing_project
 
         project_data = existing_project.model_dump(exclude_unset=True)
@@ -226,6 +348,16 @@ async def update_project(
             await session.exec(update_statement_components)
             await session.commit()
 
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="project.updated",
+            resource_type="project",
+            resource_id=project_id,
+            details={"name": existing_project.name, "updated_fields": list(project_data.keys())},
+        )
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -238,17 +370,18 @@ async def delete_project(
     session: DbSession,
     project_id: UUID,
     current_user: CurrentActiveUser,
+    _: Annotated[None, Depends(require_delete("project", "project_id"))],
 ):
     try:
         flows = (
-            await session.exec(select(Flow).where(Flow.folder_id == project_id, Flow.user_id == current_user.id))
+            await session.exec(select(Flow).where(Flow.folder_id == project_id))
         ).all()
         if len(flows) > 0:
             for flow in flows:
                 await cascade_delete_flow(session, flow.id)
 
         project = (
-            await session.exec(select(Folder).where(Folder.id == project_id, Folder.user_id == current_user.id))
+            await session.exec(select(Folder).where(Folder.id == project_id))
         ).first()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -256,9 +389,22 @@ async def delete_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    project_name = project.name  # Save name for audit log before deletion
+
     try:
         await session.delete(project)
         await session.commit()
+
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="project.deleted",
+            resource_type="project",
+            resource_id=project_id,
+            details={"name": project_name},
+        )
+
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -270,10 +416,11 @@ async def download_file(
     session: DbSession,
     project_id: UUID,
     current_user: CurrentActiveUser,
+    _: Annotated[None, Depends(require_export("project", "project_id"))],
 ):
     """Download all flows from project as a zip file."""
     try:
-        query = select(Folder).where(Folder.id == project_id, Folder.user_id == current_user.id)
+        query = select(Folder).where(Folder.id == project_id)
         result = await session.exec(query)
         project = result.first()
 
@@ -303,6 +450,16 @@ async def download_file(
         # URL encode filename handle non-ASCII (ex. Cyrillic)
         encoded_filename = quote(filename)
 
+        # Audit log
+        await log_audit_event_safe(
+            session=session,
+            actor_id=current_user.id,
+            action="project.downloaded",
+            resource_type="project",
+            resource_id=project_id,
+            details={"name": project.name, "flow_count": len(flows), "filename": filename},
+        )
+
         return StreamingResponse(
             zip_stream,
             media_type="application/x-zip-compressed",
@@ -322,7 +479,50 @@ async def upload_file(
     file: Annotated[UploadFile, File(...)],
     current_user: CurrentActiveUser,
 ):
-    """Upload flows from a file."""
+    """Upload flows from a file.
+
+    Creates a new project and uploads flows into it.
+    Requires project.create permission at workspace scope.
+    Creates audit log entries on success or denial.
+    """
+    # RBAC check: For project creation (via upload), check project.create permission at workspace scope
+    from langflow.services.rbac.enforcement import RBACEnforcementEngine
+    from langflow.services.workspace.utils import get_user_default_workspace
+
+    # Get user's default workspace for permission check and project assignment
+    default_workspace = await get_user_default_workspace(current_user.id, session)
+    if not default_workspace:
+        raise HTTPException(
+            status_code=400,
+            detail="No workspace found for user. Please create a workspace first.",
+        )
+
+    # Superusers bypass RBAC permission checks
+    if not current_user.is_superuser:
+        engine = RBACEnforcementEngine(session=session)
+
+        # Check project.create permission at workspace scope
+        has_perm = await engine.has_permission(
+            user_id=current_user.id,
+            permission="project.create",
+            resource_type="workspace",
+            resource_id=default_workspace.id,
+        )
+        if not has_perm:
+            await log_audit_event_safe(
+                session=session,
+                actor_id=current_user.id,
+                action="project.upload_denied",
+                resource_type="project",
+                resource_id=None,
+                status="denied",
+                details={"filename": file.filename, "reason": "insufficient_permissions"},
+            )
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient permissions: You do not have 'project.create' permission to upload projects",
+            )
+
     contents = await file.read()
     data = orjson.loads(contents)
 
@@ -338,6 +538,7 @@ async def upload_file(
     new_project = Folder.model_validate(project, from_attributes=True)
     new_project.id = None
     new_project.user_id = current_user.id
+    new_project.workspace_id = default_workspace.id  # Assign to user's default workspace
     session.add(new_project)
     await session.commit()
     await session.refresh(new_project)
@@ -355,5 +556,15 @@ async def upload_file(
         flow.name = flow_name
         flow.user_id = current_user.id
         flow.folder_id = new_project.id
+
+    # Audit log for project upload
+    await log_audit_event_safe(
+        session=session,
+        actor_id=current_user.id,
+        action="project.uploaded",
+        resource_type="project",
+        resource_id=new_project.id,
+        details={"name": new_project.name, "filename": file.filename, "flow_count": len(flow_list.flows)},
+    )
 
     return await create_flows(session=session, flow_list=flow_list, current_user=current_user)

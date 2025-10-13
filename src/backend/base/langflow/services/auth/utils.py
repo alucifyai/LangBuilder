@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
 
 from cryptography.fernet import Fernet
-from fastapi import Depends, HTTPException, Security, WebSocketException, status
+from fastapi import Depends, HTTPException, Request, Security, WebSocketException, status
 from fastapi.security import APIKeyHeader, APIKeyQuery, OAuth2PasswordBearer
 from jose import JWTError, jwt
 from loguru import logger
@@ -145,17 +145,62 @@ async def get_current_user(
     query_param: Annotated[str, Security(api_key_query)],
     header_param: Annotated[str, Security(api_key_header)],
     db: Annotated[AsyncSession, Depends(get_session)],
+    request: Request = None,
 ) -> User:
     if token:
         return await get_current_user_by_jwt(token, db)
-    user = await api_key_security(query_param, header_param)
-    if user:
-        return user
 
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Invalid or missing API key",
-    )
+    # For API key authentication, we need to attach scope info to request.state
+    # This enables token scope enforcement (PRD Story 4.2)
+    from langflow.services.database.models.api_key.crud import check_key_with_scope
+    from langflow.services.rbac.token_scope import attach_api_key_scope_to_request
+
+    settings_service = get_settings_service()
+    api_key_str = query_param or header_param
+
+    # Handle AUTO_LOGIN mode
+    if settings_service.auth_settings.AUTO_LOGIN:
+        if not settings_service.auth_settings.SUPERUSER:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Missing first superuser credentials",
+            )
+        if not api_key_str:
+            if settings_service.auth_settings.skip_auth_auto_login:
+                user = await get_user_by_username(db, settings_service.auth_settings.SUPERUSER)
+                logger.warning(AUTO_LOGIN_WARNING)
+                return user
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=AUTO_LOGIN_ERROR,
+            )
+
+    # Validate API key and get scope information
+    if not api_key_str:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="An API key must be passed as query or header",
+        )
+
+    user, api_key_obj = await check_key_with_scope(db, api_key_str)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid or missing API key",
+        )
+
+    # Attach API key scope to request state for RBAC enforcement
+    if request and api_key_obj:
+        attach_api_key_scope_to_request(
+            request=request,
+            workspace_id=api_key_obj.workspace_id,
+            scope_type=api_key_obj.scope_type,
+            scope_id=api_key_obj.scope_id,
+            scoped_permissions=api_key_obj.scoped_permissions,
+        )
+
+    return user
 
 
 async def get_current_user_by_jwt(

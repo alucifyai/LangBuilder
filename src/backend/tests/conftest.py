@@ -28,6 +28,18 @@ from langflow.services.database.models.folder.model import Folder
 from langflow.services.database.models.transactions.model import TransactionTable
 from langflow.services.database.models.user.model import User, UserCreate, UserRead
 from langflow.services.database.models.vertex_builds.crud import delete_vertex_builds_by_flow_id
+
+# Import RBAC models to ensure they're included in SQLModel.metadata.create_all()
+from langflow.services.database.models.rbac import (  # noqa: F401
+    AuditLog,
+    Permission,
+    Role,
+    RoleAssignment,
+    RolePermission,
+    ServiceAccount,
+    SSOIntegration,
+)
+from langflow.services.database.models.workspace.model import Workspace, WorkspaceMember  # noqa: F401
 from langflow.services.database.utils import session_getter
 from langflow.services.deps import get_db_service, session_scope
 from loguru import logger
@@ -404,6 +416,7 @@ async def client_fixture(
             db_path = Path(db_dir) / "test.db"
             monkeypatch.setenv("LANGFLOW_DATABASE_URL", f"sqlite:///{db_path}")
             monkeypatch.setenv("LANGFLOW_AUTO_LOGIN", "false")
+            monkeypatch.setenv("LANGFLOW_TESTING", "true")  # Disable RBAC initialization in tests
             if "load_flows" in request.keywords:
                 shutil.copyfile(
                     pytest.BASIC_EXAMPLE_PATH, Path(load_flows_dir) / "c54f9130-f2fa-4a3e-b22a-3856d946351b.json"
@@ -461,6 +474,7 @@ async def active_user(client):  # noqa: ARG001
     async with db_manager.with_session() as session:
         user = User(
             username="activeuser",
+            email="activeuser@example.com",
             password=get_password_hash("testpassword"),
             is_active=True,
             is_superuser=False,
@@ -526,10 +540,11 @@ async def active_super_user(client):  # noqa: ARG001
     # Now cleanup transactions, vertex_build
     async with db_manager.with_session() as session:
         user = await session.get(User, user.id, options=[selectinload(User.flows)])
-        await _delete_transactions_and_vertex_builds(session, user.flows)
-        await session.delete(user)
-
-        await session.commit()
+        if user:  # Check if user exists before cleanup
+            if user.flows:  # Check if flows attribute exists
+                await _delete_transactions_and_vertex_builds(session, user.flows)
+            await session.delete(user)
+            await session.commit()
 
 
 @pytest.fixture
