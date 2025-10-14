@@ -21,15 +21,20 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 3,
+  retries: process.env.CI ? 1 : 1,
   /* Opt out of parallel tests on CI. */
-  workers: 2,
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   timeout: 3 * 60 * 750,
   // reporter: [
   //   ["html", { open: "never", outputFolder: "playwright-report/test-results" }],
   // ],
-  reporter: process.env.CI ? "blob" : "html",
+  // reporter: process.env.CI ? "blob" : "html",
+  reporter: [
+    // ['line'],
+    ['list', { printSteps: true }],
+    // ['html', { open: 'never', outputFolder: 'playwright-report/test-results' }],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -37,6 +42,11 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
+    // trace: "retain-on-failure",
+
+    // Capture screenshots on failure
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
   globalTeardown: require.resolve("./tests/globalTeardown.ts"),
@@ -104,11 +114,15 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "uv run uvicorn --factory langflow.main:create_app --host localhost --port 7860 --loop asyncio",
+        "uv run uvicorn --factory langflow.main:create_app --host localhost --port 7860 --loop asyncio --log-level debug",
       port: 7860,
       env: {
         LANGFLOW_DATABASE_URL: "sqlite:///./temp",
-        LANGFLOW_AUTO_LOGIN: "true",
+        LANGFLOW_ENVIRONMENT: "testing",
+        // LANGFLOW_AUTO_LOGIN: "True",
+        LANGFLOW_AUTO_LOGIN: "False",
+        LANGFLOW_SUPERUSER: "langflow",
+        LANGFLOW_SUPERUSER_PASSWORD: "langflow",
       },
       stdout: "ignore",
 
