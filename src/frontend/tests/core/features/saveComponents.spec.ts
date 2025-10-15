@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "fs";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 import { zoomOut } from "../../utils/zoom-out";
 
 test.describe("save component tests", () => {
@@ -10,7 +11,8 @@ test.describe("save component tests", () => {
     { tag: ["@release", "@workspace", "@api"] },
 
     async ({ page }) => {
-      await awaitBootstrapTest(page);
+      await loginLangflow(page);
+      await awaitBootstrapTest(page, { skipGoto: true });
 
       await page.waitForSelector('[data-testid="blank-flow"]', {
         timeout: 30000,

@@ -2,12 +2,14 @@ import { expect, test } from "@playwright/test";
 import { addLegacyComponents } from "../../utils/add-legacy-components";
 import { adjustScreenView } from "../../utils/adjust-screen-view";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user must see on handle hover a tooltip with possibility connections",
   { tag: ["@release", "@components", "@api"] },
   async ({ page }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.getByTestId("blank-flow").click();
     await page.getByTestId("sidebar-search-input").click();

@@ -1,12 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "custom component code button should be pink when adding custom component",
   { tag: ["@release", "@components"] },
 
   async ({ page }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.waitForSelector('[data-testid="blank-flow"]', {
       timeout: 3000,

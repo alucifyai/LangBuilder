@@ -1,5 +1,6 @@
 import { test } from "@playwright/test";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test.describe("group node test", () => {
   /// <reference lib="dom"/>
@@ -8,7 +9,8 @@ test.describe("group node test", () => {
     "group and ungroup updating values",
     { tag: ["@release", "@workspace"] },
     async ({ page }) => {
-      await awaitBootstrapTest(page);
+      await loginLangflow(page);
+      await awaitBootstrapTest(page, { skipGoto: true });
 
       await page.getByTestId("side_nav_options_all-templates").click();
       await page

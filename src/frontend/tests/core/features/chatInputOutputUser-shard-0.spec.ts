@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
 import { initialGPTsetup } from "../../utils/initialGPTsetup";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user must be able to send an image on chat",
@@ -18,7 +19,8 @@ test(
       dotenv.config({ path: path.resolve(__dirname, "../../.env") });
     }
 
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.getByTestId("side_nav_options_all-templates").click();
     await page.getByRole("heading", { name: "Basic Prompting" }).click();

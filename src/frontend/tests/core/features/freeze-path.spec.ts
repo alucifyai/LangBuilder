@@ -4,6 +4,7 @@ import path from "path";
 import { addFlowToTestOnEmptyLangflow } from "../../utils/add-flow-to-test-on-empty-langflow";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
 import { initialGPTsetup } from "../../utils/initialGPTsetup";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user must be able to freeze a path",
@@ -19,7 +20,8 @@ test(
       dotenv.config({ path: path.resolve(__dirname, "../../.env") });
     }
 
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     const firstRunLangflow = await page
       .getByTestId("empty-project-description")

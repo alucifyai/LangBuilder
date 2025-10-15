@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
 import { renameFlow } from "../../utils/rename-flow";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "should filter by tag",
@@ -17,7 +18,7 @@ test(
       dotenv.config({ path: path.resolve(__dirname, "../../.env") });
     }
 
-    await page.goto("/");
+    await loginLangflow(page);
     await page.waitForTimeout(1000);
 
     await page.getByTestId("button-store").click();
@@ -80,7 +81,7 @@ test("should share component with share button", async ({ page }) => {
     dotenv.config({ path: path.resolve(__dirname, "../../.env") });
   }
 
-  await page.goto("/");
+  await loginLangflow(page);
   await page.waitForTimeout(1000);
 
   await page.getByTestId("button-store").click();
