@@ -33,6 +33,12 @@ class NVIDIAModelComponent(LCModelComponent):
             " Please check your internet connection and API credentials."
         )
         all_models = []
+    except Exception as e:
+        logger.warning(
+            f"Failed to fetch NVIDIA models: {e}. Model list may be unavailable."
+            " Please check your NVIDIA API credentials."
+        )
+        all_models = []
 
     inputs = [
         *LCModelComponent._base_inputs,
