@@ -21,6 +21,7 @@ Comprehensive documentation of the entire LangBuilder system including:
 | Date       | Version | Description                     | Author         |
 | ---------- | ------- | ------------------------------- | -------------- |
 | 2025-10-23 | 1.0     | Initial brownfield analysis     | Claude Code AI |
+| 2025-10-23 | 1.1     | Audit corrections applied       | Claude Code AI |
 
 ## Quick Reference - Key Files and Entry Points
 
@@ -28,8 +29,8 @@ Comprehensive documentation of the entire LangBuilder system including:
 
 **Backend Entry Points:**
 - **Main Application Factory**: `src/backend/base/langbuilder/main.py` - FastAPI app creation and middleware setup
-- **CLI Launcher**: `src/backend/langbuilder/__main__.py` - Command-line interface entry
-- **App Launcher**: `src/backend/langbuilder/langbuilder_launcher.py` - Application startup orchestration
+- **CLI Entry Point**: `src/backend/base/langbuilder/__main__.py` - Command-line interface and application launcher (849 lines)
+- **CLI Command**: `langbuilder` or `langbuilder-base` - Typer-based CLI with commands: run, superuser, migration, api_key, copy_db
 
 **Frontend Entry Points:**
 - **React Root**: `src/frontend/src/index.tsx` - React application initialization
@@ -46,10 +47,12 @@ Comprehensive documentation of the entire LangBuilder system including:
 - **Frontend Build**: `Makefile.frontend` - Frontend-specific commands
 
 **API Definitions:**
-- **API v1 Endpoints**: `src/backend/base/langbuilder/api/v1/` - REST API routes
+- **API v1 Endpoints**: `src/backend/base/langbuilder/api/v1/` - REST API routes (22 endpoint files)
+- **API v2 Endpoints**: `src/backend/base/langbuilder/api/v2/` - V2 API routes (files, MCP)
 - **Flow Management**: `src/backend/base/langbuilder/api/v1/flows.py`
 - **Chat/Execution**: `src/backend/base/langbuilder/api/v1/chat.py`
-- **MCP Server**: `src/backend/base/langbuilder/api/v1/mcp_projects.py`
+- **MCP Server v1**: `src/backend/base/langbuilder/api/v1/mcp_projects.py`
+- **MCP Server v2**: `src/backend/base/langbuilder/api/v2/mcp.py`
 - **API Schemas**: `src/backend/base/langbuilder/api/v1/schemas.py`
 
 **Database Models:**
@@ -57,6 +60,10 @@ Comprehensive documentation of the entire LangBuilder system including:
 - **User Model**: `src/backend/base/langbuilder/services/database/models/user/`
 - **Folder Model**: `src/backend/base/langbuilder/services/database/models/folder/`
 - **Message Model**: `src/backend/base/langbuilder/services/database/models/message/`
+- **File Model**: `src/backend/base/langbuilder/services/database/models/file/`
+- **Variable Model**: `src/backend/base/langbuilder/services/database/models/variable/`
+- **Transactions Model**: `src/backend/base/langbuilder/services/database/models/transactions/`
+- **Vertex Builds Model**: `src/backend/base/langbuilder/services/database/models/vertex_builds/`
 
 **Core Business Logic:**
 - **Component System**: `src/backend/base/langbuilder/components/` - 80+ component categories
@@ -183,15 +190,23 @@ langbuilder-cg.git/
 │   │   │       ├── __main__.py     # CLI entry point
 │   │   │       ├── main.py         # FastAPI app factory
 │   │   │       ├── api/            # API routers
-│   │   │       │   ├── v1/         # API version 1
+│   │   │       │   ├── v1/         # API version 1 (22 endpoint files)
 │   │   │       │   │   ├── chat.py          # Chat/execution endpoints
 │   │   │       │   │   ├── flows.py         # Flow CRUD
 │   │   │       │   │   ├── endpoints.py     # Endpoint management
-│   │   │       │   │   ├── mcp_projects.py  # MCP server
+│   │   │       │   │   ├── mcp_projects.py  # MCP server v1
 │   │   │       │   │   ├── login.py         # Authentication
 │   │   │       │   │   ├── users.py         # User management
+│   │   │       │   │   ├── store.py         # Component store
+│   │   │       │   │   ├── validate.py      # Validation endpoints
+│   │   │       │   │   ├── variable.py      # Global variables
+│   │   │       │   │   ├── voice_mode.py    # Voice mode
+│   │   │       │   │   ├── callback.py      # Callbacks
+│   │   │       │   │   ├── monitor.py       # Monitoring
 │   │   │       │   │   └── ...
-│   │   │       │   └── v2/         # API version 2 (future)
+│   │   │       │   └── v2/         # API version 2 (ACTIVE)
+│   │   │       │       ├── files.py         # V2 file operations
+│   │   │       │       └── mcp.py           # V2 MCP server
 │   │   │       ├── components/     # **CRITICAL** - 80+ component categories
 │   │   │       │   ├── agents/     # Agent components
 │   │   │       │   ├── models/     # LLM model wrappers
@@ -214,12 +229,15 @@ langbuilder-cg.git/
 │   │   │       │   ├── auth/       # Authentication service
 │   │   │       │   ├── database/   # Database service & models
 │   │   │       │   │   └── models/ # SQLModel definitions
-│   │   │       │   │       ├── flow/      # Flow models
-│   │   │       │   │       ├── user/      # User models
-│   │   │       │   │       ├── folder/    # Folder models
-│   │   │       │   │       ├── message/   # Message models
-│   │   │       │   │       ├── api_key/   # API key models
-│   │   │       │   │       └── ...
+│   │   │       │   │       ├── flow/           # Flow models
+│   │   │       │   │       ├── user/           # User models
+│   │   │       │   │       ├── folder/         # Folder models
+│   │   │       │   │       ├── message/        # Message models
+│   │   │       │   │       ├── api_key/        # API key models
+│   │   │       │   │       ├── file/           # File upload models
+│   │   │       │   │       ├── variable/       # Global variable models
+│   │   │       │   │       ├── transactions/   # Transaction models
+│   │   │       │   │       └── vertex_builds/  # Vertex build history
 │   │   │       │   ├── flow/       # Flow execution service
 │   │   │       │   ├── cache/      # Caching service
 │   │   │       │   ├── session/    # Session management
@@ -259,11 +277,15 @@ langbuilder-cg.git/
 │       └── src/
 │           ├── index.tsx           # React entry point
 │           ├── App.tsx             # Main app component
-│           ├── pages/              # Page components
+│           ├── pages/              # Page components (15 pages)
 │           │   ├── FlowPage/       # Flow editor page
 │           │   ├── MainPage/       # Main dashboard
 │           │   ├── SettingsPage/   # Settings
-│           │   └── ...
+│           │   ├── Playground/     # Interactive playground
+│           │   ├── StorePage/      # Component marketplace
+│           │   ├── LoginPage/      # Authentication
+│           │   ├── AdminPage/      # Admin dashboard
+│           │   └── ... (8 more pages)
 │           ├── components/         # Reusable components
 │           │   ├── ui/             # shadcn UI components
 │           │   ├── core/           # Core components
@@ -274,11 +296,23 @@ langbuilder-cg.git/
 │           │   │   ├── api.tsx     # API client setup
 │           │   │   └── queries/    # React Query hooks
 │           │   └── ...
-│           ├── stores/             # Zustand stores
-│           │   ├── authStore.tsx   # Auth state
-│           │   ├── flowStore.tsx   # Flow state
-│           │   ├── utilityStore.tsx # UI utilities
-│           │   └── darkStore.tsx   # Theme state
+│           ├── stores/             # Zustand stores (17 stores)
+│           │   ├── authStore.ts    # Auth state
+│           │   ├── flowStore.ts    # Current flow state
+│           │   ├── flowsManagerStore.ts # Multiple flows management
+│           │   ├── utilityStore.ts # UI utilities
+│           │   ├── darkStore.ts    # Theme state
+│           │   ├── alertStore.ts   # Alerts/notifications
+│           │   ├── messagesStore.ts # Chat messages
+│           │   ├── foldersStore.tsx # Folder organization
+│           │   ├── tweaksStore.ts  # Runtime parameter tweaks
+│           │   ├── typesStore.ts   # Component types cache
+│           │   ├── storeStore.ts   # Component marketplace
+│           │   ├── voiceStore.ts   # Voice mode state
+│           │   ├── locationStore.ts # Navigation/routing
+│           │   ├── durationStore.ts # Duration tracking
+│           │   ├── shortcuts.ts    # Keyboard shortcuts
+│           │   └── globalVariablesStore/ # Global variables
 │           ├── contexts/           # React contexts
 │           ├── CustomNodes/        # Flow node components
 │           ├── CustomEdges/        # Flow edge components
@@ -287,6 +321,14 @@ langbuilder-cg.git/
 │           ├── types/              # TypeScript types
 │           ├── utils/              # Utility functions
 │           ├── hooks/              # Custom React hooks
+│           ├── alerts/             # Alert/notification components
+│           ├── shared/             # Shared utilities
+│           ├── style/              # Global styles
+│           ├── constants/          # Frontend constants
+│           ├── helpers/            # Helper functions
+│           ├── assets/             # Static assets
+│           ├── routes.tsx          # Route definitions
+│           ├── flow_constants.tsx  # Flow-specific constants
 │           └── customization/      # Config & customization
 ├── pyproject.toml                  # Main Python project config
 ├── uv.lock                         # Locked Python dependencies
@@ -338,11 +380,23 @@ langbuilder-cg.git/
 
 #### Frontend Core Modules
 
-**State Management** (`src/frontend/src/stores/`):
-- **authStore.tsx**: User authentication state, tokens, login/logout
-- **flowStore.tsx**: Current flow state, nodes, edges, canvas operations
-- **utilityStore.tsx**: UI state (modals, notifications, loading states)
-- **darkStore.tsx**: Theme management (light/dark mode)
+**State Management** (`src/frontend/src/stores/` - 17 Zustand stores):
+- **authStore.ts**: User authentication state, tokens, login/logout
+- **flowStore.ts**: Current flow state, nodes, edges, canvas operations
+- **flowsManagerStore.ts**: Management of multiple flows
+- **utilityStore.ts**: UI state (modals, notifications, loading states)
+- **darkStore.ts**: Theme management (light/dark mode)
+- **alertStore.ts**: Alert and notification management
+- **messagesStore.ts**: Chat message history and state
+- **foldersStore.tsx**: Folder organization and hierarchy
+- **tweaksStore.ts**: Runtime parameter adjustments (tweaks)
+- **typesStore.ts**: Cached component types for performance
+- **storeStore.ts**: Component marketplace/store state
+- **voiceStore.ts**: Voice mode features and state
+- **locationStore.ts**: Navigation and routing state
+- **durationStore.ts**: Performance duration tracking
+- **shortcuts.ts**: Keyboard shortcut definitions and handlers
+- **globalVariablesStore**: Global environment variables management
 
 **API Integration** (`src/frontend/src/controllers/API/`):
 - **api.tsx**: Axios instance with interceptors, auth headers, error handling
@@ -386,37 +440,69 @@ Instead of duplicating model definitions, reference actual model files:
   - API key generation and validation
   - User-scoped keys
 
+- **File Model**: `src/backend/base/langbuilder/services/database/models/file/`
+  - File upload metadata
+  - Associated with flows and messages
+
+- **Variable Model**: `src/backend/base/langbuilder/services/database/models/variable/`
+  - Global environment variables
+  - User-scoped variable management
+
+- **Transactions Model**: `src/backend/base/langbuilder/services/database/models/transactions/`
+  - Database transaction tracking
+  - Audit trail
+
+- **Vertex Builds Model**: `src/backend/base/langbuilder/services/database/models/vertex_builds/`
+  - Flow vertex execution history
+  - Build artifacts and state
+
 ### API Specifications
 
-**REST API Base**: `/api/v1/`
+**REST API Base**: `/api/v1/` (22 endpoint files) and `/api/v2/` (2 endpoint files)
 
 **Authentication**:
 - `POST /api/v1/login` - Login with username/password, returns JWT
 - `GET /api/v1/auto_login` - Auto-login if enabled
 - Token-based: Bearer token in Authorization header
 
-**Flow Management**:
+**Flow Management** (v1):
 - `GET /api/v1/flows/` - List user's flows
 - `POST /api/v1/flows/` - Create flow
 - `GET /api/v1/flows/{flow_id}` - Get flow details
 - `PATCH /api/v1/flows/{flow_id}` - Update flow
 - `DELETE /api/v1/flows/{flow_id}` - Delete flow
 
-**Flow Execution**:
+**Flow Execution** (v1):
 - `POST /api/v1/build/{flow_id}/vertices` - Build flow graph
 - `POST /api/v1/build/{flow_id}/flow` - Run entire flow
 - `GET /api/v1/build/stream/{flow_id}` - Stream execution (SSE)
 - `POST /api/v1/build/{job_id}/cancel` - Cancel running build
 
-**Endpoints (REST API for flows)**:
+**Endpoints (REST API for flows)** (v1):
 - `POST /api/v1/endpoints/` - Create REST endpoint from flow
 - `GET /api/v1/endpoints/` - List endpoints
 - `POST /api/v1/run/{endpoint_name}` - Execute flow via endpoint
 
-**MCP Server**:
-- `GET /api/v1/mcp/projects` - List MCP projects
-- `POST /api/v1/mcp/projects` - Create MCP project
-- `GET /api/v1/mcp/sse` - MCP server-sent events
+**MCP Server** (v1 & v2):
+- `GET /api/v1/mcp/projects` - List MCP projects (v1)
+- `POST /api/v1/mcp/projects` - Create MCP project (v1)
+- `GET /api/v1/mcp/sse` - MCP server-sent events (v1)
+- `/api/v2/mcp/*` - V2 MCP endpoints (enhanced)
+
+**Files** (v1 & v2):
+- `/api/v1/files/*` - File upload/download (v1)
+- `/api/v2/files/*` - V2 file operations (enhanced)
+
+**Additional Endpoints** (v1):
+- `/api/v1/store/*` - Component marketplace operations
+- `/api/v1/validate/*` - Flow validation
+- `/api/v1/variables/*` - Global variables CRUD
+- `/api/v1/voice_mode/*` - Voice mode features
+- `/api/v1/callback/*` - Webhook callbacks
+- `/api/v1/monitor/*` - Monitoring and telemetry
+- `/api/v1/folders/*` - Folder management
+- `/api/v1/users/*` - User management (admin)
+- `/api/v1/api_key/*` - API key management
 
 **WebSocket**:
 - `WS /api/v1/chat/{client_id}` - WebSocket connection for real-time updates
