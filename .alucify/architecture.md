@@ -13,7 +13,7 @@ This is NOT an aspirational document - it reflects the reality of the system inc
 Comprehensive documentation of the entire LangBuilder system including:
 - Backend Python/FastAPI services
 - Frontend React/TypeScript application
-- Component architecture (82 active component categories, 24 deactivated)
+- Component architecture (81 active component categories [75 populated, 6 empty placeholders], 22 deactivated)
 - Database layer and models
 - API structure and endpoints
 - Build and deployment systems
@@ -25,6 +25,7 @@ Comprehensive documentation of the entire LangBuilder system including:
 | 2025-10-23 | 1.0     | Initial brownfield analysis     | Claude Code AI |
 | 2025-10-23 | 1.1     | Audit corrections applied       | Claude Code AI |
 | 2025-10-23 | 1.2     | Minor enhancements & clarifications | Claude Code AI |
+| 2025-10-24 | 1.3     | Third audit corrections applied | Claude Code AI |
 
 ## Quick Reference - Key Files and Entry Points
 
@@ -73,8 +74,9 @@ Comprehensive documentation of the entire LangBuilder system including:
 - **Vertex Builds Model**: `src/backend/base/langbuilder/services/database/models/vertex_builds/`
 
 **Core Business Logic:**
-- **Component System**: `src/backend/base/langbuilder/components/` - 82 active component categories
-  - Additional: 24 deactivated components in `deactivated/` subdirectory
+- **Component System**: `src/backend/base/langbuilder/components/` - 81 active component categories (75 populated, 6 empty placeholders)
+  - Additional: 22 deactivated components in `deactivated/` subdirectory
+  - Empty placeholders: chains, documentloaders, link_extractors, output_parsers, textsplitters, toolkits
 - **Flow Execution**: `src/backend/base/langbuilder/services/flow/` - Flow runner service
 - **Graph Engine**: `src/backend/base/langbuilder/graph/` - Graph execution logic
 - **Session Management**: `src/backend/base/langbuilder/services/session/`
@@ -100,8 +102,8 @@ LangBuilder is a monolithic full-stack application with clear frontend/backend s
 
 | Category              | Technology             | Version       | Notes                                      |
 | --------------------- | ---------------------- | ------------- | ------------------------------------------ |
-| Language              | Python                 | 3.10-3.13     | Multi-version support required             |
-| Package Manager       | uv                     | >=0.4         | **REQUIRED** - faster than pip             |
+| Language              | Python                 | >=3.10,<3.14  | Multi-version support required             |
+| Package Manager       | uv                     | 0.7.20        | **REQUIRED** - faster than pip             |
 | Web Framework         | FastAPI                | Latest        | Async-first ASGI framework                 |
 | Server                | Uvicorn                | Latest        | ASGI server with auto-reload               |
 | ORM                   | SQLAlchemy/SQLModel    | >=2.0.38      | Type-safe ORM with Pydantic integration    |
@@ -333,11 +335,11 @@ langbuilder-cg.git/
 │           ├── shared/             # Shared utilities
 │           ├── style/              # Global styles
 │           ├── constants/          # Frontend constants
-│           ├── helpers/            # Helper functions
+│           ├── helpers/            # Helper functions (domain-specific helpers)
 │           ├── assets/             # Static assets
 │           ├── routes.tsx          # Route definitions
 │           ├── flow_constants.tsx  # Flow-specific constants
-│           └── customization/      # Config & customization
+│           └── customization/      # Config & customization (config-constants.ts)
 ├── pyproject.toml                  # Main Python project config
 ├── uv.lock                         # Locked Python dependencies
 ├── Makefile                        # **PRIMARY BUILD TOOL**
@@ -366,7 +368,8 @@ langbuilder-cg.git/
 
 **Component System** (`src/backend/base/langbuilder/components/`):
 - **Pattern**: Plugin-like architecture with auto-discovery via `__init__.py`
-- **80+ categories**: Each subdirectory is a component category
+- **81 categories**: 75 populated categories + 6 empty placeholders (chains, documentloaders, link_extractors, output_parsers, textsplitters, toolkits)
+- **285 total component files**: Individual component implementations
 - **Auto-reload**: Backend restarts when components change
 - **Custom fields**: Each component defines its input/output schema
 - **Version tracking**: Components track backward compatibility
@@ -388,7 +391,7 @@ langbuilder-cg.git/
 
 #### Frontend Core Modules
 
-**State Management** (`src/frontend/src/stores/` - 17 Zustand stores):
+**State Management** (`src/frontend/src/stores/` - 16 Zustand stores):
 - **authStore.ts**: User authentication state, tokens, login/logout
 - **flowStore.ts**: Current flow state, nodes, edges, canvas operations
 - **flowsManagerStore.ts**: Management of multiple flows
@@ -463,6 +466,7 @@ Instead of duplicating model definitions, reference actual model files:
 - **Vertex Builds Model**: `src/backend/base/langbuilder/services/database/models/vertex_builds/`
   - Flow vertex execution history
   - Build artifacts and state
+  - **Note**: VertexBuildTable is not re-exported from models/__init__.py; import directly from vertex_builds module
 
 ### API Specifications
 
@@ -676,8 +680,8 @@ Instead of duplicating model definitions, reference actual model files:
 ### Local Development Setup
 
 **Prerequisites**:
-1. **Python 3.10-3.13**: Required version range
-2. **uv package manager**: Install with `pipx install uv` or `make setup_uv`
+1. **Python >=3.10,<3.14**: Required version range (all 3.10.x, 3.11.x, 3.12.x, 3.13.x versions supported)
+2. **uv package manager 0.7.20**: Install with `pipx install uv` or `make setup_uv`
 3. **Node.js 22.12 LTS**: Frontend requirement
 4. **npm 10.9**: Comes with Node.js
 
@@ -1017,10 +1021,10 @@ VITE_PORT=3000
 This brownfield architecture document represents the LangBuilder system as it exists today. Key takeaways:
 
 1. **Full-stack monorepo** with clear frontend/backend separation
-2. **Component-based architecture** with 82 active component categories (24 deactivated)
+2. **Component-based architecture** with 81 active component categories (75 populated + 6 placeholders), 22 deactivated, 285 total component files
 3. **LangChain-powered** AI workflow orchestration
-4. **FastAPI + React** modern tech stack
-5. **uv + Makefile** build system (uv is mandatory)
+4. **FastAPI + React** modern tech stack (Python >=3.10,<3.14, React 18.3.1)
+5. **uv + Makefile** build system (uv 0.7.20 is mandatory)
 6. **Format-first development** (`make format_backend` before everything)
 7. **CloudGeometry distribution** with enterprise enhancements
 
