@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This document captures the CURRENT STATE of the LangBuilder codebase as of October 2025. LangBuilder is a full-stack AI agent platform that enables building, deploying, and managing LLM-powered workflows through a visual drag-and-drop interface and programmable framework.
+This document captures the CURRENT STATE of the LangBuilder codebase as of October 2025. LangBuilder is a full-stack AI agent platform (CloudGeometry distribution of the open-source project) that enables building, deploying, and managing LLM-powered workflows through a visual drag-and-drop interface and programmable framework.
+
+CloudGeometry provides enterprise-ready enhancements, managed services, and deployment support for LangBuilder, building on the popular open-source foundation.
 
 This is NOT an aspirational document - it reflects the reality of the system including technical debt, workarounds, and actual implementation patterns.
 
@@ -11,7 +13,7 @@ This is NOT an aspirational document - it reflects the reality of the system inc
 Comprehensive documentation of the entire LangBuilder system including:
 - Backend Python/FastAPI services
 - Frontend React/TypeScript application
-- Component architecture (80+ integrations)
+- Component architecture (82 active component categories, 24 deactivated)
 - Database layer and models
 - API structure and endpoints
 - Build and deployment systems
@@ -22,6 +24,7 @@ Comprehensive documentation of the entire LangBuilder system including:
 | ---------- | ------- | ------------------------------- | -------------- |
 | 2025-10-23 | 1.0     | Initial brownfield analysis     | Claude Code AI |
 | 2025-10-23 | 1.1     | Audit corrections applied       | Claude Code AI |
+| 2025-10-23 | 1.2     | Minor enhancements & clarifications | Claude Code AI |
 
 ## Quick Reference - Key Files and Entry Points
 
@@ -29,8 +32,12 @@ Comprehensive documentation of the entire LangBuilder system including:
 
 **Backend Entry Points:**
 - **Main Application Factory**: `src/backend/base/langbuilder/main.py` - FastAPI app creation and middleware setup
-- **CLI Entry Point**: `src/backend/base/langbuilder/__main__.py` - Command-line interface and application launcher (849 lines)
-- **CLI Command**: `langbuilder` or `langbuilder-base` - Typer-based CLI with commands: run, superuser, migration, api_key, copy_db
+- **CLI Entry Point (Direct)**: `src/backend/base/langbuilder/__main__.py` - Main CLI implementation (849 lines, Typer-based)
+- **CLI Launcher (macOS)**: `src/backend/base/langbuilder/langbuilder_launcher.py` - macOS fork-safety wrapper for Objective-C compatibility
+- **CLI Commands**:
+  - `langbuilder` - Main package entry point (via langbuilder_launcher for macOS compatibility)
+  - `langbuilder-base` - Direct entry to base package (via __main__)
+  - Available commands: `run`, `superuser`, `migration`, `api_key`, `copy_db`
 
 **Frontend Entry Points:**
 - **React Root**: `src/frontend/src/index.tsx` - React application initialization
@@ -66,7 +73,8 @@ Comprehensive documentation of the entire LangBuilder system including:
 - **Vertex Builds Model**: `src/backend/base/langbuilder/services/database/models/vertex_builds/`
 
 **Core Business Logic:**
-- **Component System**: `src/backend/base/langbuilder/components/` - 80+ component categories
+- **Component System**: `src/backend/base/langbuilder/components/` - 82 active component categories
+  - Additional: 24 deactivated components in `deactivated/` subdirectory
 - **Flow Execution**: `src/backend/base/langbuilder/services/flow/` - Flow runner service
 - **Graph Engine**: `src/backend/base/langbuilder/graph/` - Graph execution logic
 - **Session Management**: `src/backend/base/langbuilder/services/session/`
@@ -1009,11 +1017,12 @@ VITE_PORT=3000
 This brownfield architecture document represents the LangBuilder system as it exists today. Key takeaways:
 
 1. **Full-stack monorepo** with clear frontend/backend separation
-2. **Component-based architecture** with 80+ integrations
+2. **Component-based architecture** with 82 active component categories (24 deactivated)
 3. **LangChain-powered** AI workflow orchestration
 4. **FastAPI + React** modern tech stack
 5. **uv + Makefile** build system (uv is mandatory)
 6. **Format-first development** (`make format_backend` before everything)
+7. **CloudGeometry distribution** with enterprise enhancements
 
 **For new developers**:
 - Start with `make init`
