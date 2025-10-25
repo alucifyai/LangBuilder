@@ -1,12 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user can search and add components using keyboard shortcuts",
   { tag: ["@release", "@workspace"] },
   async ({ page }) => {
     // Navigate to homepage and handle initial modal
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     // Start with blank flow
     await page.getByTestId("blank-flow").click();

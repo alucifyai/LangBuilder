@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 import { adjustScreenView } from "../../utils/adjust-screen-view";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "fresh start playground",
@@ -12,7 +13,8 @@ test(
       dotenv.config({ path: path.resolve(__dirname, "../../.env") });
     }
 
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.waitForSelector('[data-testid="blank-flow"]', {
       timeout: 30000,

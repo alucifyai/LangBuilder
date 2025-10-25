@@ -1,11 +1,15 @@
 import { test } from "@playwright/test";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "select and delete a flow",
   { tag: ["@release", "@mainpage"] },
   async ({ page }) => {
-    await awaitBootstrapTest(page);
+    // Login with superuser credentials
+    await loginLangflow(page);
+
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.getByTestId("side_nav_options_all-templates").click();
     await page.getByRole("heading", { name: "Basic Prompting" }).click();
@@ -38,7 +42,8 @@ test(
 );
 
 test("search flows", { tag: ["@release", "@mainpage"] }, async ({ page }) => {
-  await awaitBootstrapTest(page);
+  await loginLangflow(page);
+  await awaitBootstrapTest(page, { skipGoto: true });
 
   await page.getByTestId("side_nav_options_all-templates").click();
   await page.getByRole("heading", { name: "Basic Prompting" }).click();
@@ -78,7 +83,8 @@ test(
   "search components",
   { tag: ["@release", "@mainpage"] },
   async ({ page }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     if (await page.getByTestId("components-btn").isVisible()) {
       await page.getByTestId("side_nav_options_all-templates").click();

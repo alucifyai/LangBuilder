@@ -1,12 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { adjustScreenView } from "../../utils/adjust-screen-view";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user should be able to publish a flow",
   { tag: ["@release", "@workspace", "@api"] },
   async ({ page, context }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.waitForSelector('[data-testid="blank-flow"]', {
       timeout: 5000,

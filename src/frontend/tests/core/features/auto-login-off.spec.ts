@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
 import { renameFlow } from "../../utils/rename-flow";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "when auto_login is false, admin can CRUD user's and should see just your own flows",
@@ -36,21 +37,13 @@ test(
     const randomFlowName = Math.random().toString(36).substring(5);
     const secondRandomFlowName = Math.random().toString(36).substring(5);
 
-    await page.goto("/");
-
-    await page.waitForSelector("text=sign in to langflow", { timeout: 30000 });
-
-    await page.getByPlaceholder("Username").fill("langflow");
-    await page.getByPlaceholder("Password").fill("langflow");
-
-    await page.evaluate(() => {
-      sessionStorage.removeItem("testMockAutoLogin");
-    });
-
-    await page.getByRole("button", { name: "Sign In" }).click();
-
-    await page.waitForSelector('[data-testid="mainpage_title"]', {
-      timeout: 30000,
+    // Login as superuser with sessionStorage manipulation
+    await loginLangflow(page, "langflow", "langflow", {
+      beforeSignIn: async () => {
+        await page.evaluate(() => {
+          sessionStorage.removeItem("testMockAutoLogin");
+        });
+      },
     });
 
     await page.waitForSelector('[id="new-project-btn"]', {
@@ -60,6 +53,9 @@ test(
     await page.getByTestId("user-profile-settings").click();
 
     await page.getByText("Admin Page", { exact: true }).click();
+
+    // Navigate to User Management tab
+    await page.getByText("User Management", { exact: true }).click();
 
     //CRUD an user
     await page.getByText("New User", { exact: true }).click();
@@ -181,19 +177,14 @@ test(
 
     await page.getByText("Logout", { exact: true }).click();
 
-    await page.waitForSelector("text=sign in to langflow", { timeout: 30000 });
-
-    await page.getByPlaceholder("Username").fill(secondRandomName);
-    await page.getByPlaceholder("Password").fill(randomPassword);
-
-    await page.waitForSelector("text=Sign in", {
-      timeout: 1500,
-    });
-
-    await page.getByRole("button", { name: "Sign In" }).click();
-
-    await page.evaluate(() => {
-      sessionStorage.removeItem("testMockAutoLogin");
+    // Login as the newly created user
+    await loginLangflow(page, secondRandomName, randomPassword, {
+      skipGoto: true,
+      afterSignIn: async () => {
+        await page.evaluate(() => {
+          sessionStorage.removeItem("testMockAutoLogin");
+        });
+      },
     });
 
     await page.waitForSelector('[id="new-project-btn"]', {
@@ -202,7 +193,7 @@ test(
 
     expect(
       (
-        await page.waitForSelector("text=Welcome to LangFlow", {
+        await page.waitForSelector("text=Start building", {
           timeout: 30000,
         })
       ).isVisible(),
@@ -253,19 +244,14 @@ test(
 
     await page.getByText("Logout", { exact: true }).click();
 
-    await page.waitForSelector("text=sign in to langflow", { timeout: 30000 });
-
-    await page.getByPlaceholder("Username").fill("langflow");
-    await page.getByPlaceholder("Password").fill("langflow");
-
-    await page.evaluate(() => {
-      sessionStorage.removeItem("testMockAutoLogin");
-    });
-
-    await page.getByRole("button", { name: "Sign In" }).click();
-
-    await page.waitForSelector('[data-testid="mainpage_title"]', {
-      timeout: 30000,
+    // Login back as superuser
+    await loginLangflow(page, "langflow", "langflow", {
+      skipGoto: true,
+      beforeSignIn: async () => {
+        await page.evaluate(() => {
+          sessionStorage.removeItem("testMockAutoLogin");
+        });
+      },
     });
 
     await page.waitForSelector('[data-testid="search-store-input"]:enabled', {

@@ -2,12 +2,14 @@ import { expect, test } from "@playwright/test";
 import { adjustScreenView } from "../../utils/adjust-screen-view";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
 import { initialGPTsetup } from "../../utils/initialGPTsetup";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user must be able to save or delete a global variable",
   { tag: ["@release", "@workspace", "@api"] },
   async ({ page }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.waitForSelector('[data-testid="blank-flow"]', {
       timeout: 30000,

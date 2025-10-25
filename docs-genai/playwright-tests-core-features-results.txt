@@ -1,0 +1,649 @@
+[2m[WebServer] [22m/Users/xyu/alucify/LangBuilder-rbac.git/.venv/lib/python3.13/site-packages/pydantic/_internal/_fields.py:192: UserWarning: Field name "metadata" in "RolePermissionCreate" shadows an attribute in parent "SQLModel"
+[2m[WebServer] [22m  warnings.warn(
+[2m[WebServer] [22m/Users/xyu/alucify/LangBuilder-rbac.git/.venv/lib/python3.13/site-packages/pydantic/_internal/_fields.py:192: UserWarning: Field name "metadata" in "RolePermissionRead" shadows an attribute in parent "SQLModel"
+[2m[WebServer] [22m  warnings.warn(
+[2m[WebServer] [22m2025-10-14 18:36:09.402 | DEBUG    | langflow.services.manager:_create_service:55 - Create service ServiceType.SETTINGS_SERVICE
+[2m[WebServer] [22m2025-10-14 18:36:09.413 | DEBUG    | langflow.services.settings.base:set_database_url:373 - No database_url provided, trying LANGFLOW_DATABASE_URL env variable
+[2m[WebServer] [22m2025-10-14 18:36:09.413 | DEBUG    | langflow.services.settings.base:set_database_url:376 - Using LANGFLOW_DATABASE_URL env variable.
+[2m[WebServer] [22m2025-10-14 18:36:09.414 | DEBUG    | langflow.services.settings.base:set_components_path:464 - Setting default components path to components_path
+[2m[WebServer] [22m2025-10-14 18:36:09.414 | DEBUG    | langflow.services.settings.base:set_components_path:472 - Components path: ['/Users/xyu/alucify/LangBuilder-rbac.git/src/backend/base/langflow/components']
+[2m[WebServer] [22m2025-10-14 18:36:09.414 | DEBUG    | langflow.services.settings.base:set_user_agent:325 - Setting user agent to langflow
+[2m[WebServer] [22m2025-10-14 18:36:09.422 | DEBUG    | langflow.services.settings.auth:get_secret_key:116 - No secret key provided, generating a random one
+[2m[WebServer] [22m2025-10-14 18:36:09.423 | DEBUG    | langflow.services.settings.auth:get_secret_key:120 - Loaded secret key
+[2m[WebServer] [22m2025-10-14 18:36:09.439 | INFO     | langflow.services.settings.security_config:from_env:291 - Security Configuration Loaded for testing environment
+[2m[WebServer] [22m2025-10-14 18:36:09.440 | INFO     | langflow.services.settings.security_config:from_env:292 -   - Auto-login: False
+[2m[WebServer] [22m2025-10-14 18:36:09.440 | INFO     | langflow.services.settings.security_config:from_env:293 -   - Skip Auth: False
+[2m[WebServer] [22m2025-10-14 18:36:09.440 | INFO     | langflow.services.settings.security_config:from_env:294 -   - Rate Limiting: True
+[2m[WebServer] [22m2025-10-14 18:36:09.440 | INFO     | langflow.services.settings.security_config:from_env:295 -   - CORS Origins: 2 configured
+[2m[WebServer] [22m2025-10-14 18:36:09.440 | INFO     | langflow.services.settings.security_config:from_env:296 -   - Session Timeout: 60 minutes
+
+Running 32 tests using 1 worker
+
+  ✘  1 [chromium] › tests/core/features/actionsMainPage-shard-1.spec.ts:5:5 › select and delete a flow @release @mainpage (2.4m)
+  ✓  2 [chromium] › tests/core/features/actionsMainPage-shard-1.spec.ts:5:5 › select and delete a flow @release @mainpage (retry #1) (15.0s)
+  ✓  3 [chromium] › tests/core/features/actionsMainPage-shard-1.spec.ts:44:5 › search flows @release @mainpage (13.0s)
+  ✓  4 [chromium] › tests/core/features/actionsMainPage-shard-1.spec.ts:82:5 › search components @release @mainpage (11.2s)
+  ✓  5 [chromium] › tests/core/features/auto-login-off.spec.ts:6:5 › when auto_login is false, admin can CRUD user's and should see just your own flows @release @api @database @mainpage (29.9s)
+  -  6 [chromium] › tests/core/features/chatInputOutputUser-shard-0.spec.ts:9:5 › user must be able to send an image on chat @release @workspace @components
+  ✓  7 [chromium] › tests/core/features/componentHoverAdd.spec.ts:5:5 › user can add components by hovering and clicking the plus icon @release @components @workspace (12.6s)
+  -  8 [chromium] › tests/core/features/composio.spec.ts:7:5 › user should be able to interact with composio component @release @workspace @api @components
+  ✓  9 [chromium] › tests/core/features/customComponentAdd.spec.ts:5:5 › custom component code button should be pink when adding custom component @release @components (17.3s)
+  ✓  10 [chromium] › tests/core/features/filterEdge-shard-0.spec.ts:7:5 › user must see on handle hover a tooltip with possibility connections @release @components @api (21.8s)
+  ✘  11 [chromium] › tests/core/features/filterSidebar.spec.ts:6:5 › user must see on handle click the possibility connections @release @components @api (2.4m)
+  ✘  12 [chromium] › tests/core/features/filterSidebar.spec.ts:6:5 › user must see on handle click the possibility connections @release @components @api (retry #1) (19.3s)
+  ✘  13 [chromium] › tests/core/features/folders.spec.ts:6:5 › CRUD folders @release @api (2.4m)
+  ✓  14 [chromium] › tests/core/features/folders.spec.ts:6:5 › CRUD folders @release @api (retry #1) (18.5s)
+  ✘  15 [chromium] › tests/core/features/folders.spec.ts:73:5 › add a flow into a folder by drag and drop (59.0s)
+  ✘  16 [chromium] › tests/core/features/folders.spec.ts:73:5 › add a flow into a folder by drag and drop (retry #1) (1.0m)
+  ✘  17 [chromium] › tests/core/features/folders.spec.ts:132:5 › change flow folder (2.4m)
+[2m[WebServer] [22m/Users/xyu/alucify/LangBuilder-rbac.git/.venv/lib/python3.13/site-packages/fastapi_pagination/ext/sqlalchemy.py:267: DeprecationWarning:
+[2m[WebServer] [22m        🚨 You probably want to use `session.exec()` instead of `session.execute()`.
+[2m[WebServer] [22m
+[2m[WebServer] [22m        This is the original SQLAlchemy `session.execute()` method that returns objects
+[2m[WebServer] [22m        of type `Row`, and that you have to call `scalars()` to get the model objects.
+[2m[WebServer] [22m
+[2m[WebServer] [22m        For example:
+[2m[WebServer] [22m
+[2m[WebServer] [22m        ```Python
+[2m[WebServer] [22m        heroes = await session.execute(select(Hero)).scalars().all()
+[2m[WebServer] [22m        ```
+[2m[WebServer] [22m
+[2m[WebServer] [22m        instead you could use `exec()`:
+[2m[WebServer] [22m
+[2m[WebServer] [22m        ```Python
+[2m[WebServer] [22m        heroes = await session.exec(select(Hero)).all()
+[2m[WebServer] [22m        ```
+[2m[WebServer] [22m
+[2m[WebServer] [22m  items = yield conn.execute(query)
+  ✓  18 [chromium] › tests/core/features/folders.spec.ts:132:5 › change flow folder (retry #1) (17.0s)
+  -  19 [chromium] › tests/core/features/freeze-path.spec.ts:9:5 › user must be able to freeze a path @release @workspace @components
+  ✘  20 [chromium] › tests/core/features/freeze.spec.ts:7:5 › user must be able to freeze a component @release @workspace @components (12.7s)
+  ✘  21 [chromium] › tests/core/features/freeze.spec.ts:7:5 › user must be able to freeze a component @release @workspace @components (retry #1) (35.0s)
+[2m[WebServer] [22m[2025-10-14 18:52:32,655][ERROR] Task was destroyed but it is pending!
+[2m[WebServer] [22mtask: <Task pending name='Task-4359' coro=<TracingService._trace_worker() done, defined at /Users/xyu/alucify/LangBuilder-rbac.git/src/backend/base/langflow/services/tracing/service.py:124> wait_for=<Future cancelled>>
+[2m[WebServer] [22m[2025-10-14 18:52:32,666][ERROR] Task was destroyed but it is pending!
+[2m[WebServer] [22mtask: <Task pending name='Task-4371' coro=<TracingService._trace_worker() done, defined at /Users/xyu/alucify/LangBuilder-rbac.git/src/backend/base/langflow/services/tracing/service.py:124> wait_for=<Future cancelled>>
+  ✓  22 [chromium] › tests/core/features/globalVariables.spec.ts:7:5 › user must be able to save or delete a global variable @release @workspace @api (16.6s)
+  -  23 [chromium] › tests/core/features/group.spec.ts:8:8 › group node test › group and ungroup updating values @release @workspace
+  ✓  24 [chromium] › tests/core/features/keyboardComponentSearch.spec.ts:5:5 › user can search and add components using keyboard shortcuts @release @workspace (15.0s)
+  -  25 [chromium] › tests/core/features/logs.spec.ts:7:5 › should able to see and interact with logs @release @workspace @api
+  ✓  26 [chromium] › tests/core/features/playground.spec.ts:8:5 › fresh start playground @release @workspace @api (29.5s)
+  ✓  27 [chromium] › tests/core/features/publish-flow.spec.ts:6:5 › user should be able to publish a flow @release @workspace @api (50.5s)
+  -  28 [chromium] › tests/core/features/saveComponents.spec.ts:9:8 › save component tests › save group component tests @release @workspace @api
+  ✓  29 [chromium] › tests/core/features/stop-building.spec.ts:10:5 › user must be able to stop a building @release @workspace @api (27.7s)
+  -  30 [chromium] › tests/core/features/store-shard-2.spec.ts:8:5 › should filter by tag @release @api
+  -  31 [chromium] › tests/core/features/store-shard-2.spec.ts:74:5 › should share component with share button
+  -  32 [chromium] › tests/core/features/toolModeGroup.spec.ts:8:8 › group node test › group and ungroup updating values @release @workspace @components
+  ✘  33 [chromium] › tests/core/features/tweaksTest.spec.ts:5:5 › curl_api_generation @release @workspace @api (2.4m)
+  ✘  34 [chromium] › tests/core/features/tweaksTest.spec.ts:5:5 › curl_api_generation @release @workspace @api (retry #1) (2.4m)
+  ✓  35 [chromium] › tests/core/features/tweaksTest.spec.ts:59:5 › check if tweaks are updating when someothing on the flow changes (18.0s)
+  ✓  36 [chromium] › tests/core/features/user-flow-state-cleanup.spec.ts:5:5 › flow state should be properly cleaned up between user sessions @release @api @database (22.7s)
+  ✘  37 [chromium] › tests/core/features/user-progress-track.spec.ts:7:5 › admin user must be able to track their progress in getting started @release @api (45.9s)
+  ✘  38 [chromium] › tests/core/features/user-progress-track.spec.ts:7:5 › admin user must be able to track their progress in getting started @release @api (retry #1) (16.6s)
+  ✘  39 [chromium] › tests/core/features/user-progress-track.spec.ts:128:5 › normal user must be able to track their progress in getting started @release @api (2.4m)
+  ✘  40 [chromium] › tests/core/features/user-progress-track.spec.ts:128:5 › normal user must be able to track their progress in getting started @release @api (retry #1) (2.4m)
+  -  41 [chromium] › tests/core/features/voice-assistant.spec.ts:5:5 › should able to see and interact with voice assistant @release @workspace @api
+Removing the temp database
+tempDbPath /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/temp
+Successfully removed the temp database
+
+
+  1) [chromium] › tests/core/features/filterSidebar.spec.ts:6:5 › user must see on handle click the possibility connections @release @components @api
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('new_project_btn_empty_page')[22m
+    [2m    - locator resolved to <button type="button" id="new-project-btn" data-testid="new_project_btn_empty_page" class="noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground  hover…>…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is visible, enabled and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+    [2m    - performing click action[22m
+    [2m    - <html lang="en">…</html> intercepts pointer events[22m
+    [2m  - retrying click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:4
+
+      2 |
+      3 | export const addFlowToTestOnEmptyLangflow = async (page: Page) => {
+    > 4 |   await page.getByTestId("new_project_btn_empty_page").click();
+        |                                                        ^
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+      7 |   await page.getByTestId("icon-ChevronLeft").click();
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:4:56)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:39)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/filterSidebar.spec.ts:12:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-filterSideba-04585-the-possibility-connections-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-filterSideba-04585-the-possibility-connections-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-filterSideba-04585-the-possibility-connections-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: locator.click: Error: strict mode violation: getByTestId('icon-ChevronLeft') resolved to 2 elements:
+        1) <button type="button" data-testid="icon-ChevronLeft" class="mr-1 flex h-8 w-8 items-center">…</button> aka getByTestId('header_left_section_wrapper').getByTestId('icon-ChevronLeft')
+        2) <svg width="24" height="24" fill="none" stroke-width="2" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" data-testid="icon-ChevronLeft" xmlns="http://www.w3.org/2000/svg" class="lucide lucide-chevron-left h-4 w-4">…</svg> aka locator('button').filter({ hasText: 'Go to previous page' })
+
+    Call log:
+    [2m  - waiting for getByTestId('icon-ChevronLeft')[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:7
+
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+    > 7 |   await page.getByTestId("icon-ChevronLeft").click();
+        |                                              ^
+      8 | };
+      9 |
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:7:46)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:5)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/filterSidebar.spec.ts:12:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-filterSideba-04585-the-possibility-connections-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-filterSideba-04585-the-possibility-connections-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-filterSideba-04585-the-possibility-connections-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/core-features-filterSideba-04585-the-possibility-connections-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/core-features-filterSideba-04585-the-possibility-connections-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/core/features/folders.spec.ts:73:5 › add a flow into a folder by drag and drop
+
+    TimeoutError: page.waitForSelector: Timeout 50000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('text=New Flow') to be visible[22m
+
+
+      74 |   await page.goto("/");
+      75 |
+    > 76 |   await page.waitForSelector("text=New Flow", {
+         |              ^
+      77 |     timeout: 50000,
+      78 |   });
+      79 |
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/folders.spec.ts:76:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: page.waitForSelector: Timeout 50000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('text=New Flow') to be visible[22m
+
+
+      74 |   await page.goto("/");
+      75 |
+    > 76 |   await page.waitForSelector("text=New Flow", {
+         |              ^
+      77 |     timeout: 50000,
+      78 |   });
+      79 |
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/folders.spec.ts:76:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/core-features-folders-add--e53ba-o-a-folder-by-drag-and-drop-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/core/features/freeze.spec.ts:7:5 › user must be able to freeze a component @release @workspace @components
+
+    Error: locator.click: Error: strict mode violation: getByTestId('icon-ChevronLeft') resolved to 2 elements:
+        1) <button type="button" data-testid="icon-ChevronLeft" class="mr-1 flex h-8 w-8 items-center">…</button> aka getByTestId('header_left_section_wrapper').getByTestId('icon-ChevronLeft')
+        2) <svg width="24" height="24" fill="none" stroke-width="2" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" data-testid="icon-ChevronLeft" xmlns="http://www.w3.org/2000/svg" class="lucide lucide-chevron-left h-4 w-4">…</svg> aka locator('button').filter({ hasText: 'Go to previous page' })
+
+    Call log:
+    [2m  - waiting for getByTestId('icon-ChevronLeft')[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:7
+
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+    > 7 |   await page.getByTestId("icon-ChevronLeft").click();
+        |                                              ^
+      8 | };
+      9 |
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:7:46)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:5)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/freeze.spec.ts:13:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: getByTestId('frozen-icon')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('frozen-icon')[22m
+
+
+      73 |       timeout: 20000,
+      74 |     });
+    > 75 |     await expect(page.getByTestId("frozen-icon")).toBeVisible();
+         |                                                   ^
+      76 |     await page.keyboard.press("Escape");
+      77 |
+      78 |     await page.getByTestId("div-generic-node").getByRole("button").click();
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/freeze.spec.ts:75:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/core-features-freeze-user-must-be-able-to-freeze-a-component-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/core/features/tweaksTest.spec.ts:5:5 › curl_api_generation @release @workspace @api
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('new_project_btn_empty_page')[22m
+    [2m    - locator resolved to <button type="button" id="new-project-btn" data-testid="new_project_btn_empty_page" class="noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground  hover…>…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is not stable[22m
+    [2m  - retrying click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:4
+
+      2 |
+      3 | export const addFlowToTestOnEmptyLangflow = async (page: Page) => {
+    > 4 |   await page.getByTestId("new_project_btn_empty_page").click();
+        |                                                        ^
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+      7 |   await page.getByTestId("icon-ChevronLeft").click();
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:4:56)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:39)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/tweaksTest.spec.ts:11:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-tweaksTest-curl-api-generation-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-tweaksTest-curl-api-generation-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-tweaksTest-curl-api-generation-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('new_project_btn_empty_page')[22m
+    [2m    - locator resolved to <button type="button" id="new-project-btn" data-testid="new_project_btn_empty_page" class="noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground  hover…>…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:4
+
+      2 |
+      3 | export const addFlowToTestOnEmptyLangflow = async (page: Page) => {
+    > 4 |   await page.getByTestId("new_project_btn_empty_page").click();
+        |                                                        ^
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+      7 |   await page.getByTestId("icon-ChevronLeft").click();
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:4:56)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:39)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/tweaksTest.spec.ts:11:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-tweaksTest-curl-api-generation-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-tweaksTest-curl-api-generation-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-tweaksTest-curl-api-generation-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/core-features-tweaksTest-curl-api-generation-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/core-features-tweaksTest-curl-api-generation-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/core/features/user-progress-track.spec.ts:7:5 › admin user must be able to track their progress in getting started @release @api
+
+    Error: expect.toBeVisible: Error: strict mode violation: getByTestId('mainpage_title') resolved to 2 elements:
+        1) <div data-testid="mainpage_title" class="flex items-center pb-4 text-sm font-medium">…</div> aka getByTestId('cards-wrapper').getByText('Starter Project')
+        2) <h3 data-testid="mainpage_title" class="pt-5 font-chivo text-2xl font-semibold">Empty project</h3> aka getByRole('heading', { name: 'Empty project' })
+
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('mainpage_title')[22m
+
+
+      32 |
+      33 |     await expect(emptyButton).toBeVisible();
+    > 34 |     await expect(page.getByTestId("mainpage_title")).toBeVisible();
+         |                                                      ^
+      35 |     await expect(page.getByTestId("empty_page_description")).toBeVisible();
+      36 |     await expect(page.getByTestId("empty_page_github_button")).toBeVisible();
+      37 |     await expect(page.getByTestId("empty_page_discord_button")).toBeVisible();
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/user-progress-track.spec.ts:34:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect.toBeVisible: Error: strict mode violation: getByTestId('mainpage_title') resolved to 2 elements:
+        1) <div data-testid="mainpage_title" class="flex items-center pb-4 text-sm font-medium">…</div> aka getByTestId('cards-wrapper').getByText('Starter Project')
+        2) <h3 data-testid="mainpage_title" class="pt-5 font-chivo text-2xl font-semibold">Empty project</h3> aka getByRole('heading', { name: 'Empty project' })
+
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('mainpage_title')[22m
+
+
+      32 |
+      33 |     await expect(emptyButton).toBeVisible();
+    > 34 |     await expect(page.getByTestId("mainpage_title")).toBeVisible();
+         |                                                      ^
+      35 |     await expect(page.getByTestId("empty_page_description")).toBeVisible();
+      36 |     await expect(page.getByTestId("empty_page_github_button")).toBeVisible();
+      37 |     await expect(page.getByTestId("empty_page_discord_button")).toBeVisible();
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/user-progress-track.spec.ts:34:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/core-features-user-progres-e2db1-progress-in-getting-started-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests/core/features/user-progress-track.spec.ts:128:5 › normal user must be able to track their progress in getting started @release @api
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByText('New User', { exact: true })[22m
+
+
+       at utils/add-new-user-and-loggin.ts:57
+
+      55 |
+      56 |   //CRUD an user
+    > 57 |   await page.getByText("New User", { exact: true }).click();
+         |                                                     ^
+      58 |
+      59 |   await page.getByPlaceholder("Username").last().fill(randomName);
+      60 |   await page.locator('input[name="password"]').fill(randomPassword);
+        at addNewUserAndLogin (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-new-user-and-loggin.ts:57:53)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/user-progress-track.spec.ts:132:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByText('New User', { exact: true })[22m
+
+
+       at utils/add-new-user-and-loggin.ts:57
+
+      55 |
+      56 |   //CRUD an user
+    > 57 |   await page.getByText("New User", { exact: true }).click();
+         |                                                     ^
+      58 |
+      59 |   await page.getByPlaceholder("Username").last().fill(randomName);
+      60 |   await page.locator('input[name="password"]').fill(randomPassword);
+        at addNewUserAndLogin (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-new-user-and-loggin.ts:57:53)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/user-progress-track.spec.ts:132:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/core-features-user-progres-464fc-progress-in-getting-started-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › tests/core/features/actionsMainPage-shard-1.spec.ts:5:5 › select and delete a flow @release @mainpage
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('new_project_btn_empty_page')[22m
+    [2m    - locator resolved to <button type="button" id="new-project-btn" data-testid="new_project_btn_empty_page" class="noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground  hover…>…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:4
+
+      2 |
+      3 | export const addFlowToTestOnEmptyLangflow = async (page: Page) => {
+    > 4 |   await page.getByTestId("new_project_btn_empty_page").click();
+        |                                                        ^
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+      7 |   await page.getByTestId("icon-ChevronLeft").click();
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:4:56)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:39)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/actionsMainPage-shard-1.spec.ts:12:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-actionsMainP-995ba--1-select-and-delete-a-flow-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-actionsMainP-995ba--1-select-and-delete-a-flow-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-actionsMainP-995ba--1-select-and-delete-a-flow-chromium/error-context.md
+
+  8) [chromium] › tests/core/features/folders.spec.ts:6:5 › CRUD folders @release @api ─────────────
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('new_project_btn_empty_page')[22m
+    [2m    - locator resolved to <button type="button" id="new-project-btn" data-testid="new_project_btn_empty_page" class="noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground  hover…>…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:4
+
+      2 |
+      3 | export const addFlowToTestOnEmptyLangflow = async (page: Page) => {
+    > 4 |   await page.getByTestId("new_project_btn_empty_page").click();
+        |                                                        ^
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+      7 |   await page.getByTestId("icon-ChevronLeft").click();
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:4:56)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:39)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/folders.spec.ts:12:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-folders-CRUD-folders-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-folders-CRUD-folders-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-folders-CRUD-folders-chromium/error-context.md
+
+  9) [chromium] › tests/core/features/folders.spec.ts:132:5 › change flow folder ───────────────────
+
+    [31mTest timeout of 135000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 135000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('new_project_btn_empty_page')[22m
+    [2m    - locator resolved to <button type="button" id="new-project-btn" data-testid="new_project_btn_empty_page" class="noflow nopan nodelete nodrag inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground  hover…>…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is visible, enabled and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+       at utils/add-flow-to-test-on-empty-langflow.ts:4
+
+      2 |
+      3 | export const addFlowToTestOnEmptyLangflow = async (page: Page) => {
+    > 4 |   await page.getByTestId("new_project_btn_empty_page").click();
+        |                                                        ^
+      5 |   await page.getByTestId("side_nav_options_all-templates").click();
+      6 |   await page.getByRole("heading", { name: "Basic Prompting" }).click();
+      7 |   await page.getByTestId("icon-ChevronLeft").click();
+        at addFlowToTestOnEmptyLangflow (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/add-flow-to-test-on-empty-langflow.ts:4:56)
+        at awaitBootstrapTest (/Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/utils/await-bootstrap-test.ts:23:39)
+        at /Users/xyu/alucify/LangBuilder-rbac.git/src/frontend/tests/core/features/folders.spec.ts:134:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/core-features-folders-change-flow-folder-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/core-features-folders-change-flow-folder-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/core-features-folders-change-flow-folder-chromium/error-context.md
+
+  6 failed
+    [chromium] › tests/core/features/filterSidebar.spec.ts:6:5 › user must see on handle click the possibility connections @release @components @api
+    [chromium] › tests/core/features/folders.spec.ts:73:5 › add a flow into a folder by drag and drop
+    [chromium] › tests/core/features/freeze.spec.ts:7:5 › user must be able to freeze a component @release @workspace @components
+    [chromium] › tests/core/features/tweaksTest.spec.ts:5:5 › curl_api_generation @release @workspace @api
+    [chromium] › tests/core/features/user-progress-track.spec.ts:7:5 › admin user must be able to track their progress in getting started @release @api
+    [chromium] › tests/core/features/user-progress-track.spec.ts:128:5 › normal user must be able to track their progress in getting started @release @api
+  3 flaky
+    [chromium] › tests/core/features/actionsMainPage-shard-1.spec.ts:5:5 › select and delete a flow @release @mainpage
+    [chromium] › tests/core/features/folders.spec.ts:6:5 › CRUD folders @release @api ──────────────
+    [chromium] › tests/core/features/folders.spec.ts:132:5 › change flow folder ────────────────────
+  10 skipped
+  13 passed (30.2m)

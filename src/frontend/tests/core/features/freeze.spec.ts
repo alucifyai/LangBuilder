@@ -2,13 +2,15 @@ import { expect, test } from "@playwright/test";
 import { addFlowToTestOnEmptyLangflow } from "../../utils/add-flow-to-test-on-empty-langflow";
 import { addLegacyComponents } from "../../utils/add-legacy-components";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "user must be able to freeze a component",
   { tag: ["@release", "@workspace", "@components"] },
 
   async ({ page }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     const firstRunLangflow = await page
       .getByTestId("empty-project-description")

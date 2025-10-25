@@ -2,12 +2,13 @@ import { expect, test } from "@playwright/test";
 import { DISCORD_URL, GITHUB_URL } from "../../../src/constants/constants";
 import { addNewUserAndLogin } from "../../utils/add-new-user-and-loggin";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "admin user must be able to track their progress in getting started",
   { tag: ["@release", "@api"] },
   async ({ page, context }) => {
-    await page.goto("/");
+    await loginLangflow(page);
 
     // Wait for any loading text to disappear
     await page.waitForSelector('text="Loading"', {

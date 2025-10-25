@@ -1,12 +1,14 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { awaitBootstrapTest } from "../../utils/await-bootstrap-test";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "curl_api_generation",
   { tag: ["@release", "@workspace", "@api"] },
 
   async ({ page, context }) => {
-    await awaitBootstrapTest(page);
+    await loginLangflow(page);
+    await awaitBootstrapTest(page, { skipGoto: true });
 
     await page.getByTestId("side_nav_options_all-templates").click();
     await page.getByRole("heading", { name: "Basic Prompting" }).click();
@@ -57,7 +59,8 @@ test(
 test("check if tweaks are updating when someothing on the flow changes", async ({
   page,
 }) => {
-  await awaitBootstrapTest(page);
+  await loginLangflow(page);
+  await awaitBootstrapTest(page, { skipGoto: true });
 
   await page.waitForSelector('[data-testid="blank-flow"]', {
     timeout: 30000,
@@ -95,7 +98,7 @@ test("check if tweaks are updating when someothing on the flow changes", async (
     .getByTestId("popover-anchor-input-persist_directory")
     .fill("persist_directory_123123123!@#$&*(&%$@");
 
-  const focusElementsOnBoard = async ({ page }) => {
+  const focusElementsOnBoard = async ({ page }: { page: Page }) => {
     const focusElements = await page.getByTestId("publish-button").first();
     await focusElements.click();
   };

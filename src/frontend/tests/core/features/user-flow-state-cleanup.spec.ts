@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { renameFlow } from "../../utils/rename-flow";
+import { loginLangflow } from "../../utils/login-langflow";
 
 test(
   "flow state should be properly cleaned up between user sessions",
@@ -37,21 +38,19 @@ test(
     const userAFlowName = "flow_a_" + Math.random().toString(36).substring(5);
 
     // Log in as admin and create test user
-    await page.goto("/");
-    await page.waitForSelector("text=sign in to langflow", { timeout: 30000 });
-    await page.getByPlaceholder("Username").fill("langflow");
-    await page.getByPlaceholder("Password").fill("langflow");
-    await page.evaluate(() => {
-      sessionStorage.removeItem("testMockAutoLogin");
+    await loginLangflow(page, "langflow", "langflow", {
+      beforeSignIn: async () => {
+        await page.evaluate(() => {
+          sessionStorage.removeItem("testMockAutoLogin");
+        });
+      },
     });
-    await page.getByRole("button", { name: "Sign In" }).click();
 
     // Create User A
-    await page.waitForSelector('[data-testid="mainpage_title"]', {
-      timeout: 30000,
-    });
     await page.getByTestId("user-profile-settings").click();
     await page.getByText("Admin Page", { exact: true }).click();
+    // Navigate to User Management tab
+    await page.getByText("User Management", { exact: true }).click();
     await page.getByText("New User", { exact: true }).click();
     await page.getByPlaceholder("Username").last().fill(userAName);
     await page.locator('input[name="password"]').fill(userAPassword);
@@ -76,20 +75,21 @@ test(
     // ---- USER A SESSION ----
 
     // Log in as User A
-    await page.waitForSelector("text=sign in to langflow", { timeout: 30000 });
-    await page.getByPlaceholder("Username").fill(userAName);
-    await page.getByPlaceholder("Password").fill(userAPassword);
-    await page.evaluate(() => {
-      sessionStorage.removeItem("testMockAutoLogin");
+    await loginLangflow(page, userAName, userAPassword, {
+      skipGoto: true,
+      afterSignIn: async () => {
+        await page.evaluate(() => {
+          sessionStorage.removeItem("testMockAutoLogin");
+        });
+      },
     });
-    await page.getByRole("button", { name: "Sign In" }).click();
 
     // Create a flow for User A
     await page.waitForSelector('[id="new-project-btn"]', { timeout: 30000 });
     // Check that User A starts with an empty flows list
     expect(
       (
-        await page.waitForSelector("text=Welcome to LangFlow", {
+        await page.waitForSelector("text=Start building", {
           timeout: 30000,
         })
       ).isVisible(),
@@ -133,13 +133,14 @@ test(
     // ---- ADMIN SESSION AGAIN ----
 
     // Log in as admin again
-    await page.waitForSelector("text=sign in to langflow", { timeout: 30000 });
-    await page.getByPlaceholder("Username").fill("langflow");
-    await page.getByPlaceholder("Password").fill("langflow");
-    await page.evaluate(() => {
-      sessionStorage.removeItem("testMockAutoLogin");
+    await loginLangflow(page, "langflow", "langflow", {
+      skipGoto: true,
+      beforeSignIn: async () => {
+        await page.evaluate(() => {
+          sessionStorage.removeItem("testMockAutoLogin");
+        });
+      },
     });
-    await page.getByRole("button", { name: "Sign In" }).click();
 
     // Verify admin can't see User A's flow
     await expect(page.getByText(userAFlowName, { exact: true })).toBeVisible({
