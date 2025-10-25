@@ -545,7 +545,7 @@ Prompt #30:
 
 I want you to enhance the RBAC implementation and coding plan you have put into RBAC_IMPLEMENTATION_PLAN.md by     │
 │   adding cross-reference between the implementation tasks with the relevant nodes and subsystems in the AppGraph     │
-│   v7_1. This is to  That is to enable the coding assistant to process each implementation and coding tasks by        │
+│   v7_1. That is to enable the coding assistant to process each implementation and coding tasks by        │
 │   knowing exactly what sub-graph to pull up via the nodes in the AppGraph.
 
 
