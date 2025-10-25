@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "LangBuilder Application Graph with RBAC Impact Analysis (Complete)",
-    "version": "3.7-rbac-with-gherkin-validation-corrected",
+    "version": "3.9-rbac-final-production",
     "base_version": "3.1",
     "enhancement": "Role-Based Access Control (RBAC) MVP",
     "generated_at": "2025-10-25T08:39:17.383293Z",
@@ -11,28 +11,57 @@
         "issue": "Epic 2 title mismatch",
         "description": "Updated Epic 2 title from \"Epic 2: RBAC Enforcement Engine\" to \"Epic 2: RBAC Enforcement Engine & Runtime Checks\"",
         "nodes_affected": 5
+      },
+      {
+        "issue": "Missing rbac_status in validation nodes and edges",
+        "description": "Added rbac_status: \"new\" to all validation nodes and validation edges",
+        "nodes_affected": 20,
+        "validates_edges_affected": 72,
+        "dependency_edges_affected": 55,
+        "total_affected": 147
+      },
+      {
+        "issue": "Incorrect metadata statistics",
+        "description": "Updated metadata to reflect actual node and edge counts including validation layer",
+        "corrections": {
+          "nodes_total": "603 \u2192 623",
+          "nodes_validation": "0 \u2192 20",
+          "nodes_new": "16 \u2192 36",
+          "edges_total": "14105 \u2192 14232",
+          "edges_new": "36 \u2192 163"
+        }
       }
     ],
     "statistics": {
       "nodes": {
-        "total": 603,
+        "total": 623,
         "by_type": {
           "interface": 84,
           "schema": 13,
           "logic": 506,
-          "validation": 0
+          "validation": 20
         },
         "by_rbac_status": {
-          "new": 16,
           "modified": 18,
-          "intact": 569
+          "intact": 569,
+          "new": 36
         }
       },
       "edges": {
-        "total": 14105,
+        "total": 14232,
+        "by_type": {
+          "composition": 35,
+          "navigation": 20,
+          "relationship": 10,
+          "manages": 113,
+          "views": 264,
+          "dependency": 13645,
+          "event": 73,
+          "validates": 72
+        },
         "by_rbac_status": {
-          "new": 36,
-          "intact": 14069
+          "intact": 14069,
+          "new": 163
         }
       }
     },
@@ -113,8 +142,10 @@
     "validates_edges_count": 72,
     "validation_dependency_edges_count": 55,
     "validation_edges_count": 127,
-    "previous_version": "3.6-rbac-with-gherkin-validation",
-    "correction_date": "2025-10-25T09:05:33.982050"
+    "previous_version": "3.8-rbac-with-gherkin-validation-complete",
+    "correction_date": "2025-10-25T09:05:33.982050",
+    "rbac_status_correction_date": "2025-10-25T09:21:28.345194",
+    "metadata_correction_date": "2025-10-25T09:26:45.956922"
   },
   "nodes": [
     {
@@ -45125,7 +45156,8 @@
         "ns0010",
         "ns0011",
         "ns0012"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic01_story02_ac01",
@@ -45157,7 +45189,8 @@
         "ns0010",
         "ns0011",
         "ns0012"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic01_story03_ac01",
@@ -45193,7 +45226,8 @@
         "ns0010",
         "ns0011",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic01_story04_ac01",
@@ -45221,7 +45255,8 @@
       "dependencies": [
         "nl0504",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic01_story05_ac01",
@@ -45254,7 +45289,8 @@
         "nl0013",
         "nl0504",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic01_story06_ac01",
@@ -45282,7 +45318,8 @@
         "ns0002",
         "ns0003",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic02_story01_ac01",
@@ -45318,7 +45355,8 @@
         "ns0010",
         "ns0011",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic02_story02_ac01",
@@ -45357,7 +45395,8 @@
         "nl0504",
         "nl0510",
         "ns0011"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic02_story03_ac01",
@@ -45387,7 +45426,8 @@
         "nl0504",
         "nl0510",
         "ns0011"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic02_story04_ac01",
@@ -45418,7 +45458,8 @@
         "nl0504",
         "nl0510",
         "ns0011"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic02_story05_ac01",
@@ -45449,7 +45490,8 @@
         "nl0504",
         "nl0510",
         "ns0011"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic03_story01_ac01",
@@ -45486,7 +45528,8 @@
       "dependencies": [
         "nl0504",
         "ns0010"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic03_story02_ac01",
@@ -45518,7 +45561,8 @@
         "nl0504",
         "ns0010",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic03_story03_ac01",
@@ -45545,7 +45589,8 @@
       "dependencies": [
         "nl0504",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic03_story04_ac01",
@@ -45571,7 +45616,8 @@
       "dependencies": [
         "nl0504",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic03_story05_ac01",
@@ -45599,7 +45645,8 @@
       "dependencies": [
         "nl0504",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic05_story01_ac01",
@@ -45626,7 +45673,8 @@
         "ns0010",
         "ns0011",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic05_story01_ac02",
@@ -45651,7 +45699,8 @@
       "dependencies": [
         "nl0504",
         "ns0013"
-      ]
+      ],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic05_story02_ac01",
@@ -45678,7 +45727,8 @@
         "nl0509",
         "nl0510"
       ],
-      "dependencies": []
+      "dependencies": [],
+      "rbac_status": "new"
     },
     {
       "id": "gherkin_epic05_story03_ac01",
@@ -45704,7 +45754,8 @@
       "dependencies": [
         "nl0504",
         "nl0510"
-      ]
+      ],
+      "rbac_status": "new"
     }
   ],
   "edges": [
@@ -177437,7 +177488,8 @@
       "source": "gherkin_epic01_story01_ac01",
       "target": "ns0010",
       "label": "",
-      "details": "Gherkin validation for Story 1.1: Define & Persist Core Permissions and Scopes validates ns0010"
+      "details": "Gherkin validation for Story 1.1: Define & Persist Core Permissions and Scopes validates ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00002",
@@ -177445,7 +177497,8 @@
       "source": "gherkin_epic01_story01_ac01",
       "target": "ns0011",
       "label": "",
-      "details": "Gherkin validation for Story 1.1: Define & Persist Core Permissions and Scopes validates ns0011"
+      "details": "Gherkin validation for Story 1.1: Define & Persist Core Permissions and Scopes validates ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00003",
@@ -177453,7 +177506,8 @@
       "source": "gherkin_epic01_story01_ac01",
       "target": "ns0012",
       "label": "",
-      "details": "Gherkin validation for Story 1.1: Define & Persist Core Permissions and Scopes validates ns0012"
+      "details": "Gherkin validation for Story 1.1: Define & Persist Core Permissions and Scopes validates ns0012",
+      "rbac_status": "new"
     },
     {
       "id": "gv00004",
@@ -177461,7 +177515,8 @@
       "source": "ns0010",
       "target": "gherkin_epic01_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00005",
@@ -177469,7 +177524,8 @@
       "source": "ns0011",
       "target": "gherkin_epic01_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00006",
@@ -177477,7 +177533,8 @@
       "source": "ns0012",
       "target": "gherkin_epic01_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0012"
+      "details": "Gherkin validation depends on ns0012",
+      "rbac_status": "new"
     },
     {
       "id": "gv00007",
@@ -177485,7 +177542,8 @@
       "source": "gherkin_epic01_story02_ac01",
       "target": "ns0010",
       "label": "",
-      "details": "Gherkin validation for Story 1.2: Define & Persist Default Roles and Mappings validates ns0010"
+      "details": "Gherkin validation for Story 1.2: Define & Persist Default Roles and Mappings validates ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00008",
@@ -177493,7 +177551,8 @@
       "source": "gherkin_epic01_story02_ac01",
       "target": "ns0011",
       "label": "",
-      "details": "Gherkin validation for Story 1.2: Define & Persist Default Roles and Mappings validates ns0011"
+      "details": "Gherkin validation for Story 1.2: Define & Persist Default Roles and Mappings validates ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00009",
@@ -177501,7 +177560,8 @@
       "source": "gherkin_epic01_story02_ac01",
       "target": "ns0012",
       "label": "",
-      "details": "Gherkin validation for Story 1.2: Define & Persist Default Roles and Mappings validates ns0012"
+      "details": "Gherkin validation for Story 1.2: Define & Persist Default Roles and Mappings validates ns0012",
+      "rbac_status": "new"
     },
     {
       "id": "gv00010",
@@ -177509,7 +177569,8 @@
       "source": "ns0010",
       "target": "gherkin_epic01_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00011",
@@ -177517,7 +177578,8 @@
       "source": "ns0011",
       "target": "gherkin_epic01_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00012",
@@ -177525,7 +177587,8 @@
       "source": "ns0012",
       "target": "gherkin_epic01_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0012"
+      "details": "Gherkin validation depends on ns0012",
+      "rbac_status": "new"
     },
     {
       "id": "gv00013",
@@ -177533,7 +177596,8 @@
       "source": "gherkin_epic01_story03_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0504"
+      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00014",
@@ -177541,7 +177605,8 @@
       "source": "gherkin_epic01_story03_ac01",
       "target": "nl0507",
       "label": "",
-      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0507"
+      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0507",
+      "rbac_status": "new"
     },
     {
       "id": "gv00015",
@@ -177549,7 +177614,8 @@
       "source": "gherkin_epic01_story03_ac01",
       "target": "nl0508",
       "label": "",
-      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0508"
+      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0508",
+      "rbac_status": "new"
     },
     {
       "id": "gv00016",
@@ -177557,7 +177623,8 @@
       "source": "gherkin_epic01_story03_ac01",
       "target": "nl0509",
       "label": "",
-      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0509"
+      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates nl0509",
+      "rbac_status": "new"
     },
     {
       "id": "gv00017",
@@ -177565,7 +177632,8 @@
       "source": "gherkin_epic01_story03_ac01",
       "target": "ns0013",
       "label": "",
-      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates ns0013"
+      "details": "Gherkin validation for Story 1.3: Implement Core Role Assignment Logic validates ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00018",
@@ -177573,7 +177641,8 @@
       "source": "nl0504",
       "target": "gherkin_epic01_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00019",
@@ -177581,7 +177650,8 @@
       "source": "ns0010",
       "target": "gherkin_epic01_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00020",
@@ -177589,7 +177659,8 @@
       "source": "ns0011",
       "target": "gherkin_epic01_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00021",
@@ -177597,7 +177668,8 @@
       "source": "ns0013",
       "target": "gherkin_epic01_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00022",
@@ -177605,7 +177677,8 @@
       "source": "gherkin_epic01_story04_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates nl0504"
+      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00023",
@@ -177613,7 +177686,8 @@
       "source": "gherkin_epic01_story04_ac01",
       "target": "nl0508",
       "label": "",
-      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates nl0508"
+      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates nl0508",
+      "rbac_status": "new"
     },
     {
       "id": "gv00024",
@@ -177621,7 +177695,8 @@
       "source": "gherkin_epic01_story04_ac01",
       "target": "nl0509",
       "label": "",
-      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates nl0509"
+      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates nl0509",
+      "rbac_status": "new"
     },
     {
       "id": "gv00025",
@@ -177629,7 +177704,8 @@
       "source": "gherkin_epic01_story04_ac01",
       "target": "ns0013",
       "label": "",
-      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates ns0013"
+      "details": "Gherkin validation for Story 1.4: Default Project Owner Immutability Check validates ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00026",
@@ -177637,7 +177713,8 @@
       "source": "nl0504",
       "target": "gherkin_epic01_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00027",
@@ -177645,7 +177722,8 @@
       "source": "ns0013",
       "target": "gherkin_epic01_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00028",
@@ -177653,7 +177731,8 @@
       "source": "gherkin_epic01_story05_ac01",
       "target": "nl0004",
       "label": "",
-      "details": "Gherkin validation for Story 1.5: Global Project Creation & New Entity Owner Mutability validates nl0004"
+      "details": "Gherkin validation for Story 1.5: Global Project Creation & New Entity Owner Mutability validates nl0004",
+      "rbac_status": "new"
     },
     {
       "id": "gv00029",
@@ -177661,7 +177740,8 @@
       "source": "gherkin_epic01_story05_ac01",
       "target": "nl0013",
       "label": "",
-      "details": "Gherkin validation for Story 1.5: Global Project Creation & New Entity Owner Mutability validates nl0013"
+      "details": "Gherkin validation for Story 1.5: Global Project Creation & New Entity Owner Mutability validates nl0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00030",
@@ -177669,7 +177749,8 @@
       "source": "gherkin_epic01_story05_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 1.5: Global Project Creation & New Entity Owner Mutability validates nl0504"
+      "details": "Gherkin validation for Story 1.5: Global Project Creation & New Entity Owner Mutability validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00031",
@@ -177677,7 +177758,8 @@
       "source": "nl0004",
       "target": "gherkin_epic01_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0004"
+      "details": "Gherkin validation depends on nl0004",
+      "rbac_status": "new"
     },
     {
       "id": "gv00032",
@@ -177685,7 +177767,8 @@
       "source": "nl0013",
       "target": "gherkin_epic01_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0013"
+      "details": "Gherkin validation depends on nl0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00033",
@@ -177693,7 +177776,8 @@
       "source": "nl0504",
       "target": "gherkin_epic01_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00034",
@@ -177701,7 +177785,8 @@
       "source": "ns0013",
       "target": "gherkin_epic01_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00035",
@@ -177709,7 +177794,8 @@
       "source": "gherkin_epic01_story06_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 1.6: Define Project to Flow Role Extension Rule validates nl0504"
+      "details": "Gherkin validation for Story 1.6: Define Project to Flow Role Extension Rule validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00036",
@@ -177717,7 +177803,8 @@
       "source": "gherkin_epic01_story06_ac01",
       "target": "ns0013",
       "label": "",
-      "details": "Gherkin validation for Story 1.6: Define Project to Flow Role Extension Rule validates ns0013"
+      "details": "Gherkin validation for Story 1.6: Define Project to Flow Role Extension Rule validates ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00037",
@@ -177725,7 +177812,8 @@
       "source": "nl0504",
       "target": "gherkin_epic01_story06_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00038",
@@ -177733,7 +177821,8 @@
       "source": "ns0002",
       "target": "gherkin_epic01_story06_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0002"
+      "details": "Gherkin validation depends on ns0002",
+      "rbac_status": "new"
     },
     {
       "id": "gv00039",
@@ -177741,7 +177830,8 @@
       "source": "ns0003",
       "target": "gherkin_epic01_story06_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0003"
+      "details": "Gherkin validation depends on ns0003",
+      "rbac_status": "new"
     },
     {
       "id": "gv00040",
@@ -177749,7 +177839,8 @@
       "source": "ns0013",
       "target": "gherkin_epic01_story06_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00041",
@@ -177757,7 +177848,8 @@
       "source": "gherkin_epic02_story01_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 2.1: Core CanAccess Authorization Service validates nl0504"
+      "details": "Gherkin validation for Story 2.1: Core CanAccess Authorization Service validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00042",
@@ -177765,7 +177857,8 @@
       "source": "gherkin_epic02_story01_ac01",
       "target": "nl0510",
       "label": "",
-      "details": "Gherkin validation for Story 2.1: Core CanAccess Authorization Service validates nl0510"
+      "details": "Gherkin validation for Story 2.1: Core CanAccess Authorization Service validates nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00043",
@@ -177773,7 +177866,8 @@
       "source": "nl0504",
       "target": "gherkin_epic02_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00044",
@@ -177781,7 +177875,8 @@
       "source": "ns0010",
       "target": "gherkin_epic02_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00045",
@@ -177789,7 +177884,8 @@
       "source": "ns0011",
       "target": "gherkin_epic02_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00046",
@@ -177797,7 +177893,8 @@
       "source": "ns0013",
       "target": "gherkin_epic02_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00047",
@@ -177805,7 +177902,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "nl0005",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0005"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0005",
+      "rbac_status": "new"
     },
     {
       "id": "gv00048",
@@ -177813,7 +177911,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "nl0007",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0007"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0007",
+      "rbac_status": "new"
     },
     {
       "id": "gv00049",
@@ -177821,7 +177920,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "nl0014",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0014"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0014",
+      "rbac_status": "new"
     },
     {
       "id": "gv00050",
@@ -177829,7 +177929,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "nl0015",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0015"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0015",
+      "rbac_status": "new"
     },
     {
       "id": "gv00051",
@@ -177837,7 +177938,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "nl0012",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0012"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0012",
+      "rbac_status": "new"
     },
     {
       "id": "gv00052",
@@ -177845,7 +177947,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "nl0100",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0100"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates nl0100",
+      "rbac_status": "new"
     },
     {
       "id": "gv00053",
@@ -177853,7 +177956,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "ni0006",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0006"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0006",
+      "rbac_status": "new"
     },
     {
       "id": "gv00054",
@@ -177861,7 +177965,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "ni0009",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0009"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0009",
+      "rbac_status": "new"
     },
     {
       "id": "gv00055",
@@ -177869,7 +177974,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "ni0086",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0086"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0086",
+      "rbac_status": "new"
     },
     {
       "id": "gv00056",
@@ -177877,7 +177983,8 @@
       "source": "gherkin_epic02_story02_ac01",
       "target": "ni0087",
       "label": "",
-      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0087"
+      "details": "Gherkin validation for Story 2.2: Enforce Read/View Permission & List Visibility validates ni0087",
+      "rbac_status": "new"
     },
     {
       "id": "gv00057",
@@ -177885,7 +177992,8 @@
       "source": "nl0504",
       "target": "gherkin_epic02_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00058",
@@ -177893,7 +178001,8 @@
       "source": "nl0510",
       "target": "gherkin_epic02_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0510"
+      "details": "Gherkin validation depends on nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00059",
@@ -177901,7 +178010,8 @@
       "source": "ns0011",
       "target": "gherkin_epic02_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00060",
@@ -177909,7 +178019,8 @@
       "source": "gherkin_epic02_story03_ac01",
       "target": "nl0004",
       "label": "",
-      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates nl0004"
+      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates nl0004",
+      "rbac_status": "new"
     },
     {
       "id": "gv00061",
@@ -177917,7 +178028,8 @@
       "source": "gherkin_epic02_story03_ac01",
       "target": "nl0013",
       "label": "",
-      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates nl0013"
+      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates nl0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00062",
@@ -177925,7 +178037,8 @@
       "source": "gherkin_epic02_story03_ac01",
       "target": "ni0006",
       "label": "",
-      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates ni0006"
+      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates ni0006",
+      "rbac_status": "new"
     },
     {
       "id": "gv00063",
@@ -177933,7 +178046,8 @@
       "source": "gherkin_epic02_story03_ac01",
       "target": "ni0086",
       "label": "",
-      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates ni0086"
+      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates ni0086",
+      "rbac_status": "new"
     },
     {
       "id": "gv00064",
@@ -177941,7 +178055,8 @@
       "source": "gherkin_epic02_story03_ac01",
       "target": "ni0087",
       "label": "",
-      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates ni0087"
+      "details": "Gherkin validation for Story 2.3: Enforce Create Permission on Projects & Flows validates ni0087",
+      "rbac_status": "new"
     },
     {
       "id": "gv00065",
@@ -177949,7 +178064,8 @@
       "source": "nl0504",
       "target": "gherkin_epic02_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00066",
@@ -177957,7 +178073,8 @@
       "source": "nl0510",
       "target": "gherkin_epic02_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0510"
+      "details": "Gherkin validation depends on nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00067",
@@ -177965,7 +178082,8 @@
       "source": "ns0011",
       "target": "gherkin_epic02_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00068",
@@ -177973,7 +178091,8 @@
       "source": "gherkin_epic02_story04_ac01",
       "target": "nl0009",
       "label": "",
-      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates nl0009"
+      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates nl0009",
+      "rbac_status": "new"
     },
     {
       "id": "gv00069",
@@ -177981,7 +178100,8 @@
       "source": "gherkin_epic02_story04_ac01",
       "target": "nl0017",
       "label": "",
-      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates nl0017"
+      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates nl0017",
+      "rbac_status": "new"
     },
     {
       "id": "gv00070",
@@ -177989,7 +178109,8 @@
       "source": "gherkin_epic02_story04_ac01",
       "target": "ni0009",
       "label": "",
-      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates ni0009"
+      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates ni0009",
+      "rbac_status": "new"
     },
     {
       "id": "gv00071",
@@ -177997,7 +178118,8 @@
       "source": "gherkin_epic02_story04_ac01",
       "target": "ni0086",
       "label": "",
-      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates ni0086"
+      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates ni0086",
+      "rbac_status": "new"
     },
     {
       "id": "gv00072",
@@ -178005,7 +178127,8 @@
       "source": "gherkin_epic02_story04_ac01",
       "target": "ni0087",
       "label": "",
-      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates ni0087"
+      "details": "Gherkin validation for Story 2.4: Enforce Update/Edit Permission for Projects & Flows validates ni0087",
+      "rbac_status": "new"
     },
     {
       "id": "gv00073",
@@ -178013,7 +178136,8 @@
       "source": "nl0504",
       "target": "gherkin_epic02_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00074",
@@ -178021,7 +178145,8 @@
       "source": "nl0510",
       "target": "gherkin_epic02_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0510"
+      "details": "Gherkin validation depends on nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00075",
@@ -178029,7 +178154,8 @@
       "source": "ns0011",
       "target": "gherkin_epic02_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00076",
@@ -178037,7 +178163,8 @@
       "source": "gherkin_epic02_story05_ac01",
       "target": "nl0010",
       "label": "",
-      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates nl0010"
+      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates nl0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00077",
@@ -178045,7 +178172,8 @@
       "source": "gherkin_epic02_story05_ac01",
       "target": "nl0018",
       "label": "",
-      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates nl0018"
+      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates nl0018",
+      "rbac_status": "new"
     },
     {
       "id": "gv00078",
@@ -178053,7 +178181,8 @@
       "source": "gherkin_epic02_story05_ac01",
       "target": "ni0006",
       "label": "",
-      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates ni0006"
+      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates ni0006",
+      "rbac_status": "new"
     },
     {
       "id": "gv00079",
@@ -178061,7 +178190,8 @@
       "source": "gherkin_epic02_story05_ac01",
       "target": "ni0086",
       "label": "",
-      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates ni0086"
+      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates ni0086",
+      "rbac_status": "new"
     },
     {
       "id": "gv00080",
@@ -178069,7 +178199,8 @@
       "source": "gherkin_epic02_story05_ac01",
       "target": "ni0087",
       "label": "",
-      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates ni0087"
+      "details": "Gherkin validation for Story 2.5: Enforce Delete Permission for Projects & Flows validates ni0087",
+      "rbac_status": "new"
     },
     {
       "id": "gv00081",
@@ -178077,7 +178208,8 @@
       "source": "nl0504",
       "target": "gherkin_epic02_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00082",
@@ -178085,7 +178217,8 @@
       "source": "nl0510",
       "target": "gherkin_epic02_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0510"
+      "details": "Gherkin validation depends on nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00083",
@@ -178093,7 +178226,8 @@
       "source": "ns0011",
       "target": "gherkin_epic02_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00084",
@@ -178101,7 +178235,8 @@
       "source": "gherkin_epic03_story01_ac01",
       "target": "ni0001",
       "label": "",
-      "details": "Gherkin validation for Story 3.1: RBAC Management Section in the Admin Page validates ni0001"
+      "details": "Gherkin validation for Story 3.1: RBAC Management Section in the Admin Page validates ni0001",
+      "rbac_status": "new"
     },
     {
       "id": "gv00085",
@@ -178109,7 +178244,8 @@
       "source": "gherkin_epic03_story01_ac01",
       "target": "ni0083",
       "label": "",
-      "details": "Gherkin validation for Story 3.1: RBAC Management Section in the Admin Page validates ni0083"
+      "details": "Gherkin validation for Story 3.1: RBAC Management Section in the Admin Page validates ni0083",
+      "rbac_status": "new"
     },
     {
       "id": "gv00086",
@@ -178117,7 +178253,8 @@
       "source": "nl0504",
       "target": "gherkin_epic03_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00087",
@@ -178125,7 +178262,8 @@
       "source": "ns0010",
       "target": "gherkin_epic03_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00088",
@@ -178133,7 +178271,8 @@
       "source": "gherkin_epic03_story02_ac01",
       "target": "ni0085",
       "label": "",
-      "details": "Gherkin validation for Story 3.2: Assignment Creation Workflow (New Roles) validates ni0085"
+      "details": "Gherkin validation for Story 3.2: Assignment Creation Workflow (New Roles) validates ni0085",
+      "rbac_status": "new"
     },
     {
       "id": "gv00089",
@@ -178141,7 +178280,8 @@
       "source": "gherkin_epic03_story02_ac01",
       "target": "nl0505",
       "label": "",
-      "details": "Gherkin validation for Story 3.2: Assignment Creation Workflow (New Roles) validates nl0505"
+      "details": "Gherkin validation for Story 3.2: Assignment Creation Workflow (New Roles) validates nl0505",
+      "rbac_status": "new"
     },
     {
       "id": "gv00090",
@@ -178149,7 +178289,8 @@
       "source": "gherkin_epic03_story02_ac01",
       "target": "nl0507",
       "label": "",
-      "details": "Gherkin validation for Story 3.2: Assignment Creation Workflow (New Roles) validates nl0507"
+      "details": "Gherkin validation for Story 3.2: Assignment Creation Workflow (New Roles) validates nl0507",
+      "rbac_status": "new"
     },
     {
       "id": "gv00091",
@@ -178157,7 +178298,8 @@
       "source": "nl0504",
       "target": "gherkin_epic03_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00092",
@@ -178165,7 +178307,8 @@
       "source": "ns0010",
       "target": "gherkin_epic03_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00093",
@@ -178173,7 +178316,8 @@
       "source": "ns0013",
       "target": "gherkin_epic03_story02_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00094",
@@ -178181,7 +178325,8 @@
       "source": "gherkin_epic03_story03_ac01",
       "target": "ni0084",
       "label": "",
-      "details": "Gherkin validation for Story 3.3: Assignment List View and Filtering validates ni0084"
+      "details": "Gherkin validation for Story 3.3: Assignment List View and Filtering validates ni0084",
+      "rbac_status": "new"
     },
     {
       "id": "gv00095",
@@ -178189,7 +178334,8 @@
       "source": "gherkin_epic03_story03_ac01",
       "target": "nl0506",
       "label": "",
-      "details": "Gherkin validation for Story 3.3: Assignment List View and Filtering validates nl0506"
+      "details": "Gherkin validation for Story 3.3: Assignment List View and Filtering validates nl0506",
+      "rbac_status": "new"
     },
     {
       "id": "gv00096",
@@ -178197,7 +178343,8 @@
       "source": "nl0504",
       "target": "gherkin_epic03_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00097",
@@ -178205,7 +178352,8 @@
       "source": "ns0013",
       "target": "gherkin_epic03_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00098",
@@ -178213,7 +178361,8 @@
       "source": "gherkin_epic03_story04_ac01",
       "target": "ni0084",
       "label": "",
-      "details": "Gherkin validation for Story 3.4: Assignment Editing and Removal validates ni0084"
+      "details": "Gherkin validation for Story 3.4: Assignment Editing and Removal validates ni0084",
+      "rbac_status": "new"
     },
     {
       "id": "gv00099",
@@ -178221,7 +178370,8 @@
       "source": "gherkin_epic03_story04_ac01",
       "target": "nl0508",
       "label": "",
-      "details": "Gherkin validation for Story 3.4: Assignment Editing and Removal validates nl0508"
+      "details": "Gherkin validation for Story 3.4: Assignment Editing and Removal validates nl0508",
+      "rbac_status": "new"
     },
     {
       "id": "gv00100",
@@ -178229,7 +178379,8 @@
       "source": "gherkin_epic03_story04_ac01",
       "target": "nl0509",
       "label": "",
-      "details": "Gherkin validation for Story 3.4: Assignment Editing and Removal validates nl0509"
+      "details": "Gherkin validation for Story 3.4: Assignment Editing and Removal validates nl0509",
+      "rbac_status": "new"
     },
     {
       "id": "gv00101",
@@ -178237,7 +178388,8 @@
       "source": "nl0504",
       "target": "gherkin_epic03_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00102",
@@ -178245,7 +178397,8 @@
       "source": "ns0013",
       "target": "gherkin_epic03_story04_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00103",
@@ -178253,7 +178406,8 @@
       "source": "gherkin_epic03_story05_ac01",
       "target": "ni0084",
       "label": "",
-      "details": "Gherkin validation for Story 3.5: Flow Role Inheritance Display Rule validates ni0084"
+      "details": "Gherkin validation for Story 3.5: Flow Role Inheritance Display Rule validates ni0084",
+      "rbac_status": "new"
     },
     {
       "id": "gv00104",
@@ -178261,7 +178415,8 @@
       "source": "nl0504",
       "target": "gherkin_epic03_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00105",
@@ -178269,7 +178424,8 @@
       "source": "ns0013",
       "target": "gherkin_epic03_story05_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00106",
@@ -178277,7 +178433,8 @@
       "source": "gherkin_epic05_story01_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0504"
+      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00107",
@@ -178285,7 +178442,8 @@
       "source": "gherkin_epic05_story01_ac01",
       "target": "nl0510",
       "label": "",
-      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0510"
+      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00108",
@@ -178293,7 +178451,8 @@
       "source": "nl0504",
       "target": "gherkin_epic05_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00109",
@@ -178301,7 +178460,8 @@
       "source": "ns0010",
       "target": "gherkin_epic05_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0010"
+      "details": "Gherkin validation depends on ns0010",
+      "rbac_status": "new"
     },
     {
       "id": "gv00110",
@@ -178309,7 +178469,8 @@
       "source": "ns0011",
       "target": "gherkin_epic05_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0011"
+      "details": "Gherkin validation depends on ns0011",
+      "rbac_status": "new"
     },
     {
       "id": "gv00111",
@@ -178317,7 +178478,8 @@
       "source": "ns0013",
       "target": "gherkin_epic05_story01_ac01",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00112",
@@ -178325,7 +178487,8 @@
       "source": "gherkin_epic05_story01_ac02",
       "target": "nl0507",
       "label": "",
-      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0507"
+      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0507",
+      "rbac_status": "new"
     },
     {
       "id": "gv00113",
@@ -178333,7 +178496,8 @@
       "source": "gherkin_epic05_story01_ac02",
       "target": "nl0508",
       "label": "",
-      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0508"
+      "details": "Gherkin validation for Story 5.1: Role Assignment and Enforcement Latency validates nl0508",
+      "rbac_status": "new"
     },
     {
       "id": "gv00114",
@@ -178341,7 +178505,8 @@
       "source": "nl0504",
       "target": "gherkin_epic05_story01_ac02",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00115",
@@ -178349,7 +178514,8 @@
       "source": "ns0013",
       "target": "gherkin_epic05_story01_ac02",
       "label": "",
-      "details": "Gherkin validation depends on ns0013"
+      "details": "Gherkin validation depends on ns0013",
+      "rbac_status": "new"
     },
     {
       "id": "gv00116",
@@ -178357,7 +178523,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0504"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00117",
@@ -178365,7 +178532,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0505",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0505"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0505",
+      "rbac_status": "new"
     },
     {
       "id": "gv00118",
@@ -178373,7 +178541,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0506",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0506"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0506",
+      "rbac_status": "new"
     },
     {
       "id": "gv00119",
@@ -178381,7 +178550,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0507",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0507"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0507",
+      "rbac_status": "new"
     },
     {
       "id": "gv00120",
@@ -178389,7 +178559,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0508",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0508"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0508",
+      "rbac_status": "new"
     },
     {
       "id": "gv00121",
@@ -178397,7 +178568,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0509",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0509"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0509",
+      "rbac_status": "new"
     },
     {
       "id": "gv00122",
@@ -178405,7 +178577,8 @@
       "source": "gherkin_epic05_story02_ac01",
       "target": "nl0510",
       "label": "",
-      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0510"
+      "details": "Gherkin validation for Story 5.2: System Uptime and Availability validates nl0510",
+      "rbac_status": "new"
     },
     {
       "id": "gv00123",
@@ -178413,7 +178586,8 @@
       "source": "gherkin_epic05_story03_ac01",
       "target": "nl0504",
       "label": "",
-      "details": "Gherkin validation for Story 5.3: Readiness Time (Initial Load) validates nl0504"
+      "details": "Gherkin validation for Story 5.3: Readiness Time (Initial Load) validates nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00124",
@@ -178421,7 +178595,8 @@
       "source": "gherkin_epic05_story03_ac01",
       "target": "ni0006",
       "label": "",
-      "details": "Gherkin validation for Story 5.3: Readiness Time (Initial Load) validates ni0006"
+      "details": "Gherkin validation for Story 5.3: Readiness Time (Initial Load) validates ni0006",
+      "rbac_status": "new"
     },
     {
       "id": "gv00125",
@@ -178429,7 +178604,8 @@
       "source": "gherkin_epic05_story03_ac01",
       "target": "ni0009",
       "label": "",
-      "details": "Gherkin validation for Story 5.3: Readiness Time (Initial Load) validates ni0009"
+      "details": "Gherkin validation for Story 5.3: Readiness Time (Initial Load) validates ni0009",
+      "rbac_status": "new"
     },
     {
       "id": "gv00126",
@@ -178437,7 +178613,8 @@
       "source": "nl0504",
       "target": "gherkin_epic05_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0504"
+      "details": "Gherkin validation depends on nl0504",
+      "rbac_status": "new"
     },
     {
       "id": "gv00127",
@@ -178445,7 +178622,8 @@
       "source": "nl0510",
       "target": "gherkin_epic05_story03_ac01",
       "label": "",
-      "details": "Gherkin validation depends on nl0510"
+      "details": "Gherkin validation depends on nl0510",
+      "rbac_status": "new"
     }
   ]
 }
