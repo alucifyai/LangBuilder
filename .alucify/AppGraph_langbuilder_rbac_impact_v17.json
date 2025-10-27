@@ -1718,11 +1718,12 @@
           "content": {
             "elementType": "Outlet",
             "semanticType": "router",
-            "name": "AppAuthenticatedPage",
+            "name": "Outlet",
             "dependency": {
               "type": "library",
               "path": "react-router-dom"
-            }
+            },
+            "attrs": {}
           }
         }
       },
@@ -2416,23 +2417,361 @@
       "impact_analysis": "Add permission-based filtering using usePermission hook. Hide create button if no CREATE permission. Hide delete button if no DELETE permission. Filter displayed flows/projects to only those with READ permission.",
       "uidl_conceptual": {
         "name": "CollectionPage",
+        "propDefinitions": {},
+        "stateDefinitions": {
+          "openModal": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "openDeleteFolderModal": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "setFolderToEdit": {
+            "type": "function",
+            "source": "useFolderStore"
+          },
+          "flows": {
+            "type": "array",
+            "source": "useFlowsManagerStore"
+          },
+          "examples": {
+            "type": "array",
+            "source": "useFlowsManagerStore"
+          },
+          "setSuccessData": {
+            "type": "function",
+            "source": "useAlertStore"
+          },
+          "setErrorData": {
+            "type": "function",
+            "source": "useAlertStore"
+          },
+          "folderToEdit": {
+            "type": "object",
+            "defaultValue": null,
+            "source": "useFolderStore"
+          },
+          "folders": {
+            "type": "array",
+            "source": "useFolderStore"
+          },
+          "navigate": {
+            "type": "function",
+            "source": "useCustomNavigate"
+          },
+          "queryClient": {
+            "type": "object",
+            "source": "useQueryClient"
+          },
+          "mutate": {
+            "type": "function",
+            "source": "useDeleteFolders"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "CollectionPage",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "stateDefinitions": {
-          "openModal": {
-            "type": "any",
-            "defaultValue": "false"
-          },
-          "openDeleteFolderModal": {
-            "type": "any",
-            "defaultValue": "false"
+            "elementType": "SidebarProvider",
+            "semanticType": "sidebarContainer",
+            "name": "SidebarProvider",
+            "dependency": {
+              "type": "local",
+              "path": "@/components/ui/sidebar"
+            },
+            "attrs": {
+              "width": {
+                "type": "static",
+                "content": "280px"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "expr",
+                      "id": "flows && examples && folders && (flows?.length !== examples?.length || folders?.length > 1)"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "SideBarFoldersButtonsComponent",
+                      "semanticType": "sidebar",
+                      "dependency": {
+                        "type": "local",
+                        "path": "@/components/core/folderSidebarComponent/components/sideBarFolderButtons"
+                      },
+                      "attrs": {
+                        "handleChangeFolder": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "(id: string) => { navigate(`all/folder/${id}`); }"
+                          }
+                        },
+                        "handleDeleteFolder": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "(item) => { setFolderToEdit(item); setOpenDeleteFolderModal(true); }"
+                          }
+                        },
+                        "handleFilesClick": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "() => { navigate('files'); }"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "main",
+                  "semanticType": "main",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex h-full w-full overflow-hidden"
+                    }
+                  },
+                  "style": {
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "height": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "overflow": {
+                      "type": "static",
+                      "content": "hidden"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "flows && examples && folders"
+                          }
+                        },
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "div",
+                            "semanticType": "container",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "relative mx-auto flex h-full w-full flex-col overflow-hidden"
+                              }
+                            },
+                            "style": {
+                              "position": {
+                                "type": "static",
+                                "content": "relative"
+                              },
+                              "marginLeft": {
+                                "type": "static",
+                                "content": "auto"
+                              },
+                              "marginRight": {
+                                "type": "static",
+                                "content": "auto"
+                              },
+                              "display": {
+                                "type": "static",
+                                "content": "flex"
+                              },
+                              "height": {
+                                "type": "static",
+                                "content": "100%"
+                              },
+                              "width": {
+                                "type": "static",
+                                "content": "100%"
+                              },
+                              "flexDirection": {
+                                "type": "static",
+                                "content": "column"
+                              },
+                              "overflow": {
+                                "type": "static",
+                                "content": "hidden"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "conditional",
+                                "content": {
+                                  "reference": {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "expr",
+                                      "id": "flows?.length !== examples?.length || folders?.length > 1"
+                                    }
+                                  },
+                                  "node": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "Outlet",
+                                      "semanticType": "router",
+                                      "dependency": {
+                                        "type": "library",
+                                        "path": "react-router-dom"
+                                      }
+                                    }
+                                  },
+                                  "value": {
+                                    "type": "element",
+                                    "content": {
+                                      "elementType": "CustomEmptyPageCommunity",
+                                      "semanticType": "emptyState",
+                                      "dependency": {
+                                        "type": "local",
+                                        "path": "@/customization/components/custom-empty-page"
+                                      },
+                                      "attrs": {
+                                        "setOpenModal": {
+                                          "type": "dynamic",
+                                          "content": {
+                                            "referenceType": "state",
+                                            "id": "setOpenModal"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "value": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "div",
+                            "semanticType": "container",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "flex h-full w-full items-center justify-center"
+                              }
+                            },
+                            "style": {
+                              "display": {
+                                "type": "static",
+                                "content": "flex"
+                              },
+                              "height": {
+                                "type": "static",
+                                "content": "100%"
+                              },
+                              "width": {
+                                "type": "static",
+                                "content": "100%"
+                              },
+                              "alignItems": {
+                                "type": "static",
+                                "content": "center"
+                              },
+                              "justifyContent": {
+                                "type": "static",
+                                "content": "center"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "CustomLoader",
+                                  "semanticType": "loader",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/customization/components/custom-loader"
+                                  },
+                                  "attrs": {
+                                    "remSize": {
+                                      "type": "static",
+                                      "content": 30
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "ModalsComponent",
+                  "semanticType": "modal",
+                  "dependency": {
+                    "type": "local",
+                    "path": "../components/modalsComponent"
+                  },
+                  "attrs": {
+                    "openModal": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "openModal"
+                      }
+                    },
+                    "setOpenModal": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "setOpenModal"
+                      }
+                    },
+                    "openDeleteFolderModal": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "openDeleteFolderModal"
+                      }
+                    },
+                    "setOpenDeleteFolderModal": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "setOpenDeleteFolderModal"
+                      }
+                    },
+                    "handleDeleteFolder": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "local",
+                        "id": "handleDeleteFolder"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -6671,14 +7010,135 @@
       "impact_analysis_status": "intact",
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
-        "name": "Playground",
+        "name": "PlaygroundPage",
+        "propDefinitions": {},
+        "stateDefinitions": {
+          "setCurrentFlow": {
+            "type": "function",
+            "source": "useFlowsManagerStore"
+          },
+          "currentSavedFlow": {
+            "type": "object",
+            "source": "useFlowsManagerStore"
+          },
+          "setClientId": {
+            "type": "function",
+            "source": "useUtilityStore"
+          },
+          "currentFlowId": {
+            "type": "string",
+            "source": "useFlowsManagerStore"
+          },
+          "setIsLoading": {
+            "type": "function",
+            "source": "useFlowsManagerStore"
+          },
+          "setPlaygroundPage": {
+            "type": "function",
+            "source": "useFlowStore"
+          },
+          "id": {
+            "type": "string",
+            "source": "useParams"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "Playground",
-            "semanticType": "component",
-            "children": []
+            "elementType": "div",
+            "semanticType": "container",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex h-full w-full flex-col items-center justify-center align-middle"
+              }
+            },
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "height": {
+                "type": "static",
+                "content": "100%"
+              },
+              "width": {
+                "type": "static",
+                "content": "100%"
+              },
+              "flexDirection": {
+                "type": "static",
+                "content": "column"
+              },
+              "alignItems": {
+                "type": "static",
+                "content": "center"
+              },
+              "justifyContent": {
+                "type": "static",
+                "content": "center"
+              },
+              "verticalAlign": {
+                "type": "static",
+                "content": "middle"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "state",
+                      "id": "currentSavedFlow"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "CustomIOModal",
+                      "semanticType": "modal",
+                      "dependency": {
+                        "type": "local",
+                        "path": "@/customization/components/custom-new-modal"
+                      },
+                      "attrs": {
+                        "open": {
+                          "type": "static",
+                          "content": true
+                        },
+                        "setOpen": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "() => {}"
+                          }
+                        },
+                        "isPlayground": {
+                          "type": "static",
+                          "content": true
+                        },
+                        "playgroundPage": {
+                          "type": "static",
+                          "content": true
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "fragment",
+                            "semanticType": "fragment",
+                            "children": []
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -8359,10 +8819,34 @@
                             "type": "static",
                             "content": "Langbuilder Store"
                           }
-                        ]
+                        ],
+                        "style": {
+                          "display": {
+                            "type": "static",
+                            "content": "flex"
+                          },
+                          "alignItems": {
+                            "type": "static",
+                            "content": "center"
+                          }
+                        }
                       }
                     }
-                  ]
+                  ],
+                  "style": {
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "gap": {
+                      "type": "static",
+                      "content": "1.5rem"
+                    }
+                  }
                 }
               },
               {
@@ -8420,7 +8904,29 @@
                   }
                 }
               }
-            ]
+            ],
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "height": {
+                "type": "static",
+                "content": "100%"
+              },
+              "width": {
+                "type": "static",
+                "content": "100%"
+              },
+              "flexDirection": {
+                "type": "static",
+                "content": "column"
+              },
+              "gap": {
+                "type": "static",
+                "content": "1.5rem"
+              }
+            }
           }
         }
       },
@@ -9568,7 +10074,8 @@
                   }
                 }
               }
-            ]
+            ],
+            "style": null
           }
         }
       },
@@ -9688,13 +10195,63 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "CustomRoutesStorePages",
+        "propDefinitions": {},
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "CustomRoutesStorePages",
-            "semanticType": "component",
-            "children": []
+            "elementType": "fragment",
+            "semanticType": "fragment",
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "Route",
+                  "semanticType": "route",
+                  "dependency": {
+                    "type": "library",
+                    "path": "react-router-dom"
+                  },
+                  "attrs": {
+                    "path": {
+                      "type": "static",
+                      "content": "store"
+                    },
+                    "element": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "expr",
+                        "id": "<StoreGuard><StorePage /></StoreGuard>"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "Route",
+                  "semanticType": "route",
+                  "dependency": {
+                    "type": "library",
+                    "path": "react-router-dom"
+                  },
+                  "attrs": {
+                    "path": {
+                      "type": "static",
+                      "content": "store/:id/"
+                    },
+                    "element": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "expr",
+                        "id": "<StoreGuard><StorePage /></StoreGuard>"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -9911,7 +10468,8 @@
                                       "id": "folder"
                                     }
                                   }
-                                ]
+                                ],
+                                "style": null
                               }
                             },
                             {
@@ -9964,7 +10522,8 @@
                                                 "id": "{ filter: value === folder + '/' + path ? (dark ? 'drop-shadow(0 0 0.3rem rgb(255, 255, 255))' : 'drop-shadow(0 0 0.3rem rgb(0, 0, 0))') : '' }"
                                               }
                                             }
-                                          }
+                                          },
+                                          "style": null
                                         }
                                       }
                                     ]
@@ -9977,7 +10536,21 @@
                                 }
                               }
                             }
-                          ]
+                          ],
+                          "style": {
+                            "display": {
+                              "type": "static",
+                              "content": "flex"
+                            },
+                            "flexDirection": {
+                              "type": "static",
+                              "content": "column"
+                            },
+                            "gap": {
+                              "type": "static",
+                              "content": "0.5rem"
+                            }
+                          }
                         }
                       },
                       "meta": {
@@ -9989,7 +10562,25 @@
                   }
                 }
               }
-            ]
+            ],
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "flexDirection": {
+                "type": "static",
+                "content": "column"
+              },
+              "justifyContent": {
+                "type": "static",
+                "content": "center"
+              },
+              "gap": {
+                "type": "static",
+                "content": "0.5rem"
+              }
+            }
           }
         }
       },
@@ -10624,13 +11215,53 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "CellRenderShortcuts",
+        "propDefinitions": {
+          "value": {
+            "type": "string"
+          },
+          "data": {
+            "type": "any"
+          },
+          "node": {
+            "type": "object"
+          },
+          "colDef": {
+            "type": "object"
+          }
+        },
+        "stateDefinitions": {
+          "shortcut": {
+            "type": "string",
+            "source": "params.value"
+          },
+          "splitShortcut": {
+            "type": "array",
+            "defaultValue": null,
+            "source": "shortcut?.split('+')"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "CellRenderShortcuts",
-            "semanticType": "component",
-            "children": []
+            "elementType": "RenderIcons",
+            "semanticType": "iconRenderer",
+            "dependency": {
+              "type": "local",
+              "path": "@/components/common/renderIconComponent"
+            },
+            "attrs": {
+              "filteredShortcut": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "local",
+                  "id": "splitShortcut"
+                }
+              },
+              "tableRender": {
+                "type": "static",
+                "content": true
+              }
+            }
           }
         }
       },
@@ -10753,10 +11384,58 @@
                         }
                       }
                     }
-                  ]
+                  ],
+                  "style": {
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "height": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "flexDirection": {
+                      "type": "static",
+                      "content": "column"
+                    },
+                    "justifyContent": {
+                      "type": "static",
+                      "content": "space-between"
+                    }
+                  }
                 }
               }
-            ]
+            ],
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "height": {
+                "type": "static",
+                "content": "100%"
+              },
+              "width": {
+                "type": "static",
+                "content": "100%"
+              },
+              "flexDirection": {
+                "type": "static",
+                "content": "column"
+              },
+              "justifyContent": {
+                "type": "static",
+                "content": "space-between"
+              },
+              "gap": {
+                "type": "static",
+                "content": "1.5rem"
+              }
+            }
           }
         }
       },
@@ -10896,13 +11575,678 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "EmptyPageCommunity",
+        "propDefinitions": {
+          "setOpenModal": {
+            "type": "func"
+          }
+        },
+        "stateDefinitions": {
+          "folders": {
+            "type": "array",
+            "source": "useFolderStore"
+          },
+          "userData": {
+            "type": "object",
+            "source": "useAuthStore"
+          },
+          "stars": {
+            "type": "number",
+            "source": "useDarkStore"
+          },
+          "discordCount": {
+            "type": "number",
+            "source": "useDarkStore"
+          },
+          "handleFileDrop": {
+            "type": "function",
+            "source": "useFileDrop"
+          },
+          "updateUser": {
+            "type": "function",
+            "source": "useUpdateUser"
+          },
+          "mutateLoggedUser": {
+            "type": "function",
+            "source": "useGetUserData"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "EmptyPageCommunity",
-            "semanticType": "component",
-            "children": []
+            "elementType": "DotBackgroundDemo",
+            "semanticType": "background",
+            "dependency": {
+              "type": "local",
+              "path": "@/components/ui/dot-background"
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "CardsWrapComponent",
+                  "semanticType": "dropZone",
+                  "dependency": {
+                    "type": "local",
+                    "path": "@/components/core/cardsWrapComponent"
+                  },
+                  "attrs": {
+                    "dragMessage": {
+                      "type": "static",
+                      "content": "Drop your flows or components here"
+                    },
+                    "onFileDrop": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "state",
+                        "id": "handleFileDrop"
+                      }
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "div",
+                        "semanticType": "container",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "m-0 h-full w-full bg-background p-0"
+                          }
+                        },
+                        "style": {
+                          "margin": {
+                            "type": "static",
+                            "content": "0"
+                          },
+                          "height": {
+                            "type": "static",
+                            "content": "100%"
+                          },
+                          "width": {
+                            "type": "static",
+                            "content": "100%"
+                          },
+                          "backgroundColor": {
+                            "type": "static",
+                            "content": "var(--background)"
+                          },
+                          "padding": {
+                            "type": "static",
+                            "content": "0"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "div",
+                              "semanticType": "container",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "z-50 flex h-full w-full flex-col items-center justify-center gap-5"
+                                }
+                              },
+                              "style": {
+                                "zIndex": {
+                                  "type": "static",
+                                  "content": "50"
+                                },
+                                "display": {
+                                  "type": "static",
+                                  "content": "flex"
+                                },
+                                "height": {
+                                  "type": "static",
+                                  "content": "100%"
+                                },
+                                "width": {
+                                  "type": "static",
+                                  "content": "100%"
+                                },
+                                "flexDirection": {
+                                  "type": "static",
+                                  "content": "column"
+                                },
+                                "alignItems": {
+                                  "type": "static",
+                                  "content": "center"
+                                },
+                                "justifyContent": {
+                                  "type": "static",
+                                  "content": "center"
+                                },
+                                "gap": {
+                                  "type": "static",
+                                  "content": "1.25rem"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "semanticType": "container",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "z-50 flex flex-col items-center gap-2"
+                                      }
+                                    },
+                                    "style": {
+                                      "zIndex": {
+                                        "type": "static",
+                                        "content": "50"
+                                      },
+                                      "display": {
+                                        "type": "static",
+                                        "content": "flex"
+                                      },
+                                      "flexDirection": {
+                                        "type": "static",
+                                        "content": "column"
+                                      },
+                                      "alignItems": {
+                                        "type": "static",
+                                        "content": "center"
+                                      },
+                                      "gap": {
+                                        "type": "static",
+                                        "content": "0.5rem"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "div",
+                                          "semanticType": "container",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "z-50 dark:hidden"
+                                            }
+                                          },
+                                          "style": {
+                                            "zIndex": {
+                                              "type": "static",
+                                              "content": "50"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "img",
+                                                "semanticType": "image",
+                                                "attrs": {
+                                                  "src": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "local",
+                                                      "id": "logoLightPng"
+                                                    }
+                                                  },
+                                                  "alt": {
+                                                    "type": "static",
+                                                    "content": "Langbuilder Logo Light"
+                                                  },
+                                                  "data-testid": {
+                                                    "type": "static",
+                                                    "content": "empty_page_logo_light"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "relative top-3"
+                                                  }
+                                                },
+                                                "style": {
+                                                  "position": {
+                                                    "type": "static",
+                                                    "content": "relative"
+                                                  },
+                                                  "top": {
+                                                    "type": "static",
+                                                    "content": "0.75rem"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "div",
+                                          "semanticType": "container",
+                                          "attrs": {
+                                            "className": {
+                                              "type": "static",
+                                              "content": "z-50 hidden dark:block"
+                                            }
+                                          },
+                                          "style": {
+                                            "zIndex": {
+                                              "type": "static",
+                                              "content": "50"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "img",
+                                                "semanticType": "image",
+                                                "attrs": {
+                                                  "src": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "local",
+                                                      "id": "logoDarkPng"
+                                                    }
+                                                  },
+                                                  "alt": {
+                                                    "type": "static",
+                                                    "content": "Langbuilder Logo Dark"
+                                                  },
+                                                  "data-testid": {
+                                                    "type": "static",
+                                                    "content": "empty_page_logo_dark"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "relative top-3"
+                                                  }
+                                                },
+                                                "style": {
+                                                  "position": {
+                                                    "type": "static",
+                                                    "content": "relative"
+                                                  },
+                                                  "top": {
+                                                    "type": "static",
+                                                    "content": "0.75rem"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "span",
+                                          "semanticType": "text",
+                                          "attrs": {
+                                            "data-testid": {
+                                              "type": "static",
+                                              "content": "mainpage_title"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "z-50 text-center font-chivo text-2xl font-medium text-foreground"
+                                            }
+                                          },
+                                          "style": {
+                                            "zIndex": {
+                                              "type": "static",
+                                              "content": "50"
+                                            },
+                                            "textAlign": {
+                                              "type": "static",
+                                              "content": "center"
+                                            },
+                                            "fontFamily": {
+                                              "type": "static",
+                                              "content": "Chivo"
+                                            },
+                                            "fontSize": {
+                                              "type": "static",
+                                              "content": "1.5rem"
+                                            },
+                                            "fontWeight": {
+                                              "type": "static",
+                                              "content": "500"
+                                            },
+                                            "color": {
+                                              "type": "static",
+                                              "content": "var(--foreground)"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "static",
+                                              "content": "Welcome to Langbuilder"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "span",
+                                          "semanticType": "text",
+                                          "attrs": {
+                                            "data-testid": {
+                                              "type": "static",
+                                              "content": "empty_page_description"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "z-50 text-center text-base text-secondary-foreground"
+                                            }
+                                          },
+                                          "style": {
+                                            "zIndex": {
+                                              "type": "static",
+                                              "content": "50"
+                                            },
+                                            "textAlign": {
+                                              "type": "static",
+                                              "content": "center"
+                                            },
+                                            "fontSize": {
+                                              "type": "static",
+                                              "content": "1rem"
+                                            },
+                                            "color": {
+                                              "type": "static",
+                                              "content": "var(--secondary-foreground)"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "conditional",
+                                              "content": {
+                                                "reference": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "expr",
+                                                    "id": "folders?.length > 1"
+                                                  }
+                                                },
+                                                "node": {
+                                                  "type": "static",
+                                                  "content": "Empty folder"
+                                                },
+                                                "value": {
+                                                  "type": "static",
+                                                  "content": "Your new favorite way to ship Agents"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "semanticType": "container",
+                                    "attrs": {
+                                      "className": {
+                                        "type": "static",
+                                        "content": "flex w-full max-w-[510px] flex-col gap-7 sm:gap-[29px]"
+                                      }
+                                    },
+                                    "style": {
+                                      "display": {
+                                        "type": "static",
+                                        "content": "flex"
+                                      },
+                                      "width": {
+                                        "type": "static",
+                                        "content": "100%"
+                                      },
+                                      "maxWidth": {
+                                        "type": "static",
+                                        "content": "510px"
+                                      },
+                                      "flexDirection": {
+                                        "type": "static",
+                                        "content": "column"
+                                      },
+                                      "gap": {
+                                        "type": "static",
+                                        "content": "1.75rem"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "Button",
+                                          "semanticType": "button",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/ui/button"
+                                          },
+                                          "attrs": {
+                                            "unstyled": {
+                                              "type": "static",
+                                              "content": true
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "group mx-3 h-[84px] sm:mx-0"
+                                            },
+                                            "onClick": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "expr",
+                                                "id": "() => { handleUserTrack('github_starred')(); window.open(GITHUB_URL, '_blank', 'noopener,noreferrer'); }"
+                                              }
+                                            },
+                                            "data-testid": {
+                                              "type": "static",
+                                              "content": "empty_page_github_button"
+                                            }
+                                          },
+                                          "style": {
+                                            "height": {
+                                              "type": "static",
+                                              "content": "84px"
+                                            }
+                                          },
+                                          "children": []
+                                        }
+                                      },
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "Button",
+                                          "semanticType": "button",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/ui/button"
+                                          },
+                                          "attrs": {
+                                            "variant": {
+                                              "type": "static",
+                                              "content": "default"
+                                            },
+                                            "className": {
+                                              "type": "static",
+                                              "content": "z-10 m-auto mt-3 h-10 w-full max-w-[10rem] rounded-lg font-bold transition-all duration-300"
+                                            },
+                                            "onClick": {
+                                              "type": "dynamic",
+                                              "content": {
+                                                "referenceType": "expr",
+                                                "id": "() => setOpenModal(true)"
+                                              }
+                                            },
+                                            "id": {
+                                              "type": "static",
+                                              "content": "new-project-btn"
+                                            },
+                                            "data-testid": {
+                                              "type": "static",
+                                              "content": "new_project_btn_empty_page"
+                                            }
+                                          },
+                                          "style": {
+                                            "zIndex": {
+                                              "type": "static",
+                                              "content": "10"
+                                            },
+                                            "margin": {
+                                              "type": "static",
+                                              "content": "auto"
+                                            },
+                                            "marginTop": {
+                                              "type": "static",
+                                              "content": "0.75rem"
+                                            },
+                                            "height": {
+                                              "type": "static",
+                                              "content": "2.5rem"
+                                            },
+                                            "width": {
+                                              "type": "static",
+                                              "content": "100%"
+                                            },
+                                            "maxWidth": {
+                                              "type": "static",
+                                              "content": "10rem"
+                                            },
+                                            "borderRadius": {
+                                              "type": "static",
+                                              "content": "0.5rem"
+                                            },
+                                            "fontWeight": {
+                                              "type": "static",
+                                              "content": "700"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "ForwardedIconComponent",
+                                                "semanticType": "icon",
+                                                "dependency": {
+                                                  "type": "local",
+                                                  "path": "@/components/common/genericIconComponent"
+                                                },
+                                                "attrs": {
+                                                  "name": {
+                                                    "type": "static",
+                                                    "content": "Plus"
+                                                  },
+                                                  "aria-hidden": {
+                                                    "type": "static",
+                                                    "content": "true"
+                                                  },
+                                                  "className": {
+                                                    "type": "static",
+                                                    "content": "h-4 w-4"
+                                                  }
+                                                },
+                                                "style": {
+                                                  "height": {
+                                                    "type": "static",
+                                                    "content": "1rem"
+                                                  },
+                                                  "width": {
+                                                    "type": "static",
+                                                    "content": "1rem"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "span",
+                                                "semanticType": "text",
+                                                "children": [
+                                                  {
+                                                    "type": "static",
+                                                    "content": "Create first flow"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "p",
+                        "semanticType": "text",
+                        "attrs": {
+                          "data-testid": {
+                            "type": "static",
+                            "content": "empty_page_drag_and_drop_text"
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "absolute bottom-5 left-0 right-0 mt-4 cursor-default text-center text-xxs text-muted-foreground"
+                          }
+                        },
+                        "style": {
+                          "position": {
+                            "type": "static",
+                            "content": "absolute"
+                          },
+                          "bottom": {
+                            "type": "static",
+                            "content": "1.25rem"
+                          },
+                          "left": {
+                            "type": "static",
+                            "content": "0"
+                          },
+                          "right": {
+                            "type": "static",
+                            "content": "0"
+                          },
+                          "marginTop": {
+                            "type": "static",
+                            "content": "1rem"
+                          },
+                          "cursor": {
+                            "type": "static",
+                            "content": "default"
+                          },
+                          "textAlign": {
+                            "type": "static",
+                            "content": "center"
+                          },
+                          "color": {
+                            "type": "static",
+                            "content": "var(--muted-foreground)"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Already have a flow? Drag and drop to upload."
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -11446,35 +12790,132 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "EnhancedBeamEffect",
+        "propDefinitions": {
+          "children": {
+            "type": "node"
+          },
+          "className": {
+            "type": "string"
+          },
+          "primaryColor": {
+            "type": "string",
+            "defaultValue": "#C661B8"
+          },
+          "secondaryColor": {
+            "type": "string",
+            "defaultValue": "#61C6B8"
+          },
+          "size": {
+            "type": "number",
+            "defaultValue": 200
+          }
+        },
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "EnhancedBeamEffect",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "children": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "className?": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "primaryColor?": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "secondaryColor?": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "size?": {
-            "type": "number",
-            "defaultValue": null
+            "elementType": "div",
+            "semanticType": "container",
+            "attrs": {
+              "className": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "expr",
+                  "id": "cn('relative flex items-center justify-center overflow-hidden rounded-xl', className)"
+                }
+              }
+            },
+            "style": {
+              "position": {
+                "type": "static",
+                "content": "relative"
+              },
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "alignItems": {
+                "type": "static",
+                "content": "center"
+              },
+              "justifyContent": {
+                "type": "static",
+                "content": "center"
+              },
+              "overflow": {
+                "type": "static",
+                "content": "hidden"
+              },
+              "borderRadius": {
+                "type": "static",
+                "content": "0.75rem"
+              }
+            },
+            "children": [
+              {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "children"
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "BorderBeam",
+                  "semanticType": "animation",
+                  "dependency": {
+                    "type": "local",
+                    "path": "../../../components/ui/border-beams"
+                  },
+                  "attrs": {
+                    "duration": {
+                      "type": "static",
+                      "content": 12
+                    },
+                    "size": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "size"
+                      }
+                    },
+                    "className": {
+                      "type": "static",
+                      "content": "opacity-80"
+                    },
+                    "colorFrom": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "primaryColor"
+                      }
+                    },
+                    "colorTo": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "secondaryColor"
+                      }
+                    },
+                    "anchor": {
+                      "type": "static",
+                      "content": 20
+                    },
+                    "borderWidth": {
+                      "type": "static",
+                      "content": 1.5
+                    }
+                  },
+                  "style": {
+                    "opacity": {
+                      "type": "static",
+                      "content": "0.8"
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -11668,7 +13109,17 @@
                             "type": "static",
                             "content": "My Files"
                           }
-                        ]
+                        ],
+                        "style": {
+                          "display": {
+                            "type": "static",
+                            "content": "flex"
+                          },
+                          "alignItems": {
+                            "type": "static",
+                            "content": "center"
+                          }
+                        }
                       }
                     },
                     {
@@ -11759,10 +13210,46 @@
                         }
                       }
                     }
-                  ]
+                  ],
+                  "style": {
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "height": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "flexDirection": {
+                      "type": "static",
+                      "content": "column"
+                    }
+                  }
                 }
               }
-            ]
+            ],
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "height": {
+                "type": "static",
+                "content": "100%"
+              },
+              "width": {
+                "type": "static",
+                "content": "100%"
+              },
+              "flexDirection": {
+                "type": "static",
+                "content": "column"
+              }
+            }
           }
         }
       },
@@ -13285,13 +14772,289 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "EmptyFolder",
+        "propDefinitions": {
+          "setOpenModal": {
+            "type": "func"
+          }
+        },
+        "stateDefinitions": {
+          "folders": {
+            "type": "array",
+            "source": "useFolderStore"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "EmptyFolder",
-            "semanticType": "component",
-            "children": []
+            "elementType": "div",
+            "semanticType": "container",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "m-0 flex w-full justify-center"
+              }
+            },
+            "style": {
+              "margin": {
+                "type": "static",
+                "content": "0"
+              },
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "width": {
+                "type": "static",
+                "content": "100%"
+              },
+              "justifyContent": {
+                "type": "static",
+                "content": "center"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "div",
+                  "semanticType": "container",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "absolute top-1/2 flex w-full -translate-y-1/2 flex-col items-center justify-center gap-2"
+                    }
+                  },
+                  "style": {
+                    "position": {
+                      "type": "static",
+                      "content": "absolute"
+                    },
+                    "top": {
+                      "type": "static",
+                      "content": "50%"
+                    },
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "transform": {
+                      "type": "static",
+                      "content": "translateY(-50%)"
+                    },
+                    "flexDirection": {
+                      "type": "static",
+                      "content": "column"
+                    },
+                    "alignItems": {
+                      "type": "static",
+                      "content": "center"
+                    },
+                    "justifyContent": {
+                      "type": "static",
+                      "content": "center"
+                    },
+                    "gap": {
+                      "type": "static",
+                      "content": "0.5rem"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "h3",
+                        "semanticType": "heading",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "pt-5 font-chivo text-2xl font-semibold"
+                          },
+                          "data-testid": {
+                            "type": "static",
+                            "content": "mainpage_title"
+                          }
+                        },
+                        "style": {
+                          "paddingTop": {
+                            "type": "static",
+                            "content": "1.25rem"
+                          },
+                          "fontFamily": {
+                            "type": "static",
+                            "content": "Chivo"
+                          },
+                          "fontSize": {
+                            "type": "static",
+                            "content": "1.5rem"
+                          },
+                          "fontWeight": {
+                            "type": "static",
+                            "content": "600"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "expr",
+                                  "id": "folders?.length > 1"
+                                }
+                              },
+                              "node": {
+                                "type": "static",
+                                "content": "Empty project"
+                              },
+                              "value": {
+                                "type": "static",
+                                "content": "Start building"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "p",
+                        "semanticType": "text",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "pb-5 text-sm text-secondary-foreground"
+                          }
+                        },
+                        "style": {
+                          "paddingBottom": {
+                            "type": "static",
+                            "content": "1.25rem"
+                          },
+                          "fontSize": {
+                            "type": "static",
+                            "content": "0.875rem"
+                          },
+                          "color": {
+                            "type": "static",
+                            "content": "var(--secondary-foreground)"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "static",
+                            "content": "Begin with a template, or start from scratch."
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "Button",
+                        "semanticType": "button",
+                        "dependency": {
+                          "type": "local",
+                          "path": "@/components/ui/button"
+                        },
+                        "attrs": {
+                          "variant": {
+                            "type": "static",
+                            "content": "default"
+                          },
+                          "onClick": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "expr",
+                              "id": "() => setOpenModal(true)"
+                            }
+                          },
+                          "id": {
+                            "type": "static",
+                            "content": "new-project-btn"
+                          },
+                          "data-testid": {
+                            "type": "static",
+                            "content": "new_project_btn_empty_page"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "ForwardedIconComponent",
+                              "semanticType": "icon",
+                              "dependency": {
+                                "type": "local",
+                                "path": "@/components/common/genericIconComponent"
+                              },
+                              "attrs": {
+                                "name": {
+                                  "type": "static",
+                                  "content": "plus"
+                                },
+                                "aria-hidden": {
+                                  "type": "static",
+                                  "content": "true"
+                                },
+                                "className": {
+                                  "type": "static",
+                                  "content": "h-4 w-4"
+                                }
+                              },
+                              "style": {
+                                "height": {
+                                  "type": "static",
+                                  "content": "1rem"
+                                },
+                                "width": {
+                                  "type": "static",
+                                  "content": "1rem"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "span",
+                              "semanticType": "text",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "whitespace-nowrap font-semibold"
+                                }
+                              },
+                              "style": {
+                                "whiteSpace": {
+                                  "type": "static",
+                                  "content": "nowrap"
+                                },
+                                "fontWeight": {
+                                  "type": "static",
+                                  "content": "600"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "New Flow"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -14123,19 +15886,135 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "HelperLines",
+        "propDefinitions": {
+          "helperLines": {
+            "type": "object"
+          }
+        },
+        "stateDefinitions": {
+          "viewportX": {
+            "type": "number",
+            "source": "useViewport"
+          },
+          "viewportY": {
+            "type": "number",
+            "source": "useViewport"
+          },
+          "zoom": {
+            "type": "number",
+            "source": "useViewport"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "HelperLines",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "helperLines": {
-            "type": "string",
-            "defaultValue": ""
+            "elementType": "svg",
+            "semanticType": "svg",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "helper-lines"
+              }
+            },
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "helperLines.horizontal"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "line",
+                      "semanticType": "line",
+                      "attrs": {
+                        "x1": {
+                          "type": "static",
+                          "content": 0
+                        },
+                        "y1": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "helperLines.horizontal.position * zoom + viewportY"
+                          }
+                        },
+                        "x2": {
+                          "type": "static",
+                          "content": "100%"
+                        },
+                        "y2": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "helperLines.horizontal.position * zoom + viewportY"
+                          }
+                        },
+                        "className": {
+                          "type": "static",
+                          "content": "helper-line horizontal"
+                        }
+                      },
+                      "style": null
+                    }
+                  }
+                }
+              },
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "helperLines.vertical"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "line",
+                      "semanticType": "line",
+                      "attrs": {
+                        "x1": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "helperLines.vertical.position * zoom + viewportX"
+                          }
+                        },
+                        "y1": {
+                          "type": "static",
+                          "content": 0
+                        },
+                        "x2": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "expr",
+                            "id": "helperLines.vertical.position * zoom + viewportX"
+                          }
+                        },
+                        "y2": {
+                          "type": "static",
+                          "content": "100%"
+                        },
+                        "className": {
+                          "type": "static",
+                          "content": "helper-line vertical"
+                        }
+                      },
+                      "style": null
+                    }
+                  }
+                }
+              }
+            ],
+            "style": null
           }
         }
       },
@@ -14245,31 +16124,302 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "ShortcutDisplay",
+        "propDefinitions": {
+          "display_name": {
+            "type": "string"
+          },
+          "shortcut": {
+            "type": "string"
+          },
+          "sidebar": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "stateDefinitions": {
+          "fixedShortcut": {
+            "type": "array",
+            "source": "shortcut?.split('+')"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "ShortcutDisplay",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "display_name": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "shortcut": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "sidebar = false": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "": {
-            "type": "string",
-            "defaultValue": ""
+            "elementType": "fragment",
+            "semanticType": "fragment",
+            "children": [
+              {
+                "type": "conditional",
+                "content": {
+                  "reference": {
+                    "type": "dynamic",
+                    "content": {
+                      "referenceType": "prop",
+                      "id": "sidebar"
+                    }
+                  },
+                  "node": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "semanticType": "container",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "flex justify-center"
+                        }
+                      },
+                      "style": {
+                        "display": {
+                          "type": "static",
+                          "content": "flex"
+                        },
+                        "justifyContent": {
+                          "type": "static",
+                          "content": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "conditional",
+                          "content": {
+                            "reference": {
+                              "type": "dynamic",
+                              "content": {
+                                "referenceType": "prop",
+                                "id": "display_name"
+                              }
+                            },
+                            "node": {
+                              "type": "element",
+                              "content": {
+                                "elementType": "span",
+                                "semanticType": "text",
+                                "children": [
+                                  {
+                                    "type": "dynamic",
+                                    "content": {
+                                      "referenceType": "prop",
+                                      "id": "display_name"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "span",
+                            "semanticType": "badge",
+                            "attrs": {
+                              "className": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "expr",
+                                  "id": "cn('flex h-4 w-4 items-center justify-center rounded-sm bg-muted text-muted-foreground', display_name && 'ml-3')"
+                                }
+                              }
+                            },
+                            "style": {
+                              "display": {
+                                "type": "static",
+                                "content": "flex"
+                              },
+                              "height": {
+                                "type": "static",
+                                "content": "1rem"
+                              },
+                              "width": {
+                                "type": "static",
+                                "content": "1rem"
+                              },
+                              "alignItems": {
+                                "type": "static",
+                                "content": "center"
+                              },
+                              "justifyContent": {
+                                "type": "static",
+                                "content": "center"
+                              },
+                              "borderRadius": {
+                                "type": "static",
+                                "content": "0.125rem"
+                              },
+                              "backgroundColor": {
+                                "type": "static",
+                                "content": "var(--muted)"
+                              },
+                              "color": {
+                                "type": "static",
+                                "content": "var(--muted-foreground)"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "RenderIcons",
+                                  "semanticType": "iconRenderer",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/common/renderIconComponent"
+                                  },
+                                  "attrs": {
+                                    "filteredShortcut": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "fixedShortcut"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "value": {
+                    "type": "element",
+                    "content": {
+                      "elementType": "div",
+                      "semanticType": "container",
+                      "attrs": {
+                        "className": {
+                          "type": "static",
+                          "content": "flex content-center items-center justify-center self-center text-xs"
+                        }
+                      },
+                      "style": {
+                        "display": {
+                          "type": "static",
+                          "content": "flex"
+                        },
+                        "alignContent": {
+                          "type": "static",
+                          "content": "center"
+                        },
+                        "alignItems": {
+                          "type": "static",
+                          "content": "center"
+                        },
+                        "justifyContent": {
+                          "type": "static",
+                          "content": "center"
+                        },
+                        "alignSelf": {
+                          "type": "static",
+                          "content": "center"
+                        },
+                        "fontSize": {
+                          "type": "static",
+                          "content": "0.75rem"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "span",
+                            "semanticType": "text",
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "display_name"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "element",
+                          "content": {
+                            "elementType": "span",
+                            "semanticType": "badge",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "ml-3 flex items-center rounded-sm bg-primary-hover px-1.5 py-[0.1em] text-muted"
+                              }
+                            },
+                            "style": {
+                              "marginLeft": {
+                                "type": "static",
+                                "content": "0.75rem"
+                              },
+                              "display": {
+                                "type": "static",
+                                "content": "flex"
+                              },
+                              "alignItems": {
+                                "type": "static",
+                                "content": "center"
+                              },
+                              "borderRadius": {
+                                "type": "static",
+                                "content": "0.125rem"
+                              },
+                              "backgroundColor": {
+                                "type": "static",
+                                "content": "var(--primary-hover)"
+                              },
+                              "paddingLeft": {
+                                "type": "static",
+                                "content": "0.375rem"
+                              },
+                              "paddingRight": {
+                                "type": "static",
+                                "content": "0.375rem"
+                              },
+                              "paddingTop": {
+                                "type": "static",
+                                "content": "0.1em"
+                              },
+                              "paddingBottom": {
+                                "type": "static",
+                                "content": "0.1em"
+                              },
+                              "color": {
+                                "type": "static",
+                                "content": "var(--muted)"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "RenderIcons",
+                                  "semanticType": "iconRenderer",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/common/renderIconComponent"
+                                  },
+                                  "attrs": {
+                                    "filteredShortcut": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "fixedShortcut"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -14441,43 +16591,208 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "ToolbarSelectItem",
+        "propDefinitions": {
+          "value": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "style": {
+            "type": "string"
+          },
+          "dataTestId": {
+            "type": "string"
+          },
+          "ping": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "shortcut": {
+            "type": "string"
+          }
+        },
+        "stateDefinitions": {
+          "fixedShortcut": {
+            "type": "array",
+            "source": "shortcut?.split('+')"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "ToolbarSelectItem",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "value": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "icon": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "style": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "dataTestId": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "ping": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "shortcut": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "": {
-            "type": "string",
-            "defaultValue": ""
+            "elementType": "div",
+            "semanticType": "container",
+            "attrs": {
+              "className": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "expr",
+                  "id": "`flex ${style}`"
+                }
+              },
+              "data-testid": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "dataTestId"
+                }
+              }
+            },
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "ForwardedIconComponent",
+                  "semanticType": "icon",
+                  "dependency": {
+                    "type": "local",
+                    "path": "../../../../../components/common/genericIconComponent"
+                  },
+                  "attrs": {
+                    "name": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "icon"
+                      }
+                    },
+                    "className": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "expr",
+                        "id": "`mr-2 mt-[0.15em] h-4 w-4 ${ping && 'animate-pulse text-green-500'}`"
+                      }
+                    }
+                  },
+                  "style": {
+                    "marginRight": {
+                      "type": "static",
+                      "content": "0.5rem"
+                    },
+                    "marginTop": {
+                      "type": "static",
+                      "content": "0.15em"
+                    },
+                    "height": {
+                      "type": "static",
+                      "content": "1rem"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "1rem"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "span",
+                  "semanticType": "text",
+                  "children": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "value"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "span",
+                  "semanticType": "badge",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "absolute right-2 top-[0.43em] flex items-center rounded-sm bg-muted px-1.5 py-[0.1em] text-muted-foreground"
+                    }
+                  },
+                  "style": {
+                    "position": {
+                      "type": "static",
+                      "content": "absolute"
+                    },
+                    "right": {
+                      "type": "static",
+                      "content": "0.5rem"
+                    },
+                    "top": {
+                      "type": "static",
+                      "content": "0.43em"
+                    },
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "alignItems": {
+                      "type": "static",
+                      "content": "center"
+                    },
+                    "borderRadius": {
+                      "type": "static",
+                      "content": "0.125rem"
+                    },
+                    "backgroundColor": {
+                      "type": "static",
+                      "content": "var(--muted)"
+                    },
+                    "paddingLeft": {
+                      "type": "static",
+                      "content": "0.375rem"
+                    },
+                    "paddingRight": {
+                      "type": "static",
+                      "content": "0.375rem"
+                    },
+                    "paddingTop": {
+                      "type": "static",
+                      "content": "0.1em"
+                    },
+                    "paddingBottom": {
+                      "type": "static",
+                      "content": "0.1em"
+                    },
+                    "color": {
+                      "type": "static",
+                      "content": "var(--muted-foreground)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "RenderIcons",
+                        "semanticType": "iconRenderer",
+                        "dependency": {
+                          "type": "local",
+                          "path": "../../../../../components/common/renderIconComponent"
+                        },
+                        "attrs": {
+                          "filteredShortcut": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "local",
+                              "id": "fixedShortcut"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -15034,57 +17349,380 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "SelectionMenu",
-        "node": {
-          "type": "element",
-          "content": {
-            "elementType": "container",
-            "name": "SelectionMenu",
-            "semanticType": "component",
-            "children": []
-          }
-        },
         "propDefinitions": {
           "onClick": {
-            "type": "string",
-            "defaultValue": ""
+            "type": "func"
           },
           "nodes": {
-            "type": "string",
-            "defaultValue": ""
+            "type": "array"
           },
           "isVisible": {
-            "type": "string",
-            "defaultValue": ""
+            "type": "boolean"
           },
           "lastSelection": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "": {
-            "type": "string",
-            "defaultValue": ""
+            "type": "any"
           }
         },
         "stateDefinitions": {
           "disable": {
             "type": "boolean",
-            "defaultValue": "lastSelection && edges.length > 0\n      ? validateSelection(lastSelection!, edges"
+            "defaultValue": false
           },
           "errors": {
-            "type": "string[]",
-            "defaultValue": "[]"
+            "type": "array",
+            "defaultValue": []
           },
           "isOpen": {
-            "type": "any",
-            "defaultValue": "false"
+            "type": "boolean",
+            "defaultValue": false
           },
           "isTransitioning": {
-            "type": "any",
-            "defaultValue": "false"
+            "type": "boolean",
+            "defaultValue": false
           },
           "lastNodes": {
-            "type": "any",
-            "defaultValue": "nodes"
+            "type": "array",
+            "defaultValue": []
+          },
+          "edges": {
+            "type": "array",
+            "source": "useFlowStore"
+          },
+          "unselectAll": {
+            "type": "function",
+            "source": "useFlowStore"
+          }
+        },
+        "node": {
+          "type": "element",
+          "content": {
+            "elementType": "NodeToolbar",
+            "semanticType": "toolbar",
+            "dependency": {
+              "type": "library",
+              "path": "@xyflow/react"
+            },
+            "attrs": {
+              "isVisible": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "state",
+                  "id": "isOpen"
+                }
+              },
+              "offset": {
+                "type": "static",
+                "content": 5
+              },
+              "nodeId": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "expr",
+                  "id": "lastNodes && lastNodes.length > 0 ? lastNodes.map((n) => n.id) : []"
+                }
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "div",
+                  "semanticType": "container",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "h-10 w-28 overflow-hidden"
+                    }
+                  },
+                  "style": {
+                    "height": {
+                      "type": "static",
+                      "content": "2.5rem"
+                    },
+                    "width": {
+                      "type": "static",
+                      "content": "7rem"
+                    },
+                    "overflow": {
+                      "type": "static",
+                      "content": "hidden"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "div",
+                        "semanticType": "container",
+                        "attrs": {
+                          "className": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "expr",
+                              "id": "'duration-400 h-10 w-24 rounded-md border border-indigo-300 bg-background px-2.5 text-primary shadow-inner transition-all ease-in-out' + (isTransitioning ? ' opacity-100' : ' opacity-0')"
+                            }
+                          }
+                        },
+                        "style": {
+                          "transitionDuration": {
+                            "type": "static",
+                            "content": "400ms"
+                          },
+                          "height": {
+                            "type": "static",
+                            "content": "2.5rem"
+                          },
+                          "width": {
+                            "type": "static",
+                            "content": "6rem"
+                          },
+                          "borderRadius": {
+                            "type": "static",
+                            "content": "0.375rem"
+                          },
+                          "border": {
+                            "type": "static",
+                            "content": "1px solid"
+                          },
+                          "borderColor": {
+                            "type": "static",
+                            "content": "rgb(165 180 252)"
+                          },
+                          "backgroundColor": {
+                            "type": "static",
+                            "content": "var(--background)"
+                          },
+                          "paddingLeft": {
+                            "type": "static",
+                            "content": "0.625rem"
+                          },
+                          "paddingRight": {
+                            "type": "static",
+                            "content": "0.625rem"
+                          },
+                          "color": {
+                            "type": "static",
+                            "content": "var(--primary)"
+                          },
+                          "boxShadow": {
+                            "type": "static",
+                            "content": "inset 0 2px 4px 0 rgb(0 0 0 / 0.05)"
+                          },
+                          "transition": {
+                            "type": "static",
+                            "content": "all"
+                          },
+                          "transitionTimingFunction": {
+                            "type": "static",
+                            "content": "ease-in-out"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "conditional",
+                            "content": {
+                              "reference": {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "expr",
+                                  "id": "errors.length > 0"
+                                }
+                              },
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "ShadTooltip",
+                                  "semanticType": "tooltip",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "../../../../components/common/shadTooltipComponent"
+                                  },
+                                  "attrs": {
+                                    "content": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "expr",
+                                        "id": "errors[0]"
+                                      }
+                                    },
+                                    "side": {
+                                      "type": "static",
+                                      "content": "top"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "Button",
+                                        "semanticType": "button",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "../../../../components/ui/button"
+                                        },
+                                        "attrs": {
+                                          "unstyled": {
+                                            "type": "static",
+                                            "content": true
+                                          },
+                                          "className": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "expr",
+                                              "id": "disable ? 'flex h-full w-full cursor-not-allowed items-center justify-between text-sm text-muted-foreground' : 'flex h-full w-full items-center justify-between text-sm'"
+                                            }
+                                          },
+                                          "onClick": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "prop",
+                                              "id": "onClick"
+                                            }
+                                          },
+                                          "disabled": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "disable"
+                                            }
+                                          },
+                                          "data-testid": {
+                                            "type": "static",
+                                            "content": "error-group-node"
+                                          }
+                                        },
+                                        "children": [
+                                          {
+                                            "type": "element",
+                                            "content": {
+                                              "elementType": "GradientGroup",
+                                              "semanticType": "icon",
+                                              "dependency": {
+                                                "type": "local",
+                                                "path": "../../../../icons/GradientSparkles"
+                                              },
+                                              "attrs": {
+                                                "strokeWidth": {
+                                                  "type": "static",
+                                                  "content": 1.5
+                                                },
+                                                "size": {
+                                                  "type": "static",
+                                                  "content": 22
+                                                },
+                                                "className": {
+                                                  "type": "static",
+                                                  "content": "text-primary"
+                                                },
+                                                "disabled": {
+                                                  "type": "dynamic",
+                                                  "content": {
+                                                    "referenceType": "state",
+                                                    "id": "disable"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "type": "static",
+                                            "content": "Group"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "value": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "Button",
+                                  "semanticType": "button",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "../../../../components/ui/button"
+                                  },
+                                  "attrs": {
+                                    "unstyled": {
+                                      "type": "static",
+                                      "content": true
+                                    },
+                                    "className": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "expr",
+                                        "id": "disable ? 'flex h-full w-full cursor-not-allowed items-center justify-between text-sm text-muted-foreground' : 'flex h-full w-full items-center justify-between text-sm'"
+                                      }
+                                    },
+                                    "onClick": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "prop",
+                                        "id": "onClick"
+                                      }
+                                    },
+                                    "disabled": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "state",
+                                        "id": "disable"
+                                      }
+                                    },
+                                    "data-testid": {
+                                      "type": "static",
+                                      "content": "group-node"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "GradientGroup",
+                                        "semanticType": "icon",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "../../../../icons/GradientSparkles"
+                                        },
+                                        "attrs": {
+                                          "strokeWidth": {
+                                            "type": "static",
+                                            "content": 1.5
+                                          },
+                                          "size": {
+                                            "type": "static",
+                                            "content": 22
+                                          },
+                                          "className": {
+                                            "type": "static",
+                                            "content": "text-primary"
+                                          },
+                                          "disabled": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "state",
+                                              "id": "disable"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "static",
+                                      "content": "Group"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -18072,31 +20710,241 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "APITabsComponent",
+        "propDefinitions": {},
+        "stateDefinitions": {
+          "isCopied": {
+            "type": "boolean",
+            "defaultValue": false
+          },
+          "copiedStep": {
+            "type": "string",
+            "defaultValue": null
+          },
+          "selectedPlatform": {
+            "type": "string",
+            "defaultValue": "macoslinux"
+          },
+          "selectedTab": {
+            "type": "string",
+            "defaultValue": "Python"
+          },
+          "endpointName": {
+            "type": "string",
+            "source": "useFlowStore"
+          },
+          "dark": {
+            "type": "boolean",
+            "source": "useDarkStore"
+          },
+          "nodes": {
+            "type": "array",
+            "source": "useFlowStore"
+          },
+          "flowId": {
+            "type": "string",
+            "source": "useFlowStore"
+          },
+          "inputs": {
+            "type": "array",
+            "source": "useFlowStore"
+          },
+          "outputs": {
+            "type": "array",
+            "source": "useFlowStore"
+          },
+          "tweaks": {
+            "type": "object",
+            "source": "useTweaksStore"
+          },
+          "isAuthenticated": {
+            "type": "boolean",
+            "source": "useAuthStore"
+          }
+        },
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "APITabsComponent",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "stateDefinitions": {
-          "isCopied": {
-            "type": "Boolean",
-            "defaultValue": "false"
-          },
-          "copiedStep": {
-            "type": "string | null",
-            "defaultValue": "null"
-          },
-          "selectedPlatform": {
-            "type": "any",
-            "defaultValue": "operatingSystemTabs.find((tab"
-          },
-          "selectedTab": {
-            "type": "any",
-            "defaultValue": "\"Python\""
+            "elementType": "div",
+            "semanticType": "container",
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "api-modal-tabs inset-0 m-0 h-full overflow-hidden"
+              }
+            },
+            "style": {
+              "inset": {
+                "type": "static",
+                "content": "0"
+              },
+              "margin": {
+                "type": "static",
+                "content": "0"
+              },
+              "height": {
+                "type": "static",
+                "content": "100%"
+              },
+              "overflow": {
+                "type": "static",
+                "content": "hidden"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "div",
+                  "semanticType": "container",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "flex h-full flex-col gap-4 overflow-hidden"
+                    }
+                  },
+                  "style": {
+                    "display": {
+                      "type": "static",
+                      "content": "flex"
+                    },
+                    "height": {
+                      "type": "static",
+                      "content": "100%"
+                    },
+                    "flexDirection": {
+                      "type": "static",
+                      "content": "column"
+                    },
+                    "gap": {
+                      "type": "static",
+                      "content": "1rem"
+                    },
+                    "overflow": {
+                      "type": "static",
+                      "content": "hidden"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "div",
+                        "semanticType": "tabBar",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex flex-row justify-start border-b border-border"
+                          }
+                        },
+                        "style": {
+                          "display": {
+                            "type": "static",
+                            "content": "flex"
+                          },
+                          "flexDirection": {
+                            "type": "static",
+                            "content": "row"
+                          },
+                          "justifyContent": {
+                            "type": "static",
+                            "content": "flex-start"
+                          },
+                          "borderBottom": {
+                            "type": "static",
+                            "content": "1px solid var(--border)"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "content": {
+                              "node": {
+                                "type": "element",
+                                "content": {
+                                  "elementType": "Button",
+                                  "semanticType": "tab",
+                                  "dependency": {
+                                    "type": "local",
+                                    "path": "@/components/ui/button"
+                                  },
+                                  "attrs": {
+                                    "unstyled": {
+                                      "type": "static",
+                                      "content": true
+                                    },
+                                    "className": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "expr",
+                                        "id": "`flex h-8 select-none flex-row items-center gap-2 text-nowrap border-b-2 border-border border-b-transparent !py-1 font-medium ${selectedTab === tab.title ? 'border-b-2 border-black dark:border-b-white' : 'text-muted-foreground hover:text-foreground'} px-3 py-2 text-[13px]`"
+                                      }
+                                    },
+                                    "onClick": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "expr",
+                                        "id": "() => setSelectedTab(tab.title)"
+                                      }
+                                    },
+                                    "data-testid": {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "expr",
+                                        "id": "`api_tab_${tab.title.toLowerCase()}`"
+                                      }
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "content": {
+                                        "elementType": "IconComponent",
+                                        "semanticType": "icon",
+                                        "dependency": {
+                                          "type": "local",
+                                          "path": "@/components/common/genericIconComponent"
+                                        },
+                                        "attrs": {
+                                          "name": {
+                                            "type": "dynamic",
+                                            "content": {
+                                              "referenceType": "local",
+                                              "id": "tab.icon"
+                                            }
+                                          },
+                                          "className": {
+                                            "type": "static",
+                                            "content": "h-4 w-4"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "dynamic",
+                                      "content": {
+                                        "referenceType": "local",
+                                        "id": "tab.title"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "meta": {
+                                "iteratorName": "tab",
+                                "dataSource": {
+                                  "referenceType": "local",
+                                  "id": "tabsList"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -45538,35 +48386,60 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "CustomProfilePictureChooserComponent",
+        "propDefinitions": {
+          "profilePictures": {
+            "type": "object"
+          },
+          "loading": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "string"
+          },
+          "onChange": {
+            "type": "func"
+          }
+        },
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "CustomProfilePictureChooserComponent",
+            "elementType": "ProfilePictureChooserComponent",
             "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "profilePictures": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "loading": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "value": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "onChange": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "": {
-            "type": "string",
-            "defaultValue": ""
+            "dependency": {
+              "type": "local",
+              "path": "@/pages/SettingsPage/pages/GeneralPage/components/ProfilePictureForm/components/profilePictureChooserComponent"
+            },
+            "attrs": {
+              "profilePictures": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "profilePictures"
+                }
+              },
+              "loading": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "loading"
+                }
+              },
+              "value": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "value"
+                }
+              },
+              "onChange": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "onChange"
+                }
+              }
+            }
           }
         }
       },
@@ -46688,13 +49561,169 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "ToolbarButton",
+        "propDefinitions": {
+          "onClick": {
+            "type": "func"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "shortcut": {
+            "type": "any"
+          },
+          "className": {
+            "type": "string"
+          },
+          "dataTestId": {
+            "type": "string"
+          }
+        },
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "ToolbarButton",
-            "semanticType": "component",
-            "children": []
+            "elementType": "ShadTooltip",
+            "semanticType": "tooltip",
+            "dependency": {
+              "type": "local",
+              "path": "@/components/common/shadTooltipComponent"
+            },
+            "attrs": {
+              "content": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "expr",
+                  "id": "<ShortcutDisplay {...shortcut} />"
+                }
+              },
+              "side": {
+                "type": "static",
+                "content": "top"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "Button",
+                  "semanticType": "button",
+                  "dependency": {
+                    "type": "local",
+                    "path": "@/components/ui/button"
+                  },
+                  "attrs": {
+                    "className": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "expr",
+                        "id": "cn('node-toolbar-buttons', className)"
+                      }
+                    },
+                    "variant": {
+                      "type": "static",
+                      "content": "ghost"
+                    },
+                    "onClick": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "onClick"
+                      }
+                    },
+                    "size": {
+                      "type": "static",
+                      "content": "node-toolbar"
+                    },
+                    "data-testid": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "dataTestId"
+                      }
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "ForwardedIconComponent",
+                        "semanticType": "icon",
+                        "dependency": {
+                          "type": "local",
+                          "path": "@/components/common/genericIconComponent"
+                        },
+                        "attrs": {
+                          "name": {
+                            "type": "dynamic",
+                            "content": {
+                              "referenceType": "prop",
+                              "id": "icon"
+                            }
+                          },
+                          "className": {
+                            "type": "static",
+                            "content": "h-4 w-4"
+                          }
+                        },
+                        "style": {
+                          "height": {
+                            "type": "static",
+                            "content": "1rem"
+                          },
+                          "width": {
+                            "type": "static",
+                            "content": "1rem"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "conditional",
+                      "content": {
+                        "reference": {
+                          "type": "dynamic",
+                          "content": {
+                            "referenceType": "prop",
+                            "id": "label"
+                          }
+                        },
+                        "node": {
+                          "type": "element",
+                          "content": {
+                            "elementType": "span",
+                            "semanticType": "text",
+                            "attrs": {
+                              "className": {
+                                "type": "static",
+                                "content": "text-mmd font-medium"
+                              }
+                            },
+                            "style": {
+                              "fontWeight": {
+                                "type": "static",
+                                "content": "500"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "dynamic",
+                                "content": {
+                                  "referenceType": "prop",
+                                  "id": "label"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -46985,83 +50014,331 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "SidebarHeaderComponent",
+        "propDefinitions": {
+          "showConfig": {
+            "type": "boolean"
+          },
+          "setShowConfig": {
+            "type": "func"
+          },
+          "showBeta": {
+            "type": "boolean"
+          },
+          "setShowBeta": {
+            "type": "func"
+          },
+          "showLegacy": {
+            "type": "boolean"
+          },
+          "setShowLegacy": {
+            "type": "func"
+          },
+          "searchInputRef": {
+            "type": "object"
+          },
+          "isInputFocused": {
+            "type": "boolean"
+          },
+          "search": {
+            "type": "string"
+          },
+          "handleInputFocus": {
+            "type": "func"
+          },
+          "handleInputBlur": {
+            "type": "func"
+          },
+          "handleInputChange": {
+            "type": "func"
+          },
+          "filterType": {
+            "type": "object"
+          },
+          "setFilterEdge": {
+            "type": "func"
+          },
+          "setFilterData": {
+            "type": "func"
+          },
+          "data": {
+            "type": "any"
+          }
+        },
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "SidebarHeaderComponent",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "showConfig": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "setShowConfig": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "showBeta": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "setShowBeta": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "showLegacy": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "setShowLegacy": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "searchInputRef": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "isInputFocused": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "search": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "handleInputFocus": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "handleInputBlur": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "handleInputChange": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "filterType": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "setFilterEdge": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "setFilterData": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "data": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "": {
-            "type": "string",
-            "defaultValue": ""
+            "elementType": "SidebarHeader",
+            "semanticType": "header",
+            "dependency": {
+              "type": "local",
+              "path": "@/components/ui/sidebar"
+            },
+            "attrs": {
+              "className": {
+                "type": "static",
+                "content": "flex w-full flex-col gap-4 p-4 pb-1"
+              }
+            },
+            "style": {
+              "display": {
+                "type": "static",
+                "content": "flex"
+              },
+              "width": {
+                "type": "static",
+                "content": "100%"
+              },
+              "flexDirection": {
+                "type": "static",
+                "content": "column"
+              },
+              "gap": {
+                "type": "static",
+                "content": "1rem"
+              },
+              "padding": {
+                "type": "static",
+                "content": "1rem"
+              },
+              "paddingBottom": {
+                "type": "static",
+                "content": "0.25rem"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "Disclosure",
+                  "semanticType": "disclosure",
+                  "dependency": {
+                    "type": "local",
+                    "path": "@/components/ui/disclosure"
+                  },
+                  "attrs": {
+                    "open": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "showConfig"
+                      }
+                    },
+                    "onOpenChange": {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "prop",
+                        "id": "setShowConfig"
+                      }
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "content": {
+                        "elementType": "div",
+                        "semanticType": "container",
+                        "attrs": {
+                          "className": {
+                            "type": "static",
+                            "content": "flex w-full items-center gap-2"
+                          }
+                        },
+                        "style": {
+                          "display": {
+                            "type": "static",
+                            "content": "flex"
+                          },
+                          "width": {
+                            "type": "static",
+                            "content": "100%"
+                          },
+                          "alignItems": {
+                            "type": "static",
+                            "content": "center"
+                          },
+                          "gap": {
+                            "type": "static",
+                            "content": "0.5rem"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "SidebarTrigger",
+                              "semanticType": "button",
+                              "dependency": {
+                                "type": "local",
+                                "path": "@/components/ui/sidebar"
+                              },
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "text-muted-foreground"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "ForwardedIconComponent",
+                                    "semanticType": "icon",
+                                    "dependency": {
+                                      "type": "local",
+                                      "path": "@/components/common/genericIconComponent"
+                                    },
+                                    "attrs": {
+                                      "name": {
+                                        "type": "static",
+                                        "content": "PanelLeftClose"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "h3",
+                              "semanticType": "heading",
+                              "attrs": {
+                                "className": {
+                                  "type": "static",
+                                  "content": "flex-1 cursor-default text-sm font-semibold"
+                                }
+                              },
+                              "style": {
+                                "flex": {
+                                  "type": "static",
+                                  "content": "1"
+                                },
+                                "cursor": {
+                                  "type": "static",
+                                  "content": "default"
+                                },
+                                "fontSize": {
+                                  "type": "static",
+                                  "content": "0.875rem"
+                                },
+                                "fontWeight": {
+                                  "type": "static",
+                                  "content": "600"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "static",
+                                  "content": "Components"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "element",
+                            "content": {
+                              "elementType": "DisclosureTrigger",
+                              "semanticType": "trigger",
+                              "dependency": {
+                                "type": "local",
+                                "path": "@/components/ui/disclosure"
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "content": {
+                                    "elementType": "div",
+                                    "semanticType": "container",
+                                    "children": [
+                                      {
+                                        "type": "element",
+                                        "content": {
+                                          "elementType": "ShadTooltip",
+                                          "semanticType": "tooltip",
+                                          "dependency": {
+                                            "type": "local",
+                                            "path": "@/components/common/shadTooltipComponent"
+                                          },
+                                          "attrs": {
+                                            "content": {
+                                              "type": "static",
+                                              "content": "Component settings"
+                                            },
+                                            "styleClasses": {
+                                              "type": "static",
+                                              "content": "z-50"
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "element",
+                                              "content": {
+                                                "elementType": "Button",
+                                                "semanticType": "button",
+                                                "dependency": {
+                                                  "type": "local",
+                                                  "path": "@/components/ui/button"
+                                                },
+                                                "attrs": {
+                                                  "variant": {
+                                                    "type": "dynamic",
+                                                    "content": {
+                                                      "referenceType": "expr",
+                                                      "id": "showConfig ? 'ghostActive' : 'ghost'"
+                                                    }
+                                                  },
+                                                  "size": {
+                                                    "type": "static",
+                                                    "content": "iconMd"
+                                                  },
+                                                  "data-testid": {
+                                                    "type": "static",
+                                                    "content": "sidebar-options-trigger"
+                                                  }
+                                                },
+                                                "children": [
+                                                  {
+                                                    "type": "element",
+                                                    "content": {
+                                                      "elementType": "ForwardedIconComponent",
+                                                      "semanticType": "icon",
+                                                      "dependency": {
+                                                        "type": "local",
+                                                        "path": "@/components/common/genericIconComponent"
+                                                      },
+                                                      "attrs": {
+                                                        "name": {
+                                                          "type": "static",
+                                                          "content": "SlidersHorizontal"
+                                                        },
+                                                        "className": {
+                                                          "type": "static",
+                                                          "content": "h-4 w-4"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -48806,31 +52083,89 @@
       "impact_analysis": "No changes required for RBAC MVP",
       "uidl_conceptual": {
         "name": "StringReader",
+        "propDefinitions": {
+          "string": {
+            "type": "string"
+          },
+          "setValue": {
+            "type": "func"
+          },
+          "editable": {
+            "type": "boolean",
+            "defaultValue": false
+          }
+        },
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
-            "name": "StringReader",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "string": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "setValue": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "editable = false": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "": {
-            "type": "string",
-            "defaultValue": ""
+            "elementType": "TextModal",
+            "semanticType": "modal",
+            "dependency": {
+              "type": "local",
+              "path": "../../../modals/textModal"
+            },
+            "attrs": {
+              "editable": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "editable"
+                }
+              },
+              "setValue": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "prop",
+                  "id": "setValue"
+                }
+              },
+              "value": {
+                "type": "dynamic",
+                "content": {
+                  "referenceType": "expr",
+                  "id": "string ?? ''"
+                }
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "content": {
+                  "elementType": "span",
+                  "semanticType": "text",
+                  "attrs": {
+                    "className": {
+                      "type": "static",
+                      "content": "truncate"
+                    }
+                  },
+                  "style": {
+                    "overflow": {
+                      "type": "static",
+                      "content": "hidden"
+                    },
+                    "textOverflow": {
+                      "type": "static",
+                      "content": "ellipsis"
+                    },
+                    "whiteSpace": {
+                      "type": "static",
+                      "content": "nowrap"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "dynamic",
+                      "content": {
+                        "referenceType": "expr",
+                        "id": "string ?? '\u200e'"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -51669,27 +55004,70 @@
       "impact_analysis": "New RBAC hook. Reusable permission check for UI rendering decisions (hide/disable/read-only). Uses check-permission API endpoint. Supports Epic 2 Story 2.2.",
       "uidl_conceptual": {
         "name": "usePermission",
+        "propDefinitions": {},
+        "stateDefinitions": {},
         "node": {
           "type": "element",
           "content": {
-            "elementType": "container",
+            "elementType": "hook",
+            "semanticType": "hook",
             "name": "usePermission",
-            "semanticType": "component",
-            "children": []
-          }
-        },
-        "propDefinitions": {
-          "action": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "scope": {
-            "type": "string",
-            "defaultValue": ""
-          },
-          "scopeId?": {
-            "type": "string",
-            "defaultValue": ""
+            "description": "RBAC permission checking hook - non-visual component",
+            "hookType": "custom",
+            "parameters": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "read",
+                  "update",
+                  "delete"
+                ]
+              },
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "flow",
+                  "project"
+                ]
+              },
+              "scopeId": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "returns": {
+              "hasPermission": {
+                "type": "boolean"
+              },
+              "isLoading": {
+                "type": "boolean"
+              },
+              "error": {
+                "type": "unknown"
+              },
+              "reason": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "dependencies": [
+              {
+                "type": "library",
+                "path": "@tanstack/react-query",
+                "import": "useQuery"
+              },
+              {
+                "type": "library",
+                "path": "react",
+                "import": "useContext"
+              },
+              {
+                "type": "local",
+                "path": "../contexts/authContext",
+                "import": "AuthContext"
+              }
+            ]
           }
         }
       },
