@@ -22,6 +22,7 @@ from langbuilder.serialization.serialization import get_max_items_length, get_ma
 from langbuilder.services.database.models.api_key.model import ApiKeyRead
 from langbuilder.services.database.models.base import orjson_dumps
 from langbuilder.services.database.models.flow.model import FlowCreate, FlowRead
+from langbuilder.services.database.models.rbac.model import PermissionEnum, RoleEnum, ScopeTypeEnum
 from langbuilder.services.database.models.user.model import UserRead
 from langbuilder.services.settings.base import Settings
 from langbuilder.services.settings.feature_flags import FEATURE_FLAGS, FeatureFlags
@@ -489,3 +490,94 @@ class MCPProjectResponse(BaseModel):
 
 class MCPInstallRequest(BaseModel):
     client: str
+
+
+# RBAC Schemas
+
+
+class AssignmentCreate(BaseModel):
+    """Schema for creating a new role assignment.
+
+    Attributes:
+        user_id: ID of user to assign role to
+        role_name: Name of role to assign (Admin, Owner, Editor, Viewer)
+        scope_type: Type of scope (GLOBAL, PROJECT, FLOW)
+        scope_id: ID of specific scope (None for GLOBAL)
+    """
+
+    user_id: UUID = Field(..., description="User ID to assign role to")
+    role_name: RoleEnum = Field(..., description="Role to assign")
+    scope_type: ScopeTypeEnum = Field(..., description="Scope type for assignment")
+    scope_id: UUID | None = Field(None, description="Scope ID (None for GLOBAL scope)")
+
+
+class AssignmentUpdate(BaseModel):
+    """Schema for updating an existing role assignment.
+
+    Only the role can be updated; scope cannot change per PRD.
+
+    Attributes:
+        new_role_name: New role to assign to the same user/scope
+    """
+
+    new_role_name: RoleEnum = Field(..., description="New role to assign")
+
+
+class AssignmentResponse(BaseModel):
+    """Schema for role assignment response.
+
+    Includes all assignment details plus role and user information.
+
+    Attributes:
+        id: Assignment ID
+        user_id: User ID
+        role_id: Role ID
+        role_name: Role name for convenience
+        scope_type: Scope type
+        scope_id: Scope ID
+        is_immutable: Whether assignment is immutable (Default Project Owner)
+        created_at: Assignment creation timestamp
+    """
+
+    id: UUID
+    user_id: UUID
+    role_id: UUID
+    role_name: RoleEnum
+    scope_type: ScopeTypeEnum
+    scope_id: UUID | None
+    is_immutable: bool
+    created_at: str  # ISO format datetime string
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PermissionCheckRequest(BaseModel):
+    """Schema for permission check request.
+
+    Attributes:
+        permission: Permission to check (CREATE, READ, UPDATE, DELETE)
+        scope_type: Scope type to check
+        scope_id: Scope ID to check (None for GLOBAL)
+    """
+
+    permission: PermissionEnum = Field(..., description="Permission to check")
+    scope_type: ScopeTypeEnum = Field(..., description="Scope type")
+    scope_id: UUID | None = Field(None, description="Scope ID")
+
+
+class PermissionCheckResponse(BaseModel):
+    """Schema for permission check response.
+
+    Attributes:
+        has_permission: Whether user has the requested permission
+        user_id: User ID that was checked
+        permission: Permission that was checked
+        scope_type: Scope type that was checked
+        scope_id: Scope ID that was checked
+    """
+
+    has_permission: bool
+    user_id: UUID
+    permission: PermissionEnum
+    scope_type: ScopeTypeEnum
+    scope_id: UUID | None

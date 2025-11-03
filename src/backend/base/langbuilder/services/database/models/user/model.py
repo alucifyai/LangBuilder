@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from langbuilder.services.database.models.api_key.model import ApiKey
     from langbuilder.services.database.models.flow.model import Flow
     from langbuilder.services.database.models.folder.model import Folder
+    from langbuilder.services.database.models.rbac.model import UserRoleAssignment
     from langbuilder.services.database.models.variable.model import Variable
 
 
@@ -43,6 +44,10 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
         sa_relationship_kwargs={"cascade": "delete"},
     )
     folders: list["Folder"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "delete"},
+    )
+    role_assignments: list["UserRoleAssignment"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
     )

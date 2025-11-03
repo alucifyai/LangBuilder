@@ -25,6 +25,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 
 from langbuilder.api import health_check_router, log_router, router
 from langbuilder.api.v1.mcp_projects import init_mcp_servers
+from langbuilder.initial_setup.rbac_seed import seed_rbac_data
 from langbuilder.initial_setup.setup import (
     create_or_update_starter_projects,
     initialize_super_user_if_needed,
@@ -132,6 +133,15 @@ def get_lifespan(*, fix_migration=False, version=None):
             logger.debug("Initializing services")
             await initialize_services(fix_migration=fix_migration)
             logger.debug(f"Services initialized in {asyncio.get_event_loop().time() - start_time:.2f}s")
+
+            # Seed RBAC data (roles, permissions, role-permission mappings)
+            current_time = asyncio.get_event_loop().time()
+            logger.debug("Seeding RBAC data")
+            from langbuilder.services.deps import session_scope
+
+            async with session_scope() as session:
+                await seed_rbac_data(session)
+            logger.debug(f"RBAC data seeded in {asyncio.get_event_loop().time() - current_time:.2f}s")
 
             current_time = asyncio.get_event_loop().time()
             logger.debug("Setting up LLM caching")

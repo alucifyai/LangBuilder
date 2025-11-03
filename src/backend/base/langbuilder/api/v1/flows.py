@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# ruff: noqa: FAST002, E501, BLE001
 import io
 import json
 import re
@@ -16,10 +17,16 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlmodel import apaginate
-from sqlmodel import and_, col, select
+from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from langbuilder.api.utils import CurrentActiveUser, DbSession, cascade_delete_flow, remove_api_keys, validate_is_component
+from langbuilder.api.utils import (
+    CurrentActiveUser,
+    DbSession,
+    cascade_delete_flow,
+    remove_api_keys,
+    validate_is_component,
+)
 from langbuilder.api.v1.schemas import FlowListCreate
 from langbuilder.helpers.user import get_user_by_flow_id_or_endpoint_name
 from langbuilder.initial_setup.constants import STARTER_FOLDER_NAME
@@ -35,7 +42,9 @@ from langbuilder.services.database.models.flow.model import (
 from langbuilder.services.database.models.flow.utils import get_webhook_component_in_flow
 from langbuilder.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langbuilder.services.database.models.folder.model import Folder
-from langbuilder.services.deps import get_settings_service
+from langbuilder.services.database.models.rbac.model import PermissionEnum, RoleEnum, ScopeTypeEnum
+from langbuilder.services.deps import get_rbac_service, get_settings_service
+from langbuilder.services.rbac.service import RBACService
 from langbuilder.utils.compression import compress_response
 
 # build router
@@ -157,14 +166,74 @@ async def create_flow(
     session: DbSession,
     flow: FlowCreate,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
+    """Create a new flow with RBAC permission check.
+
+    Requires CREATE permission on the parent project (folder).
+    Auto-assigns Owner role to the creator on the new flow.
+    """
     try:
+        # Determine parent project (folder) ID
+        folder_id = flow.folder_id
+        if not folder_id:
+            # Get default folder for user
+            default_folder = (
+                await session.exec(
+                    select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id)
+                )
+            ).first()
+            if default_folder:
+                folder_id = default_folder.id
+
+        # Check CREATE permission on parent project
+        if folder_id:
+            has_permission = await rbac_service.can_access(
+                session=session,
+                user_id=current_user.id,
+                permission=PermissionEnum.CREATE,
+                scope_type=ScopeTypeEnum.PROJECT,
+                scope_id=folder_id,
+            )
+            if not has_permission:
+                raise HTTPException(
+                    status_code=403, detail="You do not have permission to create flows in this project"
+                )
+
+        # Create the flow
         db_flow = await _new_flow(session=session, flow=flow, user_id=current_user.id)
+
+        # Commit to get the flow ID
         await session.commit()
         await session.refresh(db_flow)
 
+        # Auto-assign Owner role to creator
+        try:
+            await rbac_service.assign_role(
+                session=session,
+                user_id=current_user.id,
+                role_name=RoleEnum.OWNER,
+                scope_type=ScopeTypeEnum.FLOW,
+                scope_id=db_flow.id,
+                is_immutable=False,
+            )
+            logger.info(f"Auto-assigned Owner role to user {current_user.id} for flow {db_flow.id}")
+        except ValueError as ve:
+            # If assignment already exists (shouldn't happen), log and continue
+            logger.warning(f"Failed to auto-assign Owner role: {ve}")
+        except Exception as assign_error:
+            # Rollback flow creation if role assignment fails
+            logger.error(f"Failed to assign Owner role, rolling back flow creation: {assign_error}")
+            await session.rollback()
+            raise HTTPException(
+                status_code=500, detail="Failed to assign ownership role for the new flow"
+            ) from assign_error
+
         await _save_flow_to_fs(db_flow)
 
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
             # Get the name of the column that failed
@@ -177,8 +246,6 @@ async def create_flow(
             raise HTTPException(
                 status_code=400, detail=f"{column.capitalize().replace('_', ' ')} must be unique"
             ) from e
-        if isinstance(e, HTTPException):
-            raise
         raise HTTPException(status_code=500, detail=str(e)) from e
     return db_flow
 
@@ -194,8 +261,12 @@ async def read_flows(
     folder_id: UUID | None = None,
     params: Annotated[Params, Depends()],
     header_flows: bool = False,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Retrieve a list of flows with pagination support.
+    """Retrieve a list of flows with pagination support and RBAC filtering.
+
+    Filters flows to only those the user has READ permission for.
+    Uses get_accessible_scope_ids() for performance-optimized filtering.
 
     Args:
         current_user (User): The current authenticated user.
@@ -210,6 +281,7 @@ async def read_flows(
         params (Params): Pagination parameters.
         remove_example_flows (bool, optional): Whether to remove example flows. Defaults to False.
         header_flows (bool, optional): Whether to return only specific headers of the flows. Defaults to False.
+        rbac_service (RBACService): RBAC service for permission checks.
 
     Returns:
         list[FlowRead] | Page[FlowRead] | list[FlowHeader]
@@ -233,12 +305,30 @@ async def read_flows(
         if not folder_id:
             folder_id = default_folder_id
 
+        # RBAC: Get all flow IDs the user has READ permission for
+        accessible_flow_ids = await rbac_service.get_accessible_scope_ids(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.READ,
+            scope_type=ScopeTypeEnum.FLOW,
+        )
+
+        # Build query with RBAC filtering
         if auth_settings.AUTO_LOGIN:
+            # In AUTO_LOGIN mode, include flows with no user_id or flows owned by current user
+            # AND flows the user has READ permission for
             stmt = select(Flow).where(
-                (Flow.user_id == None) | (Flow.user_id == current_user.id)  # noqa: E711
+                ((Flow.user_id == None) | (Flow.user_id == current_user.id))  # noqa: E711
+                | (col(Flow.id).in_(accessible_flow_ids) if accessible_flow_ids else False)
             )
+        # Normal mode: Filter by accessible flow IDs only
+        elif accessible_flow_ids:
+            stmt = select(Flow).where(col(Flow.id).in_(accessible_flow_ids))
         else:
-            stmt = select(Flow).where(Flow.user_id == current_user.id)
+            # User has no accessible flows, return empty list
+            if header_flows:
+                return compress_response([])
+            return compress_response([])
 
         if remove_example_flows:
             stmt = stmt.where(Flow.folder_id != starter_folder_id)
@@ -292,11 +382,35 @@ async def read_flow(
     session: DbSession,
     flow_id: UUID,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Read a flow."""
-    if user_flow := await _read_flow(session, flow_id, current_user.id):
-        return user_flow
-    raise HTTPException(status_code=404, detail="Flow not found")
+    """Read a flow with RBAC permission check.
+
+    Requires READ permission on the flow.
+    Returns 404 if flow not found OR user lacks permission (security best practice).
+    """
+    # First check if flow exists (without user filter)
+    flow_stmt = select(Flow).where(Flow.id == flow_id)
+    result = await session.exec(flow_stmt)
+    flow = result.first()
+
+    if not flow:
+        raise HTTPException(status_code=404, detail="Flow not found")
+
+    # Check READ permission
+    has_permission = await rbac_service.can_access(
+        session=session,
+        user_id=current_user.id,
+        permission=PermissionEnum.READ,
+        scope_type=ScopeTypeEnum.FLOW,
+        scope_id=flow_id,
+    )
+
+    if not has_permission:
+        # Return 404 instead of 403 for security (don't reveal flow exists)
+        raise HTTPException(status_code=404, detail="Flow not found")
+
+    return flow
 
 
 @router.get("/public_flow/{flow_id}", response_model=FlowRead, status_code=200)
@@ -321,17 +435,34 @@ async def update_flow(
     flow_id: UUID,
     flow: FlowUpdate,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Update a flow."""
+    """Update a flow with RBAC permission check.
+
+    Requires UPDATE permission on the flow.
+    Returns 404 if flow not found OR user lacks permission.
+    """
     settings_service = get_settings_service()
     try:
-        db_flow = await _read_flow(
-            session=session,
-            flow_id=flow_id,
-            user_id=current_user.id,
-        )
+        # First check if flow exists
+        flow_stmt = select(Flow).where(Flow.id == flow_id)
+        result = await session.exec(flow_stmt)
+        db_flow = result.first()
 
         if not db_flow:
+            raise HTTPException(status_code=404, detail="Flow not found")
+
+        # Check UPDATE permission
+        has_permission = await rbac_service.can_access(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.UPDATE,
+            scope_type=ScopeTypeEnum.FLOW,
+            scope_id=flow_id,
+        )
+
+        if not has_permission:
+            # Return 404 instead of 403 for security
             raise HTTPException(status_code=404, detail="Flow not found")
 
         update_data = flow.model_dump(exclude_unset=True, exclude_none=True)
@@ -388,15 +519,34 @@ async def delete_flow(
     session: DbSession,
     flow_id: UUID,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Delete a flow."""
-    flow = await _read_flow(
-        session=session,
-        flow_id=flow_id,
-        user_id=current_user.id,
-    )
+    """Delete a flow with RBAC permission check.
+
+    Requires DELETE permission on the flow.
+    Returns 404 if flow not found OR user lacks permission.
+    """
+    # First check if flow exists
+    flow_stmt = select(Flow).where(Flow.id == flow_id)
+    result = await session.exec(flow_stmt)
+    flow = result.first()
+
     if not flow:
         raise HTTPException(status_code=404, detail="Flow not found")
+
+    # Check DELETE permission
+    has_permission = await rbac_service.can_access(
+        session=session,
+        user_id=current_user.id,
+        permission=PermissionEnum.DELETE,
+        scope_type=ScopeTypeEnum.FLOW,
+        scope_id=flow_id,
+    )
+
+    if not has_permission:
+        # Return 404 instead of 403 for security
+        raise HTTPException(status_code=404, detail="Flow not found")
+
     await cascade_delete_flow(session, flow.id)
     await session.commit()
     return {"message": "Flow deleted successfully"}
@@ -429,13 +579,43 @@ async def upload_file(
     file: Annotated[UploadFile, File(...)],
     current_user: CurrentActiveUser,
     folder_id: UUID | None = None,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Upload flows from a file."""
+    """Upload flows from a file with RBAC permission check.
+
+    For new flow imports, requires CREATE permission on parent project.
+    Note: This creates new flows, so we treat it as CREATE operation.
+    """
     contents = await file.read()
     data = orjson.loads(contents)
     response_list = []
     flow_list = FlowListCreate(**data) if "flows" in data else FlowListCreate(flows=[FlowCreate(**data)])
-    # Now we set the user_id for all flows
+
+    # Determine folder for permission check
+    target_folder_id = folder_id
+    if not target_folder_id:
+        # Get default folder for user
+        default_folder = (
+            await session.exec(
+                select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id)
+            )
+        ).first()
+        if default_folder:
+            target_folder_id = default_folder.id
+
+    # Check CREATE permission on target project
+    if target_folder_id:
+        has_permission = await rbac_service.can_access(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.CREATE,
+            scope_type=ScopeTypeEnum.PROJECT,
+            scope_id=target_folder_id,
+        )
+        if not has_permission:
+            raise HTTPException(status_code=403, detail="You do not have permission to import flows into this project")
+
+    # Now we set the user_id for all flows and create them
     for flow in flow_list.flows:
         flow.user_id = current_user.id
         if folder_id:
@@ -447,6 +627,25 @@ async def upload_file(
         await session.commit()
         for db_flow in response_list:
             await session.refresh(db_flow)
+
+            # Auto-assign Owner role to creator for each uploaded flow
+            try:
+                await rbac_service.assign_role(
+                    session=session,
+                    user_id=current_user.id,
+                    role_name=RoleEnum.OWNER,
+                    scope_type=ScopeTypeEnum.FLOW,
+                    scope_id=db_flow.id,
+                    is_immutable=False,
+                )
+                logger.info(f"Auto-assigned Owner role to user {current_user.id} for uploaded flow {db_flow.id}")
+            except ValueError as ve:
+                # If assignment already exists, log and continue
+                logger.warning(f"Failed to auto-assign Owner role for uploaded flow: {ve}")
+            except Exception as assign_error:
+                logger.error(f"Failed to assign Owner role for uploaded flow: {assign_error}")
+                # Continue with other flows even if one assignment fails
+
             await _save_flow_to_fs(db_flow)
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
@@ -472,22 +671,41 @@ async def delete_multiple_flows(
     flow_ids: list[UUID],
     user: CurrentActiveUser,
     db: DbSession,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Delete multiple flows by their IDs.
+    """Delete multiple flows by their IDs with RBAC permission check.
+
+    Requires DELETE permission on each flow.
+    Only deletes flows the user has permission to delete.
 
     Args:
         flow_ids (List[str]): The list of flow IDs to delete.
         user (User, optional): The user making the request. Defaults to the current active user.
         db (Session, optional): The database session.
+        rbac_service (RBACService): RBAC service for permission checks.
 
     Returns:
         dict: A dictionary containing the number of flows deleted.
 
     """
     try:
-        flows_to_delete = (
-            await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)).where(Flow.user_id == user.id))
-        ).all()
+        # Get all flows by IDs (without user filter)
+        all_flows = (await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)))).all()
+
+        # Filter to only flows the user has DELETE permission for
+        flows_to_delete = []
+        for flow in all_flows:
+            has_permission = await rbac_service.can_access(
+                session=db,
+                user_id=user.id,
+                permission=PermissionEnum.DELETE,
+                scope_type=ScopeTypeEnum.FLOW,
+                scope_id=flow.id,
+            )
+            if has_permission:
+                flows_to_delete.append(flow)
+
+        # Delete permitted flows
         for flow in flows_to_delete:
             await cascade_delete_flow(db, flow.id)
 
@@ -502,9 +720,28 @@ async def download_multiple_file(
     flow_ids: list[UUID],
     user: CurrentActiveUser,
     db: DbSession,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Download all flows as a zip file."""
-    flows = (await db.exec(select(Flow).where(and_(Flow.user_id == user.id, Flow.id.in_(flow_ids))))).all()  # type: ignore[attr-defined]
+    """Download all flows as a zip file with RBAC permission check.
+
+    Requires READ permission on each flow.
+    Only downloads flows the user has permission to read.
+    """
+    # Get all flows by IDs (without user filter)
+    all_flows = (await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)))).all()
+
+    # Filter to only flows the user has READ permission for
+    flows = []
+    for flow in all_flows:
+        has_permission = await rbac_service.can_access(
+            session=db,
+            user_id=user.id,
+            permission=PermissionEnum.READ,
+            scope_type=ScopeTypeEnum.FLOW,
+            scope_id=flow.id,
+        )
+        if has_permission:
+            flows.append(flow)
 
     if not flows:
         raise HTTPException(status_code=404, detail="No flows found.")

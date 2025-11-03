@@ -1,3 +1,4 @@
+# ruff: noqa: FAST002, E501
 import io
 import json
 import zipfile
@@ -12,7 +13,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlmodel import apaginate
-from sqlalchemy import or_, update
+from sqlalchemy import update
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
@@ -22,6 +23,7 @@ from langbuilder.api.v1.schemas import FlowListCreate
 from langbuilder.helpers.flow import generate_unique_flow_name
 from langbuilder.helpers.folders import generate_unique_folder_name
 from langbuilder.initial_setup.constants import STARTER_FOLDER_NAME
+from langbuilder.logging import logger
 from langbuilder.services.database.models.flow.model import Flow, FlowCreate, FlowRead
 from langbuilder.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langbuilder.services.database.models.folder.model import (
@@ -32,6 +34,9 @@ from langbuilder.services.database.models.folder.model import (
     FolderUpdate,
 )
 from langbuilder.services.database.models.folder.pagination_model import FolderWithPaginatedFlows
+from langbuilder.services.database.models.rbac.model import PermissionEnum, RoleEnum, ScopeTypeEnum
+from langbuilder.services.deps import get_rbac_service
+from langbuilder.services.rbac.service import RBACService
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -42,7 +47,14 @@ async def create_project(
     session: DbSession,
     project: FolderCreate,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
+    """Create a new project with RBAC permission check.
+
+    All authenticated users can create projects.
+    Auto-assigns Owner role to the creator on the new project.
+    For Default Project ("Starter Project"), the Owner assignment is immutable.
+    """
     try:
         new_project = Folder.model_validate(project, from_attributes=True)
         new_project.user_id = current_user.id
@@ -74,6 +86,33 @@ async def create_project(
         await session.commit()
         await session.refresh(new_project)
 
+        # Auto-assign Owner role to creator
+        # For Default Project ("Starter Project"), mark as immutable
+        is_default_project = new_project.name == DEFAULT_FOLDER_NAME
+        try:
+            await rbac_service.assign_role(
+                session=session,
+                user_id=current_user.id,
+                role_name=RoleEnum.OWNER,
+                scope_type=ScopeTypeEnum.PROJECT,
+                scope_id=new_project.id,
+                is_immutable=is_default_project,
+            )
+            logger.info(
+                f"Auto-assigned Owner role to user {current_user.id} for project {new_project.id} (immutable={is_default_project})"
+            )
+        except ValueError as ve:
+            # If assignment already exists (shouldn't happen), log and continue
+            logger.warning(f"Failed to auto-assign Owner role: {ve}")
+        except Exception as assign_error:
+            # Rollback project creation if role assignment fails
+            logger.error(f"Failed to assign Owner role, rolling back project creation: {assign_error}")
+            await session.delete(new_project)
+            await session.commit()
+            raise HTTPException(
+                status_code=500, detail="Failed to assign ownership role for the new project"
+            ) from assign_error
+
         if project.components_list:
             update_statement_components = (
                 update(Flow).where(Flow.id.in_(project.components_list)).values(folder_id=new_project.id)  # type: ignore[attr-defined]
@@ -88,6 +127,9 @@ async def create_project(
             await session.exec(update_statement_flows)
             await session.commit()
 
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -99,16 +141,36 @@ async def read_projects(
     *,
     session: DbSession,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
+    """Retrieve a list of projects with RBAC filtering.
+
+    Filters projects to only those the user has READ permission for.
+    Uses get_accessible_scope_ids() for performance-optimized filtering.
+    Excludes STARTER_FOLDER_NAME and sorts Default Project first.
+    """
     try:
-        projects = (
-            await session.exec(
-                select(Folder).where(
-                    or_(Folder.user_id == current_user.id, Folder.user_id == None)  # noqa: E711
-                )
-            )
-        ).all()
+        # RBAC: Get all project IDs the user has READ permission for
+        accessible_project_ids = await rbac_service.get_accessible_scope_ids(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.READ,
+            scope_type=ScopeTypeEnum.PROJECT,
+        )
+
+        if not accessible_project_ids:
+            # User has no accessible projects, return empty list
+            return []
+
+        # Build query with RBAC filtering
+        from sqlmodel import col
+
+        projects = (await session.exec(select(Folder).where(col(Folder.id).in_(accessible_project_ids)))).all()
+
+        # Filter out STARTER_FOLDER_NAME
         projects = [project for project in projects if project.name != STARTER_FOLDER_NAME]
+
+        # Sort with DEFAULT_FOLDER_NAME first
         return sorted(projects, key=lambda x: x.name != DEFAULT_FOLDER_NAME)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -124,22 +186,42 @@ async def read_project(
     is_component: bool = False,
     is_flow: bool = False,
     search: str = "",
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
+    """Read a project with RBAC permission check.
+
+    Requires READ permission on the project.
+    Returns 404 if project not found OR user lacks permission (security best practice).
+    """
     try:
-        project = (
-            await session.exec(
-                select(Folder)
-                .options(selectinload(Folder.flows))
-                .where(Folder.id == project_id, Folder.user_id == current_user.id)
-            )
-        ).first()
+        # First check if project exists (without user filter)
+        project_stmt = select(Folder).options(selectinload(Folder.flows)).where(Folder.id == project_id)
+        result = await session.exec(project_stmt)
+        project = result.first()
+
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Check READ permission
+        has_permission = await rbac_service.can_access(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.READ,
+            scope_type=ScopeTypeEnum.PROJECT,
+            scope_id=project_id,
+        )
+
+        if not has_permission:
+            # Return 404 instead of 403 for security (don't reveal project exists)
+            raise HTTPException(status_code=404, detail="Project not found")
+
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         if "No result found" in str(e):
             raise HTTPException(status_code=404, detail="Project not found") from e
         raise HTTPException(status_code=500, detail=str(e)) from e
-
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
 
     try:
         if params and params.page and params.size:
@@ -178,16 +260,40 @@ async def update_project(
     project_id: UUID,
     project: FolderUpdate,  # Assuming FolderUpdate is a Pydantic model defining updatable fields
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
+    """Update a project with RBAC permission check.
+
+    Requires UPDATE permission on the project.
+    Returns 404 if project not found OR user lacks permission.
+    """
     try:
-        existing_project = (
-            await session.exec(select(Folder).where(Folder.id == project_id, Folder.user_id == current_user.id))
-        ).first()
+        # First check if project exists
+        project_stmt = select(Folder).where(Folder.id == project_id)
+        result = await session.exec(project_stmt)
+        existing_project = result.first()
+
+        if not existing_project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Check UPDATE permission
+        has_permission = await rbac_service.can_access(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.UPDATE,
+            scope_type=ScopeTypeEnum.PROJECT,
+            scope_id=project_id,
+        )
+
+        if not has_permission:
+            # Return 404 instead of 403 for security
+            raise HTTPException(status_code=404, detail="Project not found")
+
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
-    if not existing_project:
-        raise HTTPException(status_code=404, detail="Project not found")
 
     try:
         if project.name and project.name != existing_project.name:
@@ -238,23 +344,51 @@ async def delete_project(
     session: DbSession,
     project_id: UUID,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
+    """Delete a project with RBAC permission check.
+
+    Requires DELETE permission on the project.
+    Returns 404 if project not found OR user lacks permission.
+    Prevents deletion of Default Project ("Starter Project").
+    """
     try:
-        flows = (
-            await session.exec(select(Flow).where(Flow.folder_id == project_id, Flow.user_id == current_user.id))
-        ).all()
+        # First check if project exists
+        project_stmt = select(Folder).where(Folder.id == project_id)
+        result = await session.exec(project_stmt)
+        project = result.first()
+
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Check DELETE permission
+        has_permission = await rbac_service.can_access(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.DELETE,
+            scope_type=ScopeTypeEnum.PROJECT,
+            scope_id=project_id,
+        )
+
+        if not has_permission:
+            # Return 404 instead of 403 for security
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Prevent deletion of Default Project
+        if project.name == DEFAULT_FOLDER_NAME:
+            raise HTTPException(status_code=403, detail="Cannot delete the default project")
+
+        # Delete all flows in the project
+        flows = (await session.exec(select(Flow).where(Flow.folder_id == project_id))).all()
         if len(flows) > 0:
             for flow in flows:
                 await cascade_delete_flow(session, flow.id)
 
-        project = (
-            await session.exec(select(Folder).where(Folder.id == project_id, Folder.user_id == current_user.id))
-        ).first()
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
 
     try:
         await session.delete(project)
@@ -270,14 +404,33 @@ async def download_file(
     session: DbSession,
     project_id: UUID,
     current_user: CurrentActiveUser,
+    rbac_service: RBACService = Depends(get_rbac_service),
 ):
-    """Download all flows from project as a zip file."""
+    """Download all flows from project as a zip file with RBAC permission check.
+
+    Requires READ permission on the project.
+    Returns 404 if project not found OR user lacks permission.
+    """
     try:
-        query = select(Folder).where(Folder.id == project_id, Folder.user_id == current_user.id)
+        # First check if project exists
+        query = select(Folder).where(Folder.id == project_id)
         result = await session.exec(query)
         project = result.first()
 
         if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Check READ permission
+        has_permission = await rbac_service.can_access(
+            session=session,
+            user_id=current_user.id,
+            permission=PermissionEnum.READ,
+            scope_type=ScopeTypeEnum.PROJECT,
+            scope_id=project_id,
+        )
+
+        if not has_permission:
+            # Return 404 instead of 403 for security
             raise HTTPException(status_code=404, detail="Project not found")
 
         flows_query = select(Flow).where(Flow.folder_id == project_id)
