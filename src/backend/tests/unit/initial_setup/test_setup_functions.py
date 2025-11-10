@@ -50,3 +50,70 @@ async def test_get_or_create_default_folder_concurrent_calls() -> None:
     results = await asyncio.gather(get_folder(), get_folder(), get_folder())
     folder_ids = {folder.id for folder in results}
     assert len(folder_ids) == 1, "Concurrent calls must return a single, consistent folder instance."
+
+
+@pytest.mark.usefixtures("client")
+async def test_get_or_create_default_folder_creates_immutable_owner_assignment() -> None:
+    """Test that get_or_create_default_folder creates an immutable Owner role assignment.
+
+    This test verifies that when a default Starter Project folder is created,
+    an Owner role assignment is automatically created with is_immutable=True.
+    """
+    from sqlmodel import select
+    from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+
+    test_user_id = uuid4()
+    async with session_scope() as session:
+        # Create the default folder
+        folder = await get_or_create_default_folder(session, test_user_id)
+
+        # Get the Owner role
+        owner_role = (await session.exec(select(Role).where(Role.name == "Owner"))).first()
+        assert owner_role is not None, "Owner role should exist in database"
+
+        # Verify Owner role assignment was created
+        assignment = (await session.exec(
+            select(UserRoleAssignment).where(
+                UserRoleAssignment.user_id == test_user_id,
+                UserRoleAssignment.role_id == owner_role.id,
+                UserRoleAssignment.scope_type == "Project",
+                UserRoleAssignment.scope_id == folder.id
+            )
+        )).first()
+
+        assert assignment is not None, "Owner role assignment should be created for default folder"
+        assert assignment.is_immutable is True, "Starter Project Owner assignment should be immutable"
+
+
+@pytest.mark.usefixtures("client")
+async def test_get_or_create_default_folder_doesnt_duplicate_assignment() -> None:
+    """Test that get_or_create_default_folder doesn't create duplicate Owner assignments.
+
+    This test verifies that when a default folder already exists with an Owner assignment,
+    subsequent calls don't create duplicate assignments.
+    """
+    from sqlmodel import select
+    from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+
+    test_user_id = uuid4()
+    async with session_scope() as session:
+        # Create the default folder twice
+        folder_first = await get_or_create_default_folder(session, test_user_id)
+        folder_second = await get_or_create_default_folder(session, test_user_id)
+
+        # Get the Owner role
+        owner_role = (await session.exec(select(Role).where(Role.name == "Owner"))).first()
+        assert owner_role is not None, "Owner role should exist in database"
+
+        # Count Owner role assignments for this folder
+        assignments = (await session.exec(
+            select(UserRoleAssignment).where(
+                UserRoleAssignment.user_id == test_user_id,
+                UserRoleAssignment.role_id == owner_role.id,
+                UserRoleAssignment.scope_type == "Project",
+                UserRoleAssignment.scope_id == folder_first.id
+            )
+        )).all()
+
+        assert len(assignments) == 1, "Should have exactly one Owner assignment, not duplicates"
+        assert assignments[0].is_immutable is True, "The assignment should be immutable"

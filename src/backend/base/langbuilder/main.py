@@ -37,6 +37,7 @@ from langbuilder.interface.utils import setup_llm_caching
 from langbuilder.logging.logger import configure
 from langbuilder.middleware import ContentSizeLimitMiddleware
 from langbuilder.services.deps import (
+    get_db_service,
     get_queue_service,
     get_settings_service,
     get_telemetry_service,
@@ -142,6 +143,14 @@ def get_lifespan(*, fix_migration=False, version=None):
             logger.debug("Initializing super user")
             await initialize_super_user_if_needed()
             logger.debug(f"Super user initialized in {asyncio.get_event_loop().time() - current_time:.2f}s")
+
+            current_time = asyncio.get_event_loop().time()
+            logger.debug("Initializing RBAC data")
+            from langbuilder.initial_setup.rbac_setup import initialize_rbac_data
+
+            async with get_db_service().with_session() as session:
+                await initialize_rbac_data(session)
+            logger.debug(f"RBAC data initialized in {asyncio.get_event_loop().time() - current_time:.2f}s")
 
             current_time = asyncio.get_event_loop().time()
             logger.debug("Loading bundles")

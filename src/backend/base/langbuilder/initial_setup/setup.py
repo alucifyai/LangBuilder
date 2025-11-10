@@ -1033,22 +1033,83 @@ async def get_or_create_default_folder(session: AsyncSession, user_id: UUID) -> 
     Returns:
         UUID: The ID of the default folder.
     """
-    stmt = select(Folder).where(Folder.user_id == user_id, Folder.name == DEFAULT_FOLDER_NAME)
+    from langbuilder.services.database.models.folder.constants import get_starter_project_name, is_starter_project
+    from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+    from langbuilder.services.database.models.user.model import User
+
+    # Get the user to obtain username for personalized folder name
+    user_result = await session.exec(select(User).where(User.id == user_id))
+    user = user_result.first()
+    if not user:
+        msg = f"User with ID {user_id} not found"
+        raise ValueError(msg)
+
+    # Get personalized Starter Project name
+    personalized_name = get_starter_project_name(user.username)
+
+    # Check if a Starter Project folder already exists (with any naming convention)
+    stmt = select(Folder).where(Folder.user_id == user_id)
     result = await session.exec(stmt)
-    folder = result.first()
+    all_folders = result.all()
+
+    # Find existing Starter Project (old or new naming convention)
+    folder = None
+    for f in all_folders:
+        if is_starter_project(f.name):
+            folder = f
+            break
+
     if folder:
         return FolderRead.model_validate(folder, from_attributes=True)
 
     try:
-        folder_obj = Folder(user_id=user_id, name=DEFAULT_FOLDER_NAME)
+        folder_obj = Folder(user_id=user_id, name=personalized_name)
         session.add(folder_obj)
         await session.commit()
         await session.refresh(folder_obj)
+
+        # Create Owner role assignment for the default folder
+        try:
+            owner_role = (await session.exec(select(Role).where(Role.name == "Owner"))).first()
+            if owner_role:
+                # Check if assignment already exists
+                existing_assignment = (await session.exec(
+                    select(UserRoleAssignment).where(
+                        UserRoleAssignment.user_id == user_id,
+                        UserRoleAssignment.role_id == owner_role.id,
+                        UserRoleAssignment.scope_type == "Project",
+                        UserRoleAssignment.scope_id == folder_obj.id
+                    )
+                )).first()
+
+                if not existing_assignment:
+                    assignment = UserRoleAssignment(
+                        user_id=user_id,
+                        role_id=owner_role.id,
+                        scope_type="Project",
+                        scope_id=folder_obj.id,
+                        is_immutable=True  # Starter Project ownership is immutable
+                    )
+                    session.add(assignment)
+                    await session.commit()
+                    logger.debug(f"Created immutable Owner role assignment for default folder {folder_obj.id}")
+            else:
+                logger.warning("Owner role not found - cannot assign to default folder")
+        except Exception as e:  # noqa: BLE001
+            logger.warning(f"Failed to assign Owner role to default folder: {e}")
+            # Don't fail folder creation if RBAC assignment fails
+
     except sa.exc.IntegrityError as e:
         # Another worker may have created the folder concurrently.
         await session.rollback()
-        result = await session.exec(stmt)
-        folder = result.first()
+        # Re-fetch all folders and find the Starter Project
+        result = await session.exec(select(Folder).where(Folder.user_id == user_id))
+        all_folders = result.all()
+        folder = None
+        for f in all_folders:
+            if is_starter_project(f.name):
+                folder = f
+                break
         if folder:
             return FolderRead.model_validate(folder, from_attributes=True)
         msg = "Failed to get or create default folder"

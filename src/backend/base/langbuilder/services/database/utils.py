@@ -16,20 +16,34 @@ if TYPE_CHECKING:
 async def initialize_database(*, fix_migration: bool = False) -> None:
     logger.debug("Initializing database")
     from langbuilder.services.deps import get_db_service
+    from sqlmodel import text
 
     database_service: DatabaseService = get_db_service()
+
+    # Check if this is a fresh database by looking for alembic_version table
+    is_fresh_database = False
     try:
-        if database_service.settings_service.settings.database_connection_retry:
-            await database_service.create_db_and_tables_with_retry()
-        else:
-            await database_service.create_db_and_tables()
-    except Exception as exc:
-        # if the exception involves tables already existing
-        # we can ignore it
-        if "already exists" not in str(exc):
-            msg = "Error creating DB and tables"
-            logger.exception(msg)
-            raise RuntimeError(msg) from exc
+        async with database_service.with_session() as session:
+            await session.exec(text("SELECT * FROM alembic_version"))
+    except Exception:
+        logger.debug("Fresh database detected - will use migrations to create tables")
+        is_fresh_database = True
+
+    # Only create tables if database already has migrations (not fresh)
+    # For fresh databases, migrations will handle table creation
+    if not is_fresh_database:
+        try:
+            if database_service.settings_service.settings.database_connection_retry:
+                await database_service.create_db_and_tables_with_retry()
+            else:
+                await database_service.create_db_and_tables()
+        except Exception as exc:
+            # if the exception involves tables already existing
+            # we can ignore it
+            if "already exists" not in str(exc):
+                msg = "Error creating DB and tables"
+                logger.exception(msg)
+                raise RuntimeError(msg) from exc
     try:
         await database_service.check_schema_health()
     except Exception as exc:

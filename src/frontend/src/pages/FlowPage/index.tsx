@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useBlocker, useParams } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { ForwardedIconComponent } from "@/components/common/genericIconComponent";
 import { useGetFlow } from "@/controllers/API/queries/flows/use-get-flow";
 import { useGetTypes } from "@/controllers/API/queries/flows/use-get-types";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
 import useSaveFlow from "@/hooks/flows/use-save-flow";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePermission } from "@/hooks/use-permission";
 import { SaveChangesModal } from "@/modals/saveChangesModal";
 import useAlertStore from "@/stores/alertStore";
 import { useTypesStore } from "@/stores/typesStore";
@@ -17,6 +20,12 @@ import Page from "./components/PageComponent";
 
 export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const types = useTypesStore((state) => state.types);
+  const { id } = useParams();
+
+  // Check UPDATE permission for this flow to determine read-only mode
+  const { canUpdate } = usePermission();
+  const { canUpdate: hasUpdatePermission } = canUpdate("Flow", id ?? "");
+  const isReadOnly = !hasUpdatePermission;
 
   useGetTypes({
     enabled: Object.keys(types).length <= 0,
@@ -36,7 +45,6 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const blocker = useBlocker(changesNotSaved || isBuilding);
 
   const setOnFlowPage = useFlowStore((state) => state.setOnFlowPage);
-  const { id } = useParams();
   const navigate = useCustomNavigate();
   const saveFlow = useSaveFlow();
 
@@ -159,15 +167,25 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
     <>
       <div className="flow-page-positioning">
         {currentFlow && (
-          <div className="flex h-full overflow-hidden">
-            <SidebarProvider width="17.5rem" defaultOpen={!isMobile}>
-              {!view && <FlowSidebarComponent isLoading={isLoading} />}
-              <main className="flex w-full overflow-hidden">
-                <div className="h-full w-full">
-                  <Page setIsLoading={setIsLoading} />
-                </div>
-              </main>
-            </SidebarProvider>
+          <div className="flex h-full flex-col overflow-hidden">
+            {isReadOnly && !view && (
+              <Alert className="m-4 mb-0 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950" data-testid="read-only-banner">
+                <ForwardedIconComponent name="Info" className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertDescription className="text-blue-900 dark:text-blue-100">
+                  You have read-only access to this flow. You can view and execute the flow, but editing requires Update permission.
+                </AlertDescription>
+              </Alert>
+            )}
+            <div className="flex h-full overflow-hidden">
+              <SidebarProvider width="17.5rem" defaultOpen={!isMobile}>
+                {!view && !isReadOnly && <FlowSidebarComponent isLoading={isLoading} />}
+                <main className="flex w-full overflow-hidden">
+                  <div className="h-full w-full">
+                    <Page setIsLoading={setIsLoading} view={view || isReadOnly} />
+                  </div>
+                </main>
+              </SidebarProvider>
+            </div>
           </div>
         )}
       </div>

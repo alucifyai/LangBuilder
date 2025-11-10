@@ -204,6 +204,8 @@ def session_fixture():
         poolclass=StaticPool,
     )
     try:
+        # Create all tables including RBAC tables for testing
+        # (Previously excluded RBAC tables, but Task 3.1 requires them)
         SQLModel.metadata.create_all(engine)
         with Session(engine) as session:
             yield session
@@ -215,12 +217,29 @@ def session_fixture():
 @pytest.fixture
 async def async_session():
     engine = create_async_engine("sqlite+aiosqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+
+    # Create all tables including RBAC tables for testing (Task 3.1)
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     async with AsyncSession(engine, expire_on_commit=False) as session:
         yield session
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
+
+
+@pytest.fixture
+async def client_session(client):
+    """
+    Provide a database session connected to the same database as the client.
+
+    This fixture is useful for integration tests that need to query the database
+    directly while also making API requests through the client.
+    """
+    from langbuilder.services.deps import get_db_service
+
+    db_service = get_db_service()
+    async with db_service.with_session() as session:
+        yield session
 
 
 class Config:
@@ -419,9 +438,9 @@ async def client_fixture(
             db_service = get_db_service()
             db_service.database_url = f"sqlite:///{db_path}"
             db_service.reload_engine()
-            return app, db_path
+            return app, db_path, db_dir
 
-        app, db_path = await asyncio.to_thread(init_app)
+        app, db_path, db_dir = await asyncio.to_thread(init_app)
         # app.dependency_overrides[get_session] = get_session_override
         async with (
             LifespanManager(app, startup_timeout=None, shutdown_timeout=None) as manager,
@@ -430,9 +449,11 @@ async def client_fixture(
             yield client
         # app.dependency_overrides.clear()
         monkeypatch.undo()
-        # clear the temp db
-        with suppress(FileNotFoundError):
+        # clear the temp db and directory
+        with suppress(FileNotFoundError, OSError):
             await anyio.Path(db_path).unlink()
+        with suppress(FileNotFoundError, OSError):
+            shutil.rmtree(db_dir, ignore_errors=True)
 
 
 @pytest.fixture

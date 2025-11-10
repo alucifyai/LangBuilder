@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from langbuilder.services.database.models.api_key.model import ApiKey
     from langbuilder.services.database.models.flow.model import Flow
     from langbuilder.services.database.models.folder.model import Folder
+    from langbuilder.services.database.models.rbac.user_role_assignment import UserRoleAssignment
     from langbuilder.services.database.models.variable.model import Variable
 
 
@@ -32,6 +33,7 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: datetime | None = Field(default=None, nullable=True)
+    default_project_id: UUIDstr | None = Field(default=None, nullable=True)
     api_keys: list["ApiKey"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "delete"},
@@ -44,7 +46,16 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     )
     folders: list["Folder"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "delete"},
+        sa_relationship_kwargs={
+            "cascade": "delete",
+            "foreign_keys": "Folder.user_id",
+        },
+    )
+    role_assignments: list["UserRoleAssignment"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={
+            "foreign_keys": "UserRoleAssignment.user_id"
+        }
     )
     optins: dict[str, Any] | None = Field(
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
@@ -69,6 +80,7 @@ class UserRead(SQLModel):
     create_at: datetime = Field()
     updated_at: datetime = Field()
     last_login_at: datetime | None = Field(nullable=True)
+    default_project_id: UUID | None = Field(default=None, nullable=True)
     optins: dict[str, Any] | None = Field(default=None)
 
 
@@ -79,4 +91,5 @@ class UserUpdate(SQLModel):
     is_active: bool | None = None
     is_superuser: bool | None = None
     last_login_at: datetime | None = None
+    default_project_id: UUID | None = None
     optins: dict[str, Any] | None = None

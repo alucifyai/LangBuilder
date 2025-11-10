@@ -1,5 +1,6 @@
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { usePermission } from "@/hooks/use-permission";
 import useAlertStore from "@/stores/alertStore";
 import type { FlowType } from "@/types/flow";
 import useDuplicateFlow from "../../hooks/use-handle-duplicate";
@@ -21,6 +22,10 @@ const DropdownComponent = ({
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const { handleDuplicate } = useDuplicateFlow({ flow: flowData });
+
+  // Check delete permission for this flow
+  const { canDelete } = usePermission();
+  const { canDelete: canDeleteFlow } = canDelete("Flow", flowData.id);
 
   const duplicateFlow = () => {
     handleDuplicate().then(() =>
@@ -86,21 +91,23 @@ const DropdownComponent = ({
         />
         Duplicate
       </DropdownMenuItem>
-      <DropdownMenuItem
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpenDelete(true);
-        }}
-        className="cursor-pointer text-destructive"
-        data-testid="btn_delete_dropdown_menu"
-      >
-        <ForwardedIconComponent
-          name="Trash2"
-          aria-hidden="true"
-          className="mr-2 h-4 w-4"
-        />
-        Delete
-      </DropdownMenuItem>
+      {canDeleteFlow && (
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenDelete(true);
+          }}
+          className="cursor-pointer text-destructive"
+          data-testid="btn_delete_dropdown_menu"
+        >
+          <ForwardedIconComponent
+            name="Trash2"
+            aria-hidden="true"
+            className="mr-2 h-4 w-4"
+          />
+          Delete
+        </DropdownMenuItem>
+      )}
     </>
   );
 };

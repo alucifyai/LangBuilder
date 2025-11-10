@@ -3,6 +3,7 @@ from .file import File
 from .flow import Flow
 from .folder import Folder
 from .message import MessageTable
+from .rbac import Permission, Role, RolePermission, UserRoleAssignment
 from .transactions import TransactionTable
 from .user import User
 from .variable import Variable
@@ -13,7 +14,11 @@ __all__ = [
     "Flow",
     "Folder",
     "MessageTable",
+    "Permission",
+    "Role",
+    "RolePermission",
     "TransactionTable",
     "User",
+    "UserRoleAssignment",
     "Variable",
 ]

@@ -20,6 +20,7 @@ from sqlmodel import and_, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langbuilder.api.utils import CurrentActiveUser, DbSession, cascade_delete_flow, remove_api_keys, validate_is_component
+from langbuilder.api.v1.rbac import get_rbac_service
 from langbuilder.api.v1.schemas import FlowListCreate
 from langbuilder.helpers.user import get_user_by_flow_id_or_endpoint_name
 from langbuilder.initial_setup.constants import STARTER_FOLDER_NAME
@@ -36,6 +37,7 @@ from langbuilder.services.database.models.flow.utils import get_webhook_componen
 from langbuilder.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langbuilder.services.database.models.folder.model import Folder
 from langbuilder.services.deps import get_settings_service
+from langbuilder.services.rbac.service import RBACService
 from langbuilder.utils.compression import compress_response
 
 # build router
@@ -157,9 +159,79 @@ async def create_flow(
     session: DbSession,
     flow: FlowCreate,
     current_user: CurrentActiveUser,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
+    """Create a new flow with Create permission check.
+
+    Task 3.2: Enforces Create permission on the parent project (folder) before allowing flow creation.
+    Users must have Create permission on the target project to create flows within it.
+    """
     try:
+        # Task 3.2: Check Create permission on parent project scope
+        # Determine the target folder/project for permission check
+        target_folder_id = flow.folder_id
+        if target_folder_id is None:
+            # If no folder specified, get the default folder
+            default_folder = (
+                await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id))
+            ).first()
+            if default_folder:
+                target_folder_id = default_folder.id
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Default project not found. Please create a project first."
+                )
+
+        # Check Create permission on the target project
+        can_create = await rbac_service.can_access(
+            user_id=current_user.id,
+            permission_name="Create",
+            scope_type="Project",
+            scope_id=target_folder_id,
+        )
+
+        if not can_create:
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to create flows in this project"
+            )
+
         db_flow = await _new_flow(session=session, flow=flow, user_id=current_user.id)
+        await session.flush()
+
+        # Assign Owner role to creator (Task 2.3: Default Role Assignments)
+        # Query for the Owner role
+        from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+        from langbuilder.services.database.models.folder.constants import is_starter_project
+        owner_role_stmt = select(Role).where(Role.name == "Owner")
+        owner_role_result = await session.exec(owner_role_stmt)
+        owner_role = owner_role_result.first()
+
+        if owner_role:
+            # Determine if this flow is in the user's Starter Project folder
+            # Only mark as immutable if it's the user's own Starter Project
+            is_immutable_assignment = False
+            if db_flow.folder_id:
+                folder = (await session.exec(
+                    select(Folder).where(Folder.id == db_flow.folder_id)
+                )).first()
+                if folder and is_starter_project(folder.name) and folder.user_id == current_user.id:
+                    is_immutable_assignment = True
+
+            # Create role assignment for the flow creator
+            assignment = UserRoleAssignment(
+                user_id=current_user.id,
+                role_id=owner_role.id,
+                scope_type="Flow",
+                scope_id=db_flow.id,
+                is_immutable=is_immutable_assignment,
+                created_by=current_user.id,
+            )
+            session.add(assignment)
+        else:
+            logger.warning(f"Owner role not found when creating flow {db_flow.id}")
+
         await session.commit()
         await session.refresh(db_flow)
 
@@ -188,6 +260,7 @@ async def read_flows(
     *,
     current_user: CurrentActiveUser,
     session: DbSession,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
     remove_example_flows: bool = False,
     components_only: bool = False,
     get_all: bool = True,
@@ -197,10 +270,13 @@ async def read_flows(
 ):
     """Retrieve a list of flows with pagination support.
 
+    Task 3.1: Now filters flows by Read permission using RBACService.
+    Only returns flows that the user has Read permission to access.
+
     Args:
         current_user (User): The current authenticated user.
         session (Session): The database session.
-        settings_service (SettingsService): The settings service.
+        rbac_service (RBACService): The RBAC service for permission checks.
         components_only (bool, optional): Whether to return only components. Defaults to False.
 
         get_all (bool, optional): Whether to return all flows without pagination. Defaults to True.
@@ -233,12 +309,8 @@ async def read_flows(
         if not folder_id:
             folder_id = default_folder_id
 
-        if auth_settings.AUTO_LOGIN:
-            stmt = select(Flow).where(
-                (Flow.user_id == None) | (Flow.user_id == current_user.id)  # noqa: E711
-            )
-        else:
-            stmt = select(Flow).where(Flow.user_id == current_user.id)
+        # Get all flows (no user_id pre-filter - rely on RBAC)
+        stmt = select(Flow)
 
         if remove_example_flows:
             stmt = stmt.where(Flow.folder_id != starter_folder_id)
@@ -253,6 +325,28 @@ async def read_flows(
                 flows = [flow for flow in flows if flow.is_component]
             if remove_example_flows and starter_folder_id:
                 flows = [flow for flow in flows if flow.folder_id != starter_folder_id]
+
+            # Task 3.1: Filter flows by Read permission
+            # Check each flow for Read permission and only return accessible flows
+            readable_flows = []
+            for flow in flows:
+                try:
+                    can_read = await rbac_service.can_access(
+                        user_id=current_user.id,
+                        permission_name="Read",
+                        scope_type="Flow",
+                        scope_id=flow.id,
+                    )
+                    if can_read:
+                        readable_flows.append(flow)
+                except Exception as e:
+                    # Log error but don't fail entire request
+                    logger.warning(f"Error checking Read permission for flow {flow.id}: {e}")
+                    # Skip this flow (fail closed)
+                    continue
+
+            flows = readable_flows
+
             if header_flows:
                 # Convert to FlowHeader objects and compress the response
                 flow_headers = [FlowHeader.model_validate(flow, from_attributes=True) for flow in flows]
@@ -263,13 +357,41 @@ async def read_flows(
 
         stmt = stmt.where(Flow.folder_id == folder_id)
 
-        import warnings
+        # Task 3.1: For paginated results, we need to filter by permission after fetching
+        # Get all flows for this folder first
+        flows_in_folder = (await session.exec(stmt)).all()
 
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
-            )
-            return await apaginate(session, stmt, params=params)
+        # Filter by Read permission
+        readable_flows = []
+        for flow in flows_in_folder:
+            try:
+                can_read = await rbac_service.can_access(
+                    user_id=current_user.id,
+                    permission_name="Read",
+                    scope_type="Flow",
+                    scope_id=flow.id,
+                )
+                if can_read:
+                    readable_flows.append(flow)
+            except Exception as e:
+                logger.warning(f"Error checking Read permission for flow {flow.id}: {e}")
+                continue
+
+        # For pagination, we need to manually handle it since we filtered after query
+        # This is a simplified approach for MVP
+        start_idx = (params.page - 1) * params.size
+        end_idx = start_idx + params.size
+        paginated_flows = readable_flows[start_idx:end_idx]
+
+        # Create a Page response manually
+        from fastapi_pagination import Page as PageResponse
+
+        return PageResponse(
+            items=paginated_flows,
+            total=len(readable_flows),
+            page=params.page,
+            size=params.size,
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -280,8 +402,26 @@ async def _read_flow(
     flow_id: UUID,
     user_id: UUID,
 ):
-    """Read a flow."""
+    """Read a flow with user_id filtering (pre-RBAC).
+
+    Use this function for endpoints without RBAC permission checks.
+    Filters by user_id for basic ownership-based access control.
+    """
     stmt = select(Flow).where(Flow.id == flow_id).where(Flow.user_id == user_id)
+
+    return (await session.exec(stmt)).first()
+
+
+async def _read_flow_by_id(
+    session: AsyncSession,
+    flow_id: UUID,
+):
+    """Read a flow by ID only (post-RBAC permission check).
+
+    Use this function after RBAC permission checks have passed.
+    Does not filter by user_id, allowing RBAC-granted cross-user access.
+    """
+    stmt = select(Flow).where(Flow.id == flow_id)
 
     return (await session.exec(stmt)).first()
 
@@ -292,11 +432,35 @@ async def read_flow(
     session: DbSession,
     flow_id: UUID,
     current_user: CurrentActiveUser,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
-    """Read a flow."""
-    if user_flow := await _read_flow(session, flow_id, current_user.id):
-        return user_flow
-    raise HTTPException(status_code=404, detail="Flow not found")
+    """Read a flow by ID with Read permission check.
+
+    Task 3.5: Enforces Read permission before returning flow details.
+    Permission inheritance: Checks flow-specific permission first, then falls back to
+    project-level permission if the flow belongs to a project the user has access to.
+    """
+    # Task 3.5: Check Read permission (with automatic project inheritance)
+    can_read = await rbac_service.can_access(
+        user_id=current_user.id,
+        permission_name="Read",
+        scope_type="Flow",
+        scope_id=flow_id,
+    )
+
+    if not can_read:
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to read this flow"
+        )
+
+    # After permission check passes, use _read_flow_by_id (allows RBAC-granted cross-user access)
+    flow = await _read_flow_by_id(session=session, flow_id=flow_id)
+
+    if not flow:
+        raise HTTPException(status_code=404, detail="Flow not found")
+
+    return flow
 
 
 @router.get("/public_flow/{flow_id}", response_model=FlowRead, status_code=200)
@@ -321,14 +485,34 @@ async def update_flow(
     flow_id: UUID,
     flow: FlowUpdate,
     current_user: CurrentActiveUser,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
-    """Update a flow."""
+    """Update a flow with Update permission check.
+
+    Task 3.3: Enforces Update permission before allowing flow modifications.
+    Users must have Update permission on the flow to modify it.
+    """
     settings_service = get_settings_service()
     try:
-        db_flow = await _read_flow(
+        # Task 3.3: Check Update permission before modifying flow
+        can_update = await rbac_service.can_access(
+            user_id=current_user.id,
+            permission_name="Update",
+            scope_type="Flow",
+            scope_id=flow_id,
+        )
+
+        if not can_update:
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to update this flow"
+            )
+
+        # Task 3.4 Fix: Use _read_flow_by_id after RBAC permission check
+        # This allows RBAC-granted cross-user access (e.g., Admin updating another user's flow)
+        db_flow = await _read_flow_by_id(
             session=session,
             flow_id=flow_id,
-            user_id=current_user.id,
         )
 
         if not db_flow:
@@ -388,12 +572,33 @@ async def delete_flow(
     session: DbSession,
     flow_id: UUID,
     current_user: CurrentActiveUser,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
-    """Delete a flow."""
-    flow = await _read_flow(
+    """Delete a flow with Delete permission check.
+
+    Task 3.4: Enforces Delete permission before allowing flow deletion.
+    Users must have Delete permission on the flow to delete it.
+    Only Admin and Owner roles have Delete permission per PRD.
+    """
+    # Task 3.4: Check Delete permission before deleting flow
+    can_delete = await rbac_service.can_access(
+        user_id=current_user.id,
+        permission_name="Delete",
+        scope_type="Flow",
+        scope_id=flow_id,
+    )
+
+    if not can_delete:
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to delete this flow"
+        )
+
+    # Task 3.4 Fix: Use _read_flow_by_id after RBAC permission check
+    # This allows RBAC-granted cross-user access (e.g., Admin deleting another user's flow)
+    flow = await _read_flow_by_id(
         session=session,
         flow_id=flow_id,
-        user_id=current_user.id,
     )
     if not flow:
         raise HTTPException(status_code=404, detail="Flow not found")
@@ -408,14 +613,80 @@ async def create_flows(
     session: DbSession,
     flow_list: FlowListCreate,
     current_user: CurrentActiveUser,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
-    """Create multiple new flows."""
+    """Create multiple new flows with Create permission check.
+
+    Task 3.2: Enforces Create permission on parent projects before allowing batch flow creation.
+    Users must have Create permission on each target project.
+    """
+    # Task 3.2: Check Create permission for each flow's target project
+    # Group flows by folder_id to minimize permission checks
+    flows_by_folder = {}
+    for flow in flow_list.flows:
+        folder_id = flow.folder_id
+        if folder_id is None:
+            # Get default folder if not specified
+            default_folder = (
+                await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id))
+            ).first()
+            if default_folder:
+                folder_id = default_folder.id
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Default project not found. Please create a project first."
+                )
+            flow.folder_id = folder_id
+
+        if folder_id not in flows_by_folder:
+            flows_by_folder[folder_id] = []
+        flows_by_folder[folder_id].append(flow)
+
+    # Check Create permission for each unique folder
+    for folder_id in flows_by_folder.keys():
+        can_create = await rbac_service.can_access(
+            user_id=current_user.id,
+            permission_name="Create",
+            scope_type="Project",
+            scope_id=folder_id,
+        )
+        if not can_create:
+            raise HTTPException(
+                status_code=403,
+                detail=f"You don't have permission to create flows in project {folder_id}"
+            )
+
     db_flows = []
     for flow in flow_list.flows:
         flow.user_id = current_user.id
         db_flow = Flow.model_validate(flow, from_attributes=True)
         session.add(db_flow)
         db_flows.append(db_flow)
+
+    # Flush to get flow IDs before creating assignments
+    await session.flush()
+
+    # Assign Owner role to creator for each flow (Task 2.3: Default Role Assignments)
+    from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+    owner_role_stmt = select(Role).where(Role.name == "Owner")
+    owner_role_result = await session.exec(owner_role_stmt)
+    owner_role = owner_role_result.first()
+
+    if owner_role:
+        for db_flow in db_flows:
+            assignment = UserRoleAssignment(
+                user_id=current_user.id,
+                role_id=owner_role.id,
+                scope_type="Flow",
+                scope_id=db_flow.id,
+                is_immutable=False,
+                created_by=current_user.id,
+            )
+            session.add(assignment)
+    else:
+        logger.warning("Owner role not found when creating batch flows")
+
     await session.commit()
     for db_flow in db_flows:
         await session.refresh(db_flow)
@@ -428,13 +699,46 @@ async def upload_file(
     session: DbSession,
     file: Annotated[UploadFile, File(...)],
     current_user: CurrentActiveUser,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
     folder_id: UUID | None = None,
 ):
-    """Upload flows from a file."""
+    """Upload flows from a file with Create permission check.
+
+    Task 3.2: Enforces Create permission on the target project before allowing flow upload.
+    """
     contents = await file.read()
     data = orjson.loads(contents)
     response_list = []
     flow_list = FlowListCreate(**data) if "flows" in data else FlowListCreate(flows=[FlowCreate(**data)])
+
+    # Task 3.2: Determine target folder and check Create permission
+    target_folder_id = folder_id
+    if target_folder_id is None:
+        # Get default folder if not specified
+        default_folder = (
+            await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME, Folder.user_id == current_user.id))
+        ).first()
+        if default_folder:
+            target_folder_id = default_folder.id
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail="Default project not found. Please create a project first."
+            )
+
+    # Check Create permission on target folder
+    can_create = await rbac_service.can_access(
+        user_id=current_user.id,
+        permission_name="Create",
+        scope_type="Project",
+        scope_id=target_folder_id,
+    )
+    if not can_create:
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to create flows in this project"
+        )
+
     # Now we set the user_id for all flows
     for flow in flow_list.flows:
         flow.user_id = current_user.id
@@ -444,6 +748,29 @@ async def upload_file(
         response_list.append(response)
 
     try:
+        # Flush to get flow IDs before creating assignments
+        await session.flush()
+
+        # Assign Owner role to creator for each uploaded flow (Task 2.3: Default Role Assignments)
+        from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+        owner_role_stmt = select(Role).where(Role.name == "Owner")
+        owner_role_result = await session.exec(owner_role_stmt)
+        owner_role = owner_role_result.first()
+
+        if owner_role:
+            for db_flow in response_list:
+                assignment = UserRoleAssignment(
+                    user_id=current_user.id,
+                    role_id=owner_role.id,
+                    scope_type="Flow",
+                    scope_id=db_flow.id,
+                    is_immutable=False,
+                    created_by=current_user.id,
+                )
+                session.add(assignment)
+        else:
+            logger.warning("Owner role not found when uploading flows")
+
         await session.commit()
         for db_flow in response_list:
             await session.refresh(db_flow)
@@ -472,27 +799,56 @@ async def delete_multiple_flows(
     flow_ids: list[UUID],
     user: CurrentActiveUser,
     db: DbSession,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
-    """Delete multiple flows by their IDs.
+    """Delete multiple flows by their IDs with Delete permission check.
+
+    Task 3.4: Enforces Delete permission before allowing batch flow deletion.
+    Users must have Delete permission on each flow to delete it.
+    Only Admin and Owner roles have Delete permission per PRD.
 
     Args:
         flow_ids (List[str]): The list of flow IDs to delete.
         user (User, optional): The user making the request. Defaults to the current active user.
         db (Session, optional): The database session.
+        rbac_service (RBACService): The RBAC service for permission checks.
 
     Returns:
         dict: A dictionary containing the number of flows deleted.
 
     """
     try:
+        # Task 3.4: Check Delete permission for each flow before deletion
         flows_to_delete = (
             await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)).where(Flow.user_id == user.id))
         ).all()
+
+        # Filter flows by Delete permission
+        authorized_flows = []
         for flow in flows_to_delete:
+            try:
+                can_delete = await rbac_service.can_access(
+                    user_id=user.id,
+                    permission_name="Delete",
+                    scope_type="Flow",
+                    scope_id=flow.id,
+                )
+                if can_delete:
+                    authorized_flows.append(flow)
+                else:
+                    logger.warning(f"User {user.id} lacks Delete permission for flow {flow.id}")
+            except Exception as e:
+                # Log error but don't fail entire request
+                logger.warning(f"Error checking Delete permission for flow {flow.id}: {e}")
+                # Skip this flow (fail closed)
+                continue
+
+        # Delete authorized flows
+        for flow in authorized_flows:
             await cascade_delete_flow(db, flow.id)
 
         await db.commit()
-        return {"deleted": len(flows_to_delete)}
+        return {"deleted": len(authorized_flows)}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -502,14 +858,40 @@ async def download_multiple_file(
     flow_ids: list[UUID],
     user: CurrentActiveUser,
     db: DbSession,
+    rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
 ):
-    """Download all flows as a zip file."""
-    flows = (await db.exec(select(Flow).where(and_(Flow.user_id == user.id, Flow.id.in_(flow_ids))))).all()  # type: ignore[attr-defined]
+    """Download all flows as a zip file with Read permission check.
+
+    Task 3.5: Enforces Read permission before allowing flow download.
+    Only flows with Read permission are included in the download.
+    """
+    # Task 3.5: Filter flows by Read permission
+    # First get all flows (without user_id filter to allow RBAC cross-user access)
+    flows = (await db.exec(select(Flow).where(Flow.id.in_(flow_ids)))).all()  # type: ignore[attr-defined]
 
     if not flows:
         raise HTTPException(status_code=404, detail="No flows found.")
 
-    flows_without_api_keys = [remove_api_keys(flow.model_dump()) for flow in flows]
+    # Filter by Read permission
+    readable_flows = []
+    for flow in flows:
+        try:
+            can_read = await rbac_service.can_access(
+                user_id=user.id,
+                permission_name="Read",
+                scope_type="Flow",
+                scope_id=flow.id,
+            )
+            if can_read:
+                readable_flows.append(flow)
+        except Exception as e:
+            logger.warning(f"Error checking Read permission for flow {flow.id}: {e}")
+            continue
+
+    if not readable_flows:
+        raise HTTPException(status_code=404, detail="No flows found with Read permission.")
+
+    flows_without_api_keys = [remove_api_keys(flow.model_dump()) for flow in readable_flows]
 
     if len(flows_without_api_keys) > 1:
         # Create a byte stream to hold the ZIP file

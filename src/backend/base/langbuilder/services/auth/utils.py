@@ -288,6 +288,10 @@ async def create_super_user(
     password: str,
     db: AsyncSession,
 ) -> User:
+    from sqlmodel import select
+
+    from langbuilder.services.database.models.rbac import Role, UserRoleAssignment
+
     super_user = await get_user_by_username(db, username)
 
     if not super_user:
@@ -303,6 +307,40 @@ async def create_super_user(
         try:
             await db.commit()
             await db.refresh(super_user)
+
+            # Assign Global Admin role to the newly created superuser
+            try:
+                # Get the Admin role
+                admin_role = (await db.exec(select(Role).where(Role.name == "Admin"))).first()
+
+                if admin_role:
+                    # Check if assignment already exists
+                    existing_assignment = (await db.exec(
+                        select(UserRoleAssignment).where(
+                            UserRoleAssignment.user_id == super_user.id,
+                            UserRoleAssignment.role_id == admin_role.id,
+                            UserRoleAssignment.scope_type == "Global"
+                        )
+                    )).first()
+
+                    if not existing_assignment:
+                        # Create Global Admin role assignment
+                        assignment = UserRoleAssignment(
+                            user_id=super_user.id,
+                            role_id=admin_role.id,
+                            scope_type="Global",
+                            scope_id=None,
+                            is_immutable=False
+                        )
+                        db.add(assignment)
+                        await db.commit()
+                        logger.debug(f"Assigned Global Admin role to superuser '{username}'")
+                else:
+                    logger.warning(f"Admin role not found - cannot assign to superuser '{username}'")
+            except Exception as e:  # noqa: BLE001
+                logger.warning(f"Failed to assign Global Admin role to superuser '{username}': {e}")
+                # Don't fail the superuser creation if RBAC assignment fails
+
         except IntegrityError:
             # Race condition - another worker created the user
             await db.rollback()
