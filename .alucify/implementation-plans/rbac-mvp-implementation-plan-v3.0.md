@@ -1197,23 +1197,23 @@ const readableFlows = flows.filter((f, i) => permissions.results[f.id])
 
 ---
 
-#### Task 3.2: Enforce Create Permission on Flow and Project Creation
+#### Task 3.2: Enforce Create Permission on Flow Creation
 
 **Scope and Goals:**
-Update flow and project creation endpoints to check Create permission before allowing creation. Check Create permission on the target project scope.
+Update flow creation endpoints to check Create permission before allowing creation. Check Create permission on the target project scope.
+
+**Note:** Project creation is intentionally excluded from this task. Per AppGraph node nl0042 and PRD Epic 1 Story 1.5, all authenticated users can create projects without additional permission checks.
 
 **Impact Subgraph:**
 - Modified Nodes:
   - `nl0004`: Create Flow Endpoint Handler (logic)
-  - `nl0003`: Create Project Endpoint Handler (logic)
-- Edges: Creation endpoints now check Create permission
+- Edges: Flow creation endpoints now check Create permission
 
 **Architecture & Tech Stack:**
 - Framework: FastAPI with RBACService dependency
 - Patterns: Permission check before operation
 - File Locations:
   - `/home/nick/LangBuilder/src/backend/base/langbuilder/api/v1/flows.py`
-  - `/home/nick/LangBuilder/src/backend/base/langbuilder/api/v1/projects.py`
 
 **Implementation Details:**
 
@@ -1240,10 +1240,10 @@ async def create_flow(
 ```
 
 **Success Criteria:**
-- Create endpoints reject requests without Create permission
+- Flow creation endpoints reject requests without Create permission
 - Error message clearly indicates permission issue
-- Unit tests verify permission check
-- Integration tests verify unauthorized users cannot create
+- Unit tests verify permission check for all flow creation endpoints (create_flow, create_flows, upload_file)
+- Integration tests verify unauthorized users cannot create flows
 
 ---
 
@@ -1305,9 +1305,11 @@ Update flow and project deletion endpoints to check Delete permission. Only Admi
 
 **Impact Subgraph:**
 - Modified Nodes:
-  - `nl0010`: Delete Flow Endpoint Handler (logic)
-  - `nl0009`: Delete Project Endpoint Handler (logic)
+  - `nl0010`: Delete Flow Endpoint Handler (logic) - `delete_flow` endpoint
+  - `nl0010`: Delete Multiple Flows Endpoint Handler (logic) - `delete_multiple_flows` batch endpoint
+  - `nl0009`: Delete Project Endpoint Handler (logic) - `delete_project` endpoint
 - Edges: Delete endpoints now check Delete permission
+- Note: Batch deletion endpoint filters flows by permission, allowing partial deletion (only deletes flows user has Delete permission for)
 
 **Architecture & Tech Stack:**
 - Framework: FastAPI with RBACService dependency
